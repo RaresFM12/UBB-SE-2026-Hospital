@@ -1,0 +1,19 @@
+@model IReadOnlyList<Hospital.Shared.Models.StaffPharmacy.Item>
+
+@{
+    ViewData["Title"] = "Pharmacy";
+}
+
+<h1 class="mb-4">Pharmacy</h1>
+
+<p class="text-secondary">Replace this starter list with the merged catalog, orders, and admin flows from 923-2.</p>
+
+<ul class="list-group">
+@foreach (var item in Model)
+{
+    <li class="list-group-item d-flex justify-content-between">
+        <span>@item.Name</span>
+        <span class="text-secondary">@item.Category</span>
+    </li>
+}
+</ul>

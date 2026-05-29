@@ -1,0 +1,114 @@
+<Page
+    x:Class="UBB_SE_2026_923_2.Views.Accounts.AdminAccountsManagementView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:UBB_SE_2026_923_2.Views.Accounts"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    xmlns:item="using:UBB_SE_2026_923_2.ViewModels.Accounts"
+    xmlns:conv="using:UBB_SE_2026_923_2.Converters">
+
+    <Page.Resources>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </Page.Resources>
+
+    <Grid Padding="20" Background="{StaticResource AppBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Spacing="10">
+
+            <TextBlock Text="Admin Dashboard"
+                       FontSize="24"
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource AppAccentBrush}"/>
+
+            <StackPanel Orientation="Horizontal" Spacing="10">
+
+                <TextBox Width="300"
+                         PlaceholderText="Search users..."
+                         Text="{Binding SearchQuery, Mode=TwoWay}"/>
+
+                <Button Content="Search" Click="OnSearchClick"/>
+
+            </StackPanel>
+
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource AppErrorBrush}"/>
+
+        </StackPanel>
+
+        <Border Grid.Row="1"
+                Background="{StaticResource AppSurfaceBrush}"
+                CornerRadius="12"
+                Padding="10">
+            <ListView 
+                ItemsSource="{Binding Users}"
+                Background="Transparent"
+                BorderThickness="0"
+                SelectionMode="None"
+                VerticalAlignment="Stretch"
+                HorizontalAlignment="Stretch">
+
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="item:UserItemViewModel">
+
+                        <Border Padding="12" 
+                                Margin="6"
+                                CornerRadius="10"
+                                Background="{StaticResource AppBackgroundBrush}"
+                                BorderThickness="0">
+
+                            <StackPanel Spacing="6">
+
+                                <TextBlock Text="{x:Bind Email}"
+                                           FontWeight="SemiBold"
+                                           FontSize="16"
+                                           Foreground="{StaticResource AppAccentBrush}"/>
+
+                                <TextBlock Text="{x:Bind Username}"
+                                           Foreground="{StaticResource AppTextSecondaryBrush}"/>
+
+                                <TextBlock Text="{x:Bind PhoneNumber}"
+                                           Foreground="{StaticResource AppTextSecondaryBrush}"/>
+
+                                <TextBlock Text="DISABLED"
+                                           Foreground="{StaticResource AppErrorBrush}"
+                                           FontWeight="Bold"
+                                           Visibility="{x:Bind ShowDisabledLabel, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                                <TextBlock Text="ADMIN"
+                                           Foreground="{StaticResource AppAccentBrush}"
+                                           FontWeight="Bold"
+                                           Visibility="{x:Bind ShowAdminLabel, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                                <TextBlock Text="ACTIVE"
+                                           Foreground="{StaticResource AppAccentBrush}"
+                                           FontWeight="Bold"
+                                           Visibility="{x:Bind ShowActiveLabel, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <CheckBox Content="Admin"
+                                              Foreground="{StaticResource AppAccentBrush}"
+                                              Visibility="{x:Bind ShowPromote, Converter={StaticResource BoolToVisibilityConverter}}"
+                                              Tapped="OnPromoteClick"/>
+
+                                    <Button Content="Disable Account"
+                                            Visibility="{x:Bind ShowDisable, Converter={StaticResource BoolToVisibilityConverter}}"
+                                            Click="OnDisableClick"/>
+
+                                </StackPanel>
+
+                            </StackPanel>
+                        </Border>
+
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+
+            </ListView>
+        </Border>
+
+    </Grid>
+</Page>

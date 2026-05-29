@@ -1,0 +1,27 @@
+@{
+    ViewData["Title"] = "Merge Dashboard";
+}
+
+<section class="py-5">
+    <div class="row g-4 align-items-start">
+        <div class="col-lg-7">
+            <span class="badge rounded-pill text-bg-dark mb-3">923-2 + 926-2</span>
+            <h1 class="display-5 fw-semibold">Unified hospital web shell</h1>
+            <p class="lead text-secondary">
+                This project is ready for the merged staff, ER, and patient-facing MVC flows.
+            </p>
+        </div>
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h2 class="h5">First landing zones</h2>
+                    <ul class="mb-0">
+                        <li><a asp-controller="Pharmacy" asp-action="Index">Pharmacy module</a></li>
+                        <li><a asp-controller="Patients" asp-action="Index">Patient module</a></li>
+                        <li>Merge role-based navigation into the shared layout</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

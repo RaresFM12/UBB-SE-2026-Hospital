@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hospital.Data\Hospital.Data.csproj" />
+    <ProjectReference Include="..\Hospital.Services\Hospital.Services.csproj" />
+    <ProjectReference Include="..\Hospital.Shared\Hospital.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>UBB_SE_2026_923_2.Tests</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <CodeAnalysisRuleSet>..\..\StyleCop.ruleset</CodeAnalysisRuleSet>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit.Analyzers" Version="3.9.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- All services and HTTP repositories now live in .Shared; reference it directly. -->
+    <ProjectReference Include="..\UBB-SE-2026-923-2.Data\UBB-SE-2026-923-2.Data.csproj" />
+    <ProjectReference Include="..\UBB-SE-2026-923-2.Shared\UBB-SE-2026-923-2.Shared.csproj" />
+  </ItemGroup>
+
+  <!-- A few desktop-side helpers still need to be linked in for tests that exercise
+       the WinUI BasketViewModel and the RelayCommand classes, since those types
+       remain in the desktop project. -->
+  <ItemGroup>
+    <Compile Include="..\UBB-SE-2026-923-2\ViewModels\Orders\BasketViewModel.cs" Link="LinkedSources\BasketViewModel.cs" />
+    <Compile Include="..\UBB-SE-2026-923-2\Command\RelayCommand.cs" Link="LinkedSources\RelayCommand.cs" />
+    <Compile Include="..\UBB-SE-2026-923-2\Command\RelayCommandWithOneParameter.cs" Link="LinkedSources\RelayCommandWithOneParameter.cs" />
+    <Compile Include="..\UBB-SE-2026-923-2\Command\AsyncRelayCommand.cs" Link="LinkedSources\AsyncRelayCommand.cs" />
+  </ItemGroup>
+
+</Project>

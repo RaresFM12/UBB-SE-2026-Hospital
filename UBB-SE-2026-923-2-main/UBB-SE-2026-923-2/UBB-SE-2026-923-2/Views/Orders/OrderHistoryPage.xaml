@@ -1,0 +1,168 @@
+<Page
+    x:Class="UBB_SE_2026_923_2.Views.Orders.OrderHistoryPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:model="using:UBB_SE_2026_923_2.Models"
+    xmlns:viewModel="using:UBB_SE_2026_923_2.ViewModels.Orders"
+    xmlns:local="using:UBB_SE_2026_923_2.Views.Orders"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    x:Name="PageRoot">
+
+    <Page.Resources>
+
+        <DataTemplate x:Key="CompletedTemplate" x:DataType="model:Order">
+            <Grid Padding="16" Background="{StaticResource AppSurfaceBrush}" CornerRadius="10" Margin="0,0,0,12" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock Text="{x:Bind IdString}" FontSize="16" FontWeight="Bold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="15" Margin="0,6,0,0">
+                        <TextBlock>
+                            <Run Text="Pick-up: " Foreground="{StaticResource AppTextSecondaryBrush}"/><Run Text="{x:Bind PickUpDateString}" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="Expires: " Foreground="{StaticResource AppTextSecondaryBrush}"/><Run Text="{x:Bind ExpirationDateString}" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                        </TextBlock>
+                        <TextBlock Text="Completed" Foreground="{StaticResource AppAccentBrush}" FontWeight="SemiBold"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="Details"
+                            Command="{Binding DataContext.GoToDetailPageCommand, ElementName=PageRoot}"
+                            CommandParameter="{Binding}"/>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ExpiredTemplate" x:DataType="model:Order">
+            <Grid Padding="16" Background="{StaticResource AppSurfaceBrush}" CornerRadius="10" Margin="0,0,0,12" BorderBrush="{StaticResource AppErrorBrush}" BorderThickness="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock Text="{x:Bind IdString}" FontSize="16" FontWeight="Bold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="15" Margin="0,6,0,0">
+                        <TextBlock>
+                            <Run Text="Pick-up: " Foreground="{StaticResource AppTextSecondaryBrush}"/><Run Text="{x:Bind PickUpDateString}" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="Expired: " Foreground="{StaticResource AppTextSecondaryBrush}"/><Run Text="{x:Bind ExpirationDateString}" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                        </TextBlock>
+                        <TextBlock Text="Expired" Foreground="{StaticResource AppErrorBrush}" FontWeight="SemiBold"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <Button Content="Details"
+                            Command="{Binding DataContext.GoToDetailPageCommand, ElementName=PageRoot}"
+                            CommandParameter="{Binding}"
+                            Background="Transparent"
+                            Foreground="{StaticResource AppAccentBrush}"
+                            BorderBrush="{StaticResource AppAccentBrush}"
+                            BorderThickness="1"/>
+                    <Button Content="Resubmit"
+                            Command="{Binding DataContext.ResubmitCommand, ElementName=PageRoot}"
+                            CommandParameter="{Binding}" 
+                            Background="{StaticResource AppErrorBrush}" 
+                            Foreground="White"/>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="IncompletedTemplate" x:DataType="model:Order">
+            <Grid Padding="16" Background="{StaticResource AppSurfaceBrush}" CornerRadius="10" Margin="0,0,0,12" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock Text="{x:Bind IdString}" FontSize="16" FontWeight="Bold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="15" Margin="0,6,0,0">
+                        <TextBlock>
+                            <Run Text="Pick-up: " Foreground="{StaticResource AppTextSecondaryBrush}"/><Run Text="{x:Bind PickUpDateString}" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="Expires: " Foreground="{StaticResource AppTextSecondaryBrush}"/><Run Text="{x:Bind ExpirationDateString}" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                        </TextBlock>
+                        <TextBlock Text="Incomplete (Pending)" Foreground="#D97706" FontWeight="SemiBold"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <Button Content="Details"
+                            Command="{Binding DataContext.GoToDetailPageCommand, ElementName=PageRoot}"
+                            CommandParameter="{Binding}"
+                            Background="Transparent"
+                            Foreground="{StaticResource AppAccentBrush}"
+                            BorderBrush="{StaticResource AppAccentBrush}"
+                            BorderThickness="1"/>
+                    <Button Content="Cancel Order"
+                            Command="{Binding DataContext.CancelCommand, ElementName=PageRoot}"
+                            CommandParameter="{Binding}" 
+                            Background="Transparent" 
+                            Foreground="{StaticResource AppErrorBrush}" 
+                            BorderBrush="{StaticResource AppErrorBrush}" 
+                            BorderThickness="1"/>
+                    <Button Content="Modify"
+                            Command="{Binding DataContext.ModifyCommand, ElementName=PageRoot}"
+                            CommandParameter="{Binding}"/>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+
+        <local:OrderTemplateSelector x:Key="OrderTemplateSelector"
+                                     CompletedTemplate="{StaticResource CompletedTemplate}"
+                                     ExpiredTemplate="{StaticResource ExpiredTemplate}"
+                                     IncompletedTemplate="{StaticResource IncompletedTemplate}"/>
+    </Page.Resources>
+
+    <Grid Padding="60, 30, 60, 30" 
+          RowDefinitions="Auto, *"
+          Background="{StaticResource AppBackgroundBrush}">
+
+        <Grid Grid.Row="0" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0"
+                       Text="Your Orders"
+                       FontSize="30"
+                       FontWeight="Bold"
+                       Foreground="{StaticResource AppAccentBrush}"
+                       VerticalAlignment="Center"/>
+
+            <CheckBox Grid.Column="1"
+                      Content="Show expired orders"
+                      IsChecked="{x:Bind ViewModel.IsExpiredCheckbox, Mode=TwoWay}"
+                      Foreground="{StaticResource AppTextPrimaryBrush}"
+                      VerticalAlignment="Center"/>
+        </Grid>
+
+        <ListView Grid.Row="1"
+                  x:Name="OrderListView"
+                  ItemsSource="{x:Bind ViewModel.OrderHistory}"
+                  ItemTemplateSelector="{StaticResource OrderTemplateSelector}"
+                  SelectionMode="None">
+
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="Margin" Value="0"/>
+                </Style>
+            </ListView.ItemContainerStyle>
+        </ListView>
+
+    </Grid>
+</Page>

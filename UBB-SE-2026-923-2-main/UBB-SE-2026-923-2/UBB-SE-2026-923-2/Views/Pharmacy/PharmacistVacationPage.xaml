@@ -1,0 +1,53 @@
+<Page
+    x:Class="UBB_SE_2026_923_2.Views.Pharmacy.PharmacistVacationPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{StaticResource AppBackgroundBrush}" Padding="24">
+        <Border Background="{StaticResource AppSurfaceBrush}"
+                BorderBrush="{StaticResource AppAccentBrush}"
+                BorderThickness="1"
+                CornerRadius="14"
+                Padding="20"
+                Width="460"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top">
+            <StackPanel Spacing="14">
+                <TextBlock Text="Pharmacist Vacation Window"
+                           Foreground="{StaticResource AppAccentBrush}"
+                           FontSize="28"
+                           FontWeight="SemiBold"/>
+
+                <TextBlock Text="Select a pharmacist and date range to add a VACATION shift."
+                           Foreground="{StaticResource AppTextSecondaryBrush}"
+                           TextWrapping="Wrap"/>
+
+                <ComboBox x:Name="PharmacistComboBox"
+                          Header="Pharmacist"
+                          PlaceholderText="Select pharmacist"
+                          DisplayMemberPath="DisplayName"
+                          HorizontalAlignment="Stretch"/>
+
+                <CalendarDatePicker x:Name="StartDatePicker"
+                                    Header="Start date"
+                                    HorizontalAlignment="Stretch"/>
+
+                <CalendarDatePicker x:Name="EndDatePicker"
+                                    Header="End date"
+                                    HorizontalAlignment="Stretch"/>
+
+                <Button Content="Add Vacation Shift"
+                        Click="AddVacationShift_Click"
+                        HorizontalAlignment="Stretch"
+                        Margin="0,10,0,0"/>
+
+                <InfoBar x:Name="StatusInfoBar"
+                         IsOpen="False"
+                         IsClosable="True"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

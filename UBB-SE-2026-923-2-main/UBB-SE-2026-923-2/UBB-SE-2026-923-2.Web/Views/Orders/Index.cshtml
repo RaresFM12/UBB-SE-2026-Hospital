@@ -1,0 +1,208 @@
+@model OrdersIndexViewModel
+@{
+    ViewData["Title"] = "Order History";
+}
+
+<style>
+    .order-history-page {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 16px 0 32px;
+    }
+
+    .order-history-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .order-history-title {
+        margin: 0;
+        color: #1f4f46;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .order-history-subtitle {
+        margin: 6px 0 0;
+        color: #52615d;
+    }
+
+    .order-history-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #263633;
+        font-weight: 500;
+        padding-top: 8px;
+    }
+
+    .order-history-list {
+        display: grid;
+        gap: 14px;
+    }
+
+    .order-card {
+        border: 1px solid #c9d8d4;
+        border-left: 5px solid #2f6f5e;
+        border-radius: 8px;
+        background: #ffffff;
+        padding: 18px;
+        box-shadow: 0 8px 24px rgba(17, 24, 39, 0.06);
+    }
+
+    .order-card.expired {
+        border-left-color: #dc2626;
+    }
+
+    .order-card.completed {
+        border-left-color: #10b981;
+    }
+
+    .order-card-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+    }
+
+    .order-number {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .order-status {
+        border-radius: 999px;
+        padding: 5px 12px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .order-status.completed {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .order-status.expired {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .order-meta {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+        margin: 0 0 16px;
+    }
+
+    .order-meta dt {
+        color: #64748b;
+        font-size: 0.82rem;
+        margin-bottom: 2px;
+    }
+
+    .order-meta dd {
+        margin: 0;
+        color: #111827;
+        font-weight: 600;
+    }
+
+    .order-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .empty-orders {
+        border: 1px dashed #b6c7c2;
+        border-radius: 8px;
+        padding: 32px;
+        text-align: center;
+        color: #64748b;
+        background: #f8fbfa;
+    }
+</style>
+
+<section class="order-history-page">
+    <div class="order-history-header">
+        <div>
+            <h1 class="order-history-title">Your Orders</h1>
+            <p class="order-history-subtitle">Review your client order history and manage active orders.</p>
+        </div>
+
+        <form asp-action="Index" method="get">
+            <label class="order-history-toggle">
+                <input type="checkbox"
+                       name="showExpiredOnly"
+                       value="true"
+                       checked="@Model.ShowExpiredOnly"
+                       onchange="this.form.submit()" />
+                Show only expired orders
+            </label>
+        </form>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+    {
+        <div class="alert alert-success">@Model.SuccessMessage</div>
+    }
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+
+    @if (!Model.Orders.Any())
+    {
+        <div class="empty-orders">No orders found.</div>
+    }
+    else
+    {
+        <div class="order-history-list">
+            @foreach (OrderListItemViewModel order in Model.Orders)
+            {
+                string stateClass = order.IsExpired ? "expired" : order.IsCompleted ? "completed" : "pending";
+
+                <article class="order-card @stateClass">
+                    <div class="order-card-top">
+                        <div class="order-number">Order #@order.Id</div>
+                        <span class="order-status @stateClass">@order.Status</span>
+                    </div>
+
+                    <dl class="order-meta">
+                        <div>
+                            <dt>Pickup date</dt>
+                            <dd>@order.PickUpDateString</dd>
+                        </div>
+                        <div>
+                            <dt>Expiration date</dt>
+                            <dd>@order.ExpirationDateString</dd>
+                        </div>
+                    </dl>
+
+                    <div class="order-actions">
+                        <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-outline-secondary btn-sm">Details</a>
+
+                        @if (!order.IsCompleted && !order.IsExpired)
+                        {
+                            <a asp-action="Edit" asp-route-id="@order.Id" class="btn btn-primary btn-sm">Modify</a>
+                            <a asp-action="Delete" asp-route-id="@order.Id" class="btn btn-outline-danger btn-sm">Cancel Order</a>
+                        }
+
+                        @if (order.IsExpired)
+                        {
+                            <a asp-action="Resubmit" asp-route-id="@order.Id" class="btn btn-primary btn-sm">Resubmit</a>
+                        }
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>

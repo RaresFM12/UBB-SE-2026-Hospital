@@ -1,0 +1,96 @@
+﻿<Page
+    x:Class="UBB_SE_2026_923_2.Views.MySchedulePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{StaticResource AppBackgroundBrush}" Padding="24">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="16"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0"
+                Background="{StaticResource AppSurfaceBrush}"
+                BorderBrush="{StaticResource AppAccentBrush}"
+                BorderThickness="1"
+                CornerRadius="12"
+                Padding="16">
+            <StackPanel Spacing="10">
+                <TextBlock Text="My Future Shifts"
+                           Foreground="{StaticResource AppAccentBrush}"
+                           FontSize="24"
+                           FontWeight="SemiBold"/>
+
+                <TextBlock Text="Select doctor (test mode)"
+                           Foreground="{StaticResource AppTextSecondaryBrush}"/>
+
+                <ComboBox ItemsSource="{Binding Doctors}"
+                          SelectedItem="{Binding SelectedDoctor, Mode=TwoWay}"
+                          DisplayMemberPath="DisplayName"
+                          PlaceholderText="Select doctor"
+                          HorizontalAlignment="Stretch"/>
+
+                <ListView ItemsSource="{Binding FutureShifts}"
+                          SelectedItem="{Binding SelectedShift, Mode=TwoWay}"
+                          Background="Transparent"
+                          MinHeight="300">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="{StaticResource AppAccentBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="10"
+                                    Margin="0,0,0,8"
+                                    Background="{StaticResource AppBackgroundBrush}">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding DateText}" Foreground="{StaticResource AppTextPrimaryBrush}" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding TimeRangeText}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding LocationText}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding Status}" Foreground="{StaticResource AppAccentBrush}" FontWeight="Bold"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Column="2"
+                Background="{StaticResource AppSurfaceBrush}"
+                BorderBrush="{StaticResource AppAccentBrush}"
+                BorderThickness="1"
+                CornerRadius="12"
+                Padding="16"
+                VerticalAlignment="Top">
+            <StackPanel Spacing="12">
+                <TextBlock Text="Request Shift Swap"
+                           Foreground="{StaticResource AppAccentBrush}"
+                           FontSize="24"
+                           FontWeight="SemiBold"/>
+
+                <TextBlock Text="Choose colleague (same role/profile)"
+                           Foreground="{StaticResource AppTextSecondaryBrush}"/>
+
+                <ComboBox ItemsSource="{Binding EligibleColleagues}"
+                          SelectedItem="{Binding SelectedColleague, Mode=TwoWay}"
+                          DisplayMemberPath="DisplayName"
+                          PlaceholderText="Select colleague"
+                          HorizontalAlignment="Stretch"/>
+
+                <Button Content="Request Swap"
+                        Command="{Binding RequestSwapCommand}"
+                        HorizontalAlignment="Stretch"
+                        Margin="0,10,0,0"/>
+
+                <InfoBar IsOpen="True"
+                         IsClosable="False"
+                         Severity="Informational"
+                         Message="{Binding StatusMessage}" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

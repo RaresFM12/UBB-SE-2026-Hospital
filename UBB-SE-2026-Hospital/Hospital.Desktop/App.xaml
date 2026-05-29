@@ -1,0 +1,9 @@
+<Application
+    x:Class="Hospital.Desktop.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <Color x:Key="HospitalAccentColor">#006A6A</Color>
+        <SolidColorBrush x:Key="HospitalAccentBrush" Color="{StaticResource HospitalAccentColor}" />
+    </Application.Resources>
+</Application>

@@ -1,0 +1,88 @@
+﻿<Page
+    x:Class="UBB_SE_2026_923_2.Views.Admin.AppointmentsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:models="using:UBB_SE_2026_923_2.Models">
+
+    <Grid Padding="24" ColumnSpacing="20" Background="{StaticResource AppBackgroundBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="350"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Background="{StaticResource AppSurfaceBrush}" 
+                BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" 
+                CornerRadius="12" Padding="20" VerticalAlignment="Top">
+            <StackPanel Spacing="15">
+                <TextBlock Text="New Appointment" Foreground="{StaticResource AppAccentBrush}" 
+                           FontSize="24" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+                <ComboBox x:Name="DoctorComboBox" Header="Select Doctor" 
+                          PlaceholderText="Choose a doctor" HorizontalAlignment="Stretch"
+                          ItemsSource="{Binding Doctors}"
+                          DisplayMemberPath="DoctorName"
+                          SelectedValuePath="DoctorId"/>
+
+                <TextBox x:Name="PatientIdTextBox" Header="Patient ID (External Ref)" 
+                         PlaceholderText="e.g. PAT-98765"/>
+
+                <CalendarDatePicker x:Name="AppointmentDatePicker" Header="Date" 
+                                    HorizontalAlignment="Stretch"/>
+
+                <TimePicker x:Name="AppointmentTimePicker" Header="Time" 
+                            HorizontalAlignment="Stretch"/>
+
+                <Button Content="Book Appointment" Click="BookAppointment_Click"
+                        HorizontalAlignment="Stretch" Margin="0,10,0,0"/>
+
+                <InfoBar x:Name="StatusInfoBar" IsOpen="False" IsClosable="True" Margin="0,10,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Column="1" Background="{StaticResource AppSurfaceBrush}" 
+              BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" 
+              CornerRadius="12" Padding="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="20" Margin="0,0,0,20">
+                <TextBlock Text="Doctor's Schedule" Foreground="{StaticResource AppAccentBrush}" 
+                           FontSize="24" FontWeight="SemiBold" VerticalAlignment="Center"/>
+
+                <ComboBox x:Name="FilterDoctorComboBox" PlaceholderText="Filter by Doctor" 
+                          Width="250" SelectionChanged="FilterDoctorComboBox_SelectionChanged"
+                          ItemsSource="{Binding Doctors}"
+                          DisplayMemberPath="DoctorName"
+                          SelectedValuePath="DoctorId"/>
+            </StackPanel>
+
+            <ListView Grid.Row="1" x:Name="AppointmentsListView" SelectionMode="None" ItemsSource="{Binding AppointmentsList}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="15" Margin="0,0,0,10" Background="{StaticResource AppBackgroundBrush}" CornerRadius="8" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Text="{Binding PatientName}" FontWeight="Bold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                                <TextBlock Text="{Binding Date}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                                <TextBlock Text="{Binding Status}" Foreground="{StaticResource AppAccentBrush}" FontWeight="SemiBold"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                                <Button Content="View details" Click="ViewDetails_Click" Tag="{Binding}"
+                                        Background="#0288D1"/>
+                                <Button Content="Cancel" Click="CancelAppointment_Click" Tag="{Binding}"
+                                        Background="#DC2626"/>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+    </Grid>
+</Page>

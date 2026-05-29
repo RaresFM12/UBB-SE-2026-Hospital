@@ -1,0 +1,16 @@
+@model IReadOnlyList<Hospital.Shared.Models.PatientEr.Patient>
+
+@{
+    ViewData["Title"] = "Patients";
+}
+
+<h1 class="mb-4">Patients</h1>
+
+<p class="text-secondary">Replace this starter list with the merged patient and ER screens from 926-2.</p>
+
+<ul class="list-group">
+@foreach (var patient in Model)
+{
+    <li class="list-group-item">@patient.FirstName @patient.LastName</li>
+}
+</ul>

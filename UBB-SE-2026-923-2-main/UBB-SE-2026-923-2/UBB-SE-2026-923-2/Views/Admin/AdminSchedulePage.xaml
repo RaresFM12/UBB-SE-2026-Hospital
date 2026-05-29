@@ -1,0 +1,134 @@
+<Page
+    x:Class="UBB_SE_2026_923_2.Views.Admin.AdminSchedulePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:models="using:UBB_SE_2026_923_2.Models"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Padding="24" RowSpacing="20" Background="{StaticResource AppBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Spacing="6">
+                <TextBlock Text="Shift Management" Foreground="{StaticResource AppAccentBrush}"
+                           FontSize="28" FontWeight="SemiBold"/>
+                <TextBlock Text="{x:Bind AdminShiftViewModel.ScheduleTitle, Mode=OneWay}"
+                           Foreground="{StaticResource AppTextSecondaryBrush}" FontSize="14"/>
+            </StackPanel>
+
+            <Button Grid.Column="1" Content="Create Shift"
+                    Click="CreateShift_Click"
+                    Background="#0288D1"
+                    VerticalAlignment="Center"
+                    MinWidth="140"/>
+
+            <Button Grid.Column="2" Content="Compute Salary"
+                    Click="ComputeSalary_Click"
+                    Background="#16A34A"
+                    VerticalAlignment="Center"
+                    MinWidth="150"/>
+        </Grid>
+
+        <Grid Grid.Row="1" ColumnSpacing="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" MinWidth="360"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Background="{StaticResource AppSurfaceBrush}" 
+                BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" 
+                CornerRadius="12" Padding="20" VerticalAlignment="Top">
+            <StackPanel Spacing="20">
+                <TextBlock Text="Filters" Foreground="{StaticResource AppAccentBrush}"
+                           FontSize="24" FontWeight="SemiBold"/>
+
+                <CalendarDatePicker x:Name="ShiftDatePicker"
+                                    Header="Shift Date"
+                                    DateChanged="ShiftDatePicker_DateChanged"
+                                    HorizontalAlignment="Stretch"/>
+
+                <InfoBar x:Name="StatusInfoBar" IsOpen="False" IsClosable="True" Margin="0,10,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Column="1" Background="{StaticResource AppSurfaceBrush}" 
+              BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" 
+              CornerRadius="12" Padding="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" ColumnSpacing="12" Padding="12,0,12,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="70"/>
+                    <ColumnDefinition Width="170"/>
+                    <ColumnDefinition Width="130"/>
+                    <ColumnDefinition Width="180"/>
+                    <ColumnDefinition Width="180"/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="360"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="ID" Foreground="{StaticResource AppTextSecondaryBrush}" FontWeight="SemiBold"/>
+                <TextBlock Grid.Column="1" Text="Staff Name" Foreground="{StaticResource AppTextSecondaryBrush}" FontWeight="SemiBold"/>
+                <TextBlock Grid.Column="2" Text="Location" Foreground="{StaticResource AppTextSecondaryBrush}" FontWeight="SemiBold"/>
+                <TextBlock Grid.Column="3" Text="Start Time" Foreground="{StaticResource AppTextSecondaryBrush}" FontWeight="SemiBold"/>
+                <TextBlock Grid.Column="4" Text="End Time" Foreground="{StaticResource AppTextSecondaryBrush}" FontWeight="SemiBold"/>
+                <TextBlock Grid.Column="5" Text="Status" Foreground="{StaticResource AppTextSecondaryBrush}" FontWeight="SemiBold"/>
+                <TextBlock Grid.Column="6" Text="Actions" Foreground="{StaticResource AppTextSecondaryBrush}" FontWeight="SemiBold"/>
+            </Grid>
+
+            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <ListView ItemsSource="{x:Bind AdminShiftViewModel.Shifts, Mode=OneWay}" SelectionMode="None" MinWidth="1210">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Shift">
+                            <Border Margin="0,0,0,8" Background="{StaticResource AppBackgroundBrush}"
+                                    BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1"
+                                    CornerRadius="8">
+                                <Grid Padding="12" ColumnSpacing="12" MinHeight="58">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="70"/>
+                                        <ColumnDefinition Width="170"/>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="180"/>
+                                        <ColumnDefinition Width="180"/>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="360"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Column="0" Text="{x:Bind Id}" Foreground="{StaticResource AppTextPrimaryBrush}" VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                        <TextBlock Text="{x:Bind AppointedStaff.FirstName}" Foreground="{StaticResource AppTextPrimaryBrush}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{x:Bind AppointedStaff.LastName}" Foreground="{StaticResource AppTextPrimaryBrush}" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="2" Text="{x:Bind Location}" Foreground="{StaticResource AppTextPrimaryBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="3" Text="{x:Bind StartTime}" Foreground="{StaticResource AppTextPrimaryBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="4" Text="{x:Bind EndTime}" Foreground="{StaticResource AppTextPrimaryBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="5" Text="{x:Bind Status}" Foreground="#15803D" FontWeight="SemiBold" VerticalAlignment="Center"/>
+
+                                    <StackPanel Grid.Column="6" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                        <Button Content="Set Active" Click="SetActive_Click" Tag="{x:Bind Id}" Background="#16A34A"/>
+                                        <Button Content="Cancel" Click="CancelShift_Click" Tag="{x:Bind Id}" Background="#DC2626"/>
+                                        <Button Content="Auto-Reassign" Click="AutoReassign_Click" Tag="{x:Bind}" Background="#0288D1"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </ScrollViewer>
+        </Grid>
+        </Grid>
+    </Grid>
+</Page>

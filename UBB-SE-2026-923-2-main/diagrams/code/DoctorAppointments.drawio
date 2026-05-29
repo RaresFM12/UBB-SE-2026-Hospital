@@ -1,0 +1,209 @@
+<?xml version="1.0" ?>
+<mxfile host="app.diagrams.net" agent="DoctorAppointments-Alex" version="22.1.0" type="device">
+  <diagram id="main" name="Doctor Appointments">
+    <mxGraphModel dx="1500" dy="950" grid="1" gridSize="10" guides="1" connect="0" arrows="1" page="1" pageScale="1" pageWidth="1296" pageHeight="834" background="#ffffff">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Doctor Appointments [Alex]" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=15;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="36" y="10" width="1224" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="p0" value="User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="80" y="52" width="30" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="ln0" style="endArrow=none;dashed=1;html=1;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="100" y="128" as="sourcePoint"/>
+            <mxPoint x="100" y="784" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1" value="DoctorAppointmentsView" style="rounded=0;whiteSpace=wrap;html=1;align=center;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="186" y="52" width="128" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="ln1" style="endArrow=none;dashed=1;html=1;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="250" y="128" as="sourcePoint"/>
+            <mxPoint x="250" y="784" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2" value="DoctorAppointmentsController" style="rounded=0;whiteSpace=wrap;html=1;align=center;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="336" y="52" width="128" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="ln2" style="endArrow=none;dashed=1;html=1;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="400" y="128" as="sourcePoint"/>
+            <mxPoint x="400" y="784" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p3" value="DoctorAppointmentService" style="rounded=0;whiteSpace=wrap;html=1;align=center;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="486" y="52" width="128" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="ln3" style="endArrow=none;dashed=1;html=1;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="550" y="128" as="sourcePoint"/>
+            <mxPoint x="550" y="784" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p4" value="HttpAppointmentRepository" style="rounded=0;whiteSpace=wrap;html=1;align=center;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="636" y="52" width="128" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="ln4" style="endArrow=none;dashed=1;html=1;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="700" y="128" as="sourcePoint"/>
+            <mxPoint x="700" y="784" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p5" value="AppointmentsController" style="rounded=0;whiteSpace=wrap;html=1;align=center;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="786" y="52" width="128" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="ln5" style="endArrow=none;dashed=1;html=1;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="850" y="128" as="sourcePoint"/>
+            <mxPoint x="850" y="784" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p6" value="AppointmentRepository" style="rounded=0;whiteSpace=wrap;html=1;align=center;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="936" y="52" width="128" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="ln6" style="endArrow=none;dashed=1;html=1;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1000" y="128" as="sourcePoint"/>
+            <mxPoint x="1000" y="784" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p7" value="HospitalDatabase" style="rounded=0;whiteSpace=wrap;html=1;align=center;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="1086" y="52" width="128" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="ln7" style="endArrow=none;dashed=1;html=1;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1150" y="128" as="sourcePoint"/>
+            <mxPoint x="1150" y="784" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m0" value="fill form and submit Create" style="html=1;verticalAlign=bottom;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;rounded=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="100" y="162" as="sourcePoint"/>
+            <mxPoint x="250" y="162" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m1" value="POST Create(DoctorAppointmentCreateViewModel)" style="html=1;verticalAlign=bottom;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;rounded=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="250" y="208" as="sourcePoint"/>
+            <mxPoint x="400" y="208" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m2" value="Validate input" style="html=1;align=left;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=6;rounded=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="434" y="254" as="sourcePoint"/>
+            <Array as="points">
+              <mxPoint x="434" y="284"/>
+            </Array>
+            <mxPoint x="400" y="284" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m3" value="CreateAppointmentAsync(patientName, doctorId, date, startTime)" style="html=1;verticalAlign=bottom;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;rounded=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="400" y="312" as="sourcePoint"/>
+            <mxPoint x="550" y="312" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m4" value="EnsureDoctorIsBookableAsync(doctorId, date, startTime)" style="html=1;align=left;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=6;rounded=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="584" y="358" as="sourcePoint"/>
+            <Array as="points">
+              <mxPoint x="584" y="388"/>
+            </Array>
+            <mxPoint x="550" y="388" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m5" value="build Appointment (PatientName, Doctor, Date, Status)" style="html=1;align=left;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=6;rounded=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="584" y="416" as="sourcePoint"/>
+            <Array as="points">
+              <mxPoint x="584" y="446"/>
+            </Array>
+            <mxPoint x="550" y="446" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m6" value="PersistAppointmentAsync → AddAppointmentAsync(...)" style="html=1;verticalAlign=bottom;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;rounded=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="550" y="474" as="sourcePoint"/>
+            <mxPoint x="700" y="474" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m7" value="POST api/appointments" style="html=1;verticalAlign=bottom;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;rounded=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="700" y="520" as="sourcePoint"/>
+            <mxPoint x="850" y="520" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m8" value="AddAppointmentAsync(patientId, doctorId, startTime, endTime, status)" style="html=1;verticalAlign=bottom;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;rounded=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="850" y="566" as="sourcePoint"/>
+            <mxPoint x="1000" y="566" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m9" value="SELECT FROM Doctors" style="html=1;verticalAlign=bottom;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;rounded=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1000" y="612" as="sourcePoint"/>
+            <mxPoint x="1150" y="612" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m10" value="doctor row" style="html=1;verticalAlign=bottom;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;rounded=0;dashed=1;dashPattern=8 4;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1150" y="658" as="sourcePoint"/>
+            <mxPoint x="1000" y="658" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m11" value="INSERT INTO Appointments" style="html=1;verticalAlign=bottom;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;rounded=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1000" y="726" as="sourcePoint"/>
+            <mxPoint x="1150" y="726" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m12" value="Success" style="html=1;verticalAlign=bottom;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;rounded=0;dashed=1;dashPattern=8 4;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1150" y="772" as="sourcePoint"/>
+            <mxPoint x="1000" y="772" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m13" value="void" style="html=1;verticalAlign=bottom;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;rounded=0;dashed=1;dashPattern=8 4;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1000" y="794" as="sourcePoint"/>
+            <mxPoint x="850" y="794" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m14" value="NoContent()" style="html=1;verticalAlign=bottom;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;rounded=0;dashed=1;dashPattern=8 4;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="850" y="816" as="sourcePoint"/>
+            <mxPoint x="700" y="816" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m15" value="void" style="html=1;verticalAlign=bottom;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;rounded=0;dashed=1;dashPattern=8 4;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="700" y="838" as="sourcePoint"/>
+            <mxPoint x="550" y="838" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m16" value="void" style="html=1;verticalAlign=bottom;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;rounded=0;dashed=1;dashPattern=8 4;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="550" y="860" as="sourcePoint"/>
+            <mxPoint x="400" y="860" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m17" value="RedirectToAction(Index, doctorId)" style="html=1;verticalAlign=bottom;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;rounded=0;dashed=1;dashPattern=8 4;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="400" y="882" as="sourcePoint"/>
+            <mxPoint x="250" y="882" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m18" value="display Index" style="html=1;verticalAlign=bottom;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;rounded=0;dashed=1;dashPattern=8 4;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="250" y="904" as="sourcePoint"/>
+            <mxPoint x="100" y="904" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

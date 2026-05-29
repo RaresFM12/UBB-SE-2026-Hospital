@@ -1,0 +1,47 @@
+@model UBB_SE_2026_923_2.Web.ViewModels.NotificationsIndexViewModel
+@{
+    ViewData["Title"] = "Notifications";
+}
+
+<div class="container mt-4">
+    <div class="mx-auto" style="max-width: 500px;">
+
+        @if (!Model.Notifications.Any())
+        {
+            <div class="text-center py-5">
+                <p class="text-muted fs-5">You have no notifications at this time.</p>
+            </div>
+        }
+        else
+        {
+            foreach (var notification in Model.Notifications)
+            {
+                <div class="border rounded-3 p-4 mb-3 shadow-sm"
+                     style="border-color: #0d6efd !important;">
+                    <div class="d-flex flex-column gap-3">
+                        <span class="fw-semibold fs-5 text-primary">@notification.Title</span>
+                        <span class="text-dark">@notification.Body</span>
+                        @if (!string.IsNullOrWhiteSpace(notification.ActionButtonText))
+                        {
+                            @if (notification.ActionButtonText.ToLower().Contains("product"))
+                            {
+                                <a asp-controller="ProductCatalogue" asp-action="Index"
+                                   class="btn btn-secondary align-self-start mt-2">
+                                    @notification.ActionButtonText
+                                </a>
+                            }
+                            else
+                            {
+                                <a asp-controller="Items" asp-action="Index"
+                                   class="btn btn-secondary align-self-start mt-2">
+                                    @notification.ActionButtonText
+                                </a>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        }
+
+    </div>
+</div>

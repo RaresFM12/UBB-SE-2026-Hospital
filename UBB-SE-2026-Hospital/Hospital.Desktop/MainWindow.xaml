@@ -1,0 +1,30 @@
+<Window
+    x:Class="Hospital.Desktop.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Hospital Desktop">
+
+    <Grid Padding="24" RowDefinitions="Auto,Auto,*">
+        <TextBlock
+            FontSize="28"
+            FontWeight="SemiBold"
+            Text="UBB-SE-2026-Hospital" />
+        <TextBlock
+            Grid.Row="1"
+            Margin="0,8,0,0"
+            Opacity="0.75"
+            Text="Unified desktop shell for Staff, ER, and Patient workflows." />
+        <ListView
+            Grid.Row="2"
+            Margin="0,24,0,0"
+            SelectionMode="None">
+            <x:String>Port 923-2 staff and pharmacy pages into Views/</x:String>
+            <x:String>Port House-MD ER screens into Views/</x:String>
+            <x:String>Port MysteryInc patient and billing screens into Views/</x:String>
+            <x:String>Move HTTP proxies into Proxy/ and wire them through DI</x:String>
+        </ListView>
+    </Grid>
+</Window>
