@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Hospital.Data.Models;
+using Hospital.Data.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hospital.Data.Repositories;

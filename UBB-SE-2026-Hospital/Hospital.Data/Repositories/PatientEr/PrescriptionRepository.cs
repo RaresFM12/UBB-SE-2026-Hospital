@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Hospital.Data.Models;
+using Hospital.Data.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hospital.Data.Repositories;
@@ -57,6 +58,36 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
             .SelectMany(g => g)
             .ToListAsync();
     }
+
+    public async Task<List<Prescription>> GetTopNAsync(int n, int page)
+        => await context.Prescriptions
+            .Include(p => p.MedicationList)
+            .OrderByDescending(p => p.Date)
+            .Skip((page - 1) * n)
+            .Take(n)
+            .ToListAsync();
+
+    public async Task<List<PrescriptionItem>> GetItemsAsync(int prescriptionId)
+        => await context.PrescriptionItems
+            .Where(i => i.PrescriptionId == prescriptionId)
+            .ToListAsync();
+
+    public async Task MarkPoliceNotifiedAsync(int patientId)
+    {
+        var records = await context.MedicalRecords
+            .Where(r => r.MedicalHistory.PatientId == patientId)
+            .ToListAsync();
+        foreach (var record in records)
+            record.PoliceNotified = true;
+        await context.SaveChangesAsync();
+    }
+
+    public async Task<List<int>> GetPoliceNotifiedPatientIdsAsync(IEnumerable<int> patientIds)
+        => await context.MedicalRecords
+            .Where(r => patientIds.Contains(r.MedicalHistory.PatientId) && r.PoliceNotified)
+            .Select(r => r.MedicalHistory.PatientId)
+            .Distinct()
+            .ToListAsync();
 
     public async Task<Prescription> CreateAsync(Prescription prescription)
     {

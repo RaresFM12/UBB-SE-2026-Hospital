@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Hospital.Data.Models;
+using Hospital.Data.Models.DTOs;
 
 namespace Hospital.Data.Repositories;
 

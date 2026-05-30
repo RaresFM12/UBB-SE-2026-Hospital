@@ -4,6 +4,7 @@ namespace Hospital.Data.Models;
 
 public class Substance
 {
+    public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public float LethalDose { get; set; }
     public string Description { get; set; } = string.Empty;

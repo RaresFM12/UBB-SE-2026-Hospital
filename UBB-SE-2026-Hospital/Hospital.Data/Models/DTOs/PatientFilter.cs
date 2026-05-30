@@ -1,6 +1,7 @@
 using System;
+using Hospital.Data.Models;
 
-namespace Hospital.Data.Models;
+namespace Hospital.Data.Models.DTOs;
 
 public class PatientFilter
 {

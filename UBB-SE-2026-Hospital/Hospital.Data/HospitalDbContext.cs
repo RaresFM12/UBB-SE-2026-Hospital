@@ -59,6 +59,14 @@ public class HospitalDbContext(DbContextOptions<HospitalDbContext> options) : Db
         modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
         modelBuilder.Entity<User>().HasIndex(u => u.Username).IsUnique();
 
+        // Non-standard primary keys
+        modelBuilder.Entity<Staff>().HasKey(s => s.StaffID);
+        modelBuilder.Entity<ERRoom>().HasKey(r => r.RoomId);
+        modelBuilder.Entity<ERVisit>().HasKey(v => v.VisitId);
+        modelBuilder.Entity<ShiftSwapRequest>().HasKey(s => s.SwapId);
+        modelBuilder.Entity<MedicalEvaluation>().HasKey(e => e.EvaluationID);
+        modelBuilder.Entity<Hangout>().HasKey(h => h.HangoutID);
+
         // TPH for Staff hierarchy
         modelBuilder.Entity<Staff>().HasDiscriminator<string>("Role")
             .HasValue<Staff>("Staff")
@@ -67,5 +75,76 @@ public class HospitalDbContext(DbContextOptions<HospitalDbContext> options) : Db
 
         modelBuilder.Entity<PatientAllergy>()
             .HasKey(pa => new { pa.MedicalHistoryId, pa.AllergyId });
+
+        // Explicitly map the two Staff↔ShiftSwapRequest relationships
+        modelBuilder.Entity<ShiftSwapRequest>()
+            .HasOne(s => s.Requester)
+            .WithMany(st => st.ShiftSwapRequestsAsRequester)
+            .HasForeignKey(s => s.RequestingStaffId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ShiftSwapRequest>()
+            .HasOne(s => s.Colleague)
+            .WithMany(st => st.ShiftSwapRequestsAsColleague)
+            .HasForeignKey(s => s.TargetStaffId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Shift → Staff
+        modelBuilder.Entity<Shift>()
+            .HasOne(s => s.Staff)
+            .WithMany(st => st.Shifts)
+            .HasForeignKey(s => s.StaffId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Notification → Staff (via Recipient nav, StaffId FK)
+        modelBuilder.Entity<Notification>()
+            .HasOne(n => n.Recipient)
+            .WithMany(st => st.Notifications)
+            .HasForeignKey(n => n.StaffId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // HangoutParticipant → Hangout / Staff
+        modelBuilder.Entity<HangoutParticipant>()
+            .HasOne(hp => hp.Hangout)
+            .WithMany(h => h.HangoutParticipantEntries)
+            .HasForeignKey(hp => hp.HangoutId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<HangoutParticipant>()
+            .HasOne(hp => hp.Staff)
+            .WithMany(st => st.HangoutParticipantEntries)
+            .HasForeignKey(hp => hp.StaffId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Prescription is the dependent side of the one-to-one with MedicalRecord
+        modelBuilder.Entity<Prescription>()
+            .HasOne(p => p.MedicalRecord)
+            .WithOne(r => r.Prescription)
+            .HasForeignKey<Prescription>(p => p.RecordId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // MedicalHistory stores ChronicConditions as JSON
+        modelBuilder.Entity<MedicalHistory>()
+            .Property(m => m.ChronicConditions)
+            .HasConversion(
+                v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                v => System.Text.Json.JsonSerializer.Deserialize<List<string>>(v, (System.Text.Json.JsonSerializerOptions?)null)!);
+
+        // Item dictionaries are not mapped to DB columns
+        modelBuilder.Entity<Item>()
+            .Ignore(i => i.ActiveSubstances)
+            .Ignore(i => i.Batches);
+
+        // Order dictionary is not mapped
+        modelBuilder.Entity<Order>()
+            .Ignore(o => o.ItemQuantitiesWithFinalPrice);
+
+        // User computed/notmapped collections
+        modelBuilder.Entity<User>()
+            .Ignore(u => u.PeriodNotes)
+            .Ignore(u => u.StockAlerts)
+            .Ignore(u => u.FavoriteItems)
+            .Ignore(u => u.UserDiscounts)
+            .Ignore(u => u.Basket);
     }
 }

@@ -1,6 +1,6 @@
 using System;
 
-namespace Hospital.Data.Models;
+namespace Hospital.Data.Models.DTOs;
 
 public class PrescriptionFilter
 {
