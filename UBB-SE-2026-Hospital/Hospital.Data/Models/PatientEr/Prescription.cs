@@ -12,9 +12,6 @@ public class Prescription
     public int PrescriptionId { get; set; }
 
     [Required]
-    public int RecordId { get; set; }
-
-    [Required]
     [JsonIgnore]
     public MedicalRecord MedicalRecord { get; set; } = null!;
 

@@ -1,6 +1,6 @@
 namespace Hospital.Data.Models.DTOs;
 
-public class ERTransferEligibleVisitDto
+public class ERTransferEligibleVisit
 {
     public int VisitId { get; set; }
     public string PatientName { get; set; } = string.Empty;

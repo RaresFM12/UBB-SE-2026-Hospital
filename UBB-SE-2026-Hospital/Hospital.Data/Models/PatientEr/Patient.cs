@@ -34,7 +34,7 @@ public class Patient
 
     [Required]
     [MaxLength(50)]
-    public string PhoneNo { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(200)]
@@ -68,37 +68,42 @@ public class Patient
 
     public bool Validate(out List<string> errors)
     {
+        const int CnpLength = 13;
+        const int MaxNameLength = 100;
+        const int MaxPhoneLength = 50;
+        const int MaxEmergencyContactLength = 200;
+
         errors = new List<string>();
 
         if (string.IsNullOrWhiteSpace(Cnp))
             errors.Add("Patient ID (CNP) is required.");
-        else if (Cnp.Length != 13 || !Cnp.All(char.IsDigit))
-            errors.Add("Patient ID (CNP) must be exactly 13 digits.");
+        else if (Cnp.Length != CnpLength || !Cnp.All(char.IsDigit))
+            errors.Add($"Patient ID (CNP) must be exactly {CnpLength} digits.");
 
         if (string.IsNullOrWhiteSpace(FirstName))
             errors.Add("First name is required.");
-        else if (FirstName.Length > 100)
-            errors.Add("First name must not exceed 100 characters.");
+        else if (FirstName.Length > MaxNameLength)
+            errors.Add($"First name must not exceed {MaxNameLength} characters.");
 
         if (string.IsNullOrWhiteSpace(LastName))
             errors.Add("Last name is required.");
-        else if (LastName.Length > 100)
-            errors.Add("Last name must not exceed 100 characters.");
+        else if (LastName.Length > MaxNameLength)
+            errors.Add($"Last name must not exceed {MaxNameLength} characters.");
 
         if (DateOfBirth == default)
             errors.Add("Date of birth is required.");
         else if (DateOfBirth >= DateTime.Today)
             errors.Add("Date of birth must be in the past.");
 
-        if (string.IsNullOrWhiteSpace(PhoneNo))
+        if (string.IsNullOrWhiteSpace(PhoneNumber))
             errors.Add("Phone number is required.");
-        else if (PhoneNo.Length > 50)
-            errors.Add("Phone number must not exceed 50 characters.");
+        else if (PhoneNumber.Length > MaxPhoneLength)
+            errors.Add($"Phone number must not exceed {MaxPhoneLength} characters.");
 
         if (string.IsNullOrWhiteSpace(EmergencyContact))
             errors.Add("Emergency contact is required.");
-        else if (EmergencyContact.Length > 200)
-            errors.Add("Emergency contact must not exceed 200 characters.");
+        else if (EmergencyContact.Length > MaxEmergencyContactLength)
+            errors.Add($"Emergency contact must not exceed {MaxEmergencyContactLength} characters.");
 
         return errors.Count == 0;
     }

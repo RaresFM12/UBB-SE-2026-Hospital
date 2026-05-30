@@ -15,11 +15,11 @@ public class NotificationRepository(HospitalDbContext context) : INotificationRe
         => await context.Notifications.ToListAsync();
 
     public async Task<List<Notification>> GetByStaffIdAsync(int staffId)
-        => await context.Notifications.Where(n => n.StaffId == staffId).ToListAsync();
+        => await context.Notifications.Where(n => n.Recipient!.StaffId == staffId).ToListAsync();
 
     public async Task<List<Notification>> GetUnreadByStaffIdAsync(int staffId)
         => await context.Notifications
-            .Where(n => n.StaffId == staffId && !n.IsRead)
+            .Where(n => n.Recipient!.StaffId == staffId && !n.IsRead)
             .ToListAsync();
 
     public async Task<Notification> CreateAsync(Notification notification)

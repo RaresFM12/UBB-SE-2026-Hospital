@@ -1,6 +1,6 @@
-﻿namespace Hospital.Data.Models.DTOs
+namespace Hospital.Data.Models.DTOs
 {
-    public class GetTopCompatibleDonorsDto
+    public class GetTopCompatibleDonorsRequest
     {
         public int RecipientId { get; set; }
     }

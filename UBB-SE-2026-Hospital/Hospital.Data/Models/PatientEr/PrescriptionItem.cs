@@ -9,16 +9,12 @@ public class PrescriptionItem
     [Key]
     public int PrescriptionItemId { get; set; }
 
-    [Required]
-    public int PrescriptionId { get; set; }
-
-    [ForeignKey(nameof(PrescriptionId))]
     [JsonIgnore]
     public Prescription Prescription { get; set; } = null!;
 
     [Required]
     [MaxLength(200)]
-    public string MedName { get; set; } = string.Empty;
+    public string MedicationName { get; set; } = string.Empty;
 
     [MaxLength(50)]
     public string? Quantity { get; set; }

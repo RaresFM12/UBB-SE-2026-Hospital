@@ -52,7 +52,7 @@ public class ItemsRepository(HospitalDbContext context) : IItemsRepository
     }
 
     public async Task<List<ItemBatch>> GetBatchesByItemIdAsync(int itemId)
-        => await context.ItemBatches.Where(b => b.ItemId == itemId).ToListAsync();
+        => await context.ItemBatches.Where(b => b.Item.Id == itemId).ToListAsync();
 
     public async Task<ItemBatch> AddBatchAsync(ItemBatch batch)
     {
@@ -84,6 +84,6 @@ public class ItemsRepository(HospitalDbContext context) : IItemsRepository
     public async Task<List<ItemSubstance>> GetSubstancesByItemIdAsync(int itemId)
         => await context.ItemSubstances
             .Include(s => s.Substance)
-            .Where(s => s.ItemId == itemId)
+            .Where(s => s.Item.Id == itemId)
             .ToListAsync();
 }

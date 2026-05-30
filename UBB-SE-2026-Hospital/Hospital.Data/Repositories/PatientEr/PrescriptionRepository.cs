@@ -44,7 +44,7 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
     public async Task<List<Prescription>> GetByRecordIdAsync(int recordId)
         => await context.Prescriptions
             .Include(p => p.MedicationList)
-            .Where(p => p.RecordId == recordId)
+            .Where(p => p.MedicalRecord.RecordId == recordId)
             .ToListAsync();
 
     public async Task<List<Prescription>> GetPotentialDrugAddictsAsync()
@@ -53,7 +53,7 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
         return await context.Prescriptions
             .Include(p => p.MedicationList)
             .Where(p => p.Date >= cutoff)
-            .GroupBy(p => p.RecordId)
+            .GroupBy(p => p.MedicalRecord.RecordId)
             .Where(g => g.Count() >= 5)
             .SelectMany(g => g)
             .ToListAsync();
@@ -69,13 +69,13 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
 
     public async Task<List<PrescriptionItem>> GetItemsAsync(int prescriptionId)
         => await context.PrescriptionItems
-            .Where(i => i.PrescriptionId == prescriptionId)
+            .Where(i => i.Prescription.PrescriptionId == prescriptionId)
             .ToListAsync();
 
     public async Task MarkPoliceNotifiedAsync(int patientId)
     {
         var records = await context.MedicalRecords
-            .Where(r => r.MedicalHistory.PatientId == patientId)
+            .Where(r => r.MedicalHistory.Patient.PatientId == patientId)
             .ToListAsync();
         foreach (var record in records)
             record.PoliceNotified = true;
@@ -84,8 +84,8 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
 
     public async Task<List<int>> GetPoliceNotifiedPatientIdsAsync(IEnumerable<int> patientIds)
         => await context.MedicalRecords
-            .Where(r => patientIds.Contains(r.MedicalHistory.PatientId) && r.PoliceNotified)
-            .Select(r => r.MedicalHistory.PatientId)
+            .Where(r => patientIds.Contains(r.MedicalHistory.Patient.PatientId) && r.PoliceNotified)
+            .Select(r => r.MedicalHistory.Patient.PatientId)
             .Distinct()
             .ToListAsync();
 

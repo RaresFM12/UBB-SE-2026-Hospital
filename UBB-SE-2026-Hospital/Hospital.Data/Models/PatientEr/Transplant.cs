@@ -9,9 +9,9 @@ public class Transplant
     public int TransplantId { get; set; }
 
     [Required]
-    public int ReceiverId { get; set; }
+    public Patient Receiver { get; set; } = null!;
 
-    public int? DonorId { get; set; }
+    public Patient? Donor { get; set; }
 
     [Required]
     [MaxLength(100)]

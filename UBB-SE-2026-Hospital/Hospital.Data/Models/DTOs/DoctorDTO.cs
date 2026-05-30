@@ -1,6 +1,6 @@
-﻿namespace Hospital.Data.Models.DTOs;
+namespace Hospital.Data.Models.DTOs;
 
-public class DoctorDTO
+public class DoctorDetails
 {
     public int DoctorId { get; set; }
 

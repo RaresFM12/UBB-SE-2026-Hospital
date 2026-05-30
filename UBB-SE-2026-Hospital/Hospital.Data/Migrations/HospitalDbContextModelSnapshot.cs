@@ -46,6 +46,78 @@ namespace Hospital.Data.Migrations
                     b.HasKey("AllergyId");
 
                     b.ToTable("Allergies");
+
+                    b.HasData(
+                        new
+                        {
+                            AllergyId = 1,
+                            AllergyCategory = "Antibiotic",
+                            AllergyName = "Penicillin",
+                            AllergyType = "Drug"
+                        },
+                        new
+                        {
+                            AllergyId = 2,
+                            AllergyCategory = "Nut",
+                            AllergyName = "Peanuts",
+                            AllergyType = "Food"
+                        },
+                        new
+                        {
+                            AllergyId = 3,
+                            AllergyCategory = "Material",
+                            AllergyName = "Latex",
+                            AllergyType = "Contact"
+                        },
+                        new
+                        {
+                            AllergyId = 4,
+                            AllergyCategory = "NSAID",
+                            AllergyName = "Ibuprofen",
+                            AllergyType = "Drug"
+                        },
+                        new
+                        {
+                            AllergyId = 5,
+                            AllergyCategory = "Antibiotic",
+                            AllergyName = "Sulfonamides",
+                            AllergyType = "Drug"
+                        },
+                        new
+                        {
+                            AllergyId = 6,
+                            AllergyCategory = "Seafood",
+                            AllergyName = "Shellfish",
+                            AllergyType = "Food"
+                        },
+                        new
+                        {
+                            AllergyId = 7,
+                            AllergyCategory = "Seasonal",
+                            AllergyName = "Pollen",
+                            AllergyType = "Environmental"
+                        },
+                        new
+                        {
+                            AllergyId = 8,
+                            AllergyCategory = "Perennial",
+                            AllergyName = "Dust Mites",
+                            AllergyType = "Environmental"
+                        },
+                        new
+                        {
+                            AllergyId = 9,
+                            AllergyCategory = "Salicylate",
+                            AllergyName = "Aspirin",
+                            AllergyType = "Drug"
+                        },
+                        new
+                        {
+                            AllergyId = 10,
+                            AllergyCategory = "Lactose",
+                            AllergyName = "Dairy",
+                            AllergyType = "Food"
+                        });
                 });
 
             modelBuilder.Entity("Hospital.Data.Models.Appointment", b =>
@@ -60,6 +132,9 @@ namespace Hospital.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int?>("DoctorId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DoctorStaffId")
                         .HasColumnType("int");
 
                     b.Property<string>("Location")
@@ -86,6 +161,8 @@ namespace Hospital.Data.Migrations
 
                     b.HasIndex("DoctorId");
 
+                    b.HasIndex("DoctorStaffId");
+
                     b.ToTable("Appointments");
                 });
 
@@ -110,6 +187,10 @@ namespace Hospital.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ItemId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("BasketEntries");
                 });
@@ -168,6 +249,8 @@ namespace Hospital.Data.Migrations
 
                     b.HasKey("RoomId");
 
+                    b.HasIndex("CurrentVisitId");
+
                     b.ToTable("ERRooms");
                 });
 
@@ -194,6 +277,8 @@ namespace Hospital.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("VisitId");
+
+                    b.HasIndex("PatientId");
 
                     b.ToTable("ERVisits");
                 });
@@ -228,6 +313,12 @@ namespace Hospital.Data.Migrations
 
                     b.HasKey("ExaminationId");
 
+                    b.HasIndex("DoctorId");
+
+                    b.HasIndex("RoomId");
+
+                    b.HasIndex("VisitId");
+
                     b.ToTable("Examinations");
                 });
 
@@ -261,6 +352,8 @@ namespace Hospital.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("HangoutID");
+
+                    b.HasIndex("OrganizerId");
 
                     b.ToTable("Hangouts");
                 });
@@ -307,6 +400,20 @@ namespace Hospital.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("HighRiskMedicines");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            MedicineName = "Warfarin",
+                            WarningMessage = "Anticoagulant - check INR before prescribing."
+                        },
+                        new
+                        {
+                            Id = 2,
+                            MedicineName = "Methotrexate",
+                            WarningMessage = "Hepatotoxic - confirm dosing and weekly schedule."
+                        });
                 });
 
             modelBuilder.Entity("Hospital.Data.Models.Item", b =>
@@ -416,6 +523,9 @@ namespace Hospital.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EvaluationID"));
 
+                    b.Property<int?>("DoctorStaffId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("EvaluationDate")
                         .HasColumnType("datetime2");
 
@@ -439,6 +549,8 @@ namespace Hospital.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("EvaluationID");
+
+                    b.HasIndex("DoctorStaffId");
 
                     b.HasIndex("EvaluatorId");
 
@@ -510,7 +622,7 @@ namespace Hospital.Data.Migrations
                     b.Property<int>("SourceType")
                         .HasColumnType("int");
 
-                    b.Property<int>("StaffId")
+                    b.Property<int?>("StaffId")
                         .HasColumnType("int");
 
                     b.Property<string>("Symptoms")
@@ -523,6 +635,10 @@ namespace Hospital.Data.Migrations
                     b.HasKey("RecordId");
 
                     b.HasIndex("MedicalHistoryId");
+
+                    b.HasIndex("StaffId");
+
+                    b.HasIndex("TransplantId");
 
                     b.ToTable("MedicalRecords");
                 });
@@ -659,7 +775,7 @@ namespace Hospital.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("PhoneNo")
+                    b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -781,7 +897,7 @@ namespace Hospital.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PrescriptionItemId"));
 
-                    b.Property<string>("MedName")
+                    b.Property<string>("MedicationName")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
@@ -867,11 +983,11 @@ namespace Hospital.Data.Migrations
 
             modelBuilder.Entity("Hospital.Data.Models.Staff", b =>
                 {
-                    b.Property<int>("StaffID")
+                    b.Property<int>("StaffId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StaffID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StaffId"));
 
                     b.Property<bool>("Available")
                         .HasColumnType("bit");
@@ -927,7 +1043,7 @@ namespace Hospital.Data.Migrations
                     b.Property<int>("YearsOfExperience")
                         .HasColumnType("int");
 
-                    b.HasKey("StaffID");
+                    b.HasKey("StaffId");
 
                     b.ToTable("Staff");
 
@@ -958,6 +1074,141 @@ namespace Hospital.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Substances");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Anti-inflammatory pain reliever",
+                            LethalDose = 3200f,
+                            Name = "Ibuprofen"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Pain reliever and fever reducer",
+                            LethalDose = 4000f,
+                            Name = "Paracetamol"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Mineral supplement for muscle and nerve support",
+                            LethalDose = 2500f,
+                            Name = "Magnesium"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Description = "Vitamin supplement for immune support",
+                            LethalDose = 2000f,
+                            Name = "Vitamin C"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Description = "Antihistamine for allergy relief",
+                            LethalDose = 500f,
+                            Name = "Cetirizine"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Description = "Mineral supplement used for iron deficiency",
+                            LethalDose = 45f,
+                            Name = "Iron"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Description = "Mineral supplement for bones and muscles",
+                            LethalDose = 2500f,
+                            Name = "Calcium"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Description = "Fatty acid supplement for heart and brain health",
+                            LethalDose = 3000f,
+                            Name = "Omega 3"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Description = "Sleep support supplement",
+                            LethalDose = 10f,
+                            Name = "Melatonin"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Description = "Digestive support supplement",
+                            LethalDose = 1000f,
+                            Name = "Probiotics"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Description = "Mineral supplement for immunity",
+                            LethalDose = 40f,
+                            Name = "Zinc"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Description = "Non-drowsy antihistamine",
+                            LethalDose = 1000f,
+                            Name = "Loratadine"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Description = "Medication to decrease frequency of diarrhea",
+                            LethalDose = 60f,
+                            Name = "Loperamide"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Description = "Anti-foaming agent to reduce bloating and gas",
+                            LethalDose = 2000f,
+                            Name = "Simethicone"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Description = "Nonsteroidal anti-inflammatory drug (NSAID)",
+                            LethalDose = 1500f,
+                            Name = "Diclofenac"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Description = "Skin protectant and moisturizer",
+                            LethalDose = 5000f,
+                            Name = "Dexpanthenol"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Description = "Essential vitamin for bone health and immunity",
+                            LethalDose = 50f,
+                            Name = "Vitamin D3"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Description = "Decongestant for nasal passages",
+                            LethalDose = 10f,
+                            Name = "Xylometazoline"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Description = "Mucolytic agent to clear mucus",
+                            LethalDose = 3000f,
+                            Name = "Acetylcysteine"
+                        });
                 });
 
             modelBuilder.Entity("Hospital.Data.Models.TransferLog", b =>
@@ -986,6 +1237,8 @@ namespace Hospital.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("TransferLogId");
+
+                    b.HasIndex("VisitId");
 
                     b.ToTable("TransferLogs");
                 });
@@ -1022,6 +1275,10 @@ namespace Hospital.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("TransplantId");
+
+                    b.HasIndex("DonorId");
+
+                    b.HasIndex("ReceiverId");
 
                     b.ToTable("Transplants");
                 });
@@ -1061,6 +1318,10 @@ namespace Hospital.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("TransplantId");
+
                     b.ToTable("TransplantMatches");
                 });
 
@@ -1089,6 +1350,8 @@ namespace Hospital.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("TriageId");
+
+                    b.HasIndex("VisitId");
 
                     b.ToTable("Triages");
                 });
@@ -1120,6 +1383,9 @@ namespace Hospital.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("TriageParametersId");
+
+                    b.HasIndex("TriageId")
+                        .IsUnique();
 
                     b.ToTable("TriageParameters");
                 });
@@ -1266,19 +1532,102 @@ namespace Hospital.Data.Migrations
             modelBuilder.Entity("Hospital.Data.Models.Appointment", b =>
                 {
                     b.HasOne("Hospital.Data.Models.Doctor", "Doctor")
+                        .WithMany()
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Hospital.Data.Models.Doctor", null)
                         .WithMany("Appointments")
-                        .HasForeignKey("DoctorId");
+                        .HasForeignKey("DoctorStaffId");
 
                     b.Navigation("Doctor");
+                });
+
+            modelBuilder.Entity("Hospital.Data.Models.BasketEntry", b =>
+                {
+                    b.HasOne("Hospital.Data.Models.Item", "Item")
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Hospital.Data.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Item");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Hospital.Data.Models.ERRequest", b =>
                 {
                     b.HasOne("Hospital.Data.Models.Doctor", "AssignedDoctor")
                         .WithMany()
-                        .HasForeignKey("AssignedDoctorId");
+                        .HasForeignKey("AssignedDoctorId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("AssignedDoctor");
+                });
+
+            modelBuilder.Entity("Hospital.Data.Models.ERRoom", b =>
+                {
+                    b.HasOne("Hospital.Data.Models.ERVisit", "CurrentVisit")
+                        .WithMany()
+                        .HasForeignKey("CurrentVisitId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CurrentVisit");
+                });
+
+            modelBuilder.Entity("Hospital.Data.Models.ERVisit", b =>
+                {
+                    b.HasOne("Hospital.Data.Models.Patient", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("Hospital.Data.Models.Examination", b =>
+                {
+                    b.HasOne("Hospital.Data.Models.Staff", "Doctor")
+                        .WithMany()
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Hospital.Data.Models.ERRoom", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Hospital.Data.Models.ERVisit", "Visit")
+                        .WithMany()
+                        .HasForeignKey("VisitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Doctor");
+
+                    b.Navigation("Room");
+
+                    b.Navigation("Visit");
+                });
+
+            modelBuilder.Entity("Hospital.Data.Models.Hangout", b =>
+                {
+                    b.HasOne("Hospital.Data.Models.Staff", "Organizer")
+                        .WithMany()
+                        .HasForeignKey("OrganizerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Organizer");
                 });
 
             modelBuilder.Entity("Hospital.Data.Models.HangoutParticipant", b =>
@@ -1322,7 +1671,7 @@ namespace Hospital.Data.Migrations
                     b.HasOne("Hospital.Data.Models.Substance", "Substance")
                         .WithMany("ItemSubstanceEntries")
                         .HasForeignKey("SubstanceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Item");
@@ -1332,9 +1681,14 @@ namespace Hospital.Data.Migrations
 
             modelBuilder.Entity("Hospital.Data.Models.MedicalEvaluation", b =>
                 {
-                    b.HasOne("Hospital.Data.Models.Doctor", "Evaluator")
+                    b.HasOne("Hospital.Data.Models.Doctor", null)
                         .WithMany("MedicalEvaluations")
-                        .HasForeignKey("EvaluatorId");
+                        .HasForeignKey("DoctorStaffId");
+
+                    b.HasOne("Hospital.Data.Models.Doctor", "Evaluator")
+                        .WithMany()
+                        .HasForeignKey("EvaluatorId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Evaluator");
                 });
@@ -1344,7 +1698,7 @@ namespace Hospital.Data.Migrations
                     b.HasOne("Hospital.Data.Models.Patient", "Patient")
                         .WithOne("MedicalHistory")
                         .HasForeignKey("Hospital.Data.Models.MedicalHistory", "PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Patient");
@@ -1355,10 +1709,24 @@ namespace Hospital.Data.Migrations
                     b.HasOne("Hospital.Data.Models.MedicalHistory", "MedicalHistory")
                         .WithMany("MedicalRecords")
                         .HasForeignKey("MedicalHistoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Hospital.Data.Models.Staff", "StaffMember")
+                        .WithMany()
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Hospital.Data.Models.Transplant", "Transplant")
+                        .WithMany()
+                        .HasForeignKey("TransplantId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("MedicalHistory");
+
+                    b.Navigation("StaffMember");
+
+                    b.Navigation("Transplant");
                 });
 
             modelBuilder.Entity("Hospital.Data.Models.Notification", b =>
@@ -1376,7 +1744,7 @@ namespace Hospital.Data.Migrations
                     b.HasOne("Hospital.Data.Models.User", "Client")
                         .WithMany("Orders")
                         .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Client");
@@ -1387,7 +1755,7 @@ namespace Hospital.Data.Migrations
                     b.HasOne("Hospital.Data.Models.Item", "Item")
                         .WithMany()
                         .HasForeignKey("ItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Hospital.Data.Models.Order", "Order")
@@ -1436,7 +1804,7 @@ namespace Hospital.Data.Migrations
                     b.HasOne("Hospital.Data.Models.Staff", "Pharmacist")
                         .WithMany()
                         .HasForeignKey("PharmacistId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Pharmacist");
@@ -1484,7 +1852,8 @@ namespace Hospital.Data.Migrations
 
                     b.HasOne("Hospital.Data.Models.Shift", "Shift")
                         .WithMany()
-                        .HasForeignKey("ShiftId");
+                        .HasForeignKey("ShiftId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Hospital.Data.Models.Staff", "Colleague")
                         .WithMany("ShiftSwapRequestsAsColleague")
@@ -1498,12 +1867,82 @@ namespace Hospital.Data.Migrations
                     b.Navigation("Shift");
                 });
 
+            modelBuilder.Entity("Hospital.Data.Models.TransferLog", b =>
+                {
+                    b.HasOne("Hospital.Data.Models.ERVisit", "Visit")
+                        .WithMany()
+                        .HasForeignKey("VisitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Visit");
+                });
+
+            modelBuilder.Entity("Hospital.Data.Models.Transplant", b =>
+                {
+                    b.HasOne("Hospital.Data.Models.Patient", "Donor")
+                        .WithMany()
+                        .HasForeignKey("DonorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Hospital.Data.Models.Patient", "Receiver")
+                        .WithMany()
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Donor");
+
+                    b.Navigation("Receiver");
+                });
+
+            modelBuilder.Entity("Hospital.Data.Models.TransplantMatch", b =>
+                {
+                    b.HasOne("Hospital.Data.Models.Patient", "Receiver")
+                        .WithMany()
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Hospital.Data.Models.Transplant", "Transplant")
+                        .WithMany()
+                        .HasForeignKey("TransplantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Transplant");
+                });
+
+            modelBuilder.Entity("Hospital.Data.Models.Triage", b =>
+                {
+                    b.HasOne("Hospital.Data.Models.ERVisit", "Visit")
+                        .WithMany()
+                        .HasForeignKey("VisitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Visit");
+                });
+
+            modelBuilder.Entity("Hospital.Data.Models.TriageParameters", b =>
+                {
+                    b.HasOne("Hospital.Data.Models.Triage", "Triage")
+                        .WithOne()
+                        .HasForeignKey("Hospital.Data.Models.TriageParameters", "TriageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Triage");
+                });
+
             modelBuilder.Entity("Hospital.Data.Models.UserDiscount", b =>
                 {
                     b.HasOne("Hospital.Data.Models.Item", "Item")
                         .WithMany()
                         .HasForeignKey("ItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Hospital.Data.Models.User", "User")
@@ -1522,7 +1961,7 @@ namespace Hospital.Data.Migrations
                     b.HasOne("Hospital.Data.Models.Item", "Item")
                         .WithMany()
                         .HasForeignKey("ItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Hospital.Data.Models.User", "User")

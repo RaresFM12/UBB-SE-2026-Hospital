@@ -11,7 +11,7 @@ public class TriageRepository(HospitalDbContext context) : ITriageRepository
         => await context.Triages.FindAsync(triageId);
 
     public async Task<Triage?> GetByVisitIdAsync(int visitId)
-        => await context.Triages.FirstOrDefaultAsync(t => t.VisitId == visitId);
+        => await context.Triages.FirstOrDefaultAsync(t => t.Visit.VisitId == visitId);
 
     public async Task<List<Triage>> GetAllAsync()
         => await context.Triages.ToListAsync();

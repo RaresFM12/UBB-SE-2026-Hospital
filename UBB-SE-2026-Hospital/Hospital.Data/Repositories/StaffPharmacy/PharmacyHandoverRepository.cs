@@ -16,7 +16,7 @@ public class PharmacyHandoverRepository(HospitalDbContext context) : IPharmacyHa
 
     public async Task<List<PharmacyHandover>> GetByPharmacistIdAsync(int pharmacistId)
         => await context.PharmacyHandovers
-            .Where(h => h.PharmacistId == pharmacistId)
+            .Where(h => h.Pharmacist.StaffId == pharmacistId)
             .ToListAsync();
 
     public async Task<PharmacyHandover> CreateAsync(PharmacyHandover handover)

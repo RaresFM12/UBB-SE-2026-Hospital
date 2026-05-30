@@ -12,15 +12,12 @@ public class MedicalRecord
     public int RecordId { get; set; }
 
     [Required]
-    public int MedicalHistoryId { get; set; }
-
-    [Required]
     [JsonIgnore]
     public MedicalHistory MedicalHistory { get; set; } = null!;
 
     public SourceType SourceType { get; set; }
     public int SourceId { get; set; }
-    public int StaffId { get; set; }
+    public Staff? StaffMember { get; set; }
 
     [MaxLength(200)]
     public string? Symptoms { get; set; }
@@ -44,5 +41,5 @@ public class MedicalRecord
     [Required]
     public bool PoliceNotified { get; set; }
 
-    public int? TransplantId { get; set; }
+    public Transplant? Transplant { get; set; }
 }

@@ -8,10 +8,11 @@ namespace Hospital.Data.Models;
 public class BasketEntry
 {
     public int Id { get; set; }
-    public int UserId { get; set; }
-    public int ItemId { get; set; }
     public int Quantity { get; set; }
     public float ExtraDiscountPercentage { get; set; }
+
+    public User User { get; set; } = null!;
+    public Item Item { get; set; } = null!;
 
     public BasketEntry() { }
 
@@ -24,6 +25,10 @@ public class BasketEntry
 
 public class User
 {
+    private const string DefaultUserRole = "Client";
+    private const int DefaultCycleDays = 28;
+    private const int DefaultPeriodLasts = 5;
+
     public int Id { get; set; }
     public string Email { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
@@ -31,10 +36,10 @@ public class User
     public bool IsAdmin { get; set; }
     public string Username { get; set; } = string.Empty;
     public bool IsDisabled { get; set; }
-    public string Role { get; set; } = "Client";
+    public string Role { get; set; } = DefaultUserRole;
     public DateOnly StartPeriodDate { get; set; }
-    public int CycleDays { get; set; } = 28;
-    public int PeriodLasts { get; set; } = 5;
+    public int CycleDays { get; set; } = DefaultCycleDays;
+    public int PeriodLasts { get; set; } = DefaultPeriodLasts;
     public int PremenstrualSyndromeOption { get; set; }
     public bool DiscountNotifications { get; set; }
     public int LoyaltyPoints { get; set; }
@@ -67,8 +72,8 @@ public class User
     public User(int userId, string email, string phoneNumber, string passwordHash,
                 bool isAdmin, bool isDisabled, string userName,
                 bool discountNotifications, int loyaltyPoints,
-                DateOnly startPeriodDate = default, int cycleDays = 28,
-                int periodLasts = 5, int premenstrualSyndromeOption = 0) : this()
+                DateOnly startPeriodDate = default, int cycleDays = DefaultCycleDays,
+                int periodLasts = DefaultPeriodLasts, int premenstrualSyndromeOption = 0) : this()
     {
         Id = userId;
         Email = email;

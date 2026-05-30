@@ -7,7 +7,6 @@ namespace Hospital.Data.Models;
 public class Shift
 {
     public int Id { get; set; }
-    public int StaffId { get; set; }
     public Staff Staff { get; set; } = null!;
 
     [NotMapped]
@@ -22,7 +21,7 @@ public class Shift
     public string Location { get; set; } = string.Empty;
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
-    public ShiftStatus Status { get; set; } = ShiftStatus.SCHEDULED;
+    public ShiftStatus Status { get; set; } = ShiftStatus.Scheduled;
 
     public Shift() { }
 

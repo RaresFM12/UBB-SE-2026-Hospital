@@ -19,7 +19,7 @@ public class MedicalHistoryRepository(HospitalDbContext context) : IMedicalHisto
             .Include(m => m.PatientAllergies)
                 .ThenInclude(pa => pa.Allergy)
             .Include(m => m.MedicalRecords)
-            .FirstOrDefaultAsync(m => m.PatientId == patientId);
+            .FirstOrDefaultAsync(m => m.Patient.PatientId == patientId);
 
     public async Task<List<MedicalHistory>> GetAllAsync()
         => await context.MedicalHistories.ToListAsync();

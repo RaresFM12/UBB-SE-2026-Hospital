@@ -1,7 +1,9 @@
 namespace Hospital.Data.Models.DTOs;
 
-public class ERExaminationSummaryDto
+public class ERExaminationSummary
 {
+    private const int MaxSeverityScore = 15;
+
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public DateTime ArrivalDateTime { get; set; }
@@ -17,5 +19,5 @@ public class ERExaminationSummaryDto
     public DateTime ExamTime { get; set; }
     public string Notes { get; set; } = string.Empty;
     public string AssignedDoctorName { get; set; } = string.Empty;
-    public string SeverityScore => $"{Consciousness + Breathing + Bleeding + InjuryType + PainLevel} / 15";
+    public string SeverityScore => $"{Consciousness + Breathing + Bleeding + InjuryType + PainLevel} / {MaxSeverityScore}";
 }

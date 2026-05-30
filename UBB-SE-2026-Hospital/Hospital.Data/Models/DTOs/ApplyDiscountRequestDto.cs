@@ -1,6 +1,6 @@
-﻿namespace Hospital.Data.Models.DTOs;
+namespace Hospital.Data.Models.DTOs;
 
-public sealed class ApplyDiscountRequestDto
+public sealed class ApplyDiscountRequest
 {
     public decimal BasePrice { get; set; }
 

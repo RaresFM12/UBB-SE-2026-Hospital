@@ -5,7 +5,6 @@ namespace Hospital.Data.Models;
 public class MedicalEvaluation
 {
     public int EvaluationID { get; set; }
-    public int? EvaluatorId { get; set; }
     public string PatientId { get; set; } = string.Empty;
     public string Symptoms { get; set; } = string.Empty;
     public string MedicationsList { get; set; } = string.Empty;

@@ -45,5 +45,5 @@ public class StaffRepository(HospitalDbContext context) : IStaffRepository
     }
 
     public async Task<bool> ExistsAsync(int staffId)
-        => await context.Staff.AnyAsync(s => s.StaffID == staffId);
+        => await context.Staff.AnyAsync(staffMember => staffMember.StaffId == staffId);
 }

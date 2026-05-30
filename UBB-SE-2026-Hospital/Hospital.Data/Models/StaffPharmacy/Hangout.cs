@@ -7,7 +7,7 @@ namespace Hospital.Data.Models;
 public class Hangout
 {
     public int HangoutID { get; set; }
-    public int? OrganizerId { get; set; }
+    public Staff? Organizer { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public DateTime Date { get; set; }

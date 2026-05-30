@@ -6,7 +6,7 @@ namespace Hospital.Data.Models;
 public class TriageParameters
 {
     public int TriageParametersId { get; set; }
-    public int TriageId { get; set; }
+    public Triage Triage { get; set; } = null!;
 
     [Range(1, 3)]
     public int Consciousness { get; set; }
@@ -21,15 +21,18 @@ public class TriageParameters
 
     public void ValidateParameters()
     {
-        if (Consciousness < 1 || Consciousness > 3)
-            throw new ArgumentOutOfRangeException(nameof(Consciousness), "Consciousness must be between 1 and 3.");
-        if (Breathing < 1 || Breathing > 3)
-            throw new ArgumentOutOfRangeException(nameof(Breathing), "Breathing must be between 1 and 3.");
-        if (Bleeding < 1 || Bleeding > 3)
-            throw new ArgumentOutOfRangeException(nameof(Bleeding), "Bleeding must be between 1 and 3.");
-        if (InjuryType < 1 || InjuryType > 3)
-            throw new ArgumentOutOfRangeException(nameof(InjuryType), "InjuryType must be between 1 and 3.");
-        if (PainLevel < 1 || PainLevel > 3)
-            throw new ArgumentOutOfRangeException(nameof(PainLevel), "PainLevel must be between 1 and 3.");
+        const int MinParameterValue = 1;
+        const int MaxParameterValue = 3;
+
+        if (Consciousness < MinParameterValue || Consciousness > MaxParameterValue)
+            throw new ArgumentOutOfRangeException(nameof(Consciousness), $"Consciousness must be between {MinParameterValue} and {MaxParameterValue}.");
+        if (Breathing < MinParameterValue || Breathing > MaxParameterValue)
+            throw new ArgumentOutOfRangeException(nameof(Breathing), $"Breathing must be between {MinParameterValue} and {MaxParameterValue}.");
+        if (Bleeding < MinParameterValue || Bleeding > MaxParameterValue)
+            throw new ArgumentOutOfRangeException(nameof(Bleeding), $"Bleeding must be between {MinParameterValue} and {MaxParameterValue}.");
+        if (InjuryType < MinParameterValue || InjuryType > MaxParameterValue)
+            throw new ArgumentOutOfRangeException(nameof(InjuryType), $"InjuryType must be between {MinParameterValue} and {MaxParameterValue}.");
+        if (PainLevel < MinParameterValue || PainLevel > MaxParameterValue)
+            throw new ArgumentOutOfRangeException(nameof(PainLevel), $"PainLevel must be between {MinParameterValue} and {MaxParameterValue}.");
     }
 }

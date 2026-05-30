@@ -68,31 +68,34 @@ public class UsersRepository(HospitalDbContext context) : IUsersRepository
     }
 
     public async Task<List<UserDiscount>> GetUserDiscountsAsync(int userId)
-        => await context.UserDiscounts.Where(d => d.UserId == userId).ToListAsync();
+        => await context.UserDiscounts.Where(d => d.User.Id == userId).ToListAsync();
 
     public async Task AddUserDiscountAsync(int userId, UserDiscount discount)
     {
-        discount.UserId = userId;
+        var user = await context.Users.FindAsync(userId);
+        discount.User = user!;
         context.UserDiscounts.Add(discount);
         await context.SaveChangesAsync();
     }
 
     public async Task<List<UserNotification>> GetUserNotificationsAsync(int userId)
-        => await context.UserNotifications.Where(n => n.UserId == userId).ToListAsync();
+        => await context.UserNotifications.Where(n => n.User.Id == userId).ToListAsync();
 
     public async Task AddUserNotificationAsync(int userId, UserNotification notification)
     {
-        notification.UserId = userId;
+        var user = await context.Users.FindAsync(userId);
+        notification.User = user!;
         context.UserNotifications.Add(notification);
         await context.SaveChangesAsync();
     }
 
     public async Task<List<PeriodNote>> GetPeriodNotesAsync(int userId)
-        => await context.PeriodNotes.Where(n => n.UserId == userId).ToListAsync();
+        => await context.PeriodNotes.Where(n => n.User.Id == userId).ToListAsync();
 
     public async Task AddPeriodNoteAsync(int userId, PeriodNote note)
     {
-        note.UserId = userId;
+        var user = await context.Users.FindAsync(userId);
+        note.User = user!;
         context.PeriodNotes.Add(note);
         await context.SaveChangesAsync();
     }

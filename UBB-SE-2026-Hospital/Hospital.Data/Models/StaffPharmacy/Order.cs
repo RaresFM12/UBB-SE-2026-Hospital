@@ -16,7 +16,6 @@ public class Order : IEquatable<Order>
     public string ExpirationDateString => PickUpDate.AddDays(OrderExpirationDays).ToString("yyyy.MM.dd");
     public bool IsCompleted { get; set; }
     public bool IsExpired { get; set; }
-    public int ClientId { get; set; }
 
     [NotMapped]
     public Dictionary<int, Tuple<int, float>> ItemQuantitiesWithFinalPrice { get; set; } = new();
@@ -32,7 +31,6 @@ public class Order : IEquatable<Order>
     {
         Id = id;
         Client = client;
-        ClientId = client.Id;
         PickUpDate = pickUpDate;
         IsCompleted = isCompleted;
         IsExpired = isExpired;

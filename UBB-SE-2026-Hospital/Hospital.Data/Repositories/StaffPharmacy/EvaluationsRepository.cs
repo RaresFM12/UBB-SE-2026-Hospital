@@ -15,7 +15,7 @@ public class EvaluationsRepository(HospitalDbContext context) : IEvaluationsRepo
         => await context.MedicalEvaluations.ToListAsync();
 
     public async Task<List<MedicalEvaluation>> GetByDoctorIdAsync(int doctorId)
-        => await context.MedicalEvaluations.Where(e => e.EvaluatorId == doctorId).ToListAsync();
+        => await context.MedicalEvaluations.Where(e => e.Evaluator!.StaffId == doctorId).ToListAsync();
 
     public async Task<MedicalEvaluation> CreateAsync(MedicalEvaluation evaluation)
     {

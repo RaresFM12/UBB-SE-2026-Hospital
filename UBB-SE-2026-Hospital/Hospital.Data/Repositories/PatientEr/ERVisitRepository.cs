@@ -15,7 +15,7 @@ public class ERVisitRepository(HospitalDbContext context) : IERVisitRepository
         => await context.ERVisits.ToListAsync();
 
     public async Task<List<ERVisit>> GetByPatientIdAsync(int patientId)
-        => await context.ERVisits.Where(v => v.PatientId == patientId).ToListAsync();
+        => await context.ERVisits.Where(v => v.Patient.PatientId == patientId).ToListAsync();
 
     public async Task<List<ERVisit>> GetActiveVisitsAsync()
         => await context.ERVisits

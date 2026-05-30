@@ -5,7 +5,7 @@ namespace Hospital.Data.Models;
 public class TransferLog
 {
     public int TransferLogId { get; set; }
-    public int VisitId { get; set; }
+    public ERVisit Visit { get; set; } = null!;
     public DateTime TransferTime { get; set; }
     public string TargetSystem { get; set; } = string.Empty;
     public string? FilePath { get; set; }
@@ -26,7 +26,7 @@ public class TransferLog
     {
         if (string.IsNullOrWhiteSpace(TargetSystem))
             throw new ArgumentException("TargetSystem must not be empty.");
-        if (VisitId <= 0)
-            throw new ArgumentException("VisitId must be a valid positive integer.");
+        if (Visit is null)
+            throw new ArgumentException("Visit must not be null.");
     }
 }

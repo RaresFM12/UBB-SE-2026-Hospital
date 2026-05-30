@@ -12,7 +12,7 @@ public class ExaminationRepository(HospitalDbContext context) : IExaminationRepo
         => await context.Examinations.FindAsync(examinationId);
 
     public async Task<List<Examination>> GetByVisitIdAsync(int visitId)
-        => await context.Examinations.Where(e => e.VisitId == visitId).ToListAsync();
+        => await context.Examinations.Where(e => e.Visit.VisitId == visitId).ToListAsync();
 
     public async Task<List<Examination>> GetAllAsync()
         => await context.Examinations.ToListAsync();

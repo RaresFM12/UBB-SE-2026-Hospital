@@ -4,53 +4,53 @@ using Hospital.Data.Models;
 
 namespace Hospital.Data.Models.DTOs;
 
-public class CreatePatientDto
+public class CreatePatientRequest
 {
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string Cnp { get; set; } = string.Empty;
-    public DateTime Dob { get; set; }
+    public DateTime DateOfBirth { get; set; }
     public Sex Sex { get; set; }
-    public string PhoneNo { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
     public string EmergencyContact { get; set; } = string.Empty;
     public bool IsDonor { get; set; }
 }
 
-public class UpdatePatientDto
+public class UpdatePatientRequest
 {
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string Cnp { get; set; } = string.Empty;
-    public DateTime Dob { get; set; }
+    public DateTime DateOfBirth { get; set; }
     public Sex Sex { get; set; }
-    public string PhoneNo { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
     public string EmergencyContact { get; set; } = string.Empty;
     public bool IsDonor { get; set; }
     public bool Transferred { get; set; }
-    public DateTime? Dod { get; set; }
+    public DateTime? DateOfDeath { get; set; }
     public bool IsArchived { get; set; }
 }
 
-public class ArchiveAsDeceasedDto
+public class ArchiveAsDeceasedRequest
 {
     public DateTime DeathDate { get; set; }
 }
 
-public class SearchPatientsDto
+public class SearchPatientsRequest
 {
     public string? NamePart { get; set; }
     public string? Cnp { get; set; }
     public int? MinAge { get; set; }
     public int? MaxAge { get; set; }
     public Sex? Sex { get; set; }
-    public bool? HasChronicCond { get; set; }
+    public bool? HasChronicCondition { get; set; }
     public DateTime? LastUpdatedFrom { get; set; }
     public DateTime? LastUpdatedTo { get; set; }
     public BloodType? BloodType { get; set; }
     public Rh? Rh { get; set; }
 }
 
-public class CreateMedicalHistoryDto
+public class CreateMedicalHistoryRequest
 {
     public BloodType? BloodType { get; set; }
     public Rh? Rh { get; set; }

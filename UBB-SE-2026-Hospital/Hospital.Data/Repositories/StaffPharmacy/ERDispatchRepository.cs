@@ -18,7 +18,7 @@ public class ERDispatchRepository(HospitalDbContext context) : IERDispatchReposi
         => await context.ERRequests.Where(r => r.Status == ERRequest.PendingStatus).ToListAsync();
 
     public async Task<List<ERRequest>> GetByDoctorIdAsync(int doctorId)
-        => await context.ERRequests.Where(r => r.AssignedDoctorId == doctorId).ToListAsync();
+        => await context.ERRequests.Where(r => r.AssignedDoctor!.StaffId == doctorId).ToListAsync();
 
     public async Task<ERRequest> CreateAsync(ERRequest request)
     {

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hospital.Data.Migrations
 {
     [DbContext(typeof(HospitalDbContext))]
-    [Migration("20260530134359_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260530161844_NavigationOnlyRefactor")]
+    partial class NavigationOnlyRefactor
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -65,6 +65,9 @@ namespace Hospital.Data.Migrations
                     b.Property<int?>("DoctorId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("DoctorStaffID")
+                        .HasColumnType("int");
+
                     b.Property<string>("Location")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -88,6 +91,8 @@ namespace Hospital.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DoctorId");
+
+                    b.HasIndex("DoctorStaffID");
 
                     b.ToTable("Appointments");
                 });
@@ -113,6 +118,10 @@ namespace Hospital.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ItemId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("BasketEntries");
                 });
@@ -171,6 +180,8 @@ namespace Hospital.Data.Migrations
 
                     b.HasKey("RoomId");
 
+                    b.HasIndex("CurrentVisitId");
+
                     b.ToTable("ERRooms");
                 });
 
@@ -197,6 +208,8 @@ namespace Hospital.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("VisitId");
+
+                    b.HasIndex("PatientId");
 
                     b.ToTable("ERVisits");
                 });
@@ -231,6 +244,12 @@ namespace Hospital.Data.Migrations
 
                     b.HasKey("ExaminationId");
 
+                    b.HasIndex("DoctorId");
+
+                    b.HasIndex("RoomId");
+
+                    b.HasIndex("VisitId");
+
                     b.ToTable("Examinations");
                 });
 
@@ -264,6 +283,8 @@ namespace Hospital.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("HangoutID");
+
+                    b.HasIndex("OrganizerId");
 
                     b.ToTable("Hangouts");
                 });
@@ -419,6 +440,9 @@ namespace Hospital.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EvaluationID"));
 
+                    b.Property<int?>("DoctorStaffID")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("EvaluationDate")
                         .HasColumnType("datetime2");
 
@@ -442,6 +466,8 @@ namespace Hospital.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("EvaluationID");
+
+                    b.HasIndex("DoctorStaffID");
 
                     b.HasIndex("EvaluatorId");
 
@@ -513,7 +539,7 @@ namespace Hospital.Data.Migrations
                     b.Property<int>("SourceType")
                         .HasColumnType("int");
 
-                    b.Property<int>("StaffId")
+                    b.Property<int?>("StaffId")
                         .HasColumnType("int");
 
                     b.Property<string>("Symptoms")
@@ -526,6 +552,10 @@ namespace Hospital.Data.Migrations
                     b.HasKey("RecordId");
 
                     b.HasIndex("MedicalHistoryId");
+
+                    b.HasIndex("StaffId");
+
+                    b.HasIndex("TransplantId");
 
                     b.ToTable("MedicalRecords");
                 });
@@ -990,6 +1020,8 @@ namespace Hospital.Data.Migrations
 
                     b.HasKey("TransferLogId");
 
+                    b.HasIndex("VisitId");
+
                     b.ToTable("TransferLogs");
                 });
 
@@ -1025,6 +1057,10 @@ namespace Hospital.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("TransplantId");
+
+                    b.HasIndex("DonorId");
+
+                    b.HasIndex("ReceiverId");
 
                     b.ToTable("Transplants");
                 });
@@ -1064,6 +1100,10 @@ namespace Hospital.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("TransplantId");
+
                     b.ToTable("TransplantMatches");
                 });
 
@@ -1092,6 +1132,8 @@ namespace Hospital.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("TriageId");
+
+                    b.HasIndex("VisitId");
 
                     b.ToTable("Triages");
                 });
@@ -1123,6 +1165,9 @@ namespace Hospital.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("TriageParametersId");
+
+                    b.HasIndex("TriageId")
+                        .IsUnique();
 
                     b.ToTable("TriageParameters");
                 });
@@ -1269,19 +1314,102 @@ namespace Hospital.Data.Migrations
             modelBuilder.Entity("Hospital.Data.Models.Appointment", b =>
                 {
                     b.HasOne("Hospital.Data.Models.Doctor", "Doctor")
+                        .WithMany()
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Hospital.Data.Models.Doctor", null)
                         .WithMany("Appointments")
-                        .HasForeignKey("DoctorId");
+                        .HasForeignKey("DoctorStaffID");
 
                     b.Navigation("Doctor");
+                });
+
+            modelBuilder.Entity("Hospital.Data.Models.BasketEntry", b =>
+                {
+                    b.HasOne("Hospital.Data.Models.Item", "Item")
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Hospital.Data.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Item");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Hospital.Data.Models.ERRequest", b =>
                 {
                     b.HasOne("Hospital.Data.Models.Doctor", "AssignedDoctor")
                         .WithMany()
-                        .HasForeignKey("AssignedDoctorId");
+                        .HasForeignKey("AssignedDoctorId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("AssignedDoctor");
+                });
+
+            modelBuilder.Entity("Hospital.Data.Models.ERRoom", b =>
+                {
+                    b.HasOne("Hospital.Data.Models.ERVisit", "CurrentVisit")
+                        .WithMany()
+                        .HasForeignKey("CurrentVisitId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CurrentVisit");
+                });
+
+            modelBuilder.Entity("Hospital.Data.Models.ERVisit", b =>
+                {
+                    b.HasOne("Hospital.Data.Models.Patient", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("Hospital.Data.Models.Examination", b =>
+                {
+                    b.HasOne("Hospital.Data.Models.Staff", "Doctor")
+                        .WithMany()
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Hospital.Data.Models.ERRoom", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Hospital.Data.Models.ERVisit", "Visit")
+                        .WithMany()
+                        .HasForeignKey("VisitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Doctor");
+
+                    b.Navigation("Room");
+
+                    b.Navigation("Visit");
+                });
+
+            modelBuilder.Entity("Hospital.Data.Models.Hangout", b =>
+                {
+                    b.HasOne("Hospital.Data.Models.Staff", "Organizer")
+                        .WithMany()
+                        .HasForeignKey("OrganizerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Organizer");
                 });
 
             modelBuilder.Entity("Hospital.Data.Models.HangoutParticipant", b =>
@@ -1325,7 +1453,7 @@ namespace Hospital.Data.Migrations
                     b.HasOne("Hospital.Data.Models.Substance", "Substance")
                         .WithMany("ItemSubstanceEntries")
                         .HasForeignKey("SubstanceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Item");
@@ -1335,9 +1463,14 @@ namespace Hospital.Data.Migrations
 
             modelBuilder.Entity("Hospital.Data.Models.MedicalEvaluation", b =>
                 {
-                    b.HasOne("Hospital.Data.Models.Doctor", "Evaluator")
+                    b.HasOne("Hospital.Data.Models.Doctor", null)
                         .WithMany("MedicalEvaluations")
-                        .HasForeignKey("EvaluatorId");
+                        .HasForeignKey("DoctorStaffID");
+
+                    b.HasOne("Hospital.Data.Models.Doctor", "Evaluator")
+                        .WithMany()
+                        .HasForeignKey("EvaluatorId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Evaluator");
                 });
@@ -1347,7 +1480,7 @@ namespace Hospital.Data.Migrations
                     b.HasOne("Hospital.Data.Models.Patient", "Patient")
                         .WithOne("MedicalHistory")
                         .HasForeignKey("Hospital.Data.Models.MedicalHistory", "PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Patient");
@@ -1358,10 +1491,24 @@ namespace Hospital.Data.Migrations
                     b.HasOne("Hospital.Data.Models.MedicalHistory", "MedicalHistory")
                         .WithMany("MedicalRecords")
                         .HasForeignKey("MedicalHistoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Hospital.Data.Models.Staff", "StaffMember")
+                        .WithMany()
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Hospital.Data.Models.Transplant", "Transplant")
+                        .WithMany()
+                        .HasForeignKey("TransplantId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("MedicalHistory");
+
+                    b.Navigation("StaffMember");
+
+                    b.Navigation("Transplant");
                 });
 
             modelBuilder.Entity("Hospital.Data.Models.Notification", b =>
@@ -1379,7 +1526,7 @@ namespace Hospital.Data.Migrations
                     b.HasOne("Hospital.Data.Models.User", "Client")
                         .WithMany("Orders")
                         .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Client");
@@ -1390,7 +1537,7 @@ namespace Hospital.Data.Migrations
                     b.HasOne("Hospital.Data.Models.Item", "Item")
                         .WithMany()
                         .HasForeignKey("ItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Hospital.Data.Models.Order", "Order")
@@ -1439,7 +1586,7 @@ namespace Hospital.Data.Migrations
                     b.HasOne("Hospital.Data.Models.Staff", "Pharmacist")
                         .WithMany()
                         .HasForeignKey("PharmacistId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Pharmacist");
@@ -1487,7 +1634,8 @@ namespace Hospital.Data.Migrations
 
                     b.HasOne("Hospital.Data.Models.Shift", "Shift")
                         .WithMany()
-                        .HasForeignKey("ShiftId");
+                        .HasForeignKey("ShiftId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Hospital.Data.Models.Staff", "Colleague")
                         .WithMany("ShiftSwapRequestsAsColleague")
@@ -1501,12 +1649,82 @@ namespace Hospital.Data.Migrations
                     b.Navigation("Shift");
                 });
 
+            modelBuilder.Entity("Hospital.Data.Models.TransferLog", b =>
+                {
+                    b.HasOne("Hospital.Data.Models.ERVisit", "Visit")
+                        .WithMany()
+                        .HasForeignKey("VisitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Visit");
+                });
+
+            modelBuilder.Entity("Hospital.Data.Models.Transplant", b =>
+                {
+                    b.HasOne("Hospital.Data.Models.Patient", "Donor")
+                        .WithMany()
+                        .HasForeignKey("DonorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Hospital.Data.Models.Patient", "Receiver")
+                        .WithMany()
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Donor");
+
+                    b.Navigation("Receiver");
+                });
+
+            modelBuilder.Entity("Hospital.Data.Models.TransplantMatch", b =>
+                {
+                    b.HasOne("Hospital.Data.Models.Patient", "Receiver")
+                        .WithMany()
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Hospital.Data.Models.Transplant", "Transplant")
+                        .WithMany()
+                        .HasForeignKey("TransplantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Transplant");
+                });
+
+            modelBuilder.Entity("Hospital.Data.Models.Triage", b =>
+                {
+                    b.HasOne("Hospital.Data.Models.ERVisit", "Visit")
+                        .WithMany()
+                        .HasForeignKey("VisitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Visit");
+                });
+
+            modelBuilder.Entity("Hospital.Data.Models.TriageParameters", b =>
+                {
+                    b.HasOne("Hospital.Data.Models.Triage", "Triage")
+                        .WithOne()
+                        .HasForeignKey("Hospital.Data.Models.TriageParameters", "TriageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Triage");
+                });
+
             modelBuilder.Entity("Hospital.Data.Models.UserDiscount", b =>
                 {
                     b.HasOne("Hospital.Data.Models.Item", "Item")
                         .WithMany()
                         .HasForeignKey("ItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Hospital.Data.Models.User", "User")
@@ -1525,7 +1743,7 @@ namespace Hospital.Data.Migrations
                     b.HasOne("Hospital.Data.Models.Item", "Item")
                         .WithMany()
                         .HasForeignKey("ItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Hospital.Data.Models.User", "User")

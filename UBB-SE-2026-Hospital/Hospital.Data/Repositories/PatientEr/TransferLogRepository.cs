@@ -15,7 +15,7 @@ public class TransferLogRepository(HospitalDbContext context) : ITransferLogRepo
         => await context.TransferLogs.ToListAsync();
 
     public async Task<List<TransferLog>> GetByVisitIdAsync(int visitId)
-        => await context.TransferLogs.Where(t => t.VisitId == visitId).ToListAsync();
+        => await context.TransferLogs.Where(t => t.Visit.VisitId == visitId).ToListAsync();
 
     public async Task<TransferLog> CreateAsync(TransferLog transferLog)
     {

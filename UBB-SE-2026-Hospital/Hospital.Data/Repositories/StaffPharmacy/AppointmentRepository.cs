@@ -16,7 +16,7 @@ public class AppointmentRepository(HospitalDbContext context) : IAppointmentRepo
         => await context.Appointments.ToListAsync();
 
     public async Task<List<Appointment>> GetByDoctorIdAsync(int doctorId)
-        => await context.Appointments.Where(a => a.DoctorId == doctorId).ToListAsync();
+        => await context.Appointments.Where(a => a.Doctor!.StaffId == doctorId).ToListAsync();
 
     public async Task<List<Appointment>> GetByPatientIdAsync(int patientId)
         => await context.Appointments.ToListAsync();

@@ -15,9 +15,11 @@ public class ERRoomRepository(HospitalDbContext context) : IERRoomRepository
         => await context.ERRooms.ToListAsync();
 
     public async Task<List<ERRoom>> GetAvailableRoomsAsync()
-        => await context.ERRooms
-            .Where(r => r.AvailabilityStatus == ERRoom.RoomStatus.Available)
-            .ToListAsync();
+    {
+        bool IsAvailableRoom(ERRoom room) => room.AvailabilityStatus == ERRoom.RoomStatus.Available;
+        var all = await context.ERRooms.ToListAsync();
+        return all.Where(IsAvailableRoom).ToList();
+    }
 
     public async Task<ERRoom> CreateAsync(ERRoom room)
     {

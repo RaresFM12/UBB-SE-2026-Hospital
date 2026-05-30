@@ -3,7 +3,7 @@ using Hospital.Data.Models;
 
 namespace Hospital.Data.Models.DTOs;
 
-public class PerformTriageRequestDto
+public class PerformTriageRequest
 {
     public int VisitId { get; set; }
     public int TriageLevel { get; set; }
@@ -16,10 +16,10 @@ public class PerformTriageRequestDto
     public int InjuryType { get; set; }
     public int PainLevel { get; set; }
 
-    public TriageParameters ToParameters(int triageId) =>
+    public TriageParameters ToParameters(Triage triage) =>
         new()
         {
-            TriageId = triageId,
+            Triage = triage,
             Consciousness = Consciousness,
             Breathing = Breathing,
             Bleeding = Bleeding,
@@ -28,7 +28,7 @@ public class PerformTriageRequestDto
         };
 }
 
-public class PerformTriageResponseDto
+public class PerformTriageResponse
 {
     public Triage Triage { get; set; } = new();
     public TriageParameters Parameters { get; set; } = new();

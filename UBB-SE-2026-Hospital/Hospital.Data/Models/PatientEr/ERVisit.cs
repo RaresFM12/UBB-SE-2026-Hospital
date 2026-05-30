@@ -7,7 +7,7 @@ namespace Hospital.Data.Models;
 public class ERVisit
 {
     public int VisitId { get; set; }
-    public int PatientId { get; set; }
+    public Patient Patient { get; set; } = null!;
     public DateTime ArrivalDateTime { get; set; } = DateTime.Now;
     public string ChiefComplaint { get; set; } = string.Empty;
     public string Status { get; set; } = VisitStatus.REGISTERED;
@@ -46,7 +46,7 @@ public class ERVisit
     public bool Validate(out List<string> errors)
     {
         errors = new List<string>();
-        if (PatientId <= 0) errors.Add("PatientId is required.");
+        if (Patient is null) errors.Add("Patient is required.");
         if (ArrivalDateTime == default) errors.Add("Arrival date and time is required.");
         if (string.IsNullOrWhiteSpace(ChiefComplaint)) errors.Add("Chief complaint is required.");
         else if (ChiefComplaint.Length > 500) errors.Add("Chief complaint must not exceed 500 characters.");

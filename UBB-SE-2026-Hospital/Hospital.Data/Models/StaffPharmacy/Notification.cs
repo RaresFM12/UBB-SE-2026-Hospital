@@ -5,7 +5,6 @@ namespace Hospital.Data.Models;
 public class Notification
 {
     public int Id { get; set; }
-    public int? StaffId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Message { get; set; } = string.Empty;
     public string ActionButtonText { get; set; } = string.Empty;

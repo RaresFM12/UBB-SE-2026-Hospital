@@ -16,7 +16,7 @@ public class ShiftRepository(HospitalDbContext context) : IShiftRepository
         => await context.Shifts.Include(s => s.Staff).ToListAsync();
 
     public async Task<List<Shift>> GetByStaffIdAsync(int staffId)
-        => await context.Shifts.Where(s => s.StaffId == staffId).ToListAsync();
+        => await context.Shifts.Where(s => s.Staff.StaffId == staffId).ToListAsync();
 
     public async Task<List<Shift>> GetByDateRangeAsync(DateTime start, DateTime end)
         => await context.Shifts
@@ -27,7 +27,7 @@ public class ShiftRepository(HospitalDbContext context) : IShiftRepository
     {
         var now = DateTime.UtcNow;
         return await context.Shifts
-            .Where(s => s.StartTime <= now && s.EndTime >= now && s.Status == ShiftStatus.ACTIVE)
+            .Where(s => s.StartTime <= now && s.EndTime >= now && s.Status == ShiftStatus.Active)
             .ToListAsync();
     }
 

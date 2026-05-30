@@ -10,13 +10,13 @@ public class HangoutParticipantRepository(HospitalDbContext context) : IHangoutP
 {
     public async Task<HangoutParticipant?> GetByIdAsync(int hangoutId, int staffId)
         => await context.HangoutParticipants
-            .FirstOrDefaultAsync(p => p.HangoutId == hangoutId && p.StaffId == staffId);
+            .FirstOrDefaultAsync(p => p.Hangout.HangoutID == hangoutId && p.Staff.StaffId == staffId);
 
     public async Task<List<HangoutParticipant>> GetByHangoutIdAsync(int hangoutId)
-        => await context.HangoutParticipants.Where(p => p.HangoutId == hangoutId).ToListAsync();
+        => await context.HangoutParticipants.Where(p => p.Hangout.HangoutID == hangoutId).ToListAsync();
 
     public async Task<List<HangoutParticipant>> GetByStaffIdAsync(int staffId)
-        => await context.HangoutParticipants.Where(p => p.StaffId == staffId).ToListAsync();
+        => await context.HangoutParticipants.Where(p => p.Staff.StaffId == staffId).ToListAsync();
 
     public async Task<HangoutParticipant> CreateAsync(HangoutParticipant participant)
     {

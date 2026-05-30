@@ -11,10 +11,10 @@ public class TransplantMatch
     public int Id { get; set; }
 
     [Required]
-    public int TransplantId { get; set; }
+    public Transplant Transplant { get; set; } = null!;
 
     [Required]
-    public int ReceiverId { get; set; }
+    public Patient Receiver { get; set; } = null!;
 
     [Required]
     [MaxLength(100)]

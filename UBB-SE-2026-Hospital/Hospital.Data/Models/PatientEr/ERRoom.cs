@@ -9,7 +9,7 @@ public class ERRoom
     public int RoomId { get; set; }
     public string RoomTypeName { get; set; } = string.Empty;
     public string AvailabilityStatus { get; set; } = RoomStatus.Available;
-    public int? CurrentVisitId { get; set; }
+    public ERVisit? CurrentVisit { get; set; }
 
     public static class RoomStatus
     {
@@ -44,14 +44,19 @@ public class ERRoom
         => string.Equals(left, right, StringComparison.OrdinalIgnoreCase);
 
     public static string NormalizeStatus(string? status)
-        => AllowedStatuses.FirstOrDefault(s => StatusEquals(s, status)) ?? status ?? string.Empty;
+    {
+        bool MatchesCurrentStatus(string allowedStatus) => StatusEquals(allowedStatus, status);
+        return AllowedStatuses.FirstOrDefault(MatchesCurrentStatus) ?? status ?? string.Empty;
+    }
 
     public void UpdateAvailabilityStatus(string newStatus)
     {
         string current = NormalizeStatus(AvailabilityStatus);
         string next = NormalizeStatus(newStatus);
 
-        if (!AllowedStatuses.Any(s => StatusEquals(s, next)))
+        bool MatchesNextStatus(string allowedStatus) => StatusEquals(allowedStatus, next);
+
+        if (!AllowedStatuses.Any(MatchesNextStatus))
             throw new ArgumentException($"'{newStatus}' is not a valid room status.");
 
         if (!ValidTransitions.TryGetValue(current, out string? expectedNext) || !StatusEquals(expectedNext, next))

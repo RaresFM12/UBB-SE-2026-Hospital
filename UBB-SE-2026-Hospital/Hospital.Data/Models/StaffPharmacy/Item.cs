@@ -112,7 +112,8 @@ public class Item
 
     public void RemoveQuantityFromItem(int quantityToRemove, DateOnly dateAfter)
     {
-        List<DateOnly> sorted = Batches.Keys.OrderBy(d => d).ToList();
+        DateOnly GetExpirationDate(DateOnly expirationDate) => expirationDate;
+        List<DateOnly> sorted = Batches.Keys.OrderBy(GetExpirationDate).ToList();
         int remaining = quantityToRemove;
         foreach (DateOnly expiry in sorted)
         {
@@ -132,5 +133,9 @@ public class Item
     }
 
     public int GetQuantityAtSpecifiedDate(DateOnly date)
-        => Batches.Where(b => date < b.Key).Sum(b => b.Value);
+    {
+        bool IsBatchAfterDate(KeyValuePair<DateOnly, int> batch) => date < batch.Key;
+        int GetBatchQuantity(KeyValuePair<DateOnly, int> batch) => batch.Value;
+        return Batches.Where(IsBatchAfterDate).Sum(GetBatchQuantity);
+    }
 }

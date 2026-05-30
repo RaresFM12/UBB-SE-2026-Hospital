@@ -3,7 +3,7 @@ using Hospital.Data.Models;
 
 namespace Hospital.Data.Models.DTOs;
 
-public class CreateMedicalRecordDto
+public class CreateMedicalRecordRequest
 {
     public SourceType SourceType { get; set; }
     public int SourceId { get; set; }

@@ -3,7 +3,7 @@ using Hospital.Data.Models;
 
 namespace Hospital.Data.Models.DTOs;
 
-public class ExternalPatientDTO
+public class ExternalPatientDetails
 {
     public string CNP { get; set; } = string.Empty;
     public string FirstName { get; set; } = string.Empty;

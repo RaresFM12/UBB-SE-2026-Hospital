@@ -19,7 +19,7 @@ public class OrdersRepository(HospitalDbContext context) : IOrdersRepository
     public async Task<List<Order>> GetByUserIdAsync(int userId)
         => await context.Orders
             .Include(o => o.OrderItemEntries)
-            .Where(o => o.ClientId == userId)
+            .Where(o => o.Client.Id == userId)
             .ToListAsync();
 
     public async Task<Order> CreateAsync(Order order)
@@ -47,7 +47,7 @@ public class OrdersRepository(HospitalDbContext context) : IOrdersRepository
     }
 
     public async Task<List<OrderItem>> GetOrderItemsByOrderIdAsync(int orderId)
-        => await context.OrderItems.Where(oi => oi.OrderId == orderId).ToListAsync();
+        => await context.OrderItems.Where(oi => oi.Order.Id == orderId).ToListAsync();
 
     public async Task<OrderItem> AddOrderItemAsync(OrderItem orderItem)
     {

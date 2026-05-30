@@ -13,9 +13,6 @@ public class MedicalHistory
     public int MedicalHistoryId { get; set; }
 
     [Required]
-    public int PatientId { get; set; }
-
-    [Required]
     [JsonIgnore]
     public Patient Patient { get; set; } = null!;
 

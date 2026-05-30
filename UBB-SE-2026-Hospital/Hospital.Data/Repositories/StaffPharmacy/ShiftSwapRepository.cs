@@ -16,7 +16,7 @@ public class ShiftSwapRepository(HospitalDbContext context) : IShiftSwapReposito
 
     public async Task<List<ShiftSwapRequest>> GetByStaffIdAsync(int staffId)
         => await context.ShiftSwapRequests
-            .Where(r => r.RequestingStaffId == staffId || r.TargetStaffId == staffId)
+            .Where(r => r.Requester!.StaffId == staffId || r.Colleague!.StaffId == staffId)
             .ToListAsync();
 
     public async Task<List<ShiftSwapRequest>> GetPendingAsync()

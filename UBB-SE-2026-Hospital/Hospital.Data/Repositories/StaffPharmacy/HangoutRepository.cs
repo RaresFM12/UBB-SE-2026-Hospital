@@ -18,7 +18,7 @@ public class HangoutRepository(HospitalDbContext context) : IHangoutRepository
 
     public async Task<List<Hangout>> GetByOrganizerIdAsync(int staffId)
         => await context.Hangouts
-            .Where(h => h.OrganizerId == staffId)
+            .Where(h => h.Organizer!.StaffId == staffId)
             .ToListAsync();
 
     public async Task<Hangout> CreateAsync(Hangout hangout)
