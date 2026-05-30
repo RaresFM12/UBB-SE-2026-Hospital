@@ -3,9 +3,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Hospital.Data;
 
-public class HospitalDbContext(DbContextOptions<HospitalDbContext> options) : DbContext(options)
+public class HospitalDbContext : DbContext
 {
+<<<<<<< HEAD
     // Users & Auth
+=======
+    private const string DesignTimeConnectionString =
+        "Data Source=.;Initial Catalog=HospitalDatabase;Integrated Security=True;Encrypt=True;Trust Server Certificate=True;";
+
+    public HospitalDbContext() { }
+
+    public HospitalDbContext(DbContextOptions<HospitalDbContext> options) : base(options) { }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured)
+            optionsBuilder.UseSqlServer(DesignTimeConnectionString);
+    }
+
+>>>>>>> 2df4485 (migration script)
     public DbSet<User> Users => Set<User>();
     public DbSet<UserDiscount> UserDiscounts => Set<UserDiscount>();
     public DbSet<UserNotification> UserNotifications => Set<UserNotification>();
