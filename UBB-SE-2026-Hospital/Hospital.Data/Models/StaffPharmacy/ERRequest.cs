@@ -7,6 +7,7 @@ public class ERRequest
     public const string PendingStatus = "PENDING";
 
     public int Id { get; set; }
+    public int? AssignedDoctorId { get; set; }
     public string Specialization { get; set; } = string.Empty;
     public string Location { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }

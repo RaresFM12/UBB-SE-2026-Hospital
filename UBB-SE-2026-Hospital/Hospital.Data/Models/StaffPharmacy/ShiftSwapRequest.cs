@@ -13,6 +13,9 @@ public enum ShiftSwapRequestStatus
 public class ShiftSwapRequest
 {
     public int SwapId { get; set; }
+    public int? ShiftId { get; set; }
+    public int? RequestingStaffId { get; set; }
+    public int? TargetStaffId { get; set; }
     public DateTime RequestedAt { get; set; }
     public ShiftSwapRequestStatus Status { get; set; } = ShiftSwapRequestStatus.PENDING;
     public Shift? Shift { get; set; }

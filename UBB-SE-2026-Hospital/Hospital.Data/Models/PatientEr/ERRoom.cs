@@ -7,7 +7,7 @@ namespace Hospital.Data.Models;
 public class ERRoom
 {
     public int RoomId { get; set; }
-    public string RoomType { get; set; } = string.Empty;
+    public string RoomTypeName { get; set; } = string.Empty;
     public string AvailabilityStatus { get; set; } = RoomStatus.Available;
     public int? CurrentVisitId { get; set; }
 
@@ -61,5 +61,5 @@ public class ERRoom
         AvailabilityStatus = next;
     }
 
-    public override string ToString() => $"[Room {RoomId}] Type: {RoomType} | Status: {AvailabilityStatus}";
+    public override string ToString() => $"[Room {RoomId}] Type: {RoomTypeName} | Status: {AvailabilityStatus}";
 }

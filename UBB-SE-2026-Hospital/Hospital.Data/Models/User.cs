@@ -7,6 +7,9 @@ namespace Hospital.Data.Models;
 
 public class BasketEntry
 {
+    public int Id { get; set; }
+    public int UserId { get; set; }
+    public int ItemId { get; set; }
     public int Quantity { get; set; }
     public float ExtraDiscountPercentage { get; set; }
 
