@@ -1,7 +1,7 @@
 using System.Globalization;
 using Hospital.Data.Models;
 using Hospital.Data.Repositories;
-using Hospital.Shared.Services;
+using Hospital.Services.PatientEr;
 
 namespace Hospital.Services.PatientEr;
 

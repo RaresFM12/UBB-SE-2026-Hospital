@@ -1,6 +1,6 @@
 using Hospital.Data.Models;
 using Hospital.Data.Models.DTOs;
-using Hospital.Shared.Services;
+using Hospital.Services.PatientEr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
