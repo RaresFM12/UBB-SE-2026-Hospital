@@ -23,6 +23,12 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITransplantService, TransplantService>();
         services.AddScoped<IAddictDetectionService, AddictDetectionService>();
         services.AddScoped<IPatientService, PatientService>();
+        services.AddScoped<IERRoomService, ERRoomService>();
+        services.AddScoped<IERVisitService, ERVisitService>();
+        services.AddScoped<ITriageService, TriageService>();
+        services.AddScoped<ITriageParametersService, TriageParametersService>();
+        services.AddScoped<ITriageDecisionService, TriageDecisionService>();
+        services.AddScoped<IExaminationService, ExaminationService>();
 
         // Staff / Pharmacy domain (from 923-2) — stubs until Phase 3
         services.AddScoped<IAdminService, AdminService>();
