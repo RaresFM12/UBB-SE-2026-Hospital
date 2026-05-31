@@ -79,8 +79,8 @@ public class StatisticsService(
         return prescriptions
             .Where(p => p.MedicationList is not null)
             .SelectMany(p => p.MedicationList)
-            .Where(item => !string.IsNullOrWhiteSpace(item.MedName))
-            .GroupBy(item => item.MedName.Trim().ToUpperInvariant())
+            .Where(item => !string.IsNullOrWhiteSpace(item.MedicationName))
+            .GroupBy(item => item.MedicationName.Trim().ToUpperInvariant())
             .OrderByDescending(g => g.Count())
             .Take(20)
             .ToDictionary(g => g.Key, g => g.Count());

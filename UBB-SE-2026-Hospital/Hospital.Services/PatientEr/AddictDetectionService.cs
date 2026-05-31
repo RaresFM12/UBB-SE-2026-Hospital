@@ -114,7 +114,7 @@ public class AddictDetectionService(
             foreach (Prescription rx in recentPrescriptions)
             {
                 string meds = rx.MedicationList?.Count > 0
-                    ? string.Join(ReportMedicationSeparator, rx.MedicationList.Select(m => m.MedName))
+                    ? string.Join(ReportMedicationSeparator, rx.MedicationList.Select(m => m.MedicationName))
                     : UnknownMedicationText;
 
                 reportBuilder
