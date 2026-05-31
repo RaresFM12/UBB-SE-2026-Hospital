@@ -1,0 +1,1 @@
+namespace Hospital.Shared.Services;
