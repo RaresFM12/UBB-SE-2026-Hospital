@@ -8,5 +8,5 @@ namespace Hospital.Web.Controllers;
 public class PharmacyController(IAdminService adminService) : Controller
 {
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
-        => View(await adminService.GetItemsAsync(cancellationToken));
+        => View(await adminService.GetItemsAsync(null, cancellationToken));
 }
