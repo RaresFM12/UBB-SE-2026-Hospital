@@ -1,12 +1,12 @@
 using Hospital.Shared.Models.StaffPharmacy;
 using Hospital.Shared.Services;
-using Microsoft.AspNetCore.Authorization;
+using Hospital.API.Auth;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hospital.API.Controllers;
 
 [ApiController]
-[Authorize]
+[AuthorizeRole("Admin","Pharmacist","Client")]
 [Route("api/baskets")]
 public class BasketsController(IBasketService basketService) : ControllerBase
 {

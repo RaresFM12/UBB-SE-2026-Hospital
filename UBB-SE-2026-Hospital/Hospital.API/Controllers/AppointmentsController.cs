@@ -1,12 +1,12 @@
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
-using Microsoft.AspNetCore.Authorization;
+using Hospital.API.Auth;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hospital.API.Controllers;
 
 [ApiController]
-[Authorize]
+[AuthorizeRole("Admin","Doctor")]
 [Route("api/appointments")]
 public class AppointmentsController(IDoctorAppointmentService appointmentService) : ControllerBase
 {

@@ -1,12 +1,12 @@
 using Hospital.Data.Models;
 using Hospital.Services.PatientEr;
-using Microsoft.AspNetCore.Authorization;
+using Hospital.API.Auth;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hospital.API.Controllers;
 
 [ApiController]
-[Authorize]
+[AuthorizeRole("Admin","Doctor","Nurse")]
 [Route("api/allergies")]
 public class AllergyController(IAllergyService allergyService, ILogger<AllergyController> logger) : ControllerBase
 {
