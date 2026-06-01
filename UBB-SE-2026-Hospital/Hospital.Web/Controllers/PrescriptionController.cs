@@ -1,10 +1,10 @@
-﻿using System.Security.Cryptography;
-using Common.Data.Entity;
-using Common.Data.Entity.DTOs;
-using Common.Data.Integration;
+using System.Security.Cryptography;
+using Hospital.Data.Models;
+using Hospital.Data.Models.DTOs;
+using Hospital.Shared.Services;
 using Hospital.Web.Models.Prescription;
-using Hospital.Web.ViewModels; 
-using Hospital.Shared.Services; 
+using Hospital.Web.Models;
+using Hospital.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,8 +14,8 @@ namespace Hospital.Web.Controllers;
 public class PrescriptionController : Controller
 {
     private readonly IPrescriptionService prescriptionService;
-    private readonly IAdminService adminService; 
-    private readonly IMedicalEvaluationService evaluationService; 
+    private readonly IAdminService adminService;
+    private readonly IMedicalEvaluationService evaluationService;
 
     private const int PageSize = 9;
     private static readonly char[] MedicineSeparators = new[] { ',', ';', '\n', '\r' };
@@ -32,7 +32,7 @@ public class PrescriptionController : Controller
 
     [HttpGet]
     [Authorize(Roles = "Pharmacist,Admin")]
-    public IActionResult Resolve() 
+    public IActionResult Resolve()
     {
         return View("Index", new ResolvePrescriptionViewModel());
     }

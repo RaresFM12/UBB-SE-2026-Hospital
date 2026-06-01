@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
-using Hospital.Web.ViewModels;
+using Hospital.Web.Models;
 
 namespace Hospital.Web.Controllers;
 

@@ -1,10 +1,10 @@
-namespace UBB_SE_2026_923_2.Web.Controllers
+namespace Hospital.Web.Controllers
 {
     using System;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-    using UBB_SE_2026_923_2.Models;
-    using UBB_SE_2026_923_2.Services;
+    using Hospital.Data.Models;
+    using Hospital.Shared.Services;
 
     [Authorize(Roles = "Admin")]
     public class FatigueAuditController : Controller

@@ -1,7 +1,6 @@
 using System.Text;
-using Common.Data.Entity;
-using Common.Data.Entity.DTOs;
-using Hospital.Web.Models.PatientProfile;
+using Hospital.Data.Models;
+using Hospital.Data.Models.DTOs;
 using Hospital.Shared.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
@@ -379,7 +378,7 @@ public class PatientController : Controller
             }
 
             var existingErSourceIds = patient.MedicalHistory.MedicalRecords?
-                .Where(record => record.SourceType == Common.Data.Entity.Enums.SourceType.ER)
+                .Where(record => record.SourceType == SourceType.ER)
                 .Select(record => record.SourceId)
                 .ToHashSet() ?? new HashSet<int>();
 
@@ -409,7 +408,7 @@ public class PatientController : Controller
                 TemporaryDiagnosis = string.IsNullOrWhiteSpace(summary.Notes) ? summary.Specialization : summary.Notes,
                 PrescribedMeds = string.Empty,
                 ConsultationDate = summary.ExamTime,
-                SourceType = Common.Data.Entity.Enums.SourceType.ER,
+                SourceType = SourceType.ER,
             };
 
             await ProcessImportAsync(dto, patient, HttpContext.RequestAborted);

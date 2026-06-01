@@ -1,4 +1,4 @@
-﻿@model Hospital.Web.Models.MedicalStaff.MedicalStaffDashboardViewModel
+@model Hospital.Web.Models.MedicalStaff.MedicalStaffDashboardViewModel
 @{
     ViewData["Title"] = "Medical Staff Dashboard";
 }
@@ -67,7 +67,7 @@
                 </table>
             </div>
 
-            @* Sidebar — only shown when a patient is selected *@
+            @* Sidebar - only shown when a patient is selected *@
             @if (Model.SelectedPatient is not null)
             {
                 <div class="card p-3" style="min-width:260px;">

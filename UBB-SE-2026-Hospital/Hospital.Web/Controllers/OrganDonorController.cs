@@ -1,4 +1,4 @@
-﻿using Common.Data.Entity;
+using Hospital.Data.Models;
 using Hospital.Web.Models.Transplant;
 using Hospital.Web.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -21,7 +21,7 @@ public class OrganDonorController : Controller
     }
 
     // GET: /OrganDonor/Assign?patientId=5
-    // GET: /OrganDonor/Assign?patientId=5&organ=Heart  ← organ pre-selected, matches loaded
+    // GET: /OrganDonor/Assign?patientId=5&organ=Heart  ? organ pre-selected, matches loaded
     [HttpGet]
     public async Task<IActionResult> Assign(int patientId, string? organ)
     {

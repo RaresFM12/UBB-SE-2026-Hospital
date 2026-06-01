@@ -1,5 +1,5 @@
-﻿using Common.Data.Entity;
-using Common.Data.Entity.DTOs;
+using Hospital.Data.Models;
+using Hospital.Data.Models.DTOs;
 using Hospital.Web.Models.MedicalStaff;
 using Hospital.Web.Services;
 using Microsoft.AspNetCore.Mvc;

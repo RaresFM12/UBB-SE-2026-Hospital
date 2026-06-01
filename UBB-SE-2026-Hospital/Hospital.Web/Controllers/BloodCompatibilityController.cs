@@ -1,4 +1,4 @@
-﻿using Common.Data.Entity;
+using Hospital.Data.Models;
 using Hospital.Web.Models.BloodCompatibility;
 using Hospital.Shared.Services;
 using Microsoft.AspNetCore.Authorization;

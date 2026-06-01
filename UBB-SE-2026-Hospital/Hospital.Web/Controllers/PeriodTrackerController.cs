@@ -2,11 +2,11 @@ using System;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using UBB_SE_2026_923_2.Models;
-using UBB_SE_2026_923_2.Services;
-using UBB_SE_2026_923_2.Web.ViewModels;
+using Hospital.Data.Models;
+using Hospital.Shared.Services;
+using Hospital.Web.Models;
 
-namespace UBB_SE_2026_923_2.Web.Controllers
+namespace Hospital.Web.Controllers
 {
     [Authorize(Roles = "Client")]
     public class PeriodTrackerController : Controller
