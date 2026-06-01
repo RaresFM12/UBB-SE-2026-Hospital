@@ -11,44 +11,45 @@ namespace Hospital.Data.Repositories;
 public class PatientRepository(HospitalDbContext context) : IPatientRepository
 {
     public async Task<Patient?> GetByIdAsync(int patientId)
-        => await context.Patients.FindAsync(patientId);
+    {
+        // CRITICAL FIX: Eager load the MedicalHistory and Records so the Profile View works
+        return await context.Patients
+            .Include(p => p.MedicalHistory)
+                .ThenInclude(mh => mh.MedicalRecords)
+            .FirstOrDefaultAsync(p => p.PatientId == patientId);
+    }
 
     public async Task<List<Patient>> GetAllAsync()
         => await context.Patients.ToListAsync();
 
     public async Task<List<Patient>> GetFilteredAsync(PatientFilter filter)
     {
-        var all = await context.Patients.ToListAsync();
-        IEnumerable<Patient> query = all;
-
-        bool MatchesCnp(Patient patient) => patient.Cnp == filter.CNP;
-        bool MatchesName(Patient patient) => (patient.FirstName + " " + patient.LastName).Contains(filter.NamePart!);
-        bool MatchesSex(Patient patient) => patient.Sex == filter.Sex!.Value;
+        // PERFORMANCE FIX: Build the query without executing it right away
+        var query = context.Patients.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(filter.CNP))
-            query = query.Where(MatchesCnp);
+            query = query.Where(p => p.Cnp == filter.CNP);
 
         if (!string.IsNullOrWhiteSpace(filter.NamePart))
-            query = query.Where(MatchesName);
+            query = query.Where(p => (p.FirstName + " " + p.LastName).Contains(filter.NamePart));
 
         if (filter.Sex.HasValue)
-            query = query.Where(MatchesSex);
+            query = query.Where(p => p.Sex == filter.Sex.Value);
 
         if (filter.MinAge.HasValue)
         {
             var maxBirth = DateTime.Today.AddYears(-filter.MinAge.Value);
-            bool BornBeforeMax(Patient patient) => patient.DateOfBirth <= maxBirth;
-            query = query.Where(BornBeforeMax);
+            query = query.Where(p => p.DateOfBirth <= maxBirth);
         }
 
         if (filter.MaxAge.HasValue)
         {
             var minBirth = DateTime.Today.AddYears(-filter.MaxAge.Value - 1);
-            bool BornAfterMin(Patient patient) => patient.DateOfBirth >= minBirth;
-            query = query.Where(BornAfterMin);
+            query = query.Where(p => p.DateOfBirth >= minBirth);
         }
 
-        return query.ToList();
+        // Execute the query on the SQL server and return the results
+        return await query.ToListAsync();
     }
 
     public async Task<Patient> CreateAsync(Patient patient)

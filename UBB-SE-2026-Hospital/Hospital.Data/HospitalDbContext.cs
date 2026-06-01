@@ -1,7 +1,6 @@
 using Hospital.Data.Models;
 using Hospital.Data.Models.Auth;
 using Microsoft.EntityFrameworkCore;
-
 namespace Hospital.Data;
 
 public class HospitalDbContext(DbContextOptions<HospitalDbContext> options) : DbContext(options)
