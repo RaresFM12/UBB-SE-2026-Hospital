@@ -9,16 +9,26 @@ namespace Hospital.Data.Repositories;
 public class ERDispatchRepository(HospitalDbContext context) : IERDispatchRepository
 {
     public async Task<ERRequest?> GetByIdAsync(int requestId)
-        => await context.ERRequests.FindAsync(requestId);
+        => await context.ERRequests
+            .Include(r => r.AssignedDoctor)
+            .FirstOrDefaultAsync(r => r.Id == requestId);
 
     public async Task<List<ERRequest>> GetAllAsync()
-        => await context.ERRequests.ToListAsync();
+        => await context.ERRequests
+            .Include(r => r.AssignedDoctor)
+            .ToListAsync();
 
     public async Task<List<ERRequest>> GetPendingAsync()
-        => await context.ERRequests.Where(r => r.Status == ERRequest.PendingStatus).ToListAsync();
+        => await context.ERRequests
+            .Include(r => r.AssignedDoctor)
+            .Where(r => r.Status == ERRequest.PendingStatus)
+            .ToListAsync();
 
     public async Task<List<ERRequest>> GetByDoctorIdAsync(int doctorId)
-        => await context.ERRequests.Where(r => r.AssignedDoctor!.StaffId == doctorId).ToListAsync();
+        => await context.ERRequests
+            .Include(r => r.AssignedDoctor)
+            .Where(r => r.AssignedDoctor!.StaffId == doctorId)
+            .ToListAsync();
 
     public async Task<ERRequest> CreateAsync(ERRequest request)
     {
