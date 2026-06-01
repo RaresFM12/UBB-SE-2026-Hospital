@@ -9,13 +9,20 @@ namespace Hospital.Data.Repositories;
 public class EvaluationsRepository(HospitalDbContext context) : IEvaluationsRepository
 {
     public async Task<MedicalEvaluation?> GetByIdAsync(int evaluationId)
-        => await context.MedicalEvaluations.FindAsync(evaluationId);
+        => await context.MedicalEvaluations
+            .Include(e => e.Evaluator)
+            .FirstOrDefaultAsync(e => e.EvaluationID == evaluationId);
 
     public async Task<List<MedicalEvaluation>> GetAllAsync()
-        => await context.MedicalEvaluations.ToListAsync();
+        => await context.MedicalEvaluations
+            .Include(e => e.Evaluator)
+            .ToListAsync();
 
     public async Task<List<MedicalEvaluation>> GetByDoctorIdAsync(int doctorId)
-        => await context.MedicalEvaluations.Where(e => e.Evaluator!.StaffId == doctorId).ToListAsync();
+        => await context.MedicalEvaluations
+            .Include(e => e.Evaluator)
+            .Where(e => e.Evaluator!.StaffId == doctorId)
+            .ToListAsync();
 
     public async Task<MedicalEvaluation> CreateAsync(MedicalEvaluation evaluation)
     {

@@ -1,10 +1,11 @@
 using Hospital.Data.Models;
+using Hospital.Data.Repositories;
 using Hospital.Shared.Services;
 
 namespace Hospital.Services.StaffPharmacy;
 
-public class PharmacyHandoverService : IPharmacyHandoverService
+public class PharmacyHandoverService(IPharmacyHandoverRepository pharmacyHandoverRepository) : IPharmacyHandoverService
 {
-    public Task<IReadOnlyList<PharmacyHandover>> GetAllPharmacyHandoversAsync(CancellationToken cancellationToken = default)
-        => throw new NotImplementedException();
+    public async Task<IReadOnlyList<PharmacyHandover>> GetAllPharmacyHandoversAsync(CancellationToken cancellationToken = default)
+        => await pharmacyHandoverRepository.GetAllAsync();
 }

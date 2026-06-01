@@ -10,15 +10,23 @@ public class OrdersRepository(HospitalDbContext context) : IOrdersRepository
 {
     public async Task<Order?> GetByIdAsync(int orderId)
         => await context.Orders
+            .Include(o => o.Client)
             .Include(o => o.OrderItemEntries)
+                .ThenInclude(oi => oi.Item)
             .FirstOrDefaultAsync(o => o.Id == orderId);
 
     public async Task<List<Order>> GetAllAsync()
-        => await context.Orders.Include(o => o.OrderItemEntries).ToListAsync();
+        => await context.Orders
+            .Include(o => o.Client)
+            .Include(o => o.OrderItemEntries)
+                .ThenInclude(oi => oi.Item)
+            .ToListAsync();
 
     public async Task<List<Order>> GetByUserIdAsync(int userId)
         => await context.Orders
+            .Include(o => o.Client)
             .Include(o => o.OrderItemEntries)
+                .ThenInclude(oi => oi.Item)
             .Where(o => o.Client.Id == userId)
             .ToListAsync();
 
@@ -47,7 +55,11 @@ public class OrdersRepository(HospitalDbContext context) : IOrdersRepository
     }
 
     public async Task<List<OrderItem>> GetOrderItemsByOrderIdAsync(int orderId)
-        => await context.OrderItems.Where(oi => oi.Order.Id == orderId).ToListAsync();
+        => await context.OrderItems
+            .Include(oi => oi.Item)
+            .Include(oi => oi.Order)
+            .Where(oi => oi.Order.Id == orderId)
+            .ToListAsync();
 
     public async Task<OrderItem> AddOrderItemAsync(OrderItem orderItem)
     {

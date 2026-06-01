@@ -10,19 +10,30 @@ namespace Hospital.Data.Repositories;
 public class AppointmentRepository(HospitalDbContext context) : IAppointmentRepository
 {
     public async Task<Appointment?> GetByIdAsync(int appointmentId)
-        => await context.Appointments.FindAsync(appointmentId);
+        => await context.Appointments
+            .Include(a => a.Doctor)
+            .FirstOrDefaultAsync(a => a.Id == appointmentId);
 
     public async Task<List<Appointment>> GetAllAsync()
-        => await context.Appointments.ToListAsync();
+        => await context.Appointments
+            .Include(a => a.Doctor)
+            .ToListAsync();
 
     public async Task<List<Appointment>> GetByDoctorIdAsync(int doctorId)
-        => await context.Appointments.Where(a => a.Doctor!.StaffId == doctorId).ToListAsync();
+        => await context.Appointments
+            .Include(a => a.Doctor)
+            .Where(a => a.Doctor!.StaffId == doctorId)
+            .ToListAsync();
 
     public async Task<List<Appointment>> GetByPatientIdAsync(int patientId)
-        => await context.Appointments.ToListAsync();
+        => await context.Appointments
+            .Include(a => a.Doctor)
+            .Where(a => a.ExternalRefId == patientId)
+            .ToListAsync();
 
     public async Task<List<Appointment>> GetByDateRangeAsync(DateTime start, DateTime end)
         => await context.Appointments
+            .Include(a => a.Doctor)
             .Where(a => a.AppointmentDate >= start && a.AppointmentDate <= end)
             .ToListAsync();
 
