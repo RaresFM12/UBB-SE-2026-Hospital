@@ -1,6 +1,6 @@
 using Common.Data.Entity;
 using Hospital.Web.Models.Consultations;
-using Hospital.Web.Services;
+using Hospital.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,13 +9,13 @@ namespace Hospital.Web.Controllers;
 [Authorize]
 public class ConsultationController : Controller
 {
-    private readonly IPatientApiClient patientApiClient;
-    private readonly IBillingApiClient billingApiClient;
+    private readonly IPatientService patientService;
+    private readonly IBillingService billingService;
 
-    public ConsultationController(IPatientApiClient patientApiClient, IBillingApiClient billingApiClient)
+    public ConsultationController(IPatientService patientService, IBillingService billingService)
     {
-        this.patientApiClient = patientApiClient;
-        this.billingApiClient = billingApiClient;
+        this.patientService = patientService;
+        this.billingService = billingService;
     }
 
     [HttpGet]
@@ -24,7 +24,7 @@ public class ConsultationController : Controller
         Patient patient;
         try
         {
-            patient = await patientApiClient.GetPatientDetailsAsync(patientId, HttpContext.RequestAborted);
+            patient = await patientService.GetPatientDetailsAsync(patientId);
         }
         catch (InvalidOperationException ex)
         {
@@ -44,7 +44,7 @@ public class ConsultationController : Controller
         decimal basePrice;
         try
         {
-            basePrice = await billingApiClient.ComputeBasePriceAsync(patientId, recordId, HttpContext.RequestAborted);
+            basePrice = await billingService.ComputeBasePriceAsync(patientId, recordId);
         }
         catch (InvalidOperationException)
         {
@@ -54,17 +54,14 @@ public class ConsultationController : Controller
         int? discountApplied = record.DiscountApplied;
         decimal finalPrice = record.DiscountApplied.HasValue ? record.FinalPrice : basePrice;
 
-        // Look up the prescription tied to this consultation record (if any),
-        // so the "View Prescription" button can link directly to it.
         int? prescriptionId = null;
         try
         {
-            Prescription? prescription = await patientApiClient.GetPrescriptionByRecordIdAsync(recordId, HttpContext.RequestAborted);
+            Prescription? prescription = await patientService.GetPrescriptionByRecordIdAsync(recordId);
             prescriptionId = prescription?.Id;
         }
         catch (InvalidOperationException)
         {
-            // Non-fatal: the rest of the consultation page still works without the link.
             prescriptionId = null;
         }
 

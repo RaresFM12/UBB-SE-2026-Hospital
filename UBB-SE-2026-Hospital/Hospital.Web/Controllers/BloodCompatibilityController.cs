@@ -1,24 +1,23 @@
 ﻿using Common.Data.Entity;
 using Hospital.Web.Models.BloodCompatibility;
-using Hospital.Web.Services;
+using Hospital.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hospital.Web.Controllers;
 
-// GET: /BloodCompatibility/Donors?patientId=5
 [Authorize]
 public class BloodCompatibilityController : Controller
 {
-    private readonly IBloodCompatibilityApiClient bloodCompatibilityApiClient;
-    private readonly IPatientApiClient patientApiClient;
+    private readonly IBloodCompatibilityService bloodCompatibilityService;
+    private readonly IPatientService patientService;
 
     public BloodCompatibilityController(
-        IBloodCompatibilityApiClient bloodCompatibilityApiClient,
-        IPatientApiClient patientApiClient)
+        IBloodCompatibilityService bloodCompatibilityService,
+        IPatientService patientService)
     {
-        this.bloodCompatibilityApiClient = bloodCompatibilityApiClient;
-        this.patientApiClient = patientApiClient;
+        this.bloodCompatibilityService = bloodCompatibilityService;
+        this.patientService = patientService;
     }
 
     [HttpGet]
@@ -27,7 +26,7 @@ public class BloodCompatibilityController : Controller
         Patient? patient;
         try
         {
-            patient = await patientApiClient.GetPatientDetailsAsync(patientId, HttpContext.RequestAborted);
+            patient = await patientService.GetPatientDetailsAsync(patientId);
         }
         catch (InvalidOperationException ex)
         {
@@ -47,7 +46,6 @@ public class BloodCompatibilityController : Controller
             PatientName = patient.FullName,
         };
 
-        // Guard: patient must have blood type & Rh on record
         if (patient.MedicalHistory?.BloodType is null || patient.MedicalHistory?.Rh is null)
         {
             model.StatusMessage =
@@ -58,8 +56,8 @@ public class BloodCompatibilityController : Controller
         List<Patient> topDonors;
         try
         {
-            topDonors = await bloodCompatibilityApiClient
-                .GetTopCompatibleDonorsAsync(patientId, HttpContext.RequestAborted);
+            topDonors = await bloodCompatibilityService
+                .GetTopCompatibleDonorsAsync(patientId);
         }
         catch (InvalidOperationException ex)
         {

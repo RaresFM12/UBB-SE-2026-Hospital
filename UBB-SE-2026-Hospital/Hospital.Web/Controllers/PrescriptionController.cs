@@ -3,7 +3,8 @@ using Common.Data.Entity;
 using Common.Data.Entity.DTOs;
 using Common.Data.Integration;
 using Hospital.Web.Models.Prescription;
-using Hospital.Web.Services;
+using Hospital.Web.ViewModels; 
+using Hospital.Shared.Services; 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,12 +13,65 @@ namespace Hospital.Web.Controllers;
 [Authorize]
 public class PrescriptionController : Controller
 {
-    private readonly IPrescriptionApiClient prescriptionApiClient;
-    private const int PageSize = 9;
+    private readonly IPrescriptionService prescriptionService;
+    private readonly IAdminService adminService; 
+    private readonly IMedicalEvaluationService evaluationService; 
 
-    public PrescriptionController(IPrescriptionApiClient prescriptionApiClient)
+    private const int PageSize = 9;
+    private static readonly char[] MedicineSeparators = new[] { ',', ';', '\n', '\r' };
+
+    public PrescriptionController(
+        IPrescriptionService prescriptionService,
+        IAdminService adminService,
+        IMedicalEvaluationService evaluationService)
     {
-        this.prescriptionApiClient = prescriptionApiClient;
+        this.prescriptionService = prescriptionService;
+        this.adminService = adminService;
+        this.evaluationService = evaluationService;
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Pharmacist,Admin")]
+    public IActionResult Resolve() 
+    {
+        return View("Index", new ResolvePrescriptionViewModel());
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Pharmacist,Admin")]
+    [ValidateAntiForgeryToken]
+    public IActionResult Resolve(ResolvePrescriptionViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View("Index", model);
+        }
+
+        Dictionary<int, int> resolved;
+        try
+        {
+            resolved = prescriptionService.GetItemsFromPrescription(
+                model.PrescriptionId,
+                new Dictionary<int, float>());
+        }
+        catch (ArgumentException exception)
+        {
+            ModelState.AddModelError(string.Empty, exception.Message);
+            return View("Index", model);
+        }
+
+        var rows = BuildResolvedRows(resolved).GetAwaiter().GetResult();
+        var warnings = BuildHighRiskWarnings(model.PrescriptionId).GetAwaiter().GetResult();
+
+        var populatedModel = new ResolvePrescriptionViewModel
+        {
+            PrescriptionId = model.PrescriptionId,
+            HasResult = true,
+            ResolvedRows = rows,
+            HighRiskWarnings = warnings,
+        };
+
+        return View("Index", populatedModel);
     }
 
     [HttpGet]
@@ -65,14 +119,14 @@ public class PrescriptionController : Controller
                     DateTo = dateTo
                 };
 
-                prescriptions = (await prescriptionApiClient.ApplyFilterAsync(filter, cancellationToken))
+                prescriptions = (await prescriptionService.ApplyFilterAsync(filter))
                     .Skip((page - 1) * PageSize)
                     .Take(PageSize)
                     .ToList();
             }
             else
             {
-                prescriptions = await prescriptionApiClient.GetLatestPrescriptionsAsync(PageSize, page, cancellationToken);
+                prescriptions = await prescriptionService.GetLatestPrescriptionsAsync(PageSize, page);
             }
 
             if (prescriptions.Count == 0)
@@ -102,13 +156,77 @@ public class PrescriptionController : Controller
         return View(model);
     }
 
+    private async Task<IReadOnlyList<ResolvedItemRow>> BuildResolvedRows(Dictionary<int, int> resolved)
+    {
+        var rows = new List<ResolvedItemRow>(resolved.Count);
+        foreach (var resolvedEntry in resolved)
+        {
+            int itemId = resolvedEntry.Key;
+            int boxQuantity = resolvedEntry.Value;
+            Item item = await adminService.GetItemByIdAsync(itemId);
+            if (item == null) continue;
+
+            rows.Add(new ResolvedItemRow
+            {
+                ItemId = item.Id,
+                ItemName = item.Name,
+                Producer = item.Producer,
+                PillsPerBox = item.NumberOfPills,
+                BoxQuantity = boxQuantity,
+                UnitPrice = item.Price,
+                TotalPrice = item.Price * boxQuantity,
+            });
+        }
+        return rows;
+    }
+
+    private async Task<IReadOnlyList<string>> BuildHighRiskWarnings(string prescriptionId)
+    {
+        if (!int.TryParse((prescriptionId ?? string.Empty).Trim(), out int evaluationId))
+        {
+            return new List<string>();
+        }
+
+        MedicalEvaluation? evaluation = await evaluationService.GetEvaluationByIdAsync(evaluationId);
+
+        if (evaluation == null || string.IsNullOrWhiteSpace(evaluation.MedicationsList))
+        {
+            return new List<string>();
+        }
+
+        var highRiskReference = await adminService.GetAllHighRiskMedicinesAsync();
+        var warnings = new List<string>();
+
+        foreach (var medicineName in ParseMedicineNames(evaluation.MedicationsList))
+        {
+            foreach (var highRiskEntry in highRiskReference)
+            {
+                if (string.Equals(highRiskEntry.MedicineName, medicineName, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (!string.IsNullOrEmpty(highRiskEntry.WarningMessage))
+                    {
+                        warnings.Add($"{highRiskEntry.MedicineName}: {highRiskEntry.WarningMessage}");
+                    }
+                    break;
+                }
+            }
+        }
+        return warnings;
+    }
+
+    private static IEnumerable<string> ParseMedicineNames(string medicationsList)
+    {
+        foreach (var part in medicationsList.Split(MedicineSeparators, StringSplitOptions.RemoveEmptyEntries))
+        {
+            var trimmed = part.Trim();
+            if (trimmed.Length > 0) yield return trimmed;
+        }
+    }
+
     private static string ResolveDoctorName(string? doctorName)
     {
-        if (!string.IsNullOrEmpty(doctorName) &&
-            !doctorName.Contains("Unknown", StringComparison.OrdinalIgnoreCase))
-        {
+        if (!string.IsNullOrEmpty(doctorName) && !doctorName.Contains("Unknown", StringComparison.OrdinalIgnoreCase))
             return doctorName;
-        }
 
         var fakeDoctors = MockDoctorProvider.FakeDoctors;
         int index = RandomNumberGenerator.GetInt32(fakeDoctors.Count);

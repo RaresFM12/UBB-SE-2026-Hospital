@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Hospital.Web.Models.Transplant;
-using Hospital.Web.Services;
+using Hospital.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,20 +11,19 @@ namespace Hospital.Web.Controllers;
 [Authorize]
 public class TransplantController : Controller
 {
-    private readonly ITransplantApiClient transplantApiClient;
-    private readonly IPatientApiClient patientApiClient;
+    private readonly ITransplantService transplantService;
+    private readonly IPatientService patientService;
 
-    public TransplantController(ITransplantApiClient transplantApiClient, IPatientApiClient patientApiClient)
+    public TransplantController(ITransplantService transplantService, IPatientService patientService)
     {
-        this.transplantApiClient = transplantApiClient;
-        this.patientApiClient = patientApiClient;
+        this.transplantService = transplantService;
+        this.patientService = patientService;
     }
 
-    // GET: /Transplant/Request?patientId=5
     [HttpGet]
     public async Task<IActionResult> Request(int patientId)
     {
-        var patient = await patientApiClient.GetByIdAsync(patientId, HttpContext.RequestAborted);
+        var patient = await patientService.GetByIdAsync(patientId);
         if (patient is null)
         {
             TempData["ErrorMessage"] = "Patient not found.";
@@ -36,8 +35,8 @@ public class TransplantController : Controller
 
         try
         {
-            isUrgent = await transplantApiClient.IsUrgentAsync(patientId, HttpContext.RequestAborted);
-            warning = await transplantApiClient.GetChronicWarningAsync(patientId, HttpContext.RequestAborted);
+            isUrgent = await transplantService.IsUrgentAsync(patientId);
+            warning = await transplantService.GetChronicWarningAsync(patientId);
         }
         catch (InvalidOperationException ex)
         {
@@ -57,24 +56,22 @@ public class TransplantController : Controller
         return View(model);
     }
 
-    // POST: /Transplant/Request
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Request(TransplantRequestViewModel model)
     {
-        // Re-hydrate read-only display fields before returning the view on error
         async Task<IActionResult> ReturnWithErrors()
         {
-            var patient = await patientApiClient.GetByIdAsync(model.PatientId, HttpContext.RequestAborted);
+            var patient = await patientService.GetByIdAsync(model.PatientId);
             model.PatientName = patient?.FullName ?? string.Empty;
 
             try
             {
-                model.IsUrgent = await transplantApiClient.IsUrgentAsync(model.PatientId, HttpContext.RequestAborted);
-                model.WarningMessage = await transplantApiClient.GetChronicWarningAsync(model.PatientId, HttpContext.RequestAborted);
+                model.IsUrgent = await transplantService.IsUrgentAsync(model.PatientId);
+                model.WarningMessage = await transplantService.GetChronicWarningAsync(model.PatientId);
             }
             catch
-            { /* non-critical display data */
+            {
             }
 
             return View(model);
@@ -87,8 +84,7 @@ public class TransplantController : Controller
 
         try
         {
-            await transplantApiClient.CreateWaitlistRequestAsync(
-                model.PatientId, model.SelectedOrgan!, HttpContext.RequestAborted);
+            await transplantService.CreateWaitlistRequestAsync(model.PatientId, model.SelectedOrgan!);
 
             TempData["SuccessMessage"] =
                 "The patient has been successfully added to the Organ Transplant Waitlist.";
