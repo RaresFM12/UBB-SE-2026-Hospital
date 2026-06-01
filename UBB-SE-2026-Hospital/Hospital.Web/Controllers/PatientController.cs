@@ -1,8 +1,8 @@
 using System.Text;
 using Common.Data.Entity;
 using Common.Data.Entity.DTOs;
-using Hospital.Web.Models.Patient;
-using Hospital.Web.Services;
+using Hospital.Web.Models.PatientProfile;
+using Hospital.Shared.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 
@@ -11,20 +11,35 @@ namespace Hospital.Web.Controllers;
 [Authorize]
 public class PatientController : Controller
 {
-    private readonly IPatientApiClient patientApiClient;
-    private readonly IBillingApiClient billingApiClient;
+    private readonly IPatientService patientService;
+    private readonly IBillingService billingService;
+    private readonly IErWorkflowService erWorkflowService;
+    private readonly IAppointmentImportProvider appointmentImportProvider;
 
-    public PatientController(IPatientApiClient patientApiClient, IBillingApiClient billingApiClient)
+    public PatientController(
+        IPatientService patientService,
+        IBillingService billingService,
+        IErWorkflowService erWorkflowService,
+        IAppointmentImportProvider appointmentImportProvider)
     {
-        this.patientApiClient = patientApiClient;
-        this.billingApiClient = billingApiClient;
+        this.patientService = patientService;
+        this.billingService = billingService;
+        this.erWorkflowService = erWorkflowService;
+        this.appointmentImportProvider = appointmentImportProvider;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
+    {
+        var patients = await patientService.GetPatientsAsync(cancellationToken);
+        return View(patients);
     }
 
     [HttpGet]
     public async Task<IActionResult> Details(
         int id,
         int? selectedRecordId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -47,11 +62,11 @@ public class PatientController : Controller
     public async Task<IActionResult> Prescription(
         int patientId,
         int recordId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         try
         {
-            Prescription? prescription = await patientApiClient.GetPrescriptionByRecordIdAsync(recordId, cancellationToken);
+            Prescription? prescription = await patientService.GetPrescriptionByRecordIdAsync(recordId, cancellationToken);
             if (prescription is null)
             {
                 TempData["ErrorMessage"] = "This consultation does not have an associated prescription.";
@@ -75,7 +90,7 @@ public class PatientController : Controller
         int patientId,
         int recordId,
         int discount,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         if (discount is < 0 or > 100)
         {
@@ -85,8 +100,8 @@ public class PatientController : Controller
 
         try
         {
-            decimal basePrice = await billingApiClient.ComputeBasePriceAsync(patientId, recordId, cancellationToken);
-            decimal discountedPrice = await billingApiClient.ApplyDiscountAsync(recordId, basePrice, discount, cancellationToken);
+            decimal basePrice = await billingService.ComputeBasePriceAsync(patientId, recordId, cancellationToken);
+            decimal discountedPrice = await billingService.ApplyDiscountAsync(recordId, basePrice, discount, cancellationToken);
 
             TempData["SuccessMessage"] = $"Applied a {discount}% discount. Final price: {discountedPrice:C}.";
             TempData["TemporaryDiscount"] = discount.ToString();
@@ -110,11 +125,11 @@ public class PatientController : Controller
     public async Task<IActionResult> ExportRecord(
         int patientId,
         int recordId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         try
         {
-            RecordExportDataDto exportData = await patientApiClient.GetRecordExportDataAsync(recordId, cancellationToken);
+            RecordExportDataDto exportData = await patientService.GetRecordExportDataAsync(recordId, cancellationToken);
             byte[] bytes = Encoding.UTF8.GetBytes(BuildExportText(exportData));
             string fileName = $"MedicalRecord_{exportData.Patient.FirstName}{exportData.Patient.LastName}_{exportData.Record.ConsultationDate:yyyyMMdd}.txt";
             return File(bytes, "text/plain", fileName);
@@ -135,7 +150,7 @@ public class PatientController : Controller
         int? selectedRecordId,
         CancellationToken cancellationToken)
     {
-        Patient patient = await patientApiClient.GetPatientDetailsAsync(id, cancellationToken);
+        Patient patient = await patientService.GetPatientDetailsAsync(id, cancellationToken);
         MedicalHistory? history = patient.MedicalHistory;
 
         List<PatientRecordViewModel> records = history?.MedicalRecords?
@@ -175,7 +190,7 @@ public class PatientController : Controller
             ChronicConditions = history?.ChronicConditions is { Count: > 0 }
                 ? string.Join(", ", history.ChronicConditions)
                 : "None",
-            Allergies = await patientApiClient.GetPatientAllergiesAsync(patient.Id, cancellationToken),
+            Allergies = await patientService.GetPatientAllergiesAsync(patient.Id, cancellationToken),
             MedicalRecords = records,
             SelectedRecordId = selectedRecord?.Id,
             SelectedRecord = selectedRecord,
@@ -192,7 +207,7 @@ public class PatientController : Controller
     {
         try
         {
-            return await billingApiClient.ComputeBasePriceAsync(patientId, recordId, cancellationToken);
+            return await billingService.ComputeBasePriceAsync(patientId, recordId, cancellationToken);
         }
         catch
         {
@@ -206,7 +221,7 @@ public class PatientController : Controller
     {
         try
         {
-            Prescription? prescription = await patientApiClient.GetPrescriptionByRecordIdAsync(recordId, cancellationToken);
+            Prescription? prescription = await patientService.GetPrescriptionByRecordIdAsync(recordId, cancellationToken);
             return prescription is null ? null : MapPrescription(prescription);
         }
         catch
@@ -219,7 +234,7 @@ public class PatientController : Controller
     {
         try
         {
-            return await patientApiClient.IsHighRiskPatientAsync(patientId, cancellationToken);
+            return await patientService.IsHighRiskPatientAsync(patientId, cancellationToken);
         }
         catch
         {
@@ -322,19 +337,135 @@ public class PatientController : Controller
             return phone;
         }
 
-        string normalized = phone.Replace(" ", string.Empty, StringComparison.Ordinal)
-            .Replace("-", string.Empty, StringComparison.Ordinal);
+        string normalized = phone.
 
-        if (normalized.StartsWith("+40", StringComparison.Ordinal))
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ImportFromEr(int patientId)
+    {
+        try
         {
-            normalized = $"0{normalized[3..]}";
+            Patient patient = await patientService.GetPatientDetailsAsync(patientId, HttpContext.RequestAborted);
+            if (patient.MedicalHistory is null)
+            {
+                throw new InvalidOperationException("Patient medical history must be initialized before importing records.");
+            }
+
+            var existingErSourceIds = patient.MedicalHistory.MedicalRecords?
+                .Where(record => record.SourceType == Common.Data.Entity.Enums.SourceType.ER)
+                .Select(record => record.SourceId)
+                .ToHashSet() ?? new HashSet<int>();
+
+            Examination? candidateExam = (await erWorkflowService.GetPatientExaminationHistoryAsync(
+                    patient.Cnp,
+                    HttpContext.RequestAborted))
+                .OrderByDescending(examination => examination.Exam_Time)
+                .FirstOrDefault(examination => !existingErSourceIds.Contains(examination.Visit_ID));
+
+            if (candidateExam is null)
+            {
+                throw new InvalidOperationException("No new ER examination is available to import for this patient.");
+            }
+
+            ERExaminationSummaryDto? summary = await erWorkflowService.GetExaminationSummaryAsync(
+                candidateExam.Visit_ID,
+                HttpContext.RequestAborted);
+            if (summary is null)
+            {
+                throw new InvalidOperationException("Could not load the ER examination summary for import.");
+            }
+
+            var dto = new RecordDTO
+            {
+                ExternalRecordId = candidateExam.Visit_ID,
+                Symptoms = summary.ChiefComplaint,
+                TemporaryDiagnosis = string.IsNullOrWhiteSpace(summary.Notes) ? summary.Specialization : summary.Notes,
+                PrescribedMeds = string.Empty,
+                ConsultationDate = summary.ExamTime,
+                SourceType = Common.Data.Entity.Enums.SourceType.ER,
+            };
+
+            await ProcessImportAsync(dto, patient, HttpContext.RequestAborted);
+            TempData["SuccessMessage"] = "ER records imported correctly.";
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = ex.Message;
         }
 
-        if (!normalized.StartsWith('0') || normalized.Length != 10)
+        return RedirectToAction(nameof(Details), new { id = patientId });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ImportFromStaff(int patientId)
+    {
+        try
         {
-            return phone;
+            Patient patient = await patientService.GetPatientDetailsAsync(patientId, HttpContext.RequestAborted);
+            RecordDTO dto = appointmentImportProvider.FetchRecordByPatientId(patientId);
+            await ProcessImportAsync(dto, patient, HttpContext.RequestAborted);
+            TempData["SuccessMessage"] = "Staff records imported correctly.";
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = ex.Message;
         }
 
-        return $"+40 {normalized.Substring(1, 3)} {normalized.Substring(4, 3)} {normalized.Substring(7, 3)}";
+        return RedirectToAction(nameof(Details), new { id = patientId });
+    }
+
+    private async Task ProcessImportAsync(RecordDTO dto, Patient patient, CancellationToken cancellationToken)
+    {
+        if (patient.MedicalHistory is null)
+        {
+            throw new InvalidOperationException("Patient medical history must be initialized before importing records.");
+        }
+
+        int recordId = await patientService.CreateMedicalRecordAsync(
+            patient.Id,
+            BuildRecordFromDto(dto),
+            cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(dto.PrescribedMeds))
+        {
+            await CreatePrescriptionAsync(dto.PrescribedMeds, recordId, cancellationToken);
+        }
+    }
+
+    private async Task CreatePrescriptionAsync(string medsString, int recordId, CancellationToken cancellationToken)
+    {
+        string[] meds = medsString.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        var prescription = new Prescription
+        {
+            Date = DateTime.Now,
+            DoctorNotes = "Imported from external provider",
+            MedicationList = meds.Select(medication => new PrescriptionItem
+            {
+                MedName = medication,
+                Quantity = "1",
+            }).ToList(),
+        };
+
+        await patientService.CreatePrescriptionAsync(recordId, prescription);
+    }
+
+    private static MedicalRecord BuildRecordFromDto(RecordDTO dto)
+    {
+        return new MedicalRecord
+        {
+            SourceType = dto.SourceType,
+            SourceId = dto.ExternalRecordId,
+            StaffId = 1,
+            Symptoms = dto.Symptoms,
+            Diagnosis = dto.TemporaryDiagnosis,
+            ConsultationDate = dto.ConsultationDate,
+            BasePrice = 0,
+            FinalPrice = 0,
+            PoliceNotified = false,
+        };
     }
 }
