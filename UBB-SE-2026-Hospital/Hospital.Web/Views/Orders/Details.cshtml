@@ -1,0 +1,56 @@
+@model OrderDetailsViewModel
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+{
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+}
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">User email</dt>
+            <dd class="col-sm-9">@Model.UserEmail</dd>
+            <dt class="col-sm-3">Pickup date</dt>
+            <dd class="col-sm-9">@Model.PickUpDateString</dd>
+            <dt class="col-sm-3">Expiration date</dt>
+            <dd class="col-sm-9">@Model.ExpirationDateString</dd>
+            <dt class="col-sm-3">Status</dt>
+            <dd class="col-sm-9">@Model.Status</dd>
+            <dt class="col-sm-3">Total price</dt>
+            <dd class="col-sm-9">@Model.Total.ToString("F2") RON</dd>
+        </dl>
+    </div>
+</div>
+
+<partial name="_OrderLinesTable" model="Model.Items" />
+
+@if (Model.AdminView && !Model.IsCompleted && !Model.IsExpired)
+{
+    <form asp-action="Complete" method="post" class="d-inline">
+        @Html.AntiForgeryToken()
+        <input asp-for="Id" type="hidden" />
+        @for (int index = 0; index < Model.Items.Count; index++)
+        {
+            <input type="hidden" name="Items[@index].ItemId" value="@Model.Items[index].ItemId" />
+            <input type="hidden" name="Items[@index].Name" value="@Model.Items[index].Name" />
+            <input type="hidden" name="Items[@index].Producer" value="@Model.Items[index].Producer" />
+            <input type="hidden" name="Items[@index].Quantity" value="@Model.Items[index].Quantity" />
+            <input type="hidden" name="Items[@index].FinalPrice" value="@Model.Items[index].FinalPrice.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
+        }
+
+        <button type="submit" class="btn btn-success">Complete</button>
+    </form>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary ms-1">Modify</a>
+    <a asp-action="Manage" class="btn btn-outline-secondary ms-1">Back</a>
+}
+else
+{
+    <a asp-action="@(Model.AdminView ? "Manage" : "Index")" class="btn btn-outline-secondary">Back</a>
+}
