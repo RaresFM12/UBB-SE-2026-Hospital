@@ -1,132 +1,205 @@
-using System;
-using System.Collections.Generic;
+using System.Security.Claims;
+using Hospital.Data.Models;
+using Hospital.Shared.Models.Orders;
+using Hospital.Shared.Services;
+using Hospital.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Hospital.Shared.Services;
-using Hospital.Web.ViewModels;
-using BasketItemViewModel = Hospital.Shared.ViewModels.Orders.BasketItemViewModel;
+using SharedBasketEntry = Hospital.Shared.Models.StaffPharmacy.BasketEntry;
 
 namespace Hospital.Web.Controllers;
 
 [Authorize(Roles = "Client,Admin")]
 public class BasketController : Controller
 {
-    private readonly IOrderService orderService;
+    private const float MaximumDiscount = 1f;
+    private const float MinimumDiscount = 0f;
 
-    public BasketController(IOrderService orderService)
+    private readonly IBasketService basketService;
+    private readonly IAdminService adminService;
+    private readonly IUserAccountService userAccountService;
+
+    public BasketController(
+        IBasketService basketService,
+        IAdminService adminService,
+        IUserAccountService userAccountService)
     {
-        this.orderService = orderService;
+        this.basketService = basketService;
+        this.adminService = adminService;
+        this.userAccountService = userAccountService;
     }
 
     [HttpGet]
-    public IActionResult Index()
+    public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
-        return this.View(this.BuildViewModel());
+        User? currentUser = await LoadCurrentUserAsync(cancellationToken);
+        if (currentUser is null)
+        {
+            return Forbid();
+        }
+
+        return View(await BuildViewModelAsync(currentUser.Id, cancellationToken));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Add(BasketAddItemViewModel viewModel)
+    public async Task<IActionResult> Add(BasketAddItemViewModel viewModel, CancellationToken cancellationToken)
     {
-        if (!this.ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
-            this.TempData["ErrorMessage"] = "Choose a valid quantity.";
-            return this.RedirectToBasketOrSource(viewModel);
+            TempData["ErrorMessage"] = "Choose a valid quantity.";
+            return RedirectToBasketOrSource(viewModel);
+        }
+
+        User? currentUser = await LoadCurrentUserAsync(cancellationToken);
+        if (currentUser is null)
+        {
+            return Forbid();
         }
 
         try
         {
-            this.orderService.AddItemToBasket(viewModel.ItemId, viewModel.Quantity, viewModel.ExtraDiscountPercentage);
-            BasketStore.Save(this.orderService.ActiveUser);
-            this.TempData["SuccessMessage"] = "Item added to basket.";
+            await basketService.AddToBasketAsync(
+                currentUser.Id,
+                viewModel.ItemId,
+                viewModel.Quantity,
+                viewModel.ExtraDiscountPercentage,
+                cancellationToken);
+
+            TempData["SuccessMessage"] = "Item added to basket.";
         }
         catch (ArgumentException exception)
         {
-            this.TempData["ErrorMessage"] = exception.Message;
+            TempData["ErrorMessage"] = exception.Message;
         }
 
-        return this.RedirectToBasketOrSource(viewModel);
+        return RedirectToBasketOrSource(viewModel);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult UpdateQuantity(BasketQuantityViewModel viewModel)
+    public async Task<IActionResult> UpdateQuantity(BasketQuantityViewModel viewModel, CancellationToken cancellationToken)
     {
-        if (!this.ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
-            this.TempData["ErrorMessage"] = "Choose a valid quantity.";
-            return this.RedirectToAction(nameof(this.Index));
+            TempData["ErrorMessage"] = "Choose a valid quantity.";
+            return RedirectToAction(nameof(Index));
         }
 
-        try
+        User? currentUser = await LoadCurrentUserAsync(cancellationToken);
+        if (currentUser is null)
         {
-            this.orderService.UpdateBasketItemQuantity(viewModel.ItemId, viewModel.Quantity);
-            BasketStore.Save(this.orderService.ActiveUser);
-            this.TempData["SuccessMessage"] = "Basket updated.";
-        }
-        catch (ArgumentException exception)
-        {
-            this.TempData["ErrorMessage"] = exception.Message;
+            return Forbid();
         }
 
-        return this.RedirectToAction(nameof(this.Index));
+        Dictionary<int, SharedBasketEntry> basket = await basketService.GetBasketAsync(currentUser.Id, cancellationToken);
+        if (basket.TryGetValue(viewModel.ItemId, out SharedBasketEntry? entry))
+        {
+            if (viewModel.Quantity <= 0)
+            {
+                basket.Remove(viewModel.ItemId);
+            }
+            else
+            {
+                entry.Quantity = viewModel.Quantity;
+            }
+
+            await basketService.SaveBasketAsync(currentUser.Id, basket, cancellationToken);
+            TempData["SuccessMessage"] = "Basket updated.";
+        }
+
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Remove(int itemId)
+    public async Task<IActionResult> Remove(int itemId, CancellationToken cancellationToken)
     {
-        try
+        User? currentUser = await LoadCurrentUserAsync(cancellationToken);
+        if (currentUser is null)
         {
-            this.orderService.RemoveFromBasket(itemId);
-            BasketStore.Save(this.orderService.ActiveUser);
-            this.TempData["SuccessMessage"] = "Item removed from basket.";
-        }
-        catch (ArgumentException exception)
-        {
-            this.TempData["ErrorMessage"] = exception.Message;
+            return Forbid();
         }
 
-        return this.RedirectToAction(nameof(this.Index));
+        Dictionary<int, SharedBasketEntry> basket = await basketService.GetBasketAsync(currentUser.Id, cancellationToken);
+        if (basket.Remove(itemId))
+        {
+            await basketService.SaveBasketAsync(currentUser.Id, basket, cancellationToken);
+            TempData["SuccessMessage"] = "Item removed from basket.";
+        }
+
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult ApplyPrescription(BasketViewModel viewModel)
     {
-        if (string.IsNullOrWhiteSpace(viewModel.PrescriptionId))
-        {
-            this.TempData["ErrorMessage"] = "Enter a prescription ID.";
-            return this.RedirectToAction(nameof(this.Index));
-        }
+        TempData["ErrorMessage"] = string.IsNullOrWhiteSpace(viewModel.PrescriptionId)
+            ? "Enter a prescription ID."
+            : "Prescription basket import is waiting for the merged prescription service contract.";
 
-        try
-        {
-            this.orderService.ApplyPrescriptionToBasket(viewModel.PrescriptionId);
-            BasketStore.Save(this.orderService.ActiveUser);
-            this.TempData["SuccessMessage"] = "Prescription items added to basket.";
-        }
-        catch (ArgumentException exception)
-        {
-            this.TempData["ErrorMessage"] = exception.Message;
-        }
-
-        return this.RedirectToAction(nameof(this.Index));
+        return RedirectToAction(nameof(Index));
     }
 
-    private BasketViewModel BuildViewModel()
+    private async Task<BasketViewModel> BuildViewModelAsync(int userId, CancellationToken cancellationToken)
     {
-        List<BasketItemViewModel> basketItems = this.orderService.GetBasketItems();
-        Tuple<float, float> totals = this.orderService.CalculateBasketTotalSum(basketItems);
+        Dictionary<int, SharedBasketEntry> basket = await basketService.GetBasketAsync(userId, cancellationToken);
+        var basketItems = new List<BasketItemViewModel>();
+
+        foreach (SharedBasketEntry entry in basket.Values)
+        {
+            Item? item = await adminService.GetItemByIdAsync(entry.ItemId, cancellationToken);
+            if (item is null)
+            {
+                continue;
+            }
+
+            float baseDiscount = NormalizeDiscount(item.DiscountPercentage);
+            float extraDiscount = NormalizeDiscount(entry.ExtraDiscountPercentage);
+            float beforeDiscount = item.Price * entry.Quantity;
+            float afterDiscount = beforeDiscount * (MaximumDiscount - baseDiscount) * (MaximumDiscount - extraDiscount);
+
+            var basketItem = new BasketItemViewModel(
+                item.Id,
+                item.ImagePath,
+                item.Name,
+                item.Producer,
+                entry.Quantity,
+                baseDiscount,
+                extraDiscount,
+                MinimumDiscount,
+                item.Price);
+            basketItem.SetFinalPrices(beforeDiscount, afterDiscount);
+            basketItems.Add(basketItem);
+        }
 
         return new BasketViewModel
         {
             Items = basketItems,
-            TotalBeforeDiscount = totals.Item1,
-            TotalAfterDiscount = totals.Item2,
-            SuccessMessage = this.ReadTempData("SuccessMessage"),
-            ErrorMessage = this.ReadTempData("ErrorMessage"),
+            TotalBeforeDiscount = basketItems.Sum(item => item.FinalPriceBeforeDiscount),
+            TotalAfterDiscount = basketItems.Sum(item => item.FinalPriceAfterDiscount),
+            SuccessMessage = ReadTempData("SuccessMessage"),
+            ErrorMessage = ReadTempData("ErrorMessage"),
         };
+    }
+
+    private async Task<User?> LoadCurrentUserAsync(CancellationToken cancellationToken)
+    {
+        string? idValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (int.TryParse(idValue, out int userId))
+        {
+            return await userAccountService.GetUserByIdAsync(userId, cancellationToken);
+        }
+
+        string? username = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            return null;
+        }
+
+        return (await userAccountService.GetAllUsersAsync(cancellationToken))
+            .FirstOrDefault(user => string.Equals(user.Username, username, StringComparison.OrdinalIgnoreCase));
     }
 
     private IActionResult RedirectToBasketOrSource(BasketAddItemViewModel viewModel)
@@ -134,14 +207,22 @@ public class BasketController : Controller
         if (!string.IsNullOrWhiteSpace(viewModel.ReturnController) &&
             !string.IsNullOrWhiteSpace(viewModel.ReturnAction))
         {
-            return this.RedirectToAction(viewModel.ReturnAction, viewModel.ReturnController);
+            return RedirectToAction(viewModel.ReturnAction, viewModel.ReturnController);
         }
 
-        return this.RedirectToAction(nameof(this.Index));
+        return RedirectToAction(nameof(Index));
     }
 
     private string? ReadTempData(string key)
+        => TempData.TryGetValue(key, out object? value) ? value?.ToString() : null;
+
+    private static float NormalizeDiscount(float discount)
     {
-        return this.TempData.TryGetValue(key, out object? value) ? value?.ToString() : null;
+        if (discount > MaximumDiscount)
+        {
+            discount /= 100f;
+        }
+
+        return Math.Clamp(discount, MinimumDiscount, MaximumDiscount);
     }
 }
