@@ -43,6 +43,7 @@ public class AccountController(IAuthService authService, IUsersRepository usersR
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Name, user.Username),
+            new(ClaimTypes.Email, user.Email),
             new(ClaimTypes.Role, user.Role),
         };
 

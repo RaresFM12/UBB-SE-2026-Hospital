@@ -16,8 +16,10 @@ public static class ControllerBaseExtensions
 
         string username = claims.FindFirstValue(JwtRegisteredClaimNames.UniqueName) ?? claims.FindFirstValue(ClaimTypes.Name) ?? string.Empty;
 
+        string email = claims.FindFirstValue(JwtRegisteredClaimNames.Email) ?? claims.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
+
         string role = claims.FindFirstValue(ClaimTypes.Role) ?? string.Empty;
 
-        return new UserPrincipal { Id = id, Username = username, Role = role };
+        return new UserPrincipal { Id = id, Username = username, Email = email, Role = role };
     }
 }
