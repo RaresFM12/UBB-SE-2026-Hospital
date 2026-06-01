@@ -6,64 +6,129 @@
     <title>@ViewData["Title"] - UBB-SE-2026-Hospital</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Hospital.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header class="border-bottom">
-        <nav class="navbar navbar-expand-sm navbar-light bg-white">
-            <div class="container-fluid">
-                <a class="navbar-brand fw-semibold" asp-area="" asp-controller="Home" asp-action="Index">UBB-SE-2026-Hospital</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Dashboard</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Pharmacy" asp-action="Index">Pharmacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Patients" asp-action="Index">Patients</a>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav">
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item">
-                                <span class="nav-link text-dark">@User.Identity!.Name</span>
-                            </li>
-                            <li class="nav-item">
-                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-link nav-link text-dark">Logout</button>
-                                </form>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
-                            </li>
-                        }
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+    @{
+        bool hideShell = ViewData["HideShell"] as bool? == true;
+        string? role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+    }
+
+    @if (hideShell)
+    {
+        <main role="main" class="auth-shell">
             @RenderBody()
         </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - UBB-SE-2026-Hospital
+    }
+    else
+    {
+        <header class="app-header">
+            <nav class="navbar navbar-expand-lg navbar-light app-navbar">
+                <div class="container-fluid app-navbar__inner">
+                    <a class="navbar-brand app-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                        <span class="app-brand__mark">H</span>
+                        <span class="app-brand__text">Hospital</span>
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#primaryNavigation" aria-controls="primaryNavigation"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="navbar-collapse collapse" id="primaryNavigation">
+                        <ul class="navbar-nav app-nav me-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Dashboard</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="patientMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">Patients</a>
+                                <ul class="dropdown-menu" aria-labelledby="patientMenu">
+                                    <li><a class="dropdown-item" asp-controller="Patient" asp-action="Index">Patient list</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Registration" asp-action="Index">Registration</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Prescription" asp-action="Index">Prescriptions</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Transplant" asp-action="Index">Transplants</a></li>
+                                    <li><a class="dropdown-item" asp-controller="BloodCompatibility" asp-action="Index">Blood compatibility</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="erMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">ER</a>
+                                <ul class="dropdown-menu" aria-labelledby="erMenu">
+                                    <li><a class="dropdown-item" asp-controller="Queue" asp-action="Index">Queue</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Triage" asp-action="Index">Triage</a></li>
+                                    <li><a class="dropdown-item" asp-controller="RoomAssignment" asp-action="Index">Room assignment</a></li>
+                                    <li><a class="dropdown-item" asp-controller="RoomManagement" asp-action="Index">Room management</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Examination" asp-action="Index">Examinations</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Transfer" asp-action="Index">Transfers</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="pharmacyMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">Pharmacy</a>
+                                <ul class="dropdown-menu" aria-labelledby="pharmacyMenu">
+                                    <li><a class="dropdown-item" asp-controller="Pharmacy" asp-action="Index">Catalogue</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Items" asp-action="Index">Items</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Substances" asp-action="Index">Substances</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Orders" asp-action="Index">Orders</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Basket" asp-action="Index">Basket</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="staffMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">Staff</a>
+                                <ul class="dropdown-menu" aria-labelledby="staffMenu">
+                                    <li><a class="dropdown-item" asp-controller="DoctorAppointments" asp-action="Index">Appointments</a></li>
+                                    <li><a class="dropdown-item" asp-controller="DoctorSchedule" asp-action="Index">Schedule</a></li>
+                                    <li><a class="dropdown-item" asp-controller="ShiftManagement" asp-action="Index">Shifts</a></li>
+                                    <li><a class="dropdown-item" asp-controller="ShiftSwap" asp-action="Index">Shift swaps</a></li>
+                                    <li><a class="dropdown-item" asp-controller="MedicalEvaluations" asp-action="Index">Evaluations</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Notifications" asp-action="Index">Notifications</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Statistics" asp-action="Index">Statistics</a>
+                            </li>
+                        </ul>
+                        <ul class="navbar-nav app-user-nav">
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
+                                <li class="nav-item app-user">
+                                    <span class="app-user__name">@User.Identity!.Name</span>
+                                    @if (!string.IsNullOrWhiteSpace(role))
+                                    {
+                                        <span class="app-user__role">@role</span>
+                                    }
+                                </li>
+                                <li class="nav-item">
+                                    <form asp-controller="Auth" asp-action="Logout" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm">Logout</button>
+                                    </form>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <a class="btn btn-primary btn-sm" asp-controller="Auth" asp-action="Login">Login</a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+        <div class="app-page">
+            <main role="main" class="app-main">
+                @await Html.PartialAsync("_StatusMessage")
+                @RenderBody()
+            </main>
         </div>
-    </footer>
+    }
+
+    @if (!hideShell)
+    {
+        <footer class="app-footer">
+            <div class="container-fluid">
+                <span>UBB-SE-2026 Hospital</span>
+            </div>
+        </footer>
+    }
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
