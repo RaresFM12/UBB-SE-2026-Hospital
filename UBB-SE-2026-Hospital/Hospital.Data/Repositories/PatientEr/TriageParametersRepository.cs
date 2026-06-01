@@ -8,13 +8,22 @@ namespace Hospital.Data.Repositories;
 public class TriageParametersRepository(HospitalDbContext context) : ITriageParametersRepository
 {
     public async Task<TriageParameters?> GetByIdAsync(int triageParametersId)
-        => await context.TriageParameters.FindAsync(triageParametersId);
+        => await context.TriageParameters
+            .Include(tp => tp.Triage)
+            .ThenInclude(t => t.Visit)
+            .FirstOrDefaultAsync(tp => tp.TriageParametersId == triageParametersId);
 
     public async Task<TriageParameters?> GetByTriageIdAsync(int triageId)
-        => await context.TriageParameters.FirstOrDefaultAsync(tp => tp.Triage.TriageId == triageId);
+        => await context.TriageParameters
+            .Include(tp => tp.Triage)
+            .ThenInclude(t => t.Visit)
+            .FirstOrDefaultAsync(tp => tp.Triage.TriageId == triageId);
 
     public async Task<List<TriageParameters>> GetAllAsync()
-        => await context.TriageParameters.ToListAsync();
+        => await context.TriageParameters
+            .Include(tp => tp.Triage)
+            .ThenInclude(t => t.Visit)
+            .ToListAsync();
 
     public async Task<TriageParameters> CreateAsync(TriageParameters triageParameters)
     {

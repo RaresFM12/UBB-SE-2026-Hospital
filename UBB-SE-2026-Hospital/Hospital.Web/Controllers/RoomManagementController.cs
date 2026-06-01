@@ -1,7 +1,7 @@
-using Common.Data.Entity.DTOs;
-using Common.Data.Models;
+using Hospital.Data.Models;
+using Hospital.Data.Models.DTOs;
+using Hospital.Shared.Services;
 using Hospital.Web.Models.RoomManagement;
-using Hospital.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,11 +10,11 @@ namespace Hospital.Web.Controllers;
 [Authorize]
 public class RoomManagementController : Controller
 {
-    private readonly IErWorkflowApiClient erApiClient;
+    private readonly IERRoomService erRoomService;
 
-    public RoomManagementController(IErWorkflowApiClient erApiClient)
+    public RoomManagementController(IERRoomService erRoomService)
     {
-        this.erApiClient = erApiClient;
+        this.erRoomService = erRoomService;
     }
 
     [HttpGet]
@@ -22,7 +22,7 @@ public class RoomManagementController : Controller
     {
         try
         {
-            RoomManagementViewModel model = await BuildModelAsync(selectedRoomId, cancellationToken);
+            RoomManagementViewModel model = await BuildModelAsync(selectedRoomId);
             return View(model);
         }
         catch (UnauthorizedAccessException)
@@ -41,7 +41,7 @@ public class RoomManagementController : Controller
     {
         try
         {
-            await erApiClient.MarkRoomAsCleaningAsync(roomId, cancellationToken);
+            await erRoomService.MarkRoomAsCleaningAsync(roomId);
             TempData["SuccessMessage"] = $"Room {roomId} is now marked for cleaning.";
         }
         catch (UnauthorizedAccessException)
@@ -62,7 +62,7 @@ public class RoomManagementController : Controller
     {
         try
         {
-            await erApiClient.MarkRoomAsAvailableAsync(roomId, cancellationToken);
+            await erRoomService.MarkRoomAsAvailableAsync(roomId);
             TempData["SuccessMessage"] = $"Room {roomId} is available again.";
         }
         catch (UnauthorizedAccessException)
@@ -77,11 +77,11 @@ public class RoomManagementController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    private async Task<RoomManagementViewModel> BuildModelAsync(int? selectedRoomId, CancellationToken cancellationToken)
+    private async Task<RoomManagementViewModel> BuildModelAsync(int? selectedRoomId)
     {
-        List<ER_Room> availableRooms = await erApiClient.GetRoomsByStatusAsync(ER_Room.RoomStatus.Available, cancellationToken);
-        List<ER_Room> occupiedRooms = await erApiClient.GetRoomsByStatusAsync(ER_Room.RoomStatus.Occupied, cancellationToken);
-        List<ER_Room> cleaningRooms = await erApiClient.GetRoomsByStatusAsync(ER_Room.RoomStatus.Cleaning, cancellationToken);
+        List<ERRoom> availableRooms = await erRoomService.GetByStatusAsync(ERRoom.RoomStatus.Available);
+        List<ERRoom> occupiedRooms = await erRoomService.GetByStatusAsync(ERRoom.RoomStatus.Occupied);
+        List<ERRoom> cleaningRooms = await erRoomService.GetByStatusAsync(ERRoom.RoomStatus.Cleaning);
 
         var model = new RoomManagementViewModel
         {
@@ -96,7 +96,7 @@ public class RoomManagementController : Controller
             return model;
         }
 
-        ERRoomVisitDetailsDto? visitDetails = await erApiClient.GetRoomVisitDetailsAsync(selectedRoomId.Value, cancellationToken);
+        ERRoomVisitDetails? visitDetails = await erRoomService.GetVisitDetailsAsync(selectedRoomId.Value);
         if (visitDetails?.Visit is null)
         {
             return model;
@@ -104,30 +104,30 @@ public class RoomManagementController : Controller
 
         model.SelectedRoomVisit = new RoomVisitDetailsViewModel
         {
-            VisitId = visitDetails.Visit.Visit_ID,
-            PatientId = visitDetails.Visit.Patient_ID,
-            PatientName = visitDetails.Patient?.FullName ?? visitDetails.Visit.Patient_ID,
-            ChiefComplaint = visitDetails.Visit.Chief_Complaint,
+            VisitId = visitDetails.Visit.VisitId,
+            PatientId = visitDetails.Visit.Patient.PatientId.ToString(),
+            PatientName = visitDetails.Patient?.FullName ?? visitDetails.Visit.Patient.PatientId.ToString(),
+            ChiefComplaint = visitDetails.Visit.ChiefComplaint,
             VisitStatus = visitDetails.Visit.Status,
-            TriageLevel = visitDetails.Triage?.Triage_Level,
+            TriageLevel = visitDetails.Triage?.TriageLevel,
             Specialization = visitDetails.Triage?.Specialization
         };
 
         return model;
     }
 
-    private static RoomStatusItemViewModel MapRoom(ER_Room room) =>
-        new ()
+    private static RoomStatusItemViewModel MapRoom(ERRoom room) =>
+        new()
         {
-            RoomId = room.Room_ID,
-            RoomType = room.Room_Type,
-            Status = room.Availability_Status,
-            CurrentVisitId = room.Current_Visit_ID
+            RoomId = room.RoomId,
+            RoomType = room.RoomTypeName,
+            Status = room.AvailabilityStatus,
+            CurrentVisitId = room.CurrentVisit?.VisitId
         };
 
     private IActionResult RedirectToLogin()
     {
         TempData["ErrorMessage"] = "Please sign in before opening room management.";
-        return RedirectToAction("AuthenticationView", "Authentication");
+        return RedirectToAction("Login", "Auth");
     }
 }
