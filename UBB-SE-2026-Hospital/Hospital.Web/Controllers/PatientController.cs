@@ -332,13 +332,38 @@ public class PatientController : Controller
 
     private static string FormatPhoneNumber(string phone)
     {
+        const int LocalPhoneLength = 10;
+        const int FirstGroupStart = 1;
+        const int SecondGroupStart = 4;
+        const int ThirdGroupStart = 7;
+        const int GroupLength = 3;
+
         if (string.IsNullOrWhiteSpace(phone))
         {
             return phone;
         }
 
-        string normalized = phone.
+        string normalized = NormalizePhone(phone);
+        if (!normalized.StartsWith('0') || normalized.Length != LocalPhoneLength)
+        {
+            return phone;
+        }
 
+        return $"+40 {normalized.Substring(FirstGroupStart, GroupLength)} {normalized.Substring(SecondGroupStart, GroupLength)} {normalized.Substring(ThirdGroupStart, GroupLength)}";
+    }
+
+    private static string NormalizePhone(string phone)
+    {
+        const int CountryCodeLength = 3;
+
+        if (string.IsNullOrWhiteSpace(phone))
+        {
+            return phone;
+        }
+
+        string normalized = phone.Replace(" ", string.Empty, StringComparison.Ordinal)
+            .Replace("-", string.Empty, StringComparison.Ordinal);
+        return normalized.StartsWith("+40", StringComparison.Ordinal) ? $"0{normalized[CountryCodeLength..]}" : normalized;
     }
 
     [HttpPost]
