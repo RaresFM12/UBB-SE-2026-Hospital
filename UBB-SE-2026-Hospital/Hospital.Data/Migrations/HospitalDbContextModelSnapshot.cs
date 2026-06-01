@@ -166,6 +166,469 @@ namespace Hospital.Data.Migrations
                     b.ToTable("Appointments");
                 });
 
+            modelBuilder.Entity("Hospital.Data.Models.Auth.Module", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.ToTable("Modules");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Reporting and statistics dashboards",
+                            Key = "statistics",
+                            Name = "Statistics"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Pharmacy catalogue and inventory",
+                            Key = "pharmacy",
+                            Name = "Pharmacy"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Register and manage patients",
+                            Key = "patient-registration",
+                            Name = "Patient Registration"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Description = "ER patient queue",
+                            Key = "queue",
+                            Name = "Queue"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Description = "Triage assessment",
+                            Key = "triage",
+                            Name = "Triage"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Description = "Assign patients to ER rooms",
+                            Key = "room-assignment",
+                            Name = "Room Assignment"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Description = "Patient examinations",
+                            Key = "examination",
+                            Name = "Examination"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Description = "Patient transfer records",
+                            Key = "transfer-log",
+                            Name = "Transfer Log"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Description = "Manage ER rooms",
+                            Key = "room-management",
+                            Name = "Room Management"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Description = "User administration",
+                            Key = "users",
+                            Name = "Users"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Description = "Doctor appointments",
+                            Key = "appointments",
+                            Name = "Appointments"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Description = "Pharmacy orders and basket",
+                            Key = "orders",
+                            Name = "Orders"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Description = "Medical prescriptions",
+                            Key = "prescriptions",
+                            Name = "Prescriptions"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Description = "Staff shifts and swaps",
+                            Key = "shifts",
+                            Name = "Shifts"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Description = "Staff social hangouts",
+                            Key = "hangouts",
+                            Name = "Hangouts"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Description = "Billing and invoicing",
+                            Key = "billing",
+                            Name = "Billing"
+                        });
+                });
+
+            modelBuilder.Entity("Hospital.Data.Models.Auth.Role", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Full system administrator",
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Attending physician",
+                            Name = "Doctor"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Pharmacy staff",
+                            Name = "Pharmacist"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Description = "Nursing staff",
+                            Name = "Nurse"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Description = "Pharmacy customer",
+                            Name = "Client"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Description = "Registered patient",
+                            Name = "Patient"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Description = "Emergency room physician",
+                            Name = "ERDoctor"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Description = "Laboratory technician",
+                            Name = "LabTechnician"
+                        });
+                });
+
+            modelBuilder.Entity("Hospital.Data.Models.Auth.RoleModulePermission", b =>
+                {
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ModuleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RoleId", "ModuleId");
+
+                    b.HasIndex("ModuleId");
+
+                    b.ToTable("RoleModulePermissions");
+
+                    b.HasData(
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleId = 1
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleId = 2
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleId = 3
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleId = 4
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleId = 5
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleId = 6
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleId = 7
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleId = 8
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleId = 9
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleId = 10
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleId = 11
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleId = 12
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleId = 13
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleId = 14
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleId = 15
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ModuleId = 16
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            ModuleId = 1
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            ModuleId = 3
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            ModuleId = 4
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            ModuleId = 5
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            ModuleId = 6
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            ModuleId = 7
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            ModuleId = 8
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            ModuleId = 11
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            ModuleId = 13
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            ModuleId = 2
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            ModuleId = 12
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            ModuleId = 13
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            ModuleId = 16
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            ModuleId = 3
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            ModuleId = 4
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            ModuleId = 5
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            ModuleId = 6
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            ModuleId = 7
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            ModuleId = 8
+                        },
+                        new
+                        {
+                            RoleId = 5,
+                            ModuleId = 2
+                        },
+                        new
+                        {
+                            RoleId = 5,
+                            ModuleId = 12
+                        },
+                        new
+                        {
+                            RoleId = 6,
+                            ModuleId = 11
+                        },
+                        new
+                        {
+                            RoleId = 7,
+                            ModuleId = 3
+                        },
+                        new
+                        {
+                            RoleId = 7,
+                            ModuleId = 4
+                        },
+                        new
+                        {
+                            RoleId = 7,
+                            ModuleId = 5
+                        },
+                        new
+                        {
+                            RoleId = 7,
+                            ModuleId = 6
+                        },
+                        new
+                        {
+                            RoleId = 7,
+                            ModuleId = 7
+                        },
+                        new
+                        {
+                            RoleId = 7,
+                            ModuleId = 8
+                        },
+                        new
+                        {
+                            RoleId = 7,
+                            ModuleId = 9
+                        },
+                        new
+                        {
+                            RoleId = 8,
+                            ModuleId = 7
+                        });
+                });
+
             modelBuilder.Entity("Hospital.Data.Models.BasketEntry", b =>
                 {
                     b.Property<int>("Id")
@@ -1543,6 +2006,25 @@ namespace Hospital.Data.Migrations
                     b.Navigation("Doctor");
                 });
 
+            modelBuilder.Entity("Hospital.Data.Models.Auth.RoleModulePermission", b =>
+                {
+                    b.HasOne("Hospital.Data.Models.Auth.Module", "Module")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("ModuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Hospital.Data.Models.Auth.Role", "Role")
+                        .WithMany("ModulePermissions")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Module");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("Hospital.Data.Models.BasketEntry", b =>
                 {
                     b.HasOne("Hospital.Data.Models.Item", "Item")
@@ -1973,6 +2455,16 @@ namespace Hospital.Data.Migrations
                     b.Navigation("Item");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Hospital.Data.Models.Auth.Module", b =>
+                {
+                    b.Navigation("RolePermissions");
+                });
+
+            modelBuilder.Entity("Hospital.Data.Models.Auth.Role", b =>
+                {
+                    b.Navigation("ModulePermissions");
                 });
 
             modelBuilder.Entity("Hospital.Data.Models.Hangout", b =>

@@ -1,12 +1,12 @@
 using Hospital.Data.Models.DTOs;
 using Hospital.Services.PatientEr;
-using Microsoft.AspNetCore.Authorization;
+using Hospital.API.Auth;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hospital.API.Controllers;
 
 [ApiController]
-[Authorize]
+[AuthorizeRole("Admin","Pharmacist")]
 [Route("api/billing")]
 public class BillingController(IBillingService billingService) : ControllerBase
 {

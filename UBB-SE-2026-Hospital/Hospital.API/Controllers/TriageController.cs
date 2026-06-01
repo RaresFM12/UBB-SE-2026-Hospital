@@ -1,12 +1,12 @@
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
-using Microsoft.AspNetCore.Authorization;
+using Hospital.API.Auth;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hospital.API.Controllers;
 
 [ApiController]
-[Authorize]
+[AuthorizeRole("Admin","Doctor","Nurse","ERDoctor")]
 [Route("api/triage")]
 public class TriageController(
     ITriageService triageService,

@@ -14,6 +14,9 @@ public static class DataServiceCollectionExtensions
         services.AddDbContext<HospitalDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
+        // Authorization (roles & modules)
+        services.AddScoped<IModuleRepository, ModuleRepository>();
+
         // Staff & Pharmacy
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IStaffRepository, StaffRepository>();

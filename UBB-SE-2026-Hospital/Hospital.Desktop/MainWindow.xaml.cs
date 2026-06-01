@@ -8,4 +8,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
     }
+
+    private void OnLogoutClick(object sender, RoutedEventArgs e)
+        => ((App)Application.Current).Logout(this);
 }

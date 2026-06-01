@@ -1,12 +1,12 @@
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
-using Microsoft.AspNetCore.Authorization;
+using Hospital.API.Auth;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hospital.API.Controllers;
 
 [ApiController]
-[Authorize]
+[AuthorizeRole("Admin")]
 [Route("api/staff")]
 public class StaffController(IShiftManagementService shiftManagementService) : ControllerBase
 {

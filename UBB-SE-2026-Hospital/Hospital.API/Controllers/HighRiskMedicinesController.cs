@@ -1,11 +1,11 @@
 using Hospital.Shared.Services;
-using Microsoft.AspNetCore.Authorization;
+using Hospital.API.Auth;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hospital.API.Controllers;
 
 [ApiController]
-[Authorize]
+[AuthorizeRole("Admin","Pharmacist")]
 [Route("api/high-risk-medicines")]
 public class HighRiskMedicinesController(IAdminService adminService) : ControllerBase
 {

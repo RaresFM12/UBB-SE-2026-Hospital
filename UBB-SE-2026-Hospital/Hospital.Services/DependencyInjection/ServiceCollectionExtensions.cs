@@ -12,6 +12,8 @@ public static class ServiceCollectionExtensions
     {
         // Auth
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IModuleAccessService, ModuleAccessService>();
+        services.AddSingleton<IRolePermissionCache, RolePermissionCache>();
 
         // Patient / ER domain (from 926-2)
         services.AddScoped<IAllergyService, AllergyService>();

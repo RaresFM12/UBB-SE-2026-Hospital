@@ -1,12 +1,12 @@
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
-using Microsoft.AspNetCore.Authorization;
+using Hospital.API.Auth;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hospital.API.Controllers;
 
 [ApiController]
-[Authorize]
+[AuthorizeRole("Admin","Doctor","Pharmacist","Nurse")]
 [Route("api/hangouts")]
 public class HangoutsController(IHangoutService hangoutService) : ControllerBase
 {
