@@ -1,5 +1,6 @@
 using Hospital.Data.Configuration;
 using Hospital.Services.DependencyInjection;
+using Hospital.Web.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddHospitalData(builder.Configuration);
 builder.Services.AddHospitalServices();
+builder.Services.AddHospitalWebServices(builder.Configuration);
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -14,6 +16,9 @@ builder.Services
         options.LoginPath = "/Auth/Login";
         options.AccessDeniedPath = "/Auth/AccessDenied";
     });
+
+builder.Services.AddDistributedMemoryCache(); // ← add
+builder.Services.AddSession();                // ← add
 
 var app = builder.Build();
 
@@ -27,6 +32,7 @@ app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseSession();          
 
 app.MapStaticAssets();
 app.MapControllerRoute(
