@@ -8,10 +8,13 @@ public class HttpDoctorAppointmentProxy(HttpClient httpClient) : ProxyBase(httpC
     private const string BaseUri = "api/appointments";
 
     public async Task<IReadOnlyList<Appointment>> GetUpcomingAppointmentsAsync(int doctorUserId, DateTime fromDate, int skipCount, int takeCount)
-        => await GetAsync<List<Appointment>>($"{BaseUri}/upcoming?doctorUserId={doctorUserId}&fromDate={fromDate:O}&skipCount={skipCount}&takeCount={takeCount}") ?? [];
+        => await GetAsync<List<Appointment>>($"{BaseUri}/upcoming?doctorUserId={doctorUserId}&fromDate={QueryDate(fromDate)}&skipCount={skipCount}&takeCount={takeCount}") ?? [];
 
     public async Task<IReadOnlyList<(int DoctorId, string DoctorName)>> GetAllDoctorsAsync()
-        => await GetAsync<List<(int DoctorId, string DoctorName)>>("api/doctors") ?? [];
+    {
+        var doctors = await GetAsync<List<DoctorOptionDto>>("api/doctors") ?? [];
+        return doctors.Select(doctor => (doctor.DoctorId, doctor.DoctorName)).ToList();
+    }
 
     public async Task<Appointment?> GetAppointmentDetailsAsync(int appointmentId)
         => await GetAsync<Appointment>($"{BaseUri}/{appointmentId}");
@@ -29,14 +32,21 @@ public class HttpDoctorAppointmentProxy(HttpClient httpClient) : ProxyBase(httpC
         => await PostAsync<Appointment, object>($"{BaseUri}/{appointment.Id}/finish", appointment);
 
     public async Task<IReadOnlyList<Appointment>> GetAppointmentsInRangeAsync(int doctorId, DateTime fromDate, DateTime toDate)
-        => await GetAsync<List<Appointment>>($"{BaseUri}/range?doctorId={doctorId}&fromDate={fromDate:O}&toDate={toDate:O}") ?? [];
+        => await GetAsync<List<Appointment>>($"{BaseUri}/range?doctorId={doctorId}&fromDate={QueryDate(fromDate)}&toDate={QueryDate(toDate)}") ?? [];
 
     public async Task CancelAppointmentAsync(Appointment appointment)
         => await PostAsync<object, object>($"{BaseUri}/{appointment.Id}/cancel", new { });
 
     public async Task<IReadOnlyList<Shift>> GetShiftsForStaffInRangeAsync(int doctorId, DateTime fromDate, DateTime toDate)
-        => await GetAsync<List<Shift>>($"api/shifts/range?doctorId={doctorId}&fromDate={fromDate:O}&toDate={toDate:O}") ?? [];
+        => await GetAsync<List<Shift>>($"api/shifts/range?doctorId={doctorId}&fromDate={QueryDate(fromDate)}&toDate={QueryDate(toDate)}") ?? [];
 
     public async Task<int?> GetDoctorIdByEmailAsync(string email)
         => await GetAsync<int?>($"api/doctors/by-email?email={Uri.EscapeDataString(email)}");
+
+    private sealed class DoctorOptionDto
+    {
+        public int DoctorId { get; set; }
+
+        public string DoctorName { get; set; } = string.Empty;
+    }
 }

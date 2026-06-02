@@ -16,5 +16,6 @@ public sealed partial class AddictDetectionPage : Page
         base.OnNavigatedTo(e);
         ViewModel = new AddictDetectionViewModel(App.Services.GetRequiredService<IAddictDetectionService>());
         DataContext = ViewModel;
+        ViewModel.LoadCandidatesCommand.Execute(null);
     }
 }

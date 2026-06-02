@@ -17,6 +17,8 @@ public sealed partial class TransferLogPage : Page
         ViewModel = new TransferLogViewModel(
             App.Services.GetRequiredService<ITransferLogService>(),
             App.Services.GetRequiredService<IERVisitService>());
+        ViewModel.XamlRoot = XamlRoot;
         DataContext = ViewModel;
+        ViewModel.LoadDataCommand.Execute(null);
     }
 }

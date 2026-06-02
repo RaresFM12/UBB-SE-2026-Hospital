@@ -13,7 +13,7 @@ public partial class TransplantViewModel : ObservableObject
     private readonly ITransplantService transplantService;
 
     [ObservableProperty] private ObservableCollection<Transplant> transplants = new ObservableCollection<Transplant>();
-    [ObservableProperty] private ObservableCollection<Transplant> matches = new ObservableCollection<Transplant>();
+    [ObservableProperty] private ObservableCollection<TransplantMatch> matches = new ObservableCollection<TransplantMatch>();
     [ObservableProperty] private string statusMessage = string.Empty;
 
     public TransplantViewModel(ITransplantService transplantService)

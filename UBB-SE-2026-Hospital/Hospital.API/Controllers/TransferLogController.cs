@@ -1,4 +1,3 @@
-#if false
 using Hospital.Data.Models;
 using Hospital.Data.Models.DTOs;
 using Hospital.Services.PatientEr;
@@ -75,4 +74,3 @@ public class TransferLogController(ITransferLogService transferLogService, ILogg
         catch (Exception ex) { logger.LogError(ex, "Failed to delete transfer log {Id}.", id); return Problem(statusCode: 500, title: "Could not delete transfer log."); }
     }
 }
-#endif

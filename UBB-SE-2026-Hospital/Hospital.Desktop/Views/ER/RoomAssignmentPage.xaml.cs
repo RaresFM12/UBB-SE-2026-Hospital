@@ -19,6 +19,8 @@ public sealed partial class RoomAssignmentPage : Page
             App.Services.GetRequiredService<IERRoomService>(),
             App.Services.GetRequiredService<ITriageService>(),
             App.Services.GetRequiredService<IPatientService>());
+        ViewModel.XamlRoot = XamlRoot;
         DataContext = ViewModel;
+        ViewModel.LoadDataCommand.Execute(null);
     }
 }

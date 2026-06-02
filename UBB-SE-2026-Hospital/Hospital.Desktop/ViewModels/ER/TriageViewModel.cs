@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Hospital.Data.Models;
+using Hospital.Data.Models.DTOs;
 using Hospital.Shared.Services;
 using Microsoft.UI.Xaml.Controls;
 
@@ -104,8 +105,9 @@ public partial class TriageViewModel : ObservableObject
 
         try
         {
-            var parameters = new TriageParameters
+            var parameters = new PerformTriageDto
             {
+                VisitId = SelectedVisit.VisitId,
                 Consciousness = Consciousness,
                 Breathing = Breathing,
                 Bleeding = Bleeding,

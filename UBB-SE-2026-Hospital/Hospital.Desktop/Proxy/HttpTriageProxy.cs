@@ -34,11 +34,11 @@ public class HttpTriageProxy(HttpClient httpClient) : ProxyBase(httpClient), ITr
            ?? throw new InvalidOperationException("Failed to create triage.");
 
     public async Task MoveVisitToQueueAsync(int visitId)
-        => await PostAsync<object, object>($"api/er-visits/{visitId}/move-to-queue", new { });
+        => await PostAsync<object, object>($"api/ervisits/{visitId}/move-to-queue", new { });
 
     public async Task CloseVisitAsync(int visitId)
-        => await PostAsync<object, object>($"api/er-visits/{visitId}/close", new { });
+        => await PostAsync<object, object>($"api/ervisits/{visitId}/close", new { });
 
     public async Task<List<ERVisit>> GetVisitsForTriageAsync()
-        => await GetAsync<List<ERVisit>>("api/er-visits/for-triage") ?? [];
+        => await GetAsync<List<ERVisit>>("api/ervisits/for-triage") ?? [];
 }

@@ -14,7 +14,7 @@ public class HttpShiftManagementProxy(HttpClient httpClient) : ProxyBase(httpCli
         => Task.Run(async () => await PutAsync<object>($"{BaseUri}/{shiftId}/status", new { status = "Cancelled" })).GetAwaiter().GetResult();
 
     public bool ValidateNoOverlap(int staffId, DateTime start, DateTime end)
-        => Task.Run(async () => await GetAsync<bool>($"{BaseUri}/validate-no-overlap?staffId={staffId}&start={start:O}&end={end:O}")).GetAwaiter().GetResult();
+        => Task.Run(async () => await GetAsync<bool>($"{BaseUri}/validate-no-overlap?staffId={staffId}&start={QueryDate(start)}&end={QueryDate(end)}")).GetAwaiter().GetResult();
 
     public void AddShift(Shift shift)
         => Task.Run(async () => await PostAsync<Shift, object>(BaseUri, shift)).GetAwaiter().GetResult();
@@ -71,5 +71,5 @@ public class HttpShiftManagementProxy(HttpClient httpClient) : ProxyBase(httpCli
         => Task.Run(async () => await GetAsync<List<Shift>>($"{BaseUri}/active") ?? []).GetAwaiter().GetResult();
 
     public bool IsStaffWorkingDuring(int staffId, DateTime startTime, DateTime endTime)
-        => Task.Run(async () => await GetAsync<bool>($"{BaseUri}/is-working?staffId={staffId}&startTime={startTime:O}&endTime={endTime:O}")).GetAwaiter().GetResult();
+        => Task.Run(async () => await GetAsync<bool>($"{BaseUri}/is-working?staffId={staffId}&startTime={QueryDate(startTime)}&endTime={QueryDate(endTime)}")).GetAwaiter().GetResult();
 }

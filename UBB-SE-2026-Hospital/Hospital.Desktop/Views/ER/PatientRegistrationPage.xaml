@@ -3,7 +3,39 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Grid Background="{StaticResource AppBackgroundBrush}" Padding="24">
-        <TextBlock Text="Patient Registration" FontSize="28" FontWeight="SemiBold" Foreground="{StaticResource AppAccentBrush}"/>
-    </Grid>
+    <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
+        <Grid Padding="24" RowSpacing="16" MaxWidth="720" HorizontalAlignment="Left">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="Patient Registration" FontSize="28" FontWeight="SemiBold" Foreground="{StaticResource AppAccentBrush}"/>
+
+            <Border Grid.Row="1" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="16">
+                <StackPanel Spacing="10">
+                    <TextBox Header="CNP" Text="{Binding PatientCnp, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Text="{Binding PatientCnpError}" Foreground="{StaticResource AppErrorBrush}"/>
+                    <Grid ColumnSpacing="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Header="First Name" Text="{Binding FirstName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox Grid.Column="1" Header="Last Name" Text="{Binding LastName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    </Grid>
+                    <CalendarDatePicker Header="Date of Birth" Date="{Binding DateOfBirth, Mode=TwoWay}"/>
+                    <CheckBox Content="Date of birth selected" IsChecked="{Binding HasDateOfBirth, Mode=TwoWay}"/>
+                    <TextBox Header="Gender" PlaceholderText="Male or Female" Text="{Binding Gender, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBox Header="Phone" PlaceholderText="07XXXXXXXX" Text="{Binding Phone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBox Header="Emergency Contact" PlaceholderText="Firstname Lastname - 07XXXXXXXX" Text="{Binding EmergencyContact, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBox Header="Chief Complaint" Text="{Binding ChiefComplaint, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" MinHeight="88"/>
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button Content="Register Patient and Visit" Command="{Binding RegisterPatientAndVisitCommand}"/>
+                        <Button Content="Clear" Command="{Binding ClearFormCommand}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </ScrollViewer>
 </Page>

@@ -1,9 +1,9 @@
 using System;
+using System.IO;
 using System.Net.Http;
 using Hospital.Desktop.Auth;
 using Hospital.Desktop.Proxy;
 using Hospital.Desktop.Services;
-using Hospital.Desktop.ViewModels;
 using Hospital.Desktop.ViewModels.Accounts;
 using Hospital.Desktop.ViewModels.Admin;
 using Hospital.Desktop.ViewModels.ER;
@@ -23,6 +23,7 @@ public partial class App : Application
     public App()
     {
         InitializeComponent();
+        UnhandledException += (_, e) => LogException(e.Exception);
 
         var services = new ServiceCollection();
         var configuration = new ConfigurationBuilder()
@@ -31,11 +32,15 @@ public partial class App : Application
 
         services.AddSingleton<IConfiguration>(configuration);
 
-        string apiBaseUrl = configuration["ApiBaseUrl"] ?? "https://localhost:7001";
+        string apiBaseUrl = configuration["ApiBaseUrl"] ?? "http://localhost:5106";
 
         // JWT auth handler + named HttpClient
         services.AddTransient<JwtAuthHandler>();
-        services.AddHttpClient("api", c => c.BaseAddress = new Uri(apiBaseUrl))
+        services.AddHttpClient("api", c =>
+        {
+            c.BaseAddress = new Uri(apiBaseUrl);
+            c.Timeout = TimeSpan.FromSeconds(10);
+        })
                 .AddHttpMessageHandler<JwtAuthHandler>();
         services.AddSingleton(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("api"));
 
@@ -57,7 +62,8 @@ public partial class App : Application
         services.AddSingleton<IBloodCompatibilityService, HttpBloodCompatibilityProxy>();
         services.AddSingleton<IBillingService, HttpBillingProxy>();
         services.AddSingleton<IAddictDetectionService, HttpAddictDetectionProxy>();
-        services.AddSingleton<IPrescriptionService, HttpPrescriptionProxy>();
+        services.AddSingleton<HttpPrescriptionProxy>();
+        services.AddSingleton<IPrescriptionService>(sp => sp.GetRequiredService<HttpPrescriptionProxy>());
 
         // Sync-blocking proxies (923-2 admin/client)
         services.AddSingleton<IAdminService, HttpAdminProxy>();
@@ -67,7 +73,7 @@ public partial class App : Application
         services.AddSingleton<IFatigueAuditService, HttpFatigueAuditProxy>();
 
         // ViewModels
-        services.AddTransient<LoginViewModel>();
+        services.AddTransient<Hospital.Desktop.ViewModels.LoginViewModel>();
         services.AddTransient<AdminAccountsManagementViewModel>();
         services.AddTransient<AdminAppointmentsViewModel>();
         services.AddTransient<AdminShiftViewModel>();
@@ -107,10 +113,21 @@ public partial class App : Application
         var loginWindow = Services.GetRequiredService<LoginWindow>();
         loginWindow.ViewModel.LoginSucceeded += () =>
         {
-            var shell = Services.GetRequiredService<MainWindow>();
-            CurrentWindow = shell;
-            shell.Activate();
-            loginWindow.Close();
+            loginWindow.DispatcherQueue.TryEnqueue(() =>
+            {
+                try
+                {
+                    var shell = Services.GetRequiredService<MainWindow>();
+                    CurrentWindow = shell;
+                    shell.Activate();
+                    loginWindow.Close();
+                }
+                catch (Exception ex)
+                {
+                    LogException(ex);
+                    throw;
+                }
+            });
         };
         loginWindow.Activate();
     }
@@ -121,5 +138,14 @@ public partial class App : Application
         CurrentWindow = null;
         ShowLogin();
         current.Close();
+    }
+
+    private static void LogException(Exception ex)
+    {
+        var logPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "Hospital.Desktop.crash.log");
+
+        File.AppendAllText(logPath, $"{DateTimeOffset.Now:O}{Environment.NewLine}{ex}{Environment.NewLine}");
     }
 }

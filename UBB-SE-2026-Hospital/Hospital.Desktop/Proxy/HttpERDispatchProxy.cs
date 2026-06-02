@@ -5,7 +5,7 @@ namespace Hospital.Desktop.Proxy;
 
 public class HttpERDispatchProxy(HttpClient httpClient) : ProxyBase(httpClient), IERDispatchService
 {
-    private const string BaseUri = "api/errequests";
+    private const string BaseUri = "api/er-requests";
 
     public async Task<IReadOnlyList<int>> SimulateIncomingRequestsAsync(int count)
         => await PostAsync<object, List<int>>($"{BaseUri}/simulate", new { count }) ?? [];

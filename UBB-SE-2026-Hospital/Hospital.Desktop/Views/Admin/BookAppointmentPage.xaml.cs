@@ -20,12 +20,12 @@ namespace Hospital.Desktop.Views.Admin
 
         private async void BookAppointmentPage_Loaded(object sender, RoutedEventArgs eventArgs)
         {
-            // await this.ViewModel.LoadDoctorsAsync();
+            await this.ViewModel.LoadDoctorsAsync();
 
-            // if (this.ViewModel.Doctors.Count > 0)
-            // {
-            //     DoctorComboBox.SelectedIndex = 0;
-            // }
+            if (this.ViewModel.Doctors.Count > 0)
+            {
+                DoctorComboBox.SelectedIndex = 0;
+            }
         }
 
         private async void CreateAppointment_Click(object sender, RoutedEventArgs eventArgs)
@@ -46,7 +46,7 @@ namespace Hospital.Desktop.Views.Admin
                 System.DateTime date = AppointmentDatePicker.Date.Value.DateTime;
                 System.TimeSpan time = AppointmentTimePicker.SelectedTime.Value;
 
-                // await this.ViewModel.BookAppointmentAsync(patientId, selectedDoctorId, date, time);
+                await this.ViewModel.BookAppointmentAsync(patientId, selectedDoctorId, date, time);
 
                 this.ShowMessage($"Appointment booked successfully for {patientId}!", InfoBarSeverity.Success);
                 PatientIdTextBox.Text = string.Empty;

@@ -22,7 +22,7 @@ namespace Hospital.Desktop.Views.Accounts
         {
             base.OnNavigatedTo(e);
 
-            this.accountService = ServiceWrapper.UserAccountService;
+            this.accountService = App.Services.GetRequiredService<IUserAccountService>();
             this.AdminAccountsManagementViewModel = new AdminAccountsManagementViewModel(this.accountService);
 
             this.DataContext = this.AdminAccountsManagementViewModel;

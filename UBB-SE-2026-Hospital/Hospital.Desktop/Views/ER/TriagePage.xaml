@@ -2,12 +2,7 @@
     x:Class="Hospital.Desktop.Views.ER.TriagePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:models="using:Hospital.Data.Models"
-    xmlns:vm="using:Hospital.Desktop.ViewModels.ER">
-
-    <Page.DataContext>
-        <vm:TriageViewModel/>
-    </Page.DataContext>
+    xmlns:models="using:Hospital.Data.Models">
 
     <Grid Background="{StaticResource AppBackgroundBrush}" Padding="24">
         <Grid.RowDefinitions>

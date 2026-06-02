@@ -16,5 +16,6 @@ public sealed partial class StatisticsPage : Page
         base.OnNavigatedTo(e);
         ViewModel = new StatisticsViewModel(App.Services.GetRequiredService<IStatisticsService>());
         DataContext = ViewModel;
+        ViewModel.LoadStatisticsCommand.Execute(null);
     }
 }

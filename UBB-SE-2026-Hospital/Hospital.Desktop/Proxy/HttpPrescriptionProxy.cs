@@ -1,4 +1,5 @@
 using Hospital.Shared.Services;
+using Prescription = Hospital.Data.Models.Prescription;
 
 namespace Hospital.Desktop.Proxy;
 
@@ -11,4 +12,7 @@ public class HttpPrescriptionProxy(HttpClient httpClient) : ProxyBase(httpClient
 
     public Dictionary<int, int> GetCheapestPrescriptionItems(string prescriptionName, int requiredPills)
         => Task.Run(async () => await GetAsync<Dictionary<int, int>>($"{BaseUri}/cheapest?name={Uri.EscapeDataString(prescriptionName)}&requiredPills={requiredPills}") ?? []).GetAwaiter().GetResult();
+
+    public async Task<List<Prescription>> GetLatestPrescriptionsAsync(int count = 50, int page = 1)
+        => await GetAsync<List<Prescription>>($"{BaseUri}/latest?n={count}&page={page}") ?? [];
 }

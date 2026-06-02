@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using Hospital.Data.Models;
 using Hospital.Data.Models.DTOs;
 using Hospital.Shared.Services;
+using PatientModel = Hospital.Data.Models.Patient;
 
 namespace Hospital.Desktop.ViewModels.Patient;
 
@@ -13,8 +14,8 @@ public partial class PatientViewModel : ObservableObject
 {
     private readonly IPatientService patientService;
 
-    [ObservableProperty] private ObservableCollection<Patient> patients = new ObservableCollection<Patient>();
-    [ObservableProperty] private Patient? selectedPatient;
+    [ObservableProperty] private ObservableCollection<PatientModel> patients = new ObservableCollection<PatientModel>();
+    [ObservableProperty] private PatientModel? selectedPatient;
     [ObservableProperty] private MedicalHistory? medicalHistory;
     [ObservableProperty] private ObservableCollection<MedicalRecord> medicalRecords = new ObservableCollection<MedicalRecord>();
     [ObservableProperty] private string searchQuery = string.Empty;
@@ -25,7 +26,7 @@ public partial class PatientViewModel : ObservableObject
         this.patientService = patientService;
     }
 
-    partial void OnSelectedPatientChanged(Patient? value)
+    partial void OnSelectedPatientChanged(PatientModel? value)
     {
         if (value != null)
         {

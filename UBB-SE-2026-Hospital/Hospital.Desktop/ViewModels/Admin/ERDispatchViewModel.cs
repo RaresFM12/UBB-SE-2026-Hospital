@@ -130,7 +130,7 @@ namespace Hospital.Desktop.ViewModels.Admin
         public async Task LoadOverrideCandidatesAsync(int requestId)
         {
             var overrideCandidateDoctors = await this.dispatchService.GetManualOverrideCandidatesAsync(requestId, NearEndMinutesThreshold);
-            // this.OverrideCandidates.ReplaceWith(overrideCandidateDoctors.Select(OverrideCandidateRow.From));
+            this.OverrideCandidates.ReplaceWith(overrideCandidateDoctors.Select(OverrideCandidateRow.From));
 
             this.ManualInterventionHint = this.OverrideCandidates.Count == 0
                 ? "No eligible override doctor found (need IN_EXAMINATION doctor ending within 3 days)."
@@ -274,13 +274,13 @@ namespace Hospital.Desktop.ViewModels.Admin
                 }
             }
 
-//            public static OverrideCandidateRow From(DoctorProfile candidate) =>
-//                new OverrideCandidateRow
-//                {
-//                    DoctorId = candidate.DoctorId,
-//                    FullName = candidate.FullName,
-//                    MinutesToEnd = candidate.MinutesToEnd,
-//                };
+            public static OverrideCandidateRow From(DoctorProfile candidate) =>
+                new OverrideCandidateRow
+                {
+                    DoctorId = candidate.DoctorId,
+                    FullName = candidate.FullName,
+                    MinutesToEnd = candidate.MinutesToEnd,
+                };
         }
     }
 }

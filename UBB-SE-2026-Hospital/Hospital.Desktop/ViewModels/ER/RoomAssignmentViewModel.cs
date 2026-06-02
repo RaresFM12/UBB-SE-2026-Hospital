@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.Input;
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Microsoft.UI.Xaml.Controls;
+using PatientModel = Hospital.Data.Models.Patient;
 
 namespace Hospital.Desktop.ViewModels.ER;
 
@@ -24,7 +25,7 @@ public partial class RoomAssignmentViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<ERRoom> availableRooms = new ObservableCollection<ERRoom>();
     [ObservableProperty] private ERVisit? selectedVisit;
     [ObservableProperty] private ERRoom? selectedRoom;
-    [ObservableProperty] private Patient? selectedPatient;
+    [ObservableProperty] private PatientModel? selectedPatient;
     [ObservableProperty] private Triage? selectedTriage;
     [ObservableProperty] private string statusMessage = string.Empty;
 

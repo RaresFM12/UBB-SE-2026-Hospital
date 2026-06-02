@@ -18,5 +18,6 @@ public sealed partial class QueuePage : Page
             App.Services.GetRequiredService<IERVisitService>(),
             App.Services.GetRequiredService<ITriageService>());
         DataContext = ViewModel;
+        ViewModel.LoadQueueCommand.Execute(null);
     }
 }

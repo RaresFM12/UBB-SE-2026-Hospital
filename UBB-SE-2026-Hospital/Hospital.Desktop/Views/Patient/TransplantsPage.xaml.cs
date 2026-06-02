@@ -16,5 +16,7 @@ public sealed partial class TransplantsPage : Page
         base.OnNavigatedTo(e);
         ViewModel = new TransplantViewModel(App.Services.GetRequiredService<ITransplantService>());
         DataContext = ViewModel;
+        ViewModel.LoadTransplantsCommand.Execute(null);
+        ViewModel.FindMatchesCommand.Execute(null);
     }
 }

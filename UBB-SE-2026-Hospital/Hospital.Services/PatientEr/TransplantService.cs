@@ -9,7 +9,9 @@ public class TransplantService(
     IPatientRepository patientRepository,
     IMedicalRecordRepository recordRepository,
     IBloodCompatibilityService bloodCompatibilityService,
-    IMedicalHistoryRepository historyRepository) : ITransplantService
+    IMedicalHistoryRepository historyRepository) :
+    ITransplantService,
+    Hospital.Shared.Services.ITransplantService
 {
     private const int MaxScoreModifier = 20;
     private const int MinScoreModifier = 5;
@@ -33,6 +35,31 @@ public class TransplantService(
 
     public Task<List<Transplant>> GetByPatientIdAsync(int patientId)
         => transplantRepository.GetByPatientIdAsync(patientId);
+
+    public async Task<List<Transplant>> GetByReceiverIdAsync(int receiverId)
+        => (await transplantRepository.GetAllAsync())
+            .Where(t => t.Receiver?.PatientId == receiverId)
+            .ToList();
+
+    public async Task<List<Transplant>> GetByDonorIdAsync(int donorId)
+        => (await transplantRepository.GetAllAsync())
+            .Where(t => t.Donor?.PatientId == donorId)
+            .ToList();
+
+    public Task<List<TransplantMatch>> GetTopMatchesForDonorAsync(int donorId, string organType)
+        => GetTopMatchesAsDisplayModelsAsync(donorId, organType);
+
+    public async Task<List<TransplantMatch>> GetMatchesAsync()
+    {
+        List<Transplant> transplants = await transplantRepository.GetAllAsync();
+        var matches = new List<TransplantMatch>();
+        foreach (Transplant transplant in transplants)
+        {
+            matches.AddRange(await transplantRepository.GetMatchesForTransplantAsync(transplant.TransplantId));
+        }
+
+        return matches;
+    }
 
     public async Task CreateWaitlistRequestAsync(int receiverId, string organType)
     {

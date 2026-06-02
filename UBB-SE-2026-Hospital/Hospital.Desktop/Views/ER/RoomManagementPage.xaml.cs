@@ -15,6 +15,8 @@ public sealed partial class RoomManagementPage : Page
     {
         base.OnNavigatedTo(e);
         ViewModel = new RoomManagementViewModel(App.Services.GetRequiredService<IERRoomService>());
+        ViewModel.XamlRoot = XamlRoot;
         DataContext = ViewModel;
+        ViewModel.LoadRoomsCommand.Execute(null);
     }
 }

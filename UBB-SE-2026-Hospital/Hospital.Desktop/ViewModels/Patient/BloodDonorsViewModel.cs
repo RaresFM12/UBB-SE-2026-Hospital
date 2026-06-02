@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
+using PatientModel = Hospital.Data.Models.Patient;
 
 namespace Hospital.Desktop.ViewModels.Patient;
 
@@ -13,14 +14,34 @@ public partial class BloodDonorsViewModel : ObservableObject
     private readonly IBloodCompatibilityService bloodCompatibilityService;
     private readonly IPatientService patientService;
 
+    [ObservableProperty] private ObservableCollection<PatientModel> patients = new ObservableCollection<PatientModel>();
     [ObservableProperty] private ObservableCollection<DonorMatchRow> donors = new ObservableCollection<DonorMatchRow>();
-    [ObservableProperty] private Patient? selectedPatient;
+    [ObservableProperty] private PatientModel? selectedPatient;
     [ObservableProperty] private string statusMessage = string.Empty;
 
     public BloodDonorsViewModel(IBloodCompatibilityService bloodCompatibilityService, IPatientService patientService)
     {
         this.bloodCompatibilityService = bloodCompatibilityService;
         this.patientService = patientService;
+    }
+
+    [RelayCommand]
+    private async Task LoadPatientsAsync()
+    {
+        Patients.Clear();
+        StatusMessage = string.Empty;
+        try
+        {
+            var result = await patientService.GetPatientsAsync();
+            foreach (var patient in result)
+            {
+                Patients.Add(patient);
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Error: {ex.Message}";
+        }
     }
 
     [RelayCommand]

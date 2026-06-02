@@ -7,7 +7,9 @@ namespace Hospital.Services.PatientEr;
 
 public class AddictDetectionService(
     IPrescriptionRepository prescriptionRepository,
-    IMedicalHistoryRepository medicalHistoryRepository) : IAddictDetectionService
+    IMedicalHistoryRepository medicalHistoryRepository) :
+    IAddictDetectionService,
+    Hospital.Shared.Services.IAddictDetectionService
 {
     private const string ReportHeader = "==================================================\n           LAW ENFORCEMENT ALERT REPORT           \n==================================================";
     private const string ReportFooter = "--------------------------------------------------\nSUSPICIOUS ACTIVITY: SUSPECTED DRUG SHOPPING BEHAVIOR\nCRITERIA MET: MULTIPLE DOCTORS (>=3) WITHIN 30 DAYS\n--- SUPPORTING EVIDENCE (MEDICAL RECORDS) ---";

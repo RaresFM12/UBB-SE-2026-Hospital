@@ -1,4 +1,5 @@
 using Hospital.Data.Models;
+using Hospital.Data.Models.DTOs;
 
 namespace Hospital.Shared.Services;
 

@@ -1,4 +1,3 @@
-#if false
 using Hospital.Data.Models;
 using Hospital.Data.Models.DTOs;
 using Hospital.Shared.Services;
@@ -51,6 +50,10 @@ public class ExaminationController(IExaminationService examinationService, ILogg
         catch (Exception ex) { logger.LogError(ex, "Failed to fetch examination history for patient {PatientId}.", patientId); return Problem(statusCode: 500, title: "Could not fetch examination history."); }
     }
 
+    [HttpGet("patient/{patientId:int}")]
+    public Task<ActionResult<List<Examination>>> GetPatientHistoryAlias(int patientId)
+        => GetPatientHistory(patientId);
+
     [HttpGet("summary/{visitId:int}")]
     public async Task<ActionResult<ERExaminationSummary>> GetSummary(int visitId)
     {
@@ -100,4 +103,3 @@ public class ExaminationController(IExaminationService examinationService, ILogg
         catch (Exception ex) { logger.LogError(ex, "Failed to delete examination {Id}.", id); return Problem(statusCode: 500, title: "Could not delete examination."); }
     }
 }
-#endif

@@ -19,6 +19,8 @@ public sealed partial class ExaminationPage : Page
             App.Services.GetRequiredService<IERVisitService>(),
             App.Services.GetRequiredService<IERRoomService>(),
             App.Services.GetRequiredService<ITriageService>());
+        ViewModel.XamlRoot = XamlRoot;
         DataContext = ViewModel;
+        ViewModel.LoadDataCommand.Execute(null);
     }
 }

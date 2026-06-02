@@ -7,6 +7,7 @@ using Hospital.Data.Models;
 using Hospital.Data.Models.DTOs;
 using Hospital.Shared.Services;
 using Microsoft.UI.Xaml.Controls;
+using PatientModel = Hospital.Data.Models.Patient;
 
 namespace Hospital.Desktop.ViewModels.ER;
 
@@ -163,7 +164,7 @@ public partial class PatientRegistrationViewModel : ObservableObject
 
             var visit = new ERVisit
             {
-                Patient = new Patient { PatientId = patientId, Cnp = PatientCnp, FirstName = FirstName, LastName = LastName },
+                Patient = new PatientModel { PatientId = patientId, Cnp = PatientCnp, FirstName = FirstName, LastName = LastName },
                 ChiefComplaint = ChiefComplaint,
                 ArrivalDateTime = DateTime.Now,
                 Status = ERVisit.VisitStatus.REGISTERED,

@@ -5,7 +5,7 @@ namespace Hospital.Desktop.Proxy;
 
 public class HttpERVisitProxy(HttpClient httpClient) : ProxyBase(httpClient), IERVisitService
 {
-    private const string BaseUri = "api/er-visits";
+    private const string BaseUri = "api/ervisits";
 
     public async Task<List<ERVisit>> GetAllAsync()
         => await GetAsync<List<ERVisit>>(BaseUri) ?? [];

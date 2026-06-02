@@ -1,96 +1,195 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using Microsoft.UI.Xaml.Media;
 
 namespace Hospital.Desktop;
 
 public partial class MainWindow : Window
 {
+    private readonly Frame contentFrame = new();
+    private readonly TextBlock currentPageTitle = new()
+    {
+        Text = "Dashboard",
+        FontSize = 22,
+        FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+        Margin = new Thickness(12, 12, 12, 0),
+    };
+
     public MainWindow()
     {
-        InitializeComponent();
-        ContentFrame.Navigated += OnContentFrameNavigated;
+        Title = "Hospital Desktop";
+        Content = BuildShell();
+        contentFrame.Navigated += OnContentFrameNavigated;
+        contentFrame.NavigationFailed += OnContentFrameNavigationFailed;
+        contentFrame.Navigate(typeof(Views.DashboardPage));
     }
 
-    private void OnNavigationSelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+    private Grid BuildShell()
     {
-        if (args.SelectedItem is NavigationViewItem item && item.Tag is string tag)
+        currentPageTitle.Foreground = (Brush)Application.Current.Resources["AppTextPrimaryBrush"];
+
+        var root = new Grid
         {
-            _ = NavigateToTagAsync(tag);
+            Background = (Brush)Application.Current.Resources["AppBackgroundBrush"],
+        };
+        root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(260) });
+        root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+        var navigation = new ScrollViewer
+        {
+            Content = BuildNavigation(),
+            VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+            Background = (Brush)Application.Current.Resources["AppSurfaceBrush"],
+        };
+
+        var contentHost = new Grid
+        {
+            Background = (Brush)Application.Current.Resources["AppBackgroundBrush"],
+        };
+        contentHost.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        contentHost.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        contentFrame.Padding = new Thickness(12);
+        Grid.SetRow(contentFrame, 1);
+        contentHost.Children.Add(currentPageTitle);
+        contentHost.Children.Add(contentFrame);
+
+        Grid.SetColumn(navigation, 0);
+        Grid.SetColumn(contentHost, 1);
+        root.Children.Add(navigation);
+        root.Children.Add(contentHost);
+
+        return root;
+    }
+
+    private StackPanel BuildNavigation()
+    {
+        var panel = new StackPanel { Padding = new Thickness(12), Spacing = 6 };
+        AddNavigationButton(panel, "Dashboard", "Dashboard");
+
+        AddSectionHeader(panel, "Admin & Client", "AdminAccounts");
+        AddNavigationButton(panel, "Accounts", "AdminAccounts");
+        AddNavigationButton(panel, "Appointments", "Appointments");
+        AddNavigationButton(panel, "ER Dispatch", "ERDispatch");
+        AddNavigationButton(panel, "Fatigue Audit", "FatigueAudit");
+        AddNavigationButton(panel, "Admin Schedule", "AdminSchedule");
+        AddNavigationButton(panel, "Admin Shift", "AdminShift");
+
+        AddSectionHeader(panel, "Emergency Room", "Triage");
+        AddNavigationButton(panel, "Triage", "Triage");
+        AddNavigationButton(panel, "Queue", "Queue");
+        AddNavigationButton(panel, "Patient Registration", "PatientRegistration");
+        AddNavigationButton(panel, "Room Management", "RoomManagement");
+        AddNavigationButton(panel, "Room Assignment", "RoomAssignment");
+        AddNavigationButton(panel, "Examination", "Examination");
+        AddNavigationButton(panel, "Transfer Log", "TransferLog");
+
+        AddSectionHeader(panel, "Patient & Billing", "Patients");
+        AddNavigationButton(panel, "Patients", "Patients");
+        AddNavigationButton(panel, "Prescriptions", "Prescriptions");
+        AddNavigationButton(panel, "Transplants", "Transplants");
+        AddNavigationButton(panel, "Blood Donors", "BloodDonors");
+        AddNavigationButton(panel, "Statistics", "Statistics");
+        AddNavigationButton(panel, "Billing", "Billing");
+        AddNavigationButton(panel, "Addict Detection", "AddictDetection");
+
+        panel.Children.Add(new Button
+        {
+            Content = "Logout",
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            Margin = new Thickness(0, 12, 0, 0),
+        });
+        ((Button)panel.Children[^1]).Click += OnLogoutClick;
+
+        return panel;
+    }
+
+    private void AddSectionHeader(StackPanel panel, string text, string tag)
+    {
+        var button = new Button
+        {
+            Content = text,
+            Tag = tag,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            HorizontalContentAlignment = HorizontalAlignment.Left,
+            Margin = new Thickness(0, 14, 0, 4),
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+            Foreground = (Brush)Application.Current.Resources["AppTextSecondaryBrush"],
+        };
+        button.Click += OnNavigationButtonClick;
+        panel.Children.Add(button);
+    }
+
+    private void AddNavigationButton(StackPanel panel, string label, string tag)
+    {
+        var button = new Button
+        {
+            Content = label,
+            Tag = tag,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            HorizontalContentAlignment = HorizontalAlignment.Left,
+            MinHeight = 36,
+            Foreground = (Brush)Application.Current.Resources["AppTextPrimaryBrush"],
+            Background = new SolidColorBrush(Microsoft.UI.Colors.Transparent),
+            BorderBrush = new SolidColorBrush(Microsoft.UI.Colors.Transparent),
+        };
+        button.Click += OnNavigationButtonClick;
+        panel.Children.Add(button);
+    }
+
+    private void OnNavigationButtonClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: string tag, Content: string label })
+        {
+            NavigateToTag(tag, label);
         }
     }
 
-    private async Task NavigateToTagAsync(string tag)
+    private void NavigateToTag(string tag, string label)
     {
-        var services = App.Services;
-        switch (tag)
+        Type? pageType = tag switch
         {
-            case "Dashboard":
-                ContentFrame.Navigate(typeof(Views.DashboardPage));
-                break;
-            case "AdminAccounts":
-                ContentFrame.Navigate(typeof(Views.Accounts.AdminAccountsManagementView));
-                break;
-            case "Appointments":
-                ContentFrame.Navigate(typeof(Views.Admin.AppointmentsPage));
-                break;
-            case "ERDispatch":
-                ContentFrame.Navigate(typeof(Views.Admin.ERDispatchPage));
-                break;
-            case "FatigueAudit":
-                ContentFrame.Navigate(typeof(Views.Admin.FatigueAuditPage));
-                break;
-            case "AdminSchedule":
-                ContentFrame.Navigate(typeof(Views.Admin.AdminSchedulePage));
-                break;
-            case "AdminShift":
-                ContentFrame.Navigate(typeof(Views.Admin.AdminShiftView));
-                break;
-            case "Triage":
-                ContentFrame.Navigate(typeof(Views.ER.TriagePage));
-                break;
-            case "Queue":
-                ContentFrame.Navigate(typeof(Views.ER.QueuePage));
-                break;
-            case "PatientRegistration":
-                ContentFrame.Navigate(typeof(Views.ER.PatientRegistrationPage));
-                break;
-            case "RoomManagement":
-                ContentFrame.Navigate(typeof(Views.ER.RoomManagementPage));
-                break;
-            case "RoomAssignment":
-                ContentFrame.Navigate(typeof(Views.ER.RoomAssignmentPage));
-                break;
-            case "Examination":
-                ContentFrame.Navigate(typeof(Views.ER.ExaminationPage));
-                break;
-            case "TransferLog":
-                ContentFrame.Navigate(typeof(Views.ER.TransferLogPage));
-                break;
-            case "Patients":
-                ContentFrame.Navigate(typeof(Views.Patient.PatientsPage));
-                break;
-            case "Prescriptions":
-                ContentFrame.Navigate(typeof(Views.Patient.PrescriptionsPage));
-                break;
-            case "Transplants":
-                ContentFrame.Navigate(typeof(Views.Patient.TransplantsPage));
-                break;
-            case "BloodDonors":
-                ContentFrame.Navigate(typeof(Views.Patient.BloodDonorsPage));
-                break;
-            case "Statistics":
-                ContentFrame.Navigate(typeof(Views.Patient.StatisticsPage));
-                break;
-            case "Billing":
-                ContentFrame.Navigate(typeof(Views.Patient.BillingPage));
-                break;
-            case "AddictDetection":
-                ContentFrame.Navigate(typeof(Views.Patient.AddictDetectionPage));
-                break;
-            default:
-                await ShowComingSoonAsync(tag);
-                break;
+            "Dashboard" => typeof(Views.DashboardPage),
+            "AdminAccounts" => typeof(Views.Accounts.AdminAccountsManagementView),
+            "Appointments" => typeof(Views.Admin.AppointmentsPage),
+            "ERDispatch" => typeof(Views.Admin.ERDispatchPage),
+            "FatigueAudit" => typeof(Views.Admin.FatigueAuditPage),
+            "AdminSchedule" => typeof(Views.Admin.AdminSchedulePage),
+            "AdminShift" => typeof(Views.Admin.AdminShiftView),
+            "Triage" => typeof(Views.ER.TriagePage),
+            "Queue" => typeof(Views.ER.QueuePage),
+            "PatientRegistration" => typeof(Views.ER.PatientRegistrationPage),
+            "RoomManagement" => typeof(Views.ER.RoomManagementPage),
+            "RoomAssignment" => typeof(Views.ER.RoomAssignmentPage),
+            "Examination" => typeof(Views.ER.ExaminationPage),
+            "TransferLog" => typeof(Views.ER.TransferLogPage),
+            "Patients" => typeof(Views.Patient.PatientsPage),
+            "Prescriptions" => typeof(Views.Patient.PrescriptionsPage),
+            "Transplants" => typeof(Views.Patient.TransplantsPage),
+            "BloodDonors" => typeof(Views.Patient.BloodDonorsPage),
+            "Statistics" => typeof(Views.Patient.StatisticsPage),
+            "Billing" => typeof(Views.Patient.BillingPage),
+            "AddictDetection" => typeof(Views.Patient.AddictDetectionPage),
+            _ => null,
+        };
+
+        if (pageType is null)
+        {
+            ShowNavigationError(label, "No page is registered for this navigation item.");
+            return;
+        }
+
+        try
+        {
+            currentPageTitle.Text = label;
+            if (!contentFrame.Navigate(pageType))
+            {
+                ShowNavigationError(label, $"Frame refused navigation to {pageType.FullName}.");
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowNavigationError(label, ex.Message);
         }
     }
 
@@ -108,7 +207,24 @@ public partial class MainWindow : Window
 
     private void OnContentFrameNavigated(object sender, NavigationEventArgs e)
     {
-        // Could update selected NavigationView item here if needed
+    }
+
+    private void OnContentFrameNavigationFailed(object sender, NavigationFailedEventArgs e)
+    {
+        e.Handled = true;
+        ShowNavigationError(currentPageTitle.Text, e.Exception.Message);
+    }
+
+    private void ShowNavigationError(string label, string message)
+    {
+        currentPageTitle.Text = label;
+        contentFrame.Content = new TextBlock
+        {
+            Text = $"Could not open {label}.\n\n{message}",
+            TextWrapping = TextWrapping.Wrap,
+            Margin = new Thickness(16),
+            Foreground = (Brush)Application.Current.Resources["AppErrorBrush"],
+        };
     }
 
     private void OnLogoutClick(object sender, RoutedEventArgs e)

@@ -18,5 +18,6 @@ public sealed partial class BloodDonorsPage : Page
             App.Services.GetRequiredService<IBloodCompatibilityService>(),
             App.Services.GetRequiredService<IPatientService>());
         DataContext = ViewModel;
+        ViewModel.LoadPatientsCommand.Execute(null);
     }
 }

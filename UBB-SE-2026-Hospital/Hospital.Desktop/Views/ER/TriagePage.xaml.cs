@@ -16,5 +16,6 @@ public sealed partial class TriagePage : Page
         base.OnNavigatedTo(e);
         ViewModel = new TriageViewModel(App.Services.GetRequiredService<ITriageService>());
         DataContext = ViewModel;
+        ViewModel.LoadVisitsForTriageCommand.Execute(null);
     }
 }

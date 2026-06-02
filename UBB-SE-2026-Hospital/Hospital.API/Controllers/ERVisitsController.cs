@@ -1,4 +1,3 @@
-#if false
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Hospital.API.Auth;
@@ -9,7 +8,10 @@ namespace Hospital.API.Controllers;
 [ApiController]
 [AuthorizeRole("Admin","Doctor","Nurse","ERDoctor")]
 [Route("api/ervisits")]
-public class ERVisitsController(IERVisitService erVisitService, ILogger<ERVisitsController> logger) : ControllerBase
+public class ERVisitsController(
+    IERVisitService erVisitService,
+    ITriageService triageService,
+    ILogger<ERVisitsController> logger) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<List<ERVisit>>> GetAll()
@@ -23,6 +25,20 @@ public class ERVisitsController(IERVisitService erVisitService, ILogger<ERVisits
     {
         try { return Ok(await erVisitService.GetActiveVisitsAsync()); }
         catch (Exception ex) { logger.LogError(ex, "Failed to fetch active ER visits."); return Problem(statusCode: 500, title: "Could not fetch active ER visits."); }
+    }
+
+    [HttpGet("status/{status}")]
+    public async Task<ActionResult<List<ERVisit>>> GetByStatus(string status)
+    {
+        try { return Ok(await erVisitService.GetByStatusAsync(status)); }
+        catch (Exception ex) { logger.LogError(ex, "Failed to fetch ER visits by status {Status}.", status); return Problem(statusCode: 500, title: "Could not fetch ER visits by status."); }
+    }
+
+    [HttpGet("for-triage")]
+    public async Task<ActionResult<List<ERVisit>>> GetForTriage()
+    {
+        try { return Ok(await triageService.GetVisitsForTriageAsync()); }
+        catch (Exception ex) { logger.LogError(ex, "Failed to fetch visits for triage."); return Problem(statusCode: 500, title: "Could not fetch visits for triage."); }
     }
 
     [HttpGet("patient/{patientId:int}")]
@@ -119,5 +135,12 @@ public class ERVisitsController(IERVisitService erVisitService, ILogger<ERVisits
         catch (InvalidOperationException ex) { return BadRequest(ex.Message); }
         catch (Exception ex) { logger.LogError(ex, "Failed to close ER visit {VisitId}.", visitId); return Problem(statusCode: 500, title: "Could not close ER visit."); }
     }
+
+    [HttpPost("{visitId:int}/move-to-queue")]
+    public async Task<IActionResult> MoveToQueue(int visitId)
+    {
+        try { await triageService.MoveVisitToQueueAsync(visitId); return NoContent(); }
+        catch (ArgumentException ex) { return NotFound(ex.Message); }
+        catch (Exception ex) { logger.LogError(ex, "Failed to move ER visit {VisitId} to queue.", visitId); return Problem(statusCode: 500, title: "Could not move ER visit to queue."); }
+    }
 }
-#endif

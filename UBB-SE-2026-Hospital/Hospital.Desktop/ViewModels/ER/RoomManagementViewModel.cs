@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Microsoft.UI.Xaml.Controls;
+using PatientModel = Hospital.Data.Models.Patient;
 
 namespace Hospital.Desktop.ViewModels.ER;
 
@@ -15,7 +16,7 @@ public partial class RoomManagementViewModel : ObservableObject
 
     public Microsoft.UI.Xaml.XamlRoot? XamlRoot { get; set; }
 
-    [ObservableProperty] private Patient? selectedPatient;
+    [ObservableProperty] private PatientModel? selectedPatient;
     [ObservableProperty] private ERVisit? selectedVisit;
     [ObservableProperty] private Triage? selectedTriage;
 

@@ -3,7 +3,38 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Grid Background="{StaticResource AppBackgroundBrush}" Padding="24">
-        <TextBlock Text="ER Queue" FontSize="28" FontWeight="SemiBold" Foreground="{StaticResource AppAccentBrush}"/>
+    <Grid Background="{StaticResource AppBackgroundBrush}" Padding="24" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" Spacing="12">
+            <TextBlock Text="ER Queue" FontSize="28" FontWeight="SemiBold" Foreground="{StaticResource AppAccentBrush}" VerticalAlignment="Center"/>
+            <Button Content="Refresh Queue" Command="{Binding RefreshQueueCommand}"/>
+        </StackPanel>
+
+        <Border Grid.Row="1" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
+            <ListView ItemsSource="{Binding ActiveVisits}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="8" ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="160"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding VisitId}" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding PatientName}" Foreground="{StaticResource AppTextPrimaryBrush}" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="2" Text="{Binding ChiefComplaint}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                            <TextBlock Grid.Column="3" Text="{Binding TriageLevel}" Foreground="{StaticResource AppAccentBrush}" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="4" Text="{Binding ArrivalTime}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Border>
     </Grid>
 </Page>

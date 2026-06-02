@@ -7,7 +7,7 @@ public class HttpAdminProxy(HttpClient httpClient) : ProxyBase(httpClient), IAdm
 {
     private const string ItemsUri = "api/items";
     private const string SubstancesUri = "api/substances";
-    private const string HighRiskUri = "api/highrisk";
+    private const string HighRiskUri = "api/high-risk-medicines";
 
     public List<Item> GetAllItems()
         => Task.Run(async () => await GetAsync<List<Item>>(ItemsUri) ?? []).GetAwaiter().GetResult();

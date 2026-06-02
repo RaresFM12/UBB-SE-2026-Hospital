@@ -8,7 +8,9 @@ public class BillingService(
     IMedicalHistoryRepository historyRepository,
     IMedicalRecordRepository recordRepository,
     IPrescriptionRepository prescriptionRepository,
-    ITransplantRepository transplantRepository) : IBillingService
+    ITransplantRepository transplantRepository) :
+    IBillingService,
+    Hospital.Shared.Services.IBillingService
 {
     private const int PercentageDivisor = 100;
     private const decimal EmergencyRoomBasePrice = 500;

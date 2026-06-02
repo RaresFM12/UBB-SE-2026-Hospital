@@ -3,7 +3,60 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Grid Background="{StaticResource AppBackgroundBrush}" Padding="24">
-        <TextBlock Text="Transfer Log" FontSize="28" FontWeight="SemiBold" Foreground="{StaticResource AppAccentBrush}"/>
+    <Grid Background="{StaticResource AppBackgroundBrush}" Padding="24" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" Spacing="12">
+            <TextBlock Text="Transfer Log" FontSize="28" FontWeight="SemiBold" Foreground="{StaticResource AppAccentBrush}" VerticalAlignment="Center"/>
+            <Button Content="Refresh" Command="{Binding LoadDataCommand}"/>
+            <Button Content="Send Patient Data" Command="{Binding SendPatientDataCommand}"/>
+            <Button Content="Retry Transfer" Command="{Binding RetryTransferCommand}"/>
+            <Button Content="Close Visit" Command="{Binding CloseVisitCommand}"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1" ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Border Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
+                <StackPanel>
+                    <TextBlock Text="Eligible Visits" FontWeight="SemiBold"/>
+                    <ListView ItemsSource="{Binding EligibleVisits}" SelectedItem="{Binding SelectedVisit, Mode=TwoWay}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Padding="8">
+                                    <TextBlock Text="{Binding VisitId}" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding PatientName}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding Status}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="1" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
+                <StackPanel>
+                    <TextBlock Text="Transfer Attempts" FontWeight="SemiBold"/>
+                    <ListView ItemsSource="{Binding TransferLogs}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Padding="8">
+                                    <TextBlock Text="{Binding TransferLogId}" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding Status}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding TransferDate}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <TextBlock Grid.Row="2" Text="{Binding StatusMessage}" Foreground="{StaticResource AppErrorBrush}" TextWrapping="Wrap"/>
     </Grid>
 </Page>

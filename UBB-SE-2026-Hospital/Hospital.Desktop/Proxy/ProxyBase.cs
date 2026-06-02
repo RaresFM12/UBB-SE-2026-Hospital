@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -58,6 +59,9 @@ public abstract class ProxyBase
         using HttpResponseMessage response = await HttpClient.DeleteAsync(requestUri);
         await EnsureSuccessWithMessageAsync(response);
     }
+
+    protected static string QueryDate(DateTime value)
+        => Uri.EscapeDataString(value.ToString("O", CultureInfo.InvariantCulture));
 
     private static async Task EnsureSuccessWithMessageAsync(HttpResponseMessage response)
     {
