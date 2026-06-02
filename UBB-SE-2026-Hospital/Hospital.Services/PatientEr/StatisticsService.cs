@@ -9,8 +9,6 @@ public class StatisticsService(
     IMedicalRecordRepository recordRepository,
     IPrescriptionRepository prescriptionRepository) : IStatisticsService
 {
-    private const int TopMedicationCount = 20;
-
     public async Task<Dictionary<string, int>> GetPatientsByBloodTypeAsync()
     {
         var patients = await patientRepository.GetAllAsync();
@@ -84,7 +82,7 @@ public class StatisticsService(
             .Where(item => !string.IsNullOrWhiteSpace(item.MedicationName))
             .GroupBy(item => item.MedicationName.Trim().ToUpperInvariant())
             .OrderByDescending(g => g.Count())
-            .Take(TopMedicationCount)
+            .Take(20)
             .ToDictionary(g => g.Key, g => g.Count());
     }
 

@@ -11,7 +11,6 @@ public class AdminService(
     IOrdersRepository ordersRepository) : IAdminService
 {
     private const int MinimumPositiveValue = 1;
-    private const int TopResultCount = 30;
 
     public async Task<IReadOnlyList<Item>> GetItemsAsync(string? name = null, CancellationToken cancellationToken = default)
     {
@@ -68,7 +67,7 @@ public class AdminService(
 
         return counts
             .OrderByDescending(pair => pair.Value)
-            .Take(TopResultCount)
+            .Take(30)
             .Select(pair => (pair.Key, itemsById.GetValueOrDefault(pair.Key)?.Name ?? $"Item #{pair.Key}", pair.Value))
             .ToList();
     }
@@ -134,7 +133,7 @@ public class AdminService(
 
         return counts
             .OrderByDescending(pair => pair.Value)
-            .Take(TopResultCount)
+            .Take(30)
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.OrdinalIgnoreCase);
     }
 

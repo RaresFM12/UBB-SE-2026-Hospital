@@ -8,16 +8,6 @@ namespace Hospital.Desktop.Proxy;
 
 public class HttpPatientProxy(HttpClient httpClient) : IPatientService
 {
-    public async Task<List<Data.Models.Patient>> SearchPatientsAsync(SearchPatientsRequest? searchCriteria, CancellationToken cancellationToken)
-    {
-        var response = await httpClient.PostAsJsonAsync("api/patients/search", searchCriteria, cancellationToken);
-        response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<List<Data.Models.Patient>>(cancellationToken: cancellationToken) ?? [];
-    }
-
-    public async Task<Data.Models.Patient?> GetByIdAsync(int id, CancellationToken cancellationToken)
-        => await httpClient.GetFromJsonAsync<Data.Models.Patient>($"api/patients/{id}", cancellationToken);
-
     public async Task<IReadOnlyList<Patient>> GetPatientsAsync(CancellationToken cancellationToken = default)
         => await httpClient.GetFromJsonAsync<List<Patient>>("api/patients", cancellationToken) ?? [];
 

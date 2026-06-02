@@ -17,7 +17,7 @@ public static class ServiceCollectionExtensions
 
         // Patient / ER domain (from 926-2)
         services.AddScoped<IAllergyService, AllergyService>();
-        services.AddScoped<Hospital.Shared.Services.IBillingService, BillingService>();
+        services.AddScoped<IBillingService, BillingService>();
         services.AddScoped<IBloodCompatibilityService, BloodCompatibilityService>();
         services.AddScoped<IPrescriptionService, PrescriptionService>();
         services.AddScoped<IStatisticsService, StatisticsService>();

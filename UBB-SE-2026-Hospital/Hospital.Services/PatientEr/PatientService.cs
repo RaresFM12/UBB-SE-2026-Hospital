@@ -9,26 +9,6 @@ namespace Hospital.Services.PatientEr;
 public class PatientService(IPatientRepository patientRepository) : IPatientService
 {
     public Task<Data.Models.Patient?> GetByIdAsync(int id, CancellationToken cancellationToken) => patientRepository.GetByIdAsync(id);
-
-    public Task<List<Data.Models.Patient>> SearchPatientsAsync(SearchPatientsRequest? searchCriteria, CancellationToken cancellationToken)
-    {
-        var filter = new PatientFilter
-        {
-            NamePart = searchCriteria?.NamePart,
-            CNP = searchCriteria?.Cnp,
-            MinAge = searchCriteria?.MinAge,
-            MaxAge = searchCriteria?.MaxAge,
-            Sex = searchCriteria?.Sex,
-            HasChronicCondition = searchCriteria?.HasChronicCondition,
-            LastUpdatedFrom = searchCriteria?.LastUpdatedFrom,
-            LastUpdatedTo = searchCriteria?.LastUpdatedTo,
-            BloodType = searchCriteria?.BloodType,
-            Rh = searchCriteria?.Rh,
-        };
-
-        return patientRepository.GetFilteredAsync(filter);
-    }
-
     public async Task<IReadOnlyList<Patient>> GetPatientsAsync(CancellationToken cancellationToken = default)
     {
         var dbPatients = await patientRepository.GetAllAsync();

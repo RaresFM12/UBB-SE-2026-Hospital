@@ -3,7 +3,6 @@ using Hospital.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Hospital.Shared.Models.PatientEr;
-using IBillingService = Hospital.Shared.Services.IBillingService;
 
 namespace Hospital.Web.Controllers;
 
@@ -68,15 +67,15 @@ public class ConsultationController : Controller
 
         var model = new ConsultationDetailsViewModel
         {
-            RecordId = record.RecordId,
-            PatientId = patient.PatientId,
+            RecordId = record.RecordId,         
+            PatientId = patient.PatientId,       
             PatientFirstName = patient.FirstName,
             PatientLastName = patient.LastName,
             SourceType = record.SourceType.ToString(),
-            StaffId = record.StaffMember?.StaffId ?? 0,
-            ConsultationDate = record.ConsultationDate,
-            Symptoms = record.Symptoms ?? "N/A",
-            Diagnosis = record.Diagnosis ?? "N/A",
+            StaffId = record.StaffMember?.StaffId ?? 0, 
+            ConsultationDate = record.ConsultationDate, 
+            Symptoms = record.Symptoms ?? "N/A",        
+            Diagnosis = record.Diagnosis ?? "N/A",      
             BasePrice = basePrice,
             FinalPrice = finalPrice,
             DiscountApplied = record.DiscountApplied,

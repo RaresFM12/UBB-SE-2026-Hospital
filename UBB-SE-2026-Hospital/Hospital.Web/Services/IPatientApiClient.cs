@@ -13,7 +13,7 @@ public interface IPatientApiClient
     Task CreatePrescriptionForRecordAsync(int recordId, CreatePrescriptionRequest dto, CancellationToken cancellationToken = default);
     Task<List<string>> GetPatientAllergiesAsync(int id, CancellationToken cancellationToken = default);
     Task<Prescription?> GetPrescriptionByRecordIdAsync(int recordId, CancellationToken cancellationToken = default);
-    Task<RecordExportDataDto> GetRecordExportDataAsync(int recordId, CancellationToken cancellationToken = default);
+    Task<RecordExportData> GetRecordExportDataAsync(int recordId, CancellationToken cancellationToken = default);
     Task<bool> IsHighRiskPatientAsync(int id, CancellationToken cancellationToken = default);
     Task<bool> ExistsAsync(string cnp, CancellationToken cancellationToken = default);
     Task<List<Patient>> SearchPatientsAsync(SearchPatientsRequest dto, CancellationToken cancellationToken = default);

@@ -137,9 +137,6 @@ namespace Hospital.Data.Migrations
                     b.Property<int?>("DoctorStaffId")
                         .HasColumnType("int");
 
-                    b.Property<TimeSpan>("EndTime")
-                        .HasColumnType("time");
-
                     b.Property<string>("Location")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -151,9 +148,6 @@ namespace Hospital.Data.Migrations
                     b.Property<string>("PatientName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<TimeSpan>("StartTime")
-                        .HasColumnType("time");
 
                     b.Property<string>("Status")
                         .IsRequired()
