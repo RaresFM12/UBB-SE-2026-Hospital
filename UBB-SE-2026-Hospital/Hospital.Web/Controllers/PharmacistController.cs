@@ -1,5 +1,4 @@
 using Hospital.Data.Models;
-using Common.Data.Integration;
 using Hospital.Web.Models.Pharmacist;
 using Hospital.Web.Models.Prescription;
 using Hospital.Web.Services;
@@ -11,7 +10,7 @@ namespace Hospital.Web.Controllers;
 [Authorize]
 public class PharmacistController : Controller
 {
-    private const int PageSize = 9;
+    private const int MissingPatientId = 0;
 
     private readonly IPrescriptionApiClient prescriptionApiClient;
     private readonly IAddictDetectionApiClient addictDetectionApiClient;
@@ -27,8 +26,6 @@ public class PharmacistController : Controller
     [HttpGet]
     public IActionResult Index() => RedirectToAction("Feed", "Prescription");
 
-    // Legacy route — the table view was replaced by the card-grid Feed.
-    // Redirect any existing links/bookmarks to the new view.
     [HttpGet]
     public IActionResult Prescriptions() => RedirectToAction("Feed", "Prescription");
 
@@ -62,10 +59,10 @@ public class PharmacistController : Controller
             ReturnPatientId = returnPatientId,
             ReturnRecordId = returnRecordId,
             Medications = (prescription.MedicationList ?? new List<PrescriptionItem>())
-                .Select(m => new PrescriptionItemViewModel
+                .Select(medication => new PrescriptionItemViewModel
                 {
-                    MedName = m.MedName,
-                    Quantity = m.Quantity
+                    MedName = medication.MedName,
+                    Quantity = medication.Quantity
                 })
                 .ToList()
         };
@@ -89,16 +86,14 @@ public class PharmacistController : Controller
 
         var model = new AddictListViewModel
         {
-            // Match WinUI behavior: once reported, the candidate disappears
-            // from the list entirely (no "Reported to Police" badge row).
             Candidates = candidates
-                .Where(p => !p.IsPoliceNotified)
-                .Select(p => new AddictCandidateViewModel
+                .Where(patient => !patient.IsPoliceNotified)
+                .Select(patient => new AddictCandidateViewModel
                 {
-                    Id = p.Id,
-                    FirstName = p.FirstName,
-                    LastName = p.LastName,
-                    IsPoliceNotified = p.IsPoliceNotified
+                    Id = patient.PatientId,
+                    FirstName = patient.FirstName,
+                    LastName = patient.LastName,
+                    IsPoliceNotified = patient.IsPoliceNotified
                 })
                 .ToList()
         };
@@ -138,7 +133,7 @@ public class PharmacistController : Controller
             return RedirectToAction(nameof(Addicts));
         }
 
-        int patientId = TempData["PoliceReportPatientId"] as int? ?? 0;
+        int patientId = TempData["PoliceReportPatientId"] as int? ?? MissingPatientId;
         bool alreadySent = TempData["PoliceReportSent"] as bool? ?? false;
 
         var model = new PoliceAlertViewModel
@@ -147,6 +142,7 @@ public class PharmacistController : Controller
             PatientId = patientId,
             AlreadySent = alreadySent
         };
+
         return View(model);
     }
 
@@ -171,10 +167,4 @@ public class PharmacistController : Controller
         TempData["PoliceReportSent"] = true;
         return RedirectToAction(nameof(PoliceAlert));
     }
-
-    private static string? Normalize(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
-
-    private static int? TryParseNullableInt(string? value) =>
-        int.TryParse(value, out int result) ? result : null;
 }

@@ -1,4 +1,4 @@
-﻿using Hospital.Data.Models;
+using Hospital.Data.Models;
 using Hospital.Web.Models.Transplant;
 using Hospital.Web.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -9,6 +9,8 @@ namespace Hospital.Web.Controllers;
 [Authorize]
 public class OrganDonorController : Controller
 {
+    private const int NoMatchesCount = 0;
+
     private readonly ITransplantApiClient transplantApiClient;
     private readonly IPatientApiClient patientApiClient;
 
@@ -20,8 +22,6 @@ public class OrganDonorController : Controller
         this.patientApiClient = patientApiClient;
     }
 
-    // GET: /OrganDonor/Assign?patientId=5
-    // GET: /OrganDonor/Assign?patientId=5&organ=Heart  ← organ pre-selected, matches loaded
     [HttpGet]
     public async Task<IActionResult> Assign(int patientId, string? organ)
     {
@@ -65,7 +65,7 @@ public class OrganDonorController : Controller
                     WaitingDays = m.WaitingDays,
                 }).ToList();
 
-                if (model.TopMatches.Count == 0)
+                if (model.TopMatches.Count == NoMatchesCount)
                 {
                     model.StatusMessage = $"No compatible recipients found for {organ}.";
                 }
@@ -79,7 +79,6 @@ public class OrganDonorController : Controller
         return View(model);
     }
 
-    // POST: /OrganDonor/Confirm
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Confirm(int patientId, int transplantId, float compatibilityScore)

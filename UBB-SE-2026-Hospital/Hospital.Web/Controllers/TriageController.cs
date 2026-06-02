@@ -2,6 +2,7 @@ using Hospital.Data.Models;
 using Hospital.Data.Models.DTOs;
 using Hospital.Web.Models.Triage;
 using Hospital.Shared.Services;
+using Hospital.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Hospital.Services.PatientEr;
@@ -12,15 +13,18 @@ namespace Hospital.Web.Controllers;
 [Authorize]
 public class TriageController : Controller
 {
-    private readonly ITriageService triageService;
-    private readonly IERVisitService erVisitService;
+    private readonly IErWorkflowApiClient erApiClient;
     private readonly IErStaffService erStaffService;
+    private readonly ITriageDecisionService triageDecisionService;
 
-    public TriageController(ITriageService triageService, IERVisitService erVisitService, IErStaffService erStaffService)
+    public TriageController(
+        IErWorkflowApiClient erApiClient,
+        IErStaffService erStaffService,
+        ITriageDecisionService triageDecisionService)
     {
-        this.triageService = triageService;
-        this.erVisitService = erVisitService;
+        this.erApiClient = erApiClient;
         this.erStaffService = erStaffService;
+        this.triageDecisionService = triageDecisionService;
     }
 
     [HttpGet]
@@ -55,52 +59,52 @@ public class TriageController : Controller
 
         try
         {
-            ER_Visit visit = await erVisitService.GetByIdAsync(form.VisitId)
+            ERVisit visit = await erApiClient.GetVisitAsync(form.VisitId, cancellationToken)
                 ?? throw new KeyNotFoundException($"Visit {form.VisitId} was not found.");
 
-            Triage? existingTriage = await triageService.GetByVisitIdAsync(form.VisitId);
+            Triage? existingTriage = await erApiClient.GetTriageByVisitIdAsync(form.VisitId, cancellationToken);
             if (existingTriage is not null &&
-                await triageService.GetParametersByTriageIdAsync(existingTriage.Triage_ID) is not null)
+                await erApiClient.GetTriageParametersByTriageIdAsync(existingTriage.TriageId, cancellationToken) is not null)
             {
                 TempData["ErrorMessage"] = "Triage has already been performed for this visit.";
                 return RedirectToAction(nameof(Index), new { selectedVisitId = form.VisitId });
             }
 
-            if (!string.Equals(visit.Status, ER_Visit.VisitStatus.REGISTERED, StringComparison.OrdinalIgnoreCase) &&
-                !string.Equals(visit.Status, ER_Visit.VisitStatus.TRIAGED, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(visit.Status, ERVisit.VisitStatus.REGISTERED, StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(visit.Status, ERVisit.VisitStatus.TRIAGED, StringComparison.OrdinalIgnoreCase))
             {
                 TempData["ErrorMessage"] = $"Visit {form.VisitId} cannot be triaged while it is in status {visit.Status}.";
                 return RedirectToAction(nameof(Index), new { selectedVisitId = form.VisitId });
             }
 
-            var parameters = new Triage_Parameters
+            var parameters = new TriageParameters
             {
                 Consciousness = form.Consciousness,
                 Breathing = form.Breathing,
                 Bleeding = form.Bleeding,
-                Injury_Type = form.InjuryType,
-                Pain_Level = form.PainLevel
+                InjuryType = form.InjuryType,
+                PainLevel = form.PainLevel
             };
             parameters.ValidateParameters();
 
             int nurseId = erStaffService.RequestAvailableNurse()
                 ?? throw new InvalidOperationException("No available nurse.");
 
-            var request = new PerformTriageRequestDto
+            var triage = new Triage
             {
-                VisitId = form.VisitId,
+                Visit = visit,
+                TriageLevel = triageDecisionService.CalculateTriageLevel(parameters),
+                Specialization = triageDecisionService.DetermineSpecialization(parameters),
                 NurseId = nurseId,
-                TriageTime = DateTime.Now,
-                Consciousness = parameters.Consciousness,
-                Breathing = parameters.Breathing,
-                Bleeding = parameters.Bleeding,
-                InjuryType = parameters.Injury_Type,
-                PainLevel = parameters.Pain_Level
+                TriageTime = DateTime.Now
             };
 
-            PerformTriageResponseDto result = await triageService.PerformTriageAsync(request);
+            Triage createdTriage = await erApiClient.CreateTriageAsync(triage, cancellationToken);
+            parameters.Triage = createdTriage;
+            await erApiClient.CreateTriageParametersAsync(parameters, cancellationToken);
+            await erApiClient.UpdateVisitStatusAsync(form.VisitId, ERVisit.VisitStatus.TRIAGED, cancellationToken);
 
-            TempData["SuccessMessage"] = $"Visit {form.VisitId} triaged as level {result.Triage.Triage_Level} ({result.Triage.Specialization}).";
+            TempData["SuccessMessage"] = $"Visit {form.VisitId} triaged as level {createdTriage.TriageLevel} ({createdTriage.Specialization}).";
             return RedirectToAction(nameof(Index), new { selectedVisitId = form.VisitId });
         }
         catch (UnauthorizedAccessException)
@@ -120,22 +124,22 @@ public class TriageController : Controller
     {
         try
         {
-            Triage? triage = await triageService.GetByVisitIdAsync(visitId);
+            Triage? triage = await erApiClient.GetTriageByVisitIdAsync(visitId, cancellationToken);
             if (triage is null)
             {
                 TempData["ErrorMessage"] = "Perform triage before moving the visit to the room queue.";
             }
-            else if (await triageService.GetParametersByTriageIdAsync(triage.Triage_ID) is null)
+            else if (await erApiClient.GetTriageParametersByTriageIdAsync(triage.TriageId, cancellationToken) is null)
             {
                 TempData["ErrorMessage"] = "Triage parameters are missing. Re-run triage before moving the visit to the room queue.";
             }
             else
             {
-                var visit = await erVisitService.GetByIdAsync(visitId);
+                ERVisit? visit = await erApiClient.GetVisitAsync(visitId, cancellationToken);
                 if (visit != null)
                 {
-                    visit.Status = ER_Visit.VisitStatus.WAITING_FOR_ROOM;
-                    await erVisitService.UpdateAsync(visitId, visit);
+                    visit.Status = ERVisit.VisitStatus.WAITING_FOR_ROOM;
+                    await erApiClient.UpdateVisitAsync(visitId, visit, cancellationToken);
                     TempData["SuccessMessage"] = $"Visit {visitId} is now waiting for a room.";
                 }
             }
@@ -158,7 +162,7 @@ public class TriageController : Controller
     {
         try
         {
-            await erVisitService.CloseVisitAsync(visitId);
+            await erApiClient.CloseVisitAsync(visitId, cancellationToken);
             TempData["SuccessMessage"] = $"Visit {visitId} was closed.";
         }
         catch (UnauthorizedAccessException)
@@ -178,20 +182,20 @@ public class TriageController : Controller
         TriageFormViewModel form,
         CancellationToken cancellationToken)
     {
-        List<ER_Visit> visits = (await erVisitService.GetAllAsync())
+        List<ERVisit> visits = (await erApiClient.GetVisitsAsync(cancellationToken))
             .Where(visit =>
-                string.Equals(visit.Status, ER_Visit.VisitStatus.REGISTERED, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(visit.Status, ER_Visit.VisitStatus.TRIAGED, StringComparison.OrdinalIgnoreCase))
-            .OrderBy(visit => visit.Arrival_date_time)
+                string.Equals(visit.Status, ERVisit.VisitStatus.REGISTERED, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(visit.Status, ERVisit.VisitStatus.TRIAGED, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(visit => visit.ArrivalDateTime)
             .ToList();
 
-        List<Triage> triages = await triageService.GetAllAsync();
-        List<Triage_Parameters> triageParameters = await triageService.GetAllParametersAsync();
+        List<Triage> triages = await erApiClient.GetTriagesAsync(cancellationToken);
+        List<TriageParameters> triageParameters = await erApiClient.GetTriageParametersAsync(cancellationToken);
 
         form.VisitId = selectedVisitId ?? form.VisitId;
         Triage? selectedTriage = selectedVisitId.HasValue
-            ? triages.FirstOrDefault(triage => triage.Visit_ID == selectedVisitId.Value &&
-                triageParameters.Any(parameters => parameters.Triage_ID == triage.Triage_ID))
+            ? triages.FirstOrDefault(triage => triage.Visit.VisitId == selectedVisitId.Value &&
+                triageParameters.Any(parameters => parameters.Triage.TriageId == triage.TriageId))
             : null;
 
         return new TriageViewModel
@@ -202,24 +206,24 @@ public class TriageController : Controller
                 ? null
                 : new TriageResultViewModel
                 {
-                    TriageId = selectedTriage.Triage_ID,
-                    TriageLevel = selectedTriage.Triage_Level,
+                    TriageId = selectedTriage.TriageId,
+                    TriageLevel = selectedTriage.TriageLevel,
                     Specialization = selectedTriage.Specialization,
-                    NurseId = selectedTriage.Nurse_ID,
-                    TriageTime = selectedTriage.Triage_Time
+                    NurseId = selectedTriage.NurseId,
+                    TriageTime = selectedTriage.TriageTime
                 },
             Visits = visits.Select(visit =>
             {
-                Triage? triage = triages.FirstOrDefault(item => item.Visit_ID == visit.Visit_ID &&
-                    triageParameters.Any(parameters => parameters.Triage_ID == item.Triage_ID));
+                Triage? triage = triages.FirstOrDefault(item => item.Visit.VisitId == visit.VisitId &&
+                    triageParameters.Any(parameters => parameters.Triage.TriageId == item.TriageId));
                 return new TriageVisitViewModel
                 {
-                    VisitId = visit.Visit_ID,
-                    PatientId = visit.Patient_ID,
-                    ArrivalTime = visit.Arrival_date_time,
-                    ChiefComplaint = visit.Chief_Complaint,
+                    VisitId = visit.VisitId,
+                    PatientId = visit.Patient.Cnp,
+                    ArrivalTime = visit.ArrivalDateTime,
+                    ChiefComplaint = visit.ChiefComplaint,
                     Status = visit.Status,
-                    TriageLevel = triage?.Triage_Level,
+                    TriageLevel = triage?.TriageLevel,
                     Specialization = triage?.Specialization
                 };
             }).ToList()

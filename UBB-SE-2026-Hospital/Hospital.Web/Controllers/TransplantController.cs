@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Hospital.Web.Models.Transplant;
 using Hospital.Shared.Services;
+using Hospital.Services.PatientEr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Hospital.Services.PatientEr;
@@ -22,9 +23,9 @@ public class TransplantController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Request(int patientId)
+    public async Task<IActionResult> Request(int patientId, CancellationToken cancellationToken)
     {
-        var patient = await patientService.GetByIdAsync(patientId);
+        var patient = await patientService.GetByIdAsync(patientId, cancellationToken);
         if (patient is null)
         {
             TempData["ErrorMessage"] = "Patient not found.";
@@ -59,11 +60,11 @@ public class TransplantController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Request(TransplantRequestViewModel model)
+    public async Task<IActionResult> Request(TransplantRequestViewModel model, CancellationToken cancellationToken)
     {
         async Task<IActionResult> ReturnWithErrors()
         {
-            var patient = await patientService.GetByIdAsync(model.PatientId);
+            var patient = await patientService.GetByIdAsync(model.PatientId, cancellationToken);
             model.PatientName = patient?.FullName ?? string.Empty;
 
             try

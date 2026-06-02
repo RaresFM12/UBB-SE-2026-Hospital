@@ -21,13 +21,13 @@ public class QueueController : Controller
     {
         try
         {
-            List<ER_Visit> waitingVisits = await erApiClient.GetVisitsByStatusAsync(
-                ER_Visit.VisitStatus.WAITING_FOR_ROOM,
+            List<ERVisit> waitingVisits = await erApiClient.GetVisitsByStatusAsync(
+                ERVisit.VisitStatus.WAITING_FOR_ROOM,
                 cancellationToken);
             List<Triage> triages = await erApiClient.GetTriagesAsync(cancellationToken);
-            List<Triage_Parameters> triageParameters = await erApiClient.GetTriageParametersAsync(cancellationToken);
+            List<TriageParameters> triageParameters = await erApiClient.GetTriageParametersAsync(cancellationToken);
             HashSet<int> triageIdsWithParameters = triageParameters
-                .Select(parameters => parameters.Triage_ID)
+                .Select(parameters => parameters.Triage.TriageId)
                 .ToHashSet();
 
             var model = new QueueViewModel
@@ -35,16 +35,16 @@ public class QueueController : Controller
                 ActiveVisits = waitingVisits
                     .Select(visit =>
                     {
-                        Triage? triage = triages.FirstOrDefault(item => item.Visit_ID == visit.Visit_ID);
-                        bool hasTriageData = triage is not null && triageIdsWithParameters.Contains(triage.Triage_ID);
+                        Triage? triage = triages.FirstOrDefault(item => item.Visit.VisitId == visit.VisitId);
+                        bool hasTriageData = triage is not null && triageIdsWithParameters.Contains(triage.TriageId);
 
                         return new QueueItemViewModel
                         {
-                            VisitId = visit.Visit_ID,
-                            PatientId = visit.Patient_ID,
-                            TriageLevel = triage?.Triage_Level,
+                            VisitId = visit.VisitId,
+                            PatientId = visit.Patient.Cnp,
+                            TriageLevel = triage?.TriageLevel,
                             Specialization = triage?.Specialization,
-                            ArrivalTime = visit.Arrival_date_time,
+                            ArrivalTime = visit.ArrivalDateTime,
                             Status = visit.Status,
                             HasTriageData = hasTriageData,
                             WarningMessage = hasTriageData

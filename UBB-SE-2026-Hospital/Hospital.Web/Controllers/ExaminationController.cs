@@ -1,30 +1,26 @@
+using Hospital.Data.Models;
 using Hospital.Data.Models.DTOs;
 using Hospital.Web.Models.Examination;
-using Hospital.Shared.Services;
+using Hospital.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Hospital.Web.Services;
-using Hospital.Data.Models;
 
 namespace Hospital.Web.Controllers;
 
 [Authorize]
 public class ExaminationController : Controller
 {
-    private readonly IExaminationService examinationService;
-    private readonly IERVisitService erVisitService;
-    private readonly ITriageService triageService;
+    private const int UnassignedDoctorId = 0;
+    private const int LastNameStartIndex = 1;
+
+    private readonly IErWorkflowApiClient erApiClient;
     private readonly IErStaffService erStaffService;
 
     public ExaminationController(
-        IExaminationService examinationService,
-        IERVisitService erVisitService,
-        ITriageService triageService,
+        IErWorkflowApiClient erApiClient,
         IErStaffService erStaffService)
     {
-        this.examinationService = examinationService;
-        this.erVisitService = erVisitService;
-        this.triageService = triageService;
+        this.erApiClient = erApiClient;
         this.erStaffService = erStaffService;
     }
 
@@ -52,24 +48,24 @@ public class ExaminationController : Controller
     {
         try
         {
-            ER_Visit visit = await erVisitService.GetByIdAsync(visitId)
+            ERVisit visit = await erApiClient.GetVisitAsync(visitId, cancellationToken)
                 ?? throw new KeyNotFoundException($"Visit {visitId} was not found.");
 
-            if (!string.Equals(visit.Status, ER_Visit.VisitStatus.IN_ROOM, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(visit.Status, ERVisit.VisitStatus.IN_ROOM, StringComparison.OrdinalIgnoreCase))
             {
                 TempData["ErrorMessage"] = "Doctor assignment is only available for visits currently in a room.";
                 return RedirectToAction(nameof(Index), new { selectedVisitId = visitId });
             }
 
-            Triage triage = await triageService.GetByVisitIdAsync(visitId)
+            Triage triage = await erApiClient.GetTriageByVisitIdAsync(visitId, cancellationToken)
                 ?? throw new InvalidOperationException($"Triage was not found for visit {visitId}.");
-            Triage_Parameters parameters = await triageService.GetParametersByTriageIdAsync(triage.Triage_ID)
-                ?? throw new InvalidOperationException($"Triage parameters were not found for triage {triage.Triage_ID}.");
+            TriageParameters parameters = await erApiClient.GetTriageParametersByTriageIdAsync(triage.TriageId, cancellationToken)
+                ?? throw new InvalidOperationException($"Triage parameters were not found for triage {triage.TriageId}.");
 
             ErDoctorAssignment doctor = erStaffService.RequestDoctor(triage.Specialization, parameters);
 
-            visit.Status = ER_Visit.VisitStatus.WAITING_FOR_DOCTOR;
-            await erVisitService.UpdateAsync(visitId, visit);
+            visit.Status = ERVisit.VisitStatus.WAITING_FOR_DOCTOR;
+            await erApiClient.UpdateVisitAsync(visitId, visit, cancellationToken);
 
             TempData["SuccessMessage"] = $"Doctor {doctor.name} ({doctor.specialty}) assigned to visit {visitId}.";
         }
@@ -99,41 +95,44 @@ public class ExaminationController : Controller
 
         try
         {
-            ER_Visit visit = await erVisitService.GetByIdAsync(form.VisitId)
+            ERVisit visit = await erApiClient.GetVisitAsync(form.VisitId, cancellationToken)
                 ?? throw new KeyNotFoundException($"Visit {form.VisitId} was not found.");
 
-            if (!string.Equals(visit.Status, ER_Visit.VisitStatus.WAITING_FOR_DOCTOR, StringComparison.OrdinalIgnoreCase) &&
-                !string.Equals(visit.Status, ER_Visit.VisitStatus.IN_EXAMINATION, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(visit.Status, ERVisit.VisitStatus.WAITING_FOR_DOCTOR, StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(visit.Status, ERVisit.VisitStatus.IN_EXAMINATION, StringComparison.OrdinalIgnoreCase))
             {
                 TempData["ErrorMessage"] = "The visit must be waiting for a doctor before the examination can be saved.";
                 return RedirectToAction(nameof(Index), new { selectedVisitId = form.VisitId });
             }
 
-            int roomId = await ResolveAssignedRoomIdAsync(form.VisitId);
-            List<Examination> visitExaminations = await examinationService.GetByVisitIdAsync(form.VisitId);
-            Examination? existing = visitExaminations.OrderByDescending(e => e.Exam_Time).FirstOrDefault();
+            ERRoom room = await ResolveAssignedRoomAsync(form.VisitId, cancellationToken);
+            List<Examination> visitExaminations = await erApiClient.GetExaminationsByVisitIdAsync(form.VisitId, cancellationToken);
+            Examination? existing = visitExaminations.OrderByDescending(e => e.ExaminationDate).FirstOrDefault();
+            ErDoctorAssignment doctor = erStaffService.GetDoctorById(form.DoctorId);
+            Staff doctorStaff = MapDoctor(doctor);
 
             if (existing is null)
             {
-                await examinationService.CreateAsync(new Examination
+                await erApiClient.CreateExaminationAsync(new Examination
                 {
-                    Visit_ID = form.VisitId,
-                    Doctor_ID = form.DoctorId,
-                    Exam_Time = DateTime.Now,
-                    Room_ID = roomId,
-                    Notes = form.Notes.Trim()
-                });
+                    Visit = visit,
+                    Doctor = doctorStaff,
+                    ExaminationDate = DateTime.Now,
+                    Room = room,
+                    Findings = form.Notes.Trim(),
+                    Recommendation = string.Empty
+                }, cancellationToken);
             }
             else
             {
-                existing.Doctor_ID = form.DoctorId;
-                existing.Room_ID = roomId;
-                existing.Notes = form.Notes.Trim();
-                await examinationService.UpdateAsync(existing.Exam_ID, existing);
+                existing.Doctor = doctorStaff;
+                existing.Room = room;
+                existing.Findings = form.Notes.Trim();
+                await erApiClient.UpdateExaminationAsync(existing.ExaminationId, existing, cancellationToken);
             }
 
-            visit.Status = ER_Visit.VisitStatus.IN_EXAMINATION;
-            await erVisitService.UpdateAsync(form.VisitId, visit);
+            visit.Status = ERVisit.VisitStatus.IN_EXAMINATION;
+            await erApiClient.UpdateVisitAsync(form.VisitId, visit, cancellationToken);
 
             TempData["SuccessMessage"] = $"Examination for visit {form.VisitId} was saved.";
         }
@@ -154,7 +153,7 @@ public class ExaminationController : Controller
     {
         try
         {
-            ERExaminationSummaryDto summary = await examinationService.GetSummaryAsync(visitId)
+            ERExaminationSummary summary = await erApiClient.GetExaminationSummaryAsync(visitId, cancellationToken)
                 ?? throw new InvalidOperationException("No examination summary is available for this visit.");
 
             ErDoctorAssignment doctor = erStaffService.GetDoctorById(summary.DoctorId);
@@ -182,66 +181,70 @@ public class ExaminationController : Controller
         ExaminationFormViewModel form,
         CancellationToken cancellationToken)
     {
-        List<ER_Visit> eligibleVisits = await examinationService.GetEligibleVisitsAsync();
-        ER_Visit? selectedVisit = selectedVisitId.HasValue
-            ? eligibleVisits.FirstOrDefault(visit => visit.Visit_ID == selectedVisitId.Value)
-                ?? await erVisitService.GetByIdAsync(selectedVisitId.Value)
+        List<ERVisit> eligibleVisits = await erApiClient.GetEligibleExaminationVisitsAsync(cancellationToken);
+        ERVisit? selectedVisit = selectedVisitId.HasValue
+            ? eligibleVisits.FirstOrDefault(visit => visit.VisitId == selectedVisitId.Value)
+                ?? await erApiClient.GetVisitAsync(selectedVisitId.Value, cancellationToken)
             : null;
 
         var model = new ExaminationViewModel
         {
             SelectedVisitId = selectedVisitId,
-            EligibleVisits = eligibleVisits.OrderBy(visit => visit.Arrival_date_time).Select(MapVisit).ToList(),
+            EligibleVisits = eligibleVisits.OrderBy(visit => visit.ArrivalDateTime).Select(MapVisit).ToList(),
             SelectedVisit = selectedVisit is null ? null : MapVisit(selectedVisit),
             Form = form
         };
 
         if (selectedVisit is null) return model;
 
-        model.CanRequestDoctor = string.Equals(selectedVisit.Status, ER_Visit.VisitStatus.IN_ROOM, StringComparison.OrdinalIgnoreCase);
+        model.CanRequestDoctor = string.Equals(selectedVisit.Status, ERVisit.VisitStatus.IN_ROOM, StringComparison.OrdinalIgnoreCase);
         model.CanSaveExamination =
-            string.Equals(selectedVisit.Status, ER_Visit.VisitStatus.WAITING_FOR_DOCTOR, StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(selectedVisit.Status, ER_Visit.VisitStatus.IN_EXAMINATION, StringComparison.OrdinalIgnoreCase);
+            string.Equals(selectedVisit.Status, ERVisit.VisitStatus.WAITING_FOR_DOCTOR, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(selectedVisit.Status, ERVisit.VisitStatus.IN_EXAMINATION, StringComparison.OrdinalIgnoreCase);
 
-        List<Examination> history = await examinationService.GetHistoryByPatientIdAsync(selectedVisit.Patient_ID);
+        List<Examination> history = await erApiClient.GetPatientExaminationHistoryAsync(
+            selectedVisit.Patient.PatientId.ToString(),
+            cancellationToken);
         model.ExaminationHistory = history
             .Select(e => new ExaminationHistoryItemViewModel
             {
-                ExamId = e.Exam_ID,
-                VisitId = e.Visit_ID,
-                DoctorId = e.Doctor_ID,
-                ExamTime = e.Exam_Time,
-                RoomId = e.Room_ID,
-                Notes = e.Notes
+                ExamId = e.ExaminationId,
+                VisitId = e.Visit.VisitId,
+                DoctorId = e.Doctor.StaffId,
+                ExamTime = e.ExaminationDate,
+                RoomId = e.Room.RoomId,
+                Notes = e.Findings
             }).ToList();
 
-        Triage? triage = await triageService.GetByVisitIdAsync(selectedVisit.Visit_ID);
-        Triage_Parameters? triageParameters = triage is null ? null : await triageService.GetParametersByTriageIdAsync(triage.Triage_ID);
+        Triage? triage = await erApiClient.GetTriageByVisitIdAsync(selectedVisit.VisitId, cancellationToken);
+        TriageParameters? triageParameters = triage is null
+            ? null
+            : await erApiClient.GetTriageParametersByTriageIdAsync(triage.TriageId, cancellationToken);
 
         if (triage is not null && triageParameters is not null)
         {
             model.TriageDetails = new ExaminationTriageViewModel
             {
-                TriageLevel = triage.Triage_Level,
+                TriageLevel = triage.TriageLevel,
                 Specialization = triage.Specialization,
-                NurseId = triage.Nurse_ID,
+                NurseId = triage.NurseId,
                 Consciousness = triageParameters.Consciousness,
                 Breathing = triageParameters.Breathing,
                 Bleeding = triageParameters.Bleeding,
-                InjuryType = triageParameters.Injury_Type,
-                PainLevel = triageParameters.Pain_Level
+                InjuryType = triageParameters.InjuryType,
+                PainLevel = triageParameters.PainLevel
             };
         }
 
-        Examination? existing = history.FirstOrDefault(e => e.Visit_ID == selectedVisit.Visit_ID);
+        Examination? existing = history.FirstOrDefault(e => e.Visit.VisitId == selectedVisit.VisitId);
         if (existing is not null)
         {
-            ErDoctorAssignment doctor = erStaffService.GetDoctorById(existing.Doctor_ID);
+            ErDoctorAssignment doctor = erStaffService.GetDoctorById(existing.Doctor.StaffId);
             model.Form = new ExaminationFormViewModel
             {
-                VisitId = selectedVisit.Visit_ID,
-                DoctorId = existing.Doctor_ID,
-                Notes = string.IsNullOrWhiteSpace(form.Notes) ? existing.Notes : form.Notes
+                VisitId = selectedVisit.VisitId,
+                DoctorId = existing.Doctor.StaffId,
+                Notes = string.IsNullOrWhiteSpace(form.Notes) ? existing.Findings : form.Notes
             };
             model.DoctorName = doctor.name;
             model.DoctorSpecialty = doctor.specialty;
@@ -250,17 +253,19 @@ public class ExaminationController : Controller
         {
             ErDoctorAssignment? doctor = model.TriageDetails is null
                 ? null
-                : erStaffService.RequestDoctor(model.TriageDetails.Specialization, new Triage_Parameters
+                : erStaffService.RequestDoctor(model.TriageDetails.Specialization, new TriageParameters
                 {
                     Consciousness = model.TriageDetails.Consciousness,
                     Breathing = model.TriageDetails.Breathing,
                     Bleeding = model.TriageDetails.Bleeding,
-                    Injury_Type = model.TriageDetails.InjuryType,
-                    Pain_Level = model.TriageDetails.PainLevel
+                    InjuryType = model.TriageDetails.InjuryType,
+                    PainLevel = model.TriageDetails.PainLevel
                 });
 
-            model.Form.VisitId = selectedVisit.Visit_ID;
-            model.Form.DoctorId = form.DoctorId == 0 ? doctor?.doctorId ?? 0 : form.DoctorId;
+            model.Form.VisitId = selectedVisit.VisitId;
+            model.Form.DoctorId = form.DoctorId == UnassignedDoctorId
+                ? doctor?.doctorId ?? UnassignedDoctorId
+                : form.DoctorId;
             model.Form.Notes = form.Notes;
             model.DoctorName = doctor?.name ?? string.Empty;
             model.DoctorSpecialty = doctor?.specialty ?? string.Empty;
@@ -269,27 +274,43 @@ public class ExaminationController : Controller
         return model;
     }
 
-    private async Task<int> ResolveAssignedRoomIdAsync(int visitId)
+    private async Task<ERRoom> ResolveAssignedRoomAsync(int visitId, CancellationToken cancellationToken)
     {
-        ER_Room? currentRoom = (await examinationService.GetRoomsAsync())
-            .FirstOrDefault(room => room.Current_Visit_ID == visitId);
-        if (currentRoom is not null) return currentRoom.Room_ID;
+        ERRoom? currentRoom = (await erApiClient.GetRoomsAsync(cancellationToken))
+            .FirstOrDefault(room => room.CurrentVisit?.VisitId == visitId);
+        if (currentRoom is not null) return currentRoom;
 
-        Examination? latestExam = (await examinationService.GetByVisitIdAsync(visitId))
-            .OrderByDescending(e => e.Exam_Time).FirstOrDefault();
-        if (latestExam is not null) return latestExam.Room_ID;
+        Examination? latestExam = (await erApiClient.GetExaminationsByVisitIdAsync(visitId, cancellationToken))
+            .OrderByDescending(e => e.ExaminationDate).FirstOrDefault();
+        if (latestExam is not null) return latestExam.Room;
 
-        ER_Room? fallbackRoom = (await examinationService.GetRoomsAsync()).OrderBy(room => room.Room_ID).FirstOrDefault();
-        return fallbackRoom?.Room_ID ?? throw new InvalidOperationException("No ER rooms are available.");
+        ERRoom? fallbackRoom = (await erApiClient.GetRoomsAsync(cancellationToken)).OrderBy(room => room.RoomId).FirstOrDefault();
+        return fallbackRoom ?? throw new InvalidOperationException("No ER rooms are available.");
     }
 
-    private static ExaminationVisitViewModel MapVisit(ER_Visit visit) =>
+    private static Staff MapDoctor(ErDoctorAssignment doctor)
+    {
+        string[] nameParts = doctor.name.Replace("Dr. ", string.Empty, StringComparison.OrdinalIgnoreCase)
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        return new Staff
+        {
+            StaffId = doctor.doctorId,
+            FirstName = nameParts.FirstOrDefault() ?? doctor.name,
+            LastName = string.Join(" ", nameParts.Skip(LastNameStartIndex)),
+            Specialization = doctor.specialty,
+            Role = "Doctor",
+            Department = "Emergency"
+        };
+    }
+
+    private static ExaminationVisitViewModel MapVisit(ERVisit visit) =>
         new()
         {
-            VisitId = visit.Visit_ID,
-            PatientId = visit.Patient_ID,
-            ArrivalTime = visit.Arrival_date_time,
-            ChiefComplaint = visit.Chief_Complaint,
+            VisitId = visit.VisitId,
+            PatientId = visit.Patient.Cnp,
+            ArrivalTime = visit.ArrivalDateTime,
+            ChiefComplaint = visit.ChiefComplaint,
             Status = visit.Status
         };
 

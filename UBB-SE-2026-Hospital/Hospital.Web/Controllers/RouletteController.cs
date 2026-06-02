@@ -9,10 +9,22 @@ namespace Hospital.Web.Controllers;
 [Authorize]
 public class RouletteController : Controller
 {
-    // Set of discounts accepted from the client. The base wheel has segments
-    // for 0/10/25/50/100; the "let it ride" double-or-nothing can also produce
-    // 20 (10x2) or shove anything back to 0.
-    private static readonly HashSet<int> AllowedSubmittedDiscounts = new () { 0, 10, 20, 25, 50, 100 };
+    private const int NoDiscount = 0;
+    private const int SmallDiscount = 10;
+    private const int DoubledSmallDiscount = 20;
+    private const int MediumDiscount = 25;
+    private const int LargeDiscount = 50;
+    private const int FullDiscount = 100;
+
+    private static readonly HashSet<int> AllowedSubmittedDiscounts = new ()
+    {
+        NoDiscount,
+        SmallDiscount,
+        DoubledSmallDiscount,
+        MediumDiscount,
+        LargeDiscount,
+        FullDiscount
+    };
 
     private readonly IPatientApiClient patientApiClient;
     private readonly IBillingApiClient billingApiClient;
@@ -38,7 +50,7 @@ public class RouletteController : Controller
         }
 
         MedicalRecord? record = patient.MedicalHistory?.MedicalRecords?
-            .FirstOrDefault(r => r.RecordId == recordId);
+            .FirstOrDefault(record => record.RecordId == recordId);
         if (record is null)
         {
             TempData["ErrorMessage"] = "Consultation record not found.";
@@ -70,9 +82,6 @@ public class RouletteController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Spin(int patientId, int recordId, decimal basePrice, int discount)
     {
-        // The client picks the discount (so the wheel actually lands on the
-        // correct color) — we just validate it's one of the allowed values
-        // and ask the billing API to persist it on the medical record.
         if (!AllowedSubmittedDiscounts.Contains(discount))
         {
             TempData["ErrorMessage"] = "Invalid discount value.";
@@ -89,8 +98,8 @@ public class RouletteController : Controller
             return RedirectToAction("Details", "Consultation", new { patientId, recordId });
         }
 
-        TempData["SuccessMessage"] = discount == 0
-            ? "Unlucky — no discount this time."
+        TempData["SuccessMessage"] = discount == NoDiscount
+            ? "Unlucky - no discount this time."
             : $"You won a {discount}% discount!";
 
         return RedirectToAction("Details", "Consultation", new { patientId, recordId });

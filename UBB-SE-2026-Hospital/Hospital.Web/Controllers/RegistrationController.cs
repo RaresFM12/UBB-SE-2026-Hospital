@@ -1,6 +1,5 @@
 using Hospital.Data.Models;
 using Hospital.Data.Models.DTOs;
-using Hospital.Data.Models;
 using Hospital.Web.Models.Registration;
 using Hospital.Web.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -42,14 +41,14 @@ public class RegistrationController : Controller
 
             if (!patientExists)
             {
-                Patient created = await patientApiClient.CreatePatientAsync(new CreatePatientDto
+                Patient created = await patientApiClient.CreatePatientAsync(new CreatePatientRequest
                 {
                     FirstName = model.FirstName.Trim(),
                     LastName = model.LastName.Trim(),
                     Cnp = patientId,
-                    Dob = model.DateOfBirth,
+                    DateOfBirth = model.DateOfBirth,
                     Sex = model.Sex,
-                    PhoneNo = model.Phone.Trim(),
+                    PhoneNumber = model.Phone.Trim(),
                     EmergencyContact = model.EmergencyContact.Trim(),
                     IsDonor = false
                 }, cancellationToken);
@@ -57,15 +56,17 @@ public class RegistrationController : Controller
                 TempData["SuccessMessage"] = $"Patient {created.FullName} was created.";
             }
 
-            ER_Visit visit = await erApiClient.CreateVisitAsync(new ER_Visit
+            ERVisit visit = await erApiClient.CreateVisitAsync(new ERVisit
             {
-                Patient_ID = patientId,
-                Chief_Complaint = model.ChiefComplaint.Trim(),
-                Arrival_date_time = DateTime.Now,
-                Status = ER_Visit.VisitStatus.REGISTERED
+                Patient = (await patientApiClient.SearchPatientsAsync(
+                    new SearchPatientsRequest { Cnp = patientId },
+                    cancellationToken)).First(),
+                ChiefComplaint = model.ChiefComplaint.Trim(),
+                ArrivalDateTime = DateTime.Now,
+                Status = ERVisit.VisitStatus.REGISTERED
             }, cancellationToken);
 
-            TempData["SuccessMessage"] = $"Registration complete. Visit {visit.Visit_ID} is ready for triage.";
+            TempData["SuccessMessage"] = $"Registration complete. Visit {visit.VisitId} is ready for triage.";
             return RedirectToAction(nameof(Index));
         }
         catch (UnauthorizedAccessException)

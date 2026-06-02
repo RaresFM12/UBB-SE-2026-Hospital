@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
+using LoginRequest = Hospital.Shared.DTOs.Auth.LoginRequest;
 
 namespace Hospital.Web.Controllers;
 
@@ -30,7 +31,6 @@ public class AuthController : Controller
         ViewData["HideShell"] = true;
         ViewData["ReturnUrl"] = returnUrl;
 
-        // Returns Views/Auth/Login.cshtml passing a fresh DTO
         return View(new LoginRequest());
     }
 
