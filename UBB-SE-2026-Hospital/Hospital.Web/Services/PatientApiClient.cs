@@ -94,10 +94,10 @@ public class PatientApiClient : HospitalApiClientBase, IPatientApiClient
     public async Task<bool> IsHighRiskAsync(int id, CancellationToken cancellationToken = default) =>
         await GetAsync<bool>($"{BaseUri}/{id}/high-risk", cancellationToken);
 
-    public async Task<RecordExportData> GetRecordExportDataAsync(
+    public async Task<RecordExportDataDto> GetRecordExportDataAsync(
         int recordId,
         CancellationToken cancellationToken = default) =>
-        await GetAsync<RecordExportData>($"{BaseUri}/records/{recordId}/export-data", cancellationToken)
+        await GetAsync<RecordExportDataDto>($"{BaseUri}/records/{recordId}/export-data", cancellationToken)
         ?? throw new KeyNotFoundException($"Medical record {recordId} not found.");
 
     public async Task<Prescription?> GetPrescriptionByRecordIdAsync(

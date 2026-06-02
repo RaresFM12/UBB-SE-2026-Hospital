@@ -1,4 +1,4 @@
-namespace Hospital.Web.Controllers
+namespace UBB_SE_2026_923_2.Web.Controllers
 {
     using System;
     using System.Collections.Generic;
@@ -6,9 +6,9 @@ namespace Hospital.Web.Controllers
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Rendering;
-    using Hospital.Data.Models;
-    using Hospital.Shared.Services;
-    using Hospital.Web.Models;
+    using UBB_SE_2026_923_2.Models;
+    using UBB_SE_2026_923_2.Services;
+    using UBB_SE_2026_923_2.Web.ViewModels;
 
     [Authorize(Roles = "Pharmacist")]
     public class PharmacyVacationController : Controller

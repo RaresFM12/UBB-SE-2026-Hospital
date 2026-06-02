@@ -1,159 +1,151 @@
-using Hospital.Data.Models;
-using Hospital.Shared.Services;
-using Hospital.Web.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-
-namespace Hospital.Web.Controllers;
-
-[Authorize(Roles = "Admin")]
-public class SubstancesController : Controller
+namespace UBB_SE_2026_923_2.Web.Controllers
 {
-    private readonly IAdminService adminService;
+    using System;
+    using System.Collections.Generic;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+    using UBB_SE_2026_923_2.Models;
+    using UBB_SE_2026_923_2.Services;
+    using UBB_SE_2026_923_2.Web.ViewModels;
 
-    public SubstancesController(IAdminService adminService)
+    [Authorize(Roles = "Admin")]
+    public class SubstancesController : Controller
     {
-        this.adminService = adminService;
-    }
+        private readonly IAdminService adminService;
 
-    [HttpGet]
-    public async Task<IActionResult> Index(CancellationToken cancellationToken)
-    {
-        IReadOnlyList<Substance> substances = await adminService.GetSubstancesAsync(cancellationToken);
-        return View(substances.ToList());
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Details(string name, CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(name))
+        public SubstancesController(IAdminService adminService)
         {
-            return NotFound();
+            this.adminService = adminService;
         }
 
-        Substance? substance = await adminService.GetSubstanceByNameAsync(name, cancellationToken);
-        return substance is null ? NotFound() : View(substance);
-    }
-
-    [HttpGet]
-    public IActionResult Create()
-        => View(new SubstanceViewModel());
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(SubstanceViewModel viewModel, CancellationToken cancellationToken)
-    {
-        if (!ModelState.IsValid)
+        [HttpGet]
+        public IActionResult Index()
         {
-            return View(viewModel);
+            List<Substance> substances = this.adminService.GetAllSubstances();
+            return this.View(substances);
         }
 
-        try
+        [HttpGet]
+        public IActionResult Details(string name)
         {
-            await adminService.CreateSubstanceAsync(
-                viewModel.Name,
-                viewModel.LethalDose,
-                viewModel.Description,
-                cancellationToken);
-
-            TempData["SuccessMessage"] = "Substance created successfully.";
-            return RedirectToAction(nameof(Index));
-        }
-        catch (ArgumentException argumentException)
-        {
-            ModelState.AddModelError(string.Empty, argumentException.Message);
-            return View(viewModel);
-        }
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Edit(string name, CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            return NotFound();
-        }
-
-        Substance? substance = await adminService.GetSubstanceByNameAsync(name, cancellationToken);
-        if (substance is null)
-        {
-            return NotFound();
-        }
-
-        var viewModel = new SubstanceViewModel
-        {
-            Name = substance.Name,
-            LethalDose = substance.LethalDose,
-            Description = substance.Description,
-        };
-
-        return View(viewModel);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(string name, SubstanceViewModel viewModel, CancellationToken cancellationToken)
-    {
-        if (!ModelState.IsValid)
-        {
-            return View(viewModel);
-        }
-
-        var updatedSubstance = new Substance
-        {
-            Name = viewModel.Name,
-            LethalDose = viewModel.LethalDose,
-            Description = viewModel.Description,
-        };
-
-        try
-        {
-            if (!string.Equals(name, viewModel.Name, StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(name))
             {
-                await adminService.DeleteSubstanceAsync(name, cancellationToken);
-                await adminService.CreateSubstanceAsync(
-                    viewModel.Name,
-                    viewModel.LethalDose,
-                    viewModel.Description,
-                    cancellationToken);
-            }
-            else
-            {
-                await adminService.UpdateSubstanceAsync(updatedSubstance, cancellationToken);
+                return this.NotFound();
             }
 
-            TempData["SuccessMessage"] = "Substance updated successfully.";
-            return RedirectToAction(nameof(Index));
+            Substance substance = this.adminService.GetSubstanceByName(name);
+            if (substance == null)
+            {
+                return this.NotFound();
+            }
+
+            return this.View(substance);
         }
-        catch (ArgumentException argumentException)
+
+        [HttpGet]
+        public IActionResult Create()
         {
-            ModelState.AddModelError(string.Empty, argumentException.Message);
-            return View(viewModel);
+            return this.View(new SubstanceViewModel());
         }
-    }
 
-    [HttpGet]
-    public async Task<IActionResult> Delete(string name, CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(name))
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(SubstanceViewModel viewModel)
         {
-            return NotFound();
+            if (!this.ModelState.IsValid)
+            {
+                return this.View(viewModel);
+            }
+
+            var newSubstance = new Substance(viewModel.Name, viewModel.LethalDose, viewModel.Description);
+
+            try
+            {
+                this.adminService.AddSubstance(newSubstance);
+                return this.RedirectToAction(nameof(this.Index));
+            }
+            catch (ArgumentException argumentException)
+            {
+                this.ModelState.AddModelError(string.Empty, argumentException.Message);
+                return this.View(viewModel);
+            }
         }
 
-        Substance? substance = await adminService.GetSubstanceByNameAsync(name, cancellationToken);
-        return substance is null ? NotFound() : View(substance);
-    }
-
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(string name, CancellationToken cancellationToken)
-    {
-        if (!string.IsNullOrWhiteSpace(name))
+        [HttpGet]
+        public IActionResult Edit(string name)
         {
-            await adminService.DeleteSubstanceAsync(name, cancellationToken);
-            TempData["SuccessMessage"] = "Substance deleted successfully.";
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return this.NotFound();
+            }
+
+            Substance substance = this.adminService.GetSubstanceByName(name);
+            if (substance == null)
+            {
+                return this.NotFound();
+            }
+
+            var viewModel = new SubstanceViewModel
+            {
+                Name = substance.Name,
+                LethalDose = substance.LethalDose,
+                Description = substance.Description,
+            };
+
+            return this.View(viewModel);
         }
 
-        return RedirectToAction(nameof(Index));
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(string name, SubstanceViewModel viewModel)
+        {
+            if (!this.ModelState.IsValid)
+            {
+                return this.View(viewModel);
+            }
+
+            var updatedSubstance = new Substance(viewModel.Name, viewModel.LethalDose, viewModel.Description);
+
+            try
+            {
+                this.adminService.UpdateSubstanceByName(name, updatedSubstance);
+                return this.RedirectToAction(nameof(this.Index));
+            }
+            catch (ArgumentException argumentException)
+            {
+                this.ModelState.AddModelError(string.Empty, argumentException.Message);
+                return this.View(viewModel);
+            }
+        }
+
+        [HttpGet]
+        public IActionResult Delete(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return this.NotFound();
+            }
+
+            Substance substance = this.adminService.GetSubstanceByName(name);
+            if (substance == null)
+            {
+                return this.NotFound();
+            }
+
+            return this.View(substance);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteConfirmed(string name)
+        {
+            Substance substance = this.adminService.GetSubstanceByName(name);
+            if (substance != null)
+            {
+                this.adminService.RemoveSubstanceByName(substance);
+            }
+
+            return this.RedirectToAction(nameof(this.Index));
+        }
     }
 }

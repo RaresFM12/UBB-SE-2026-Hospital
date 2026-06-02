@@ -1,5 +1,5 @@
-using Hospital.Data.Models;
-using Hospital.Shared.Services;
+using Common.Data.Entity;
+using Common.Data.Integration;
 using Hospital.Web.Models.Pharmacist;
 using Hospital.Web.Models.Prescription;
 using Hospital.Web.Services;

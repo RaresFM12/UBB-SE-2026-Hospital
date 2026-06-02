@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Hospital.Web.Views.ShiftManagement
+namespace UBB_SE_2026_923_2.Web.Views.ShiftManagement
 {
     public class DetailsModel : PageModel
     {

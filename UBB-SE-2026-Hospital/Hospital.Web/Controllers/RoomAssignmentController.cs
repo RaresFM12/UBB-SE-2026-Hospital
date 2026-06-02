@@ -1,6 +1,8 @@
-using Hospital.Data.Models;
-using Hospital.Shared.Services;
+using Common.Data.Entity;
+using Common.Data.Entity.DTOs;
+using Common.Data.Models;
 using Hospital.Web.Models.RoomAssignment;
+using Hospital.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,21 +11,13 @@ namespace Hospital.Web.Controllers;
 [Authorize]
 public class RoomAssignmentController : Controller
 {
-    private readonly IERVisitService erVisitService;
-    private readonly IERRoomService erRoomService;
-    private readonly ITriageService triageService;
-    private readonly ITriageParametersService triageParametersService;
+    private readonly IErWorkflowApiClient erApiClient;
+    private readonly IPatientApiClient patientApiClient;
 
-    public RoomAssignmentController(
-        IERVisitService erVisitService,
-        IERRoomService erRoomService,
-        ITriageService triageService,
-        ITriageParametersService triageParametersService)
+    public RoomAssignmentController(IErWorkflowApiClient erApiClient, IPatientApiClient patientApiClient)
     {
-        this.erVisitService = erVisitService;
-        this.erRoomService = erRoomService;
-        this.triageService = triageService;
-        this.triageParametersService = triageParametersService;
+        this.erApiClient = erApiClient;
+        this.patientApiClient = patientApiClient;
     }
 
     [HttpGet]
@@ -31,7 +25,7 @@ public class RoomAssignmentController : Controller
     {
         try
         {
-            RoomAssignmentViewModel model = await BuildModelAsync(selectedVisitId, null);
+            RoomAssignmentViewModel model = await BuildModelAsync(selectedVisitId, null, cancellationToken);
             return View(model);
         }
         catch (UnauthorizedAccessException)
@@ -50,7 +44,7 @@ public class RoomAssignmentController : Controller
     {
         try
         {
-            bool assigned = await erVisitService.AutoAssignHighestPriorityRoomAsync();
+            bool assigned = await erApiClient.AutoAssignHighestPriorityRoomAsync(cancellationToken);
             TempData[assigned ? "SuccessMessage" : "ErrorMessage"] = assigned
                 ? "The highest-priority visit was assigned to a matching room."
                 : "No suitable room is currently available for the highest-priority visit.";
@@ -79,7 +73,7 @@ public class RoomAssignmentController : Controller
 
         try
         {
-            await erVisitService.AssignRoomAsync(visitId, roomId);
+            await erApiClient.AssignRoomAsync(visitId, roomId, cancellationToken);
             TempData["SuccessMessage"] = $"Visit {visitId} was assigned to room {roomId}.";
         }
         catch (UnauthorizedAccessException)
@@ -97,17 +91,20 @@ public class RoomAssignmentController : Controller
 
     private async Task<RoomAssignmentViewModel> BuildModelAsync(
         int? selectedVisitId,
-        int? selectedRoomId)
+        int? selectedRoomId,
+        CancellationToken cancellationToken)
     {
-        List<ERVisit> waitingVisits = (await erVisitService.GetAllAsync())
-            .Where(visit => string.Equals(visit.Status, ERVisit.VisitStatus.WAITING_FOR_ROOM, StringComparison.OrdinalIgnoreCase))
-            .ToList();
-        List<Triage> triages = await triageService.GetAllAsync();
-        HashSet<int> triageIdsWithParameters = (await triageParametersService.GetAllAsync())
-            .Where(parameters => parameters.Triage is not null)
-            .Select(parameters => parameters.Triage.TriageId)
+        List<ER_Visit> waitingVisits = await erApiClient.GetVisitsByStatusAsync(
+            ER_Visit.VisitStatus.WAITING_FOR_ROOM,
+            cancellationToken);
+        List<Triage> triages = await erApiClient.GetTriagesAsync(cancellationToken);
+        List<Triage_Parameters> triageParameters = await erApiClient.GetTriageParametersAsync(cancellationToken);
+        HashSet<int> triageIdsWithParameters = triageParameters
+            .Select(parameters => parameters.Triage_ID)
             .ToHashSet();
-        List<ERRoom> availableRooms = await erRoomService.GetByStatusAsync(ERRoom.RoomStatus.Available);
+        List<ER_Room> availableRooms = await erApiClient.GetRoomsByStatusAsync(
+            ER_Room.RoomStatus.Available,
+            cancellationToken);
 
         var model = new RoomAssignmentViewModel
         {
@@ -116,17 +113,17 @@ public class RoomAssignmentController : Controller
             WaitingVisits = waitingVisits
                 .Select(visit =>
                 {
-                    Triage? triage = triages.FirstOrDefault(item => item.Visit is not null && item.Visit.VisitId == visit.VisitId);
-                    bool hasTriageData = triage is not null && triageIdsWithParameters.Contains(triage.TriageId);
+                    Triage? triage = triages.FirstOrDefault(item => item.Visit_ID == visit.Visit_ID);
+                    bool hasTriageData = triage is not null && triageIdsWithParameters.Contains(triage.Triage_ID);
 
                     return new RoomAssignmentVisitViewModel
                     {
-                        VisitId = visit.VisitId,
-                        PatientId = visit.Patient.PatientId.ToString(),
-                        ArrivalTime = visit.ArrivalDateTime,
-                        ChiefComplaint = visit.ChiefComplaint,
+                        VisitId = visit.Visit_ID,
+                        PatientId = visit.Patient_ID,
+                        ArrivalTime = visit.Arrival_date_time,
+                        ChiefComplaint = visit.Chief_Complaint,
                         Status = visit.Status,
-                        TriageLevel = triage?.TriageLevel,
+                        TriageLevel = triage?.Triage_Level,
                         Specialization = triage?.Specialization,
                         HasTriageData = hasTriageData,
                         WarningMessage = hasTriageData
@@ -140,12 +137,12 @@ public class RoomAssignmentController : Controller
                 .ThenBy(item => item.ArrivalTime)
                 .ToList(),
             AvailableRooms = availableRooms
-                .OrderBy(room => room.RoomId)
+                .OrderBy(room => room.Room_ID)
                 .Select(room => new RoomOptionViewModel
                 {
-                    RoomId = room.RoomId,
-                    RoomType = room.RoomTypeName,
-                    Status = room.AvailabilityStatus
+                    RoomId = room.Room_ID,
+                    RoomType = room.Room_Type,
+                    Status = room.Availability_Status
                 })
                 .ToList()
         };
@@ -155,29 +152,33 @@ public class RoomAssignmentController : Controller
             return model;
         }
 
-        ERVisit? selectedVisit = waitingVisits.FirstOrDefault(visit => visit.VisitId == selectedVisitId.Value)
-            ?? await erVisitService.GetByIdAsync(selectedVisitId.Value);
+        ER_Visit? selectedVisit = waitingVisits.FirstOrDefault(visit => visit.Visit_ID == selectedVisitId.Value)
+            ?? await erApiClient.GetVisitAsync(selectedVisitId.Value, cancellationToken);
         if (selectedVisit is null)
         {
             return model;
         }
 
+        Patient? patient = (await patientApiClient.SearchPatientsAsync(
+            new SearchPatientsDto { Cnp = selectedVisit.Patient_ID },
+            cancellationToken)).FirstOrDefault();
+
         model.SelectedPatient = new RoomAssignmentPatientViewModel
         {
-            PatientId = selectedVisit.Patient.PatientId.ToString(),
-            Name = selectedVisit.Patient.FullName,
-            Phone = selectedVisit.Patient.PhoneNumber
+            PatientId = selectedVisit.Patient_ID,
+            Name = patient?.FullName ?? selectedVisit.Patient_ID,
+            Phone = patient?.PhoneNo ?? string.Empty
         };
 
-        Triage? selectedTriage = triages.FirstOrDefault(triage => triage.Visit is not null && triage.Visit.VisitId == selectedVisit.VisitId);
-        bool selectedVisitHasParameters = selectedTriage is not null && triageIdsWithParameters.Contains(selectedTriage.TriageId);
+        Triage? selectedTriage = triages.FirstOrDefault(triage => triage.Visit_ID == selectedVisit.Visit_ID);
+        bool selectedVisitHasParameters = selectedTriage is not null && triageIdsWithParameters.Contains(selectedTriage.Triage_ID);
         if (selectedTriage is not null)
         {
             model.SelectedTriage = new RoomAssignmentTriageViewModel
             {
-                TriageLevel = selectedTriage.TriageLevel,
+                TriageLevel = selectedTriage.Triage_Level,
                 Specialization = selectedTriage.Specialization,
-                NurseId = selectedTriage.NurseId
+                NurseId = selectedTriage.Nurse_ID
             };
         }
 
@@ -194,6 +195,6 @@ public class RoomAssignmentController : Controller
     private IActionResult RedirectToLogin()
     {
         TempData["ErrorMessage"] = "Please sign in before opening room assignment.";
-        return RedirectToAction("Login", "Auth");
+        return RedirectToAction("AuthenticationView", "Authentication");
     }
 }

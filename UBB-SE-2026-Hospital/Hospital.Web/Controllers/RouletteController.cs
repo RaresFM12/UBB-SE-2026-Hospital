@@ -1,4 +1,4 @@
-using Hospital.Data.Models;
+using Common.Data.Entity;
 using Hospital.Web.Models.Consultations;
 using Hospital.Web.Services;
 using Microsoft.AspNetCore.Authorization;

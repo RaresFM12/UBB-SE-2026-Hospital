@@ -12,5 +12,5 @@ global using IErWorkflowService = Hospital.Web.Services.IErWorkflowApiClient;
 global using PeriodTrackerDashboardSnapshot = Hospital.Shared.Models.StaffPharmacy.PeriodTrackerDashboardSnapshot;
 global using PeriodTrackerState = Hospital.Shared.Models.StaffPharmacy.PeriodTrackerState;
 global using RecordDTO = Hospital.Data.Models.DTOs.MedicalRecordDetails;
-global using RecordExportDataDto = Hospital.Data.Models.DTOs.RecordExportData;
+global using RecordExportDataDto = Hospital.Data.Models.DTOs.RecordExportDataDto;
 global using SearchPatientsDto = Hospital.Data.Models.DTOs.PatientFilter;

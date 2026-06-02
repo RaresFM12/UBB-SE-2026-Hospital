@@ -3,6 +3,7 @@ using Hospital.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Hospital.Shared.Models.PatientEr;
+using IBillingService = Hospital.Shared.Services.IBillingService;
 
 namespace Hospital.Web.Controllers;
 
@@ -51,6 +52,7 @@ public class ConsultationController : Controller
             basePrice = record.BasePrice;
         }
 
+        int? discountApplied = record.DiscountApplied;
         decimal finalPrice = record.DiscountApplied.HasValue ? record.FinalPrice : basePrice;
 
         int? prescriptionId = null;

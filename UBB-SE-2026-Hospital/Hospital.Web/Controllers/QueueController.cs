@@ -1,6 +1,6 @@
-using Hospital.Data.Models;
-using Hospital.Shared.Services;
+using Common.Data.Models;
 using Hospital.Web.Models.Queue;
+using Hospital.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,18 +9,11 @@ namespace Hospital.Web.Controllers;
 [Authorize]
 public class QueueController : Controller
 {
-    private readonly IERVisitService erVisitService;
-    private readonly ITriageService triageService;
-    private readonly ITriageParametersService triageParametersService;
+    private readonly IErWorkflowApiClient erApiClient;
 
-    public QueueController(
-        IERVisitService erVisitService,
-        ITriageService triageService,
-        ITriageParametersService triageParametersService)
+    public QueueController(IErWorkflowApiClient erApiClient)
     {
-        this.erVisitService = erVisitService;
-        this.triageService = triageService;
-        this.triageParametersService = triageParametersService;
+        this.erApiClient = erApiClient;
     }
 
     [HttpGet]
@@ -28,30 +21,30 @@ public class QueueController : Controller
     {
         try
         {
-            List<ERVisit> waitingVisits = (await erVisitService.GetAllAsync())
-                .Where(visit => string.Equals(visit.Status, ERVisit.VisitStatus.WAITING_FOR_ROOM, StringComparison.OrdinalIgnoreCase))
-                .ToList();
-            List<Triage> triages = await triageService.GetAllAsync();
-            HashSet<int> triageIdsWithParameters = (await triageParametersService.GetAllAsync())
-                .Where(parameters => parameters.Triage is not null)
-                .Select(parameters => parameters.Triage.TriageId)
+            List<ER_Visit> waitingVisits = await erApiClient.GetVisitsByStatusAsync(
+                ER_Visit.VisitStatus.WAITING_FOR_ROOM,
+                cancellationToken);
+            List<Triage> triages = await erApiClient.GetTriagesAsync(cancellationToken);
+            List<Triage_Parameters> triageParameters = await erApiClient.GetTriageParametersAsync(cancellationToken);
+            HashSet<int> triageIdsWithParameters = triageParameters
+                .Select(parameters => parameters.Triage_ID)
                 .ToHashSet();
 
-            return View(new QueueViewModel
+            var model = new QueueViewModel
             {
                 ActiveVisits = waitingVisits
                     .Select(visit =>
                     {
-                        Triage? triage = triages.FirstOrDefault(item => item.Visit is not null && item.Visit.VisitId == visit.VisitId);
-                        bool hasTriageData = triage is not null && triageIdsWithParameters.Contains(triage.TriageId);
+                        Triage? triage = triages.FirstOrDefault(item => item.Visit_ID == visit.Visit_ID);
+                        bool hasTriageData = triage is not null && triageIdsWithParameters.Contains(triage.Triage_ID);
 
                         return new QueueItemViewModel
                         {
-                            VisitId = visit.VisitId,
-                            PatientId = visit.Patient.PatientId.ToString(),
-                            TriageLevel = triage?.TriageLevel,
+                            VisitId = visit.Visit_ID,
+                            PatientId = visit.Patient_ID,
+                            TriageLevel = triage?.Triage_Level,
                             Specialization = triage?.Specialization,
-                            ArrivalTime = visit.ArrivalDateTime,
+                            ArrivalTime = visit.Arrival_date_time,
                             Status = visit.Status,
                             HasTriageData = hasTriageData,
                             WarningMessage = hasTriageData
@@ -64,7 +57,9 @@ public class QueueController : Controller
                     .OrderBy(item => item.TriageLevel ?? int.MaxValue)
                     .ThenBy(item => item.ArrivalTime)
                     .ToList()
-            });
+            };
+
+            return View(model);
         }
         catch (UnauthorizedAccessException)
         {
@@ -79,6 +74,6 @@ public class QueueController : Controller
     private IActionResult RedirectToLogin()
     {
         TempData["ErrorMessage"] = "Please sign in before opening the ER queue.";
-        return RedirectToAction("Login", "Auth");
+        return RedirectToAction("AuthenticationView", "Authentication");
     }
 }

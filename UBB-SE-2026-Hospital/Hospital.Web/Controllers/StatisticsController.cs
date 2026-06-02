@@ -1,11 +1,11 @@
-namespace Hospital.Web.Controllers
+namespace UBB_SE_2026_923_2.Web.Controllers
 {
     using System;
     using System.Collections.Generic;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-    using Hospital.Shared.Services;
-    using Hospital.Web.Models;
+    using UBB_SE_2026_923_2.Services;
+    using UBB_SE_2026_923_2.Web.ViewModels;
 
     [Authorize(Roles = "Admin")]
     public class StatisticsController : Controller

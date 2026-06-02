@@ -1,14 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Hospital.Shared.DTOs;
 using Hospital.Shared.Services;
 using Hospital.Web.Models.Patient;
+using Hospital.Services.PatientEr;
 using Patient = Hospital.Shared.Models.PatientEr.Patient;
 using MedicalRecord = Hospital.Shared.Models.PatientEr.MedicalRecord;
+using Prescription = Hospital.Shared.Models.PatientEr.Prescription;
 using IBillingService = Hospital.Shared.Services.IBillingService;
 
 namespace Hospital.Web.Controllers;
@@ -100,9 +104,7 @@ public class PatientController : Controller
     private void ApplyTemporaryDiscount(PatientProfileViewModel model)
     {
         if (TempData["TemporaryDiscount"] is string discountText && int.TryParse(discountText, out int discount))
-        {
             model.TemporaryDiscount = discount;
-        }
 
         if (TempData["TemporaryDiscountedPrice"] is string priceText && decimal.TryParse(priceText, System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.InvariantCulture, out decimal discountedPrice))
         {

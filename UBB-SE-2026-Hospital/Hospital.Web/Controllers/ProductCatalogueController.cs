@@ -4,11 +4,11 @@ using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Hospital.Data.Repositories;
-using Hospital.Shared.Services;
-using Hospital.Web.Models;
+using UBB_SE_2026_923_2.Repositories;
+using UBB_SE_2026_923_2.Services;
+using UBB_SE_2026_923_2.Web.ViewModels;
 
-namespace Hospital.Web.Controllers
+namespace UBB_SE_2026_923_2.Web.Controllers
 {
     public class ProductCatalogueController : Controller
     {
@@ -182,7 +182,7 @@ namespace Hospital.Web.Controllers
             return RedirectToAction(nameof(Details), new { id = itemId });
         }
 
-        private CatalogueItemViewModel MapToViewModel(Item item)
+        private CatalogueItemViewModel MapToViewModel(UBB_SE_2026_923_2.Models.Item item)
         {
             string cleanImage = item.ImagePath?.TrimStart('/') ?? "";
             if (cleanImage.StartsWith("ms-appx:///")) cleanImage = cleanImage.Replace("ms-appx:///", "");

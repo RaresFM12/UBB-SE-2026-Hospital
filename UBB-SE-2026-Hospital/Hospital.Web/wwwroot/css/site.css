@@ -1,260 +1,31 @@
 html {
-  font-size: var(--app-font-size-root);
-  min-height: 100%;
+  font-size: 14px;
 }
 
-@media (min-width: 48rem) {
+@media (min-width: 768px) {
   html {
-    font-size: var(--app-font-size-root-wide);
+    font-size: 16px;
   }
 }
 
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
 body {
-  min-height: 100vh;
-  background: var(--app-color-bg);
-  color: var(--app-color-text);
+  margin-bottom: 60px;
 }
 
-a {
-  color: var(--app-color-primary);
-}
-
-a:hover {
-  color: var(--app-color-primary-hover);
-}
-
-.btn-primary {
-  --bs-btn-bg: var(--app-color-primary);
-  --bs-btn-border-color: var(--app-color-primary);
-  --bs-btn-hover-bg: var(--app-color-primary-hover);
-  --bs-btn-hover-border-color: var(--app-color-primary-hover);
-}
-
-.btn:focus,
-.btn:active:focus,
-.btn-link.nav-link:focus,
-.form-control:focus,
-.form-check-input:focus,
-.nav-link:focus-visible,
-.dropdown-item:focus-visible {
-  box-shadow:
-    0 0 0 var(--app-focus-ring-inner) var(--app-color-white),
-    0 0 0 var(--app-focus-ring-outer) rgba(var(--app-color-focus-rgb), var(--app-focus-ring-opacity));
-}
-
-.app-header {
-  position: sticky;
-  top: 0;
-  z-index: var(--app-header-z-index);
-  border-bottom: var(--app-border-width) solid var(--app-color-border);
-  background: rgba(var(--app-color-header-rgb), var(--app-header-opacity));
-}
-
-.app-navbar {
-  min-height: var(--app-navbar-min-height);
-  background: var(--app-color-surface);
-}
-
-.app-navbar__inner {
-  gap: var(--app-space-2xl);
-  padding-inline: var(--app-page-x-padding);
-}
-
-.app-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--app-space-lg);
-  min-width: max-content;
-  color: var(--app-color-text);
-  font-weight: var(--app-font-weight-bold);
-}
-
-.app-brand:hover {
-  color: var(--app-color-primary);
-}
-
-.app-brand__mark {
-  display: grid;
-  width: var(--app-brand-mark-size);
-  height: var(--app-brand-mark-size);
-  place-items: center;
-  border-radius: var(--app-radius-sm);
-  background: var(--app-color-primary);
-  color: var(--app-color-white);
-  font-weight: var(--app-font-weight-heavy);
-}
-
-.app-brand__text {
-  letter-spacing: 0;
-}
-
-.app-nav {
-  gap: var(--app-space-xs);
-}
-
-.app-nav .nav-link {
-  border-radius: var(--app-radius-sm);
-  color: var(--app-color-text-muted);
-  font-weight: var(--app-font-weight-semibold);
-  padding-inline: var(--app-space-xl);
-}
-
-.app-nav .nav-link:hover,
-.app-nav .nav-link:focus {
-  background: var(--app-color-surface-muted);
-  color: var(--app-color-text);
-}
-
-.dropdown-menu {
-  border-color: var(--app-color-border);
-  border-radius: var(--app-radius-md);
-  box-shadow: 0 var(--app-shadow-menu-y) var(--app-shadow-menu-blur) rgba(var(--app-color-shadow-rgb), var(--app-shadow-menu-opacity));
-}
-
-.dropdown-item {
-  color: var(--app-color-text);
-  font-weight: var(--app-font-weight-medium);
-}
-
-.dropdown-item:hover,
-.dropdown-item:focus {
-  background: var(--app-color-surface-muted);
-  color: var(--app-color-primary-hover);
-}
-
-.app-user-nav {
-  align-items: center;
-  gap: var(--app-space-xl);
-}
-
-.app-user {
-  display: flex;
-  flex-direction: column;
-  line-height: var(--app-line-height-tight);
-  min-width: 0;
-}
-
-.app-user__name {
-  max-width: var(--app-user-name-max-width);
-  overflow: hidden;
-  color: var(--app-color-text);
-  font-weight: var(--app-font-weight-bold);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.app-user__role {
-  color: var(--app-color-text-muted);
-  font-size: var(--app-font-size-sm);
-  font-weight: var(--app-font-weight-semibold);
-}
-
-.app-page {
-  width: min(100%, var(--app-content-max-width));
-  margin-inline: auto;
-  padding: var(--app-space-3xl) var(--app-page-x-padding) var(--app-space-4xl);
-}
-
-.app-main {
-  min-height: calc(100vh - var(--app-main-height-offset));
-}
-
-.auth-shell {
-  min-height: 100vh;
-  background: var(--app-color-bg);
-}
-
-.app-footer {
-  border-top: var(--app-border-width) solid var(--app-color-border);
-  color: var(--app-color-text-muted);
-  font-size: var(--app-font-size-body-sm);
-  padding: var(--app-space-2xl) var(--app-page-x-padding);
-}
-
-.page-header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--app-space-2xl);
-  margin-bottom: var(--app-space-3xl);
-}
-
-.page-header__title {
-  color: var(--app-color-text);
-  font-size: var(--app-font-size-title);
-  font-weight: var(--app-font-weight-title);
-  line-height: var(--app-line-height-title);
-  margin: 0;
-}
-
-.page-header__subtitle {
-  color: var(--app-color-text-muted);
-  margin: var(--app-space-md) 0 0;
-}
-
-.empty-state {
-  display: grid;
-  gap: var(--app-space-xl);
-  justify-items: center;
-  border: var(--app-border-width) var(--app-border-style-dashed) var(--app-color-border);
-  border-radius: var(--app-radius-md);
-  background: var(--app-color-surface);
-  color: var(--app-color-text-muted);
-  padding: var(--app-space-4xl);
-  text-align: center;
-}
-
-.empty-state__icon {
-  display: grid;
-  width: var(--app-empty-icon-size);
-  height: var(--app-empty-icon-size);
-  place-items: center;
-  border-radius: var(--app-radius-pill);
-  background: var(--app-color-surface-muted);
-  color: var(--app-color-primary);
-  font-size: var(--app-font-size-icon);
-  font-weight: var(--app-font-weight-bold);
-}
-
-.empty-state__message {
-  margin: 0;
-  max-width: var(--app-empty-message-max-width);
-}
-
-.status-message {
-  border-radius: var(--app-radius-md);
-  margin-bottom: var(--app-space-2xl);
-}
-
-.form-floating > .form-control-plaintext::placeholder,
-.form-floating > .form-control::placeholder {
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
   color: var(--bs-secondary-color);
   text-align: end;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder,
-.form-floating > .form-control:focus::placeholder {
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
-}
-
-@media (max-width: 62rem) {
-  .app-navbar__inner {
-    align-items: flex-start;
-  }
-
-  .app-nav {
-    gap: 0;
-    padding-top: var(--app-space-xl);
-  }
-
-  .app-user-nav {
-    align-items: stretch;
-    border-top: var(--app-border-width) solid var(--app-color-border);
-    margin-top: var(--app-space-xl);
-    padding-top: var(--app-space-xl);
-  }
-
-  .app-user {
-    padding-inline: var(--app-space-sm);
-  }
 }

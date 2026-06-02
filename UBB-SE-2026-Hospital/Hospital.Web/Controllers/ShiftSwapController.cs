@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using Hospital.Data.Models;
-using Hospital.Shared.Services;
-using Hospital.Web.Models;
+using UBB_SE_2026_923_2.Models;
+using UBB_SE_2026_923_2.Services;
+using UBB_SE_2026_923_2.Web.ViewModels;
 
-namespace Hospital.Web.Controllers
+namespace UBB_SE_2026_923_2.Web.Controllers
 {
     [Authorize(Roles = "Doctor")]
     public class ShiftSwapController : Controller

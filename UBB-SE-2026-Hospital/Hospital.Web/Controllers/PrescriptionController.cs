@@ -1,9 +1,9 @@
-using System.Security.Cryptography;
-using Hospital.Data.Models;
-using Hospital.Data.Models.DTOs;
-using Hospital.Shared.Services;
+﻿using System.Security.Cryptography;
+using Common.Data.Entity;
+using Common.Data.Entity.DTOs;
+using Common.Data.Integration;
 using Hospital.Web.Models.Prescription;
-using Hospital.Web.Models;
+using Hospital.Web.ViewModels;
 using Hospital.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

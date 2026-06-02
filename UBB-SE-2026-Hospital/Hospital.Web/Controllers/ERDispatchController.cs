@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
-using Hospital.Web.Models;
+using Hospital.Web.ViewModels;
 
 namespace Hospital.Web.Controllers;
 
