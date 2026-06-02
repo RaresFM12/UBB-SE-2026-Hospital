@@ -3,8 +3,8 @@ using Common.Data.Entity;
 using Common.Data.Entity.DTOs;
 using Common.Data.Integration;
 using Hospital.Web.Models.Prescription;
-using Hospital.Web.ViewModels;
-using Hospital.Shared.Services;
+using Hospital.Web.ViewModels; 
+using Hospital.Shared.Services; 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,8 +14,8 @@ namespace Hospital.Web.Controllers;
 public class PrescriptionController : Controller
 {
     private readonly IPrescriptionService prescriptionService;
-    private readonly IAdminService adminService;
-    private readonly IMedicalEvaluationService evaluationService;
+    private readonly IAdminService adminService; 
+    private readonly IMedicalEvaluationService evaluationService; 
 
     private const int PageSize = 9;
     private static readonly char[] MedicineSeparators = new[] { ',', ';', '\n', '\r' };
@@ -32,7 +32,7 @@ public class PrescriptionController : Controller
 
     [HttpGet]
     [Authorize(Roles = "Pharmacist,Admin")]
-    public IActionResult Resolve()
+    public IActionResult Resolve() 
     {
         return View("Index", new ResolvePrescriptionViewModel());
     }

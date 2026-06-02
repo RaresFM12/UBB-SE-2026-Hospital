@@ -1,6 +1,6 @@
 using Hospital.Data.Models;
 using Hospital.Data.Repositories;
-using Hospital.Shared.Services;
+using Hospital.Services.PatientEr;
 
 namespace Hospital.Services.PatientEr;
 
@@ -8,7 +8,7 @@ public class BillingService(
     IMedicalHistoryRepository historyRepository,
     IMedicalRecordRepository recordRepository,
     IPrescriptionRepository prescriptionRepository,
-    ITransplantRepository transplantRepository) : Hospital.Shared.Services.IBillingService
+    ITransplantRepository transplantRepository) : IBillingService
 {
     private const int PercentageDivisor = 100;
     private const decimal EmergencyRoomBasePrice = 500;

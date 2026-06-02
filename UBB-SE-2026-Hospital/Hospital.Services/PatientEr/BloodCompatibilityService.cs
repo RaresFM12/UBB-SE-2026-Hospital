@@ -8,15 +8,6 @@ public class BloodCompatibilityService(
     IPatientRepository patientRepository,
     IMedicalHistoryRepository historyRepository) : IBloodCompatibilityService
 {
-    private const int MaximumCompatibleDonors = 20;
-    private const int ExactBloodAndRhMatchScore = 50;
-    private const int CompatibleBloodOrRhMatchScore = 25;
-    private const int MaximumAgeCompatibilityScore = 30;
-    private const int AgeScoreStepYears = 5;
-    private const int SameSexCompatibilityScore = 20;
-    private const int DifferentSexCompatibilityScore = 10;
-    private const int NoCompatibilityScore = 0;
-
     public async Task<List<Hospital.Shared.Models.PatientEr.Patient>> GetTopCompatibleDonorsAsync(int recipientId)
     {
         Patient? recipient = await patientRepository.GetByIdAsync(recipientId);
@@ -55,9 +46,9 @@ public class BloodCompatibilityService(
 
         return rankedDonors
         .OrderByDescending(x => x.Score)
-        .Select(x => x.Donor)
-        .Take(MaximumCompatibleDonors)
-        .Select(p => new Hospital.Shared.Models.PatientEr.Patient
+        .Select(x => x.Donor) 
+        .Take(20)
+        .Select(p => new Hospital.Shared.Models.PatientEr.Patient 
         {
             PatientId = p.PatientId,
             FirstName = p.FirstName,
@@ -73,16 +64,14 @@ public class BloodCompatibilityService(
     public int CalculateScore(Patient donor, Patient recipient)
     {
         if (donor.MedicalHistory is null || recipient.MedicalHistory is null)
-            return NoCompatibilityScore;
+            return 0;
 
         int total = donor.MedicalHistory.BloodType == recipient.MedicalHistory.BloodType
-            && donor.MedicalHistory.Rh == recipient.MedicalHistory.Rh
-                ? ExactBloodAndRhMatchScore
-                : CompatibleBloodOrRhMatchScore;
+            && donor.MedicalHistory.Rh == recipient.MedicalHistory.Rh ? 50 : 25;
 
         int ageGap = Math.Abs(donor.DateOfBirth.Year - recipient.DateOfBirth.Year);
-        total += Math.Max(NoCompatibilityScore, MaximumAgeCompatibilityScore - ageGap / AgeScoreStepYears * AgeScoreStepYears);
-        total += donor.Sex == recipient.Sex ? SameSexCompatibilityScore : DifferentSexCompatibilityScore;
+        total += Math.Max(0, 30 - ageGap / 5 * 5);
+        total += donor.Sex == recipient.Sex ? 20 : 10;
 
         return total;
     }

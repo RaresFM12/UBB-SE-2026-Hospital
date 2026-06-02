@@ -89,12 +89,12 @@ public class PatientController : Controller
     {
         return new PatientRecordViewModel
         {
-            Id = record.RecordId,
-            ConsultationDate = record.ConsultationDate,
+            Id = record.RecordId,                   
+            ConsultationDate = record.ConsultationDate, 
             SourceType = "ER",
             StaffId = 1,
-            Symptoms = record.Symptoms ?? "N/A",
-            Diagnosis = record.Diagnosis ?? "N/A",
+            Symptoms = record.Symptoms ?? "N/A",        
+            Diagnosis = record.Diagnosis ?? "N/A",      
             BasePrice = record.BasePrice,
             FinalPrice = record.FinalPrice,
             DiscountApplied = record.DiscountApplied ?? 0

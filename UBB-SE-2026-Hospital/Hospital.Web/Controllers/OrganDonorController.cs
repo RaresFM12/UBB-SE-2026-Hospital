@@ -20,6 +20,8 @@ public class OrganDonorController : Controller
         this.patientApiClient = patientApiClient;
     }
 
+    // GET: /OrganDonor/Assign?patientId=5
+    // GET: /OrganDonor/Assign?patientId=5&organ=Heart  ← organ pre-selected, matches loaded
     [HttpGet]
     public async Task<IActionResult> Assign(int patientId, string? organ)
     {

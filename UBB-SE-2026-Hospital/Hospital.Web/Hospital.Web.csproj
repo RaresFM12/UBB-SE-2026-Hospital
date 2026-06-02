@@ -10,17 +10,4 @@
     <ProjectReference Include="..\Hospital.Shared\Hospital.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Remove="Views\ShiftManagement\*.cshtml" />
-    <Compile Remove="Controllers\*.cs" />
-    <Compile Include="Controllers\AdminController.cs" />
-    <Compile Include="Controllers\AuthController.cs" />
-    <Compile Include="Controllers\BloodCompatibilityController.cs" />
-    <Compile Include="Controllers\GhostController.cs" />
-    <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\ModulesController.cs" />
-    <Compile Include="Controllers\PatientController.cs" />
-    <Compile Include="Controllers\PharmacyController.cs" />
-  </ItemGroup>
-
 </Project>
