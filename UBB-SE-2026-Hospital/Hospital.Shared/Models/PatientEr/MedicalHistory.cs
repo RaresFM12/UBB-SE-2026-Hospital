@@ -3,7 +3,9 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text.Json.Serialization;
-namespace Hospital.Data.Models;
+using Hospital.Data.Models;
+
+namespace Hospital.Shared.Models.PatientEr;
 
 public class MedicalHistory
 {

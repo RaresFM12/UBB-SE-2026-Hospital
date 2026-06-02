@@ -1,8 +1,8 @@
-using Common.Data.Entity;
 using Hospital.Web.Models.Consultations;
 using Hospital.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Hospital.Shared.Models.PatientEr;
 
 namespace Hospital.Web.Controllers;
 
@@ -33,7 +33,7 @@ public class ConsultationController : Controller
         }
 
         MedicalRecord? record = patient.MedicalHistory?.MedicalRecords?
-            .FirstOrDefault(r => r.Id == recordId);
+            .FirstOrDefault(r => r.RecordId == recordId);
 
         if (record is null)
         {
@@ -58,7 +58,7 @@ public class ConsultationController : Controller
         try
         {
             Prescription? prescription = await patientService.GetPrescriptionByRecordIdAsync(recordId);
-            prescriptionId = prescription?.Id;
+            prescriptionId = prescription?.PrescriptionId;
         }
         catch (InvalidOperationException)
         {
@@ -67,18 +67,18 @@ public class ConsultationController : Controller
 
         var model = new ConsultationDetailsViewModel
         {
-            RecordId = record.Id,
-            PatientId = patient.Id,
+            RecordId = record.RecordId,         
+            PatientId = patient.PatientId,       
             PatientFirstName = patient.FirstName,
             PatientLastName = patient.LastName,
             SourceType = record.SourceType.ToString(),
-            StaffId = record.StaffId,
-            ConsultationDate = record.ConsultationDate,
-            Symptoms = record.Symptoms ?? "N/A",
-            Diagnosis = record.Diagnosis ?? "N/A",
+            StaffId = record.StaffMember?.StaffId ?? 0, 
+            ConsultationDate = record.ConsultationDate, 
+            Symptoms = record.Symptoms ?? "N/A",        
+            Diagnosis = record.Diagnosis ?? "N/A",      
             BasePrice = basePrice,
             FinalPrice = finalPrice,
-            DiscountApplied = discountApplied,
+            DiscountApplied = record.DiscountApplied,
             PrescriptionId = prescriptionId,
             IsArchived = patient.IsArchived
         };

@@ -1,38 +1,34 @@
-﻿using Common.Data.Entity;
-using Hospital.Web.Models.BloodCompatibility;
+﻿using Hospital.Services.PatientEr;
+using Hospital.Shared.Models.PatientEr;
 using Hospital.Shared.Services;
+using Hospital.Web.Models.BloodCompatibility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Hospital.Web.Controllers;
 
 [Authorize]
 public class BloodCompatibilityController : Controller
 {
-    private readonly IBloodCompatibilityService bloodCompatibilityService;
-    private readonly IPatientService patientService;
+    private readonly IBloodCompatibilityService _bloodCompatibilityService;
+    private readonly IPatientService _patientService;
 
     public BloodCompatibilityController(
         IBloodCompatibilityService bloodCompatibilityService,
         IPatientService patientService)
     {
-        this.bloodCompatibilityService = bloodCompatibilityService;
-        this.patientService = patientService;
+        _bloodCompatibilityService = bloodCompatibilityService;
+        _patientService = patientService;
     }
 
     [HttpGet]
     public async Task<IActionResult> Donors(int patientId)
     {
-        Patient? patient;
-        try
-        {
-            patient = await patientService.GetPatientDetailsAsync(patientId);
-        }
-        catch (InvalidOperationException ex)
-        {
-            TempData["ErrorMessage"] = ex.Message;
-            return RedirectToAction("Index", "Admin");
-        }
+        Patient? patient = await _patientService.GetPatientDetailsAsync(patientId, default);
 
         if (patient is null)
         {
@@ -43,21 +39,19 @@ public class BloodCompatibilityController : Controller
         var model = new BloodDonorsViewModel
         {
             PatientId = patientId,
-            PatientName = patient.FullName,
+            PatientName = $"{patient.FirstName} {patient.LastName}",
         };
 
         if (patient.MedicalHistory?.BloodType is null || patient.MedicalHistory?.Rh is null)
         {
-            model.StatusMessage =
-                "The selected patient needs a blood type and Rh factor in their medical history first.";
+            model.StatusMessage = "The selected patient needs a blood type and Rh factor in their medical history first.";
             return View(model);
         }
 
         List<Patient> topDonors;
         try
         {
-            topDonors = await bloodCompatibilityService
-                .GetTopCompatibleDonorsAsync(patientId);
+            topDonors = await _bloodCompatibilityService.GetTopCompatibleDonorsAsync(patientId);
         }
         catch (InvalidOperationException ex)
         {
@@ -95,7 +89,7 @@ public class BloodCompatibilityController : Controller
             ? 50
             : 25;
 
-        int ageGap = Math.Abs(donor.Dob.Year - recipient.Dob.Year);
+        int ageGap = Math.Abs(donor.DateOfBirth.Year - recipient.DateOfBirth.Year);
         total += Math.Max(0, 30 - (ageGap / 5 * 5));
         total += donor.Sex == recipient.Sex ? 20 : 10;
 
