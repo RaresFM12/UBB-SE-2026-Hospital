@@ -12,10 +12,14 @@ public class PatientRepository(HospitalDbContext context) : IPatientRepository
 {
     public async Task<Patient?> GetByIdAsync(int patientId)
     {
-        // CRITICAL FIX: Eager load the MedicalHistory and Records so the Profile View works
         return await context.Patients
             .Include(p => p.MedicalHistory)
-                .ThenInclude(mh => mh.MedicalRecords)
+                .ThenInclude(mh => mh!.MedicalRecords)
+                    .ThenInclude(record => record.Prescription)
+                        .ThenInclude(prescription => prescription!.MedicationList)
+            .Include(p => p.MedicalHistory)
+                .ThenInclude(mh => mh!.PatientAllergies)
+                    .ThenInclude(patientAllergy => patientAllergy.Allergy)
             .FirstOrDefaultAsync(p => p.PatientId == patientId);
     }
 
@@ -24,7 +28,6 @@ public class PatientRepository(HospitalDbContext context) : IPatientRepository
 
     public async Task<List<Patient>> GetFilteredAsync(PatientFilter filter)
     {
-        // PERFORMANCE FIX: Build the query without executing it right away
         var query = context.Patients.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(filter.CNP))
@@ -48,7 +51,6 @@ public class PatientRepository(HospitalDbContext context) : IPatientRepository
             query = query.Where(p => p.DateOfBirth >= minBirth);
         }
 
-        // Execute the query on the SQL server and return the results
         return await query.ToListAsync();
     }
 

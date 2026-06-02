@@ -5,10 +5,10 @@ namespace Hospital.Web.Services;
 
 public class ErWorkflowApiClient : HospitalApiClientBase, IErWorkflowApiClient
 {
-    private const string VisitsBaseUri = "api/er-visits";
-    private const string RoomsBaseUri = "api/er-rooms";
-    private const string TriagesBaseUri = "api/triages";
-    private const string TriageParametersBaseUri = "api/triage-parameters";
+    private const string VisitsBaseUri = "api/ervisits";
+    private const string RoomsBaseUri = "api/errooms";
+    private const string TriagesBaseUri = "api/triage";
+    private const string TriageParametersBaseUri = "api/triageparameters";
     private const string ExaminationsBaseUri = "api/examinations";
     private const string TransferLogsBaseUri = "api/transfer-logs";
 
@@ -111,13 +111,13 @@ public class ErWorkflowApiClient : HospitalApiClientBase, IErWorkflowApiClient
     public async Task<List<TriageParameters>> GetTriageParametersAsync(CancellationToken cancellationToken = default) =>
         await GetAsync<List<TriageParameters>>(TriageParametersBaseUri, cancellationToken) ?? new List<TriageParameters>();
 
-    public async Task<TriageParameters?> GetTriageParametersByTriageIdAsync(int triageId, CancellationToken cancellationToken = default) =>
-        (await GetTriageParametersAsync(cancellationToken)).FirstOrDefault(parameters => parameters.TriageParametersId == triageId);
+    public Task<TriageParameters?> GetTriageParametersByTriageIdAsync(int triageId, CancellationToken cancellationToken = default) =>
+        GetAsync<TriageParameters>($"{TriageParametersBaseUri}/triage/{triageId}", cancellationToken);
 
     public async Task<TriageParameters> CreateTriageParametersAsync(
         TriageParameters parameters,
         CancellationToken cancellationToken = default) =>
-        await PostAsync<TriageParameters, TriageParameters  >(TriageParametersBaseUri, parameters, cancellationToken)
+        await PostAsync<TriageParameters, TriageParameters>(TriageParametersBaseUri, parameters, cancellationToken)
         ?? throw new InvalidOperationException("Failed to create triage parameters: no response from server.");
 
     public async Task<List<ERVisit>> GetEligibleExaminationVisitsAsync(CancellationToken cancellationToken = default) =>

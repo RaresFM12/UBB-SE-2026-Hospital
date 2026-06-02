@@ -2,7 +2,10 @@ using Hospital.Web.Models.Consultations;
 using Hospital.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Hospital.Shared.Models.PatientEr;
+using IBillingService = Hospital.Shared.Services.IBillingService;
+using PatientErMedicalRecord = Hospital.Shared.Models.PatientEr.MedicalRecord;
+using PatientErPatient = Hospital.Shared.Models.PatientEr.Patient;
+using PatientErPrescription = Hospital.Shared.Models.PatientEr.Prescription;
 
 namespace Hospital.Web.Controllers;
 
@@ -21,7 +24,7 @@ public class ConsultationController : Controller
     [HttpGet]
     public async Task<IActionResult> Details(int patientId, int recordId)
     {
-        Patient patient;
+        PatientErPatient patient;
         try
         {
             patient = await patientService.GetPatientDetailsAsync(patientId);
@@ -32,7 +35,7 @@ public class ConsultationController : Controller
             return RedirectToAction("Index", "Admin");
         }
 
-        MedicalRecord? record = patient.MedicalHistory?.MedicalRecords?
+        PatientErMedicalRecord? record = patient.MedicalHistory?.MedicalRecords?
             .FirstOrDefault(r => r.RecordId == recordId);
 
         if (record is null)
@@ -57,7 +60,7 @@ public class ConsultationController : Controller
         int? prescriptionId = null;
         try
         {
-            Prescription? prescription = await patientService.GetPrescriptionByRecordIdAsync(recordId);
+            PatientErPrescription? prescription = await patientService.GetPrescriptionByRecordIdAsync(recordId);
             prescriptionId = prescription?.PrescriptionId;
         }
         catch (InvalidOperationException)

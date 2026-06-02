@@ -10,6 +10,10 @@ namespace Hospital.Web.Controllers;
 [Authorize(Roles = "Doctor,Admin")]
 public class DoctorScheduleController : Controller
 {
+    private const int DailyNavigationDays = 1;
+    private const int NoDoctorsCount = 0;
+    private const int WeeklyNavigationDays = 7;
+
     private readonly IShiftSwapService _shiftSwapService;
     private readonly IDoctorAppointmentService _appointmentService;
 
@@ -56,7 +60,7 @@ public class DoctorScheduleController : Controller
                 : GetCurrentDoctorStaffId();
         }
 
-        if (errorMessage == null && doctors.Count == 0)
+        if (errorMessage == null && doctors.Count == NoDoctorsCount)
             errorMessage = "No doctors available.";
 
         ViewBag.SelectedDoctorId = effectiveDoctorId;
@@ -64,23 +68,27 @@ public class DoctorScheduleController : Controller
         var baseDate = selectedDate ?? DateTime.Today;
 
         if (nav == "prev")
-            baseDate = mode == "Weekly" ? baseDate.AddDays(-7) : baseDate.AddDays(-1);
+            baseDate = mode == "Weekly"
+                ? baseDate.AddDays(-WeeklyNavigationDays)
+                : baseDate.AddDays(-DailyNavigationDays);
         else if (nav == "next")
-            baseDate = mode == "Weekly" ? baseDate.AddDays(7) : baseDate.AddDays(1);
+            baseDate = mode == "Weekly"
+                ? baseDate.AddDays(WeeklyNavigationDays)
+                : baseDate.AddDays(DailyNavigationDays);
         else if (nav == "today")
             baseDate = DateTime.Today;
 
         DateTime rangeStart, rangeEnd;
         if (mode == "Weekly")
         {
-            int diff = (7 + (baseDate.DayOfWeek - DayOfWeek.Monday)) % 7;
+            int diff = (WeeklyNavigationDays + (baseDate.DayOfWeek - DayOfWeek.Monday)) % WeeklyNavigationDays;
             rangeStart = baseDate.AddDays(-diff).Date;
-            rangeEnd = rangeStart.AddDays(7);
+            rangeEnd = rangeStart.AddDays(WeeklyNavigationDays);
         }
         else
         {
             rangeStart = baseDate.Date;
-            rangeEnd = rangeStart.AddDays(1);
+            rangeEnd = rangeStart.AddDays(DailyNavigationDays);
         }
 
         ViewBag.SelectedDate = baseDate.ToString("yyyy-MM-dd");

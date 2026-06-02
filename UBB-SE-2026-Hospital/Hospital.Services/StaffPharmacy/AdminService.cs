@@ -8,9 +8,11 @@ public class AdminService(
     IItemsRepository itemsRepository,
     ISubstancesRepository substancesRepository,
     IHighRiskMedicineRepository highRiskMedicineRepository,
-    IOrdersRepository ordersRepository) : IAdminService
+    IOrdersRepository ordersRepository) : IAdminService, IProductCatalogueService
 {
     private const int MinimumPositiveValue = 1;
+    private const int TopItemsLimit = 30;
+    private const int TopSubstancesLimit = 30;
 
     public async Task<IReadOnlyList<Item>> GetItemsAsync(string? name = null, CancellationToken cancellationToken = default)
     {
@@ -30,6 +32,17 @@ public class AdminService(
             .ToList();
     }
 
+    public List<Item> GetAllItems() =>
+        GetItemsAsync(name: null).GetAwaiter().GetResult().ToList();
+
+    public List<Item> SearchItemsByName(string name) =>
+        GetItemsAsync(name: name).GetAwaiter().GetResult().ToList();
+
+    public List<Item> GetExpiredItems() =>
+        GetItemsAsync(name: null).GetAwaiter().GetResult()
+            .Where(item => item.Batches.Any(batch => batch.Key < DateOnly.FromDateTime(DateTime.Today)))
+            .ToList();
+
     public async Task<Item?> GetItemByIdAsync(int itemId, CancellationToken cancellationToken = default)
     {
         var item = await itemsRepository.GetByIdAsync(itemId);
@@ -41,8 +54,75 @@ public class AdminService(
         return item;
     }
 
+    public Item? GetItemById(int itemId) =>
+        GetItemByIdAsync(itemId).GetAwaiter().GetResult();
+
     public async Task<bool> ItemExistsAsync(int itemId, CancellationToken cancellationToken = default)
         => await itemsRepository.GetByIdAsync(itemId) is not null;
+
+    public async Task<IReadOnlyList<Item>> GetItemsAsync(
+        string? search,
+        IReadOnlyList<string>? categories = null,
+        IReadOnlyList<(float Minimum, float Maximum)>? priceRanges = null,
+        string? stockFilter = null,
+        bool? discounted = null,
+        IReadOnlyList<string>? substances = null,
+        bool ascending = true,
+        int page = 0,
+        int pageSize = IProductCatalogueService.DefaultPageSize,
+        string? sortBy = null,
+        CancellationToken cancellationToken = default)
+    {
+        var items = await GetItemsAsync(name: search, cancellationToken: cancellationToken);
+        var query = items.AsEnumerable();
+
+        if (categories?.Count > 0)
+        {
+            query = query.Where(item => categories.Contains(item.Category));
+        }
+
+        if (priceRanges?.Count > 0)
+        {
+            query = query.Where(item => priceRanges.Any(range => item.Price >= range.Minimum && item.Price <= range.Maximum));
+        }
+
+        query = stockFilter switch
+        {
+            IProductCatalogueService.StockFilterInStock => query.Where(item => item.Quantity > 0),
+            IProductCatalogueService.StockFilterLowStock => query.Where(item => item.Quantity > 0 && item.Quantity <= IProductCatalogueService.LowStockThreshold),
+            _ => query
+        };
+
+        if (discounted.HasValue)
+        {
+            query = discounted.Value
+                ? query.Where(item => item.DiscountPercentage > 0)
+                : query.Where(item => item.DiscountPercentage <= 0);
+        }
+
+        if (substances?.Count > 0)
+        {
+            query = query.Where(item => substances.Any(substance => item.ActiveSubstances.ContainsKey(substance)));
+        }
+
+        query = sortBy switch
+        {
+            IProductCatalogueService.SortByPrice => ascending
+                ? query.OrderBy(item => item.Price)
+                : query.OrderByDescending(item => item.Price),
+            IProductCatalogueService.SortByNewest => ascending
+                ? query.OrderBy(item => item.Id)
+                : query.OrderByDescending(item => item.Id),
+            _ => ascending
+                ? query.OrderBy(item => item.Name)
+                : query.OrderByDescending(item => item.Name)
+        };
+
+        return query
+            .Skip(Math.Max(page, 0) * pageSize)
+            .Take(pageSize)
+            .ToList();
+    }
 
     public async Task<IReadOnlyList<(int ItemId, string ItemName, int OrderCount)>> GetTopItemsAsync(CancellationToken cancellationToken = default)
     {
@@ -67,10 +147,15 @@ public class AdminService(
 
         return counts
             .OrderByDescending(pair => pair.Value)
-            .Take(30)
+            .Take(TopItemsLimit)
             .Select(pair => (pair.Key, itemsById.GetValueOrDefault(pair.Key)?.Name ?? $"Item #{pair.Key}", pair.Value))
             .ToList();
     }
+
+    public List<Tuple<int, string, int>> GetTop30Items() =>
+        GetTopItemsAsync().GetAwaiter().GetResult()
+            .Select(item => Tuple.Create(item.ItemId, item.ItemName, item.OrderCount))
+            .ToList();
 
     public async Task CreateItemAsync(string name, string producer, string category, float price, int numberOfPills, string label, string description, string imagePath, float discount, CancellationToken cancellationToken = default)
     {
@@ -78,6 +163,21 @@ public class AdminService(
         await ValidateItemForAddAsync(item);
         await itemsRepository.CreateAsync(item);
     }
+
+    public void AddItem(Item item) =>
+        CreateItemWithQuantityAsync(
+            item.Name,
+            item.Producer,
+            item.Category,
+            item.Price,
+            item.NumberOfPills,
+            item.Quantity,
+            item.ActiveSubstances,
+            item.Batches,
+            item.Label,
+            item.Description,
+            item.ImagePath,
+            item.DiscountPercentage).GetAwaiter().GetResult();
 
     public async Task CreateItemWithQuantityAsync(string name, string producer, string category, float price, int numberOfPills, int quantity, Dictionary<string, float> activeSubstances, Dictionary<DateOnly, int> batches, string label, string description, string imagePath, float discount, CancellationToken cancellationToken = default)
     {
@@ -103,15 +203,30 @@ public class AdminService(
         await itemsRepository.UpdateAsync(item);
     }
 
+    public void UpdateItemById(int itemId, Item item)
+    {
+        item.Id = itemId;
+        UpdateItemAsync(item).GetAwaiter().GetResult();
+    }
+
     public async Task DeleteItemAsync(int itemId, CancellationToken cancellationToken = default)
         => await itemsRepository.DeleteAsync(itemId);
+
+    public void RemoveItemById(int itemId) =>
+        DeleteItemAsync(itemId).GetAwaiter().GetResult();
 
     public async Task<IReadOnlyList<Substance>> GetSubstancesAsync(CancellationToken cancellationToken = default)
         => await substancesRepository.GetAllAsync();
 
+    public List<Substance> GetAllSubstances() =>
+        GetSubstancesAsync().GetAwaiter().GetResult().ToList();
+
     public async Task<Substance?> GetSubstanceByNameAsync(string name, CancellationToken cancellationToken = default)
         => (await substancesRepository.GetAllAsync())
             .FirstOrDefault(substance => string.Equals(substance.Name, name, StringComparison.OrdinalIgnoreCase));
+
+    public Substance? GetSubstanceByName(string name) =>
+        GetSubstanceByNameAsync(name).GetAwaiter().GetResult();
 
     public async Task<bool> SubstanceExistsAsync(string name, CancellationToken cancellationToken = default)
         => await GetSubstanceByNameAsync(name, cancellationToken) is not null;
@@ -133,9 +248,12 @@ public class AdminService(
 
         return counts
             .OrderByDescending(pair => pair.Value)
-            .Take(30)
+            .Take(TopSubstancesLimit)
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.OrdinalIgnoreCase);
     }
+
+    public Dictionary<string, int> GetTop30Substances() =>
+        GetTopSubstancesAsync().GetAwaiter().GetResult();
 
     public async Task CreateSubstanceAsync(string name, float lethalDose, string description, CancellationToken cancellationToken = default)
     {
@@ -152,6 +270,9 @@ public class AdminService(
         });
     }
 
+    public void AddSubstance(Substance substance) =>
+        CreateSubstanceAsync(substance.Name, substance.LethalDose, substance.Description).GetAwaiter().GetResult();
+
     public async Task UpdateSubstanceAsync(Substance substance, CancellationToken cancellationToken = default)
     {
         if (!await SubstanceExistsAsync(substance.Name, cancellationToken))
@@ -162,6 +283,9 @@ public class AdminService(
         await substancesRepository.UpdateAsync(substance);
     }
 
+    public void UpdateSubstanceByName(string name, Substance substance) =>
+        UpdateSubstanceAsync(substance).GetAwaiter().GetResult();
+
     public async Task DeleteSubstanceAsync(string name, CancellationToken cancellationToken = default)
     {
         var substance = await GetSubstanceByNameAsync(name, cancellationToken)
@@ -170,8 +294,14 @@ public class AdminService(
         await substancesRepository.DeleteAsync(substance.Id);
     }
 
+    public void RemoveSubstanceByName(Substance substance) =>
+        DeleteSubstanceAsync(substance.Name).GetAwaiter().GetResult();
+
     public async Task<IReadOnlyList<HighRiskMedicine>> GetHighRiskMedicinesAsync(CancellationToken cancellationToken = default)
         => await highRiskMedicineRepository.GetAllAsync();
+
+    public IReadOnlyList<Notification> GetNotificationsForUser(User user) =>
+        [];
 
     private async Task ValidateItemForAddAsync(Item item)
     {

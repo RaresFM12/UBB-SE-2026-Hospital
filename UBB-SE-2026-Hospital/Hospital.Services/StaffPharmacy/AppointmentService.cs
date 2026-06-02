@@ -46,6 +46,17 @@ public class AppointmentService(
     public async Task<Appointment?> GetAppointmentByIdAsync(int appointmentId, CancellationToken cancellationToken = default)
         => await appointmentRepository.GetByIdAsync(appointmentId);
 
+    public async Task<IReadOnlyList<(int DoctorId, string DoctorName)>> GetAllDoctorsAsync(CancellationToken cancellationToken = default)
+        => (await staffRepository.GetAllDoctorsAsync())
+            .Select(doctor => (doctor.StaffId, doctor.FullName))
+            .ToList();
+
+    public async Task<IReadOnlyList<Shift>> GetShiftsForStaffInRangeAsync(int staffId, DateTime start, DateTime end, CancellationToken cancellationToken = default)
+        => (await shiftRepository.GetByStaffIdAsync(staffId))
+            .Where(shift => shift.StartTime < end && shift.EndTime > start)
+            .OrderBy(shift => shift.StartTime)
+            .ToList();
+
     public async Task CreateAppointmentAsync(int patientId, int doctorId, DateTime startTime, DateTime endTime, string status, CancellationToken cancellationToken = default)
     {
         await EnsureDoctorIsBookableAsync(doctorId, startTime);
@@ -55,7 +66,9 @@ public class AppointmentService(
             PatientName = $"PAT-{patientId}",
             ExternalRefId = patientId,
             Doctor = await GetDoctorAsync(doctorId),
-            AppointmentDate = startTime,
+            AppointmentDate = startTime.Date,
+            StartTime = startTime.TimeOfDay,
+            EndTime = endTime.TimeOfDay,
             Status = string.IsNullOrWhiteSpace(status) ? ScheduledStatus : status,
         });
     }

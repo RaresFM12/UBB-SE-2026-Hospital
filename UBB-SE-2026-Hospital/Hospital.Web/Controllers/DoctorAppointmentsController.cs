@@ -14,6 +14,12 @@ namespace Hospital.Web.Controllers;
 [Authorize]
 public class DoctorAppointmentsController : Controller
 {
+    private const int DefaultAppointmentDurationHours = 1;
+    private const int FirstDoctorIndex = 0;
+    private const int NoDoctorsCount = 0;
+    private const int ScheduleRangeDays = 7;
+    private const int UnknownDoctorId = 0;
+
     private const string ScheduledStatus = "Scheduled";
     private const string FinishedStatus = "Finished";
     private const string CanceledStatus = "Canceled";
@@ -34,7 +40,7 @@ public class DoctorAppointmentsController : Controller
         try
         {
             model.Doctors = await this.LoadDoctorOptionsAsync();
-            if (model.Doctors.Count == 0)
+            if (model.Doctors.Count == NoDoctorsCount)
             {
                 model.ErrorMessage = "No doctors available.";
                 return this.View(model);
@@ -64,7 +70,7 @@ public class DoctorAppointmentsController : Controller
         var model = new DoctorAppointmentScheduleViewModel
         {
             FromDate = fromDate?.Date ?? DateTime.Today,
-            ToDate = toDate?.Date ?? DateTime.Today.AddDays(7),
+            ToDate = toDate?.Date ?? DateTime.Today.AddDays(ScheduleRangeDays),
         };
 
         int? doctorId = await this.GetCurrentDoctorIdAsync();
@@ -179,9 +185,9 @@ public class DoctorAppointmentsController : Controller
             Doctors = await this.LoadDoctorOptionsAsync(),
         };
 
-        if (model.Doctors.Count > 0)
+        if (model.Doctors.Count > NoDoctorsCount)
         {
-            model.DoctorId = model.Doctors[0].DoctorId;
+            model.DoctorId = model.Doctors[FirstDoctorIndex].DoctorId;
         }
 
         return this.View(model);
@@ -200,12 +206,16 @@ public class DoctorAppointmentsController : Controller
 
         try
         {
+            int patientId = ParsePatientId(model.PatientName);
+            DateTime startTime = model.Date.Date.Add(model.StartTime);
+            DateTime endTime = startTime.AddHours(DefaultAppointmentDurationHours);
+
             await this.appointmentService.CreateAppointmentAsync(
+                patientId,
                 model.DoctorId,
-                model.,
-                model.Date,
-                model.StartTime,
-                "ACTIVE");
+                startTime,
+                endTime,
+                ScheduledStatus);
         }
         catch (Exception exception)
         {
@@ -221,20 +231,20 @@ public class DoctorAppointmentsController : Controller
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
-        var appointment = await this.appointmentService.GetAppointmentDetailsAsync(id);
+        var appointment = await this.appointmentService.GetAppointmentByIdAsync(id);
         if (appointment == null)
         {
             return this.NotFound();
         }
 
-        var doctorName = await this.ResolveDoctorNameAsync(appointment.Doctor?.StaffID);
+        var doctorName = await this.ResolveDoctorNameAsync(appointment.Doctor?.StaffId);
 
         var model = new DoctorAppointmentEditViewModel
         {
             Id = appointment.Id,
             DoctorName = doctorName,
             PatientName = appointment.PatientName,
-            Date = appointment.Date,
+            Date = appointment.AppointmentDate,
             StartTime = appointment.StartTime,
             EndTime = appointment.EndTime,
             Status = appointment.Status,
@@ -258,7 +268,7 @@ public class DoctorAppointmentsController : Controller
             return this.View(model);
         }
 
-        var appointment = await this.appointmentService.GetAppointmentDetailsAsync(model.Id);
+        var appointment = await this.appointmentService.GetAppointmentByIdAsync(model.Id);
         if (appointment == null)
         {
             return this.NotFound();
@@ -280,19 +290,19 @@ public class DoctorAppointmentsController : Controller
         {
             if (string.Equals(model.Status, FinishedStatus, StringComparison.OrdinalIgnoreCase))
             {
-                await this.appointmentService.FinishAppointmentAsync(appointment);
+                await this.appointmentService.FinishAppointmentAsync(appointment.Id);
             }
             else if (string.Equals(model.Status, CanceledStatus, StringComparison.OrdinalIgnoreCase))
             {
-                await this.appointmentService.CancelAppointmentAsync(appointment);
+                await this.appointmentService.CancelAppointmentAsync(appointment.Id);
             }
         }
         catch (Exception exception)
         {
             this.ModelState.AddModelError(string.Empty, exception.Message);
-            model.DoctorName = await this.ResolveDoctorNameAsync(appointment.Doctor?.StaffID);
+            model.DoctorName = await this.ResolveDoctorNameAsync(appointment.Doctor?.StaffId);
             model.PatientName = appointment.PatientName;
-            model.Date = appointment.Date;
+            model.Date = appointment.AppointmentDate;
             model.StartTime = appointment.StartTime;
             model.EndTime = appointment.EndTime;
             model.Status = appointment.Status;
@@ -306,7 +316,7 @@ public class DoctorAppointmentsController : Controller
     [HttpGet]
     public async Task<IActionResult> Delete(int id)
     {
-        var appointment = await this.appointmentService.GetAppointmentDetailsAsync(id);
+        var appointment = await this.appointmentService.GetAppointmentByIdAsync(id);
         if (appointment == null)
         {
             return this.NotFound();
@@ -315,9 +325,9 @@ public class DoctorAppointmentsController : Controller
         var model = new DoctorAppointmentDeleteViewModel
         {
             Id = appointment.Id,
-            DoctorName = await this.ResolveDoctorNameAsync(appointment.Doctor?.StaffID),
+            DoctorName = await this.ResolveDoctorNameAsync(appointment.Doctor?.StaffId),
             PatientName = appointment.PatientName,
-            Date = appointment.Date,
+            Date = appointment.AppointmentDate,
             StartTime = appointment.StartTime,
             EndTime = appointment.EndTime,
             Status = appointment.Status,
@@ -332,7 +342,7 @@ public class DoctorAppointmentsController : Controller
     [ActionName("Delete")]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var appointment = await this.appointmentService.GetAppointmentDetailsAsync(id);
+        var appointment = await this.appointmentService.GetAppointmentByIdAsync(id);
         if (appointment == null)
         {
             return this.NotFound();
@@ -341,9 +351,9 @@ public class DoctorAppointmentsController : Controller
         var model = new DoctorAppointmentDeleteViewModel
         {
             Id = appointment.Id,
-            DoctorName = await this.ResolveDoctorNameAsync(appointment.Doctor?.StaffID),
+            DoctorName = await this.ResolveDoctorNameAsync(appointment.Doctor?.StaffId),
             PatientName = appointment.PatientName,
-            Date = appointment.Date,
+            Date = appointment.AppointmentDate,
             StartTime = appointment.StartTime,
             EndTime = appointment.EndTime,
             Status = appointment.Status,
@@ -351,7 +361,7 @@ public class DoctorAppointmentsController : Controller
 
         try
         {
-            await this.appointmentService.CancelAppointmentAsync(appointment);
+            await this.appointmentService.CancelAppointmentAsync(appointment.Id);
         }
         catch (Exception exception)
         {
@@ -381,7 +391,7 @@ public class DoctorAppointmentsController : Controller
 
     private async Task<string> ResolveDoctorNameAsync(int? doctorId)
     {
-        if (!doctorId.HasValue || doctorId.Value == 0)
+        if (!doctorId.HasValue || doctorId.Value == UnknownDoctorId)
         {
             return "Unknown";
         }
@@ -398,7 +408,7 @@ public class DoctorAppointmentsController : Controller
         Appointment appointment,
         IReadOnlyDictionary<int, string> doctorLookup)
     {
-        int doctorId = appointment.Doctor?.StaffID ?? 0;
+        int doctorId = appointment.Doctor?.StaffId ?? UnknownDoctorId;
         doctorLookup.TryGetValue(doctorId, out var doctorName);
 
         return new DoctorAppointmentListItemViewModel
@@ -407,10 +417,20 @@ public class DoctorAppointmentsController : Controller
             DoctorId = doctorId,
             DoctorName = string.IsNullOrWhiteSpace(doctorName) ? $"Doctor #{doctorId}" : doctorName,
             PatientName = appointment.PatientName,
-            Date = appointment.Date,
+            Date = appointment.AppointmentDate,
             StartTime = appointment.StartTime,
             EndTime = appointment.EndTime,
             Status = appointment.Status,
         };
+    }
+
+    private static int ParsePatientId(string patientName)
+    {
+        string normalized = patientName
+            .Replace("PAT", string.Empty, StringComparison.OrdinalIgnoreCase)
+            .Replace("-", string.Empty, StringComparison.OrdinalIgnoreCase)
+            .Trim();
+
+        return int.Parse(normalized);
     }
 }

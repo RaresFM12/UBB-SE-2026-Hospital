@@ -1,21 +1,26 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using Hospital.Data.Models;
 using Hospital.Data.Models.DTOs;
 using Hospital.Web.Models.Prescription;
 using Hospital.Web.Models; 
 using Hospital.Shared.Services; 
+using Hospital.Services.PatientEr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Hospital.Services.PatientEr;
 
 namespace Hospital.Web.Controllers;
 
 [Authorize]
 public class PrescriptionController : Controller
 {
+    private const int FirstPage = 1;
+    private const int EmptyCollectionCount = 0;
+    private const int EmptyTextLength = 0;
+    private const int PageIndexAdjustment = 1;
+
     private readonly IPrescriptionService prescriptionService;
-    private readonly IAdminService adminService; 
-    private readonly IMedicalEvaluationService evaluationService; 
+    private readonly IAdminService adminService;
+    private readonly IMedicalEvaluationService evaluationService;
 
     private const int PageSize = 9;
     private static readonly char[] MedicineSeparators = new[] { ',', ';', '\n', '\r' };
@@ -32,7 +37,7 @@ public class PrescriptionController : Controller
 
     [HttpGet]
     [Authorize(Roles = "Pharmacist,Admin")]
-    public IActionResult Resolve() 
+    public IActionResult Resolve()
     {
         return View("Index", new ResolvePrescriptionViewModel());
     }
@@ -47,27 +52,13 @@ public class PrescriptionController : Controller
             return View("Index", model);
         }
 
-        Dictionary<int, int> resolved;
-        try
-        {
-            resolved = prescriptionService.GetItemsFromPrescription(
-                model.PrescriptionId,
-                new Dictionary<int, float>());
-        }
-        catch (ArgumentException exception)
-        {
-            ModelState.AddModelError(string.Empty, exception.Message);
-            return View("Index", model);
-        }
-
-        var rows = BuildResolvedRows(resolved).GetAwaiter().GetResult();
         var warnings = BuildHighRiskWarnings(model.PrescriptionId).GetAwaiter().GetResult();
 
         var populatedModel = new ResolvePrescriptionViewModel
         {
             PrescriptionId = model.PrescriptionId,
             HasResult = true,
-            ResolvedRows = rows,
+            ResolvedRows = new List<ResolvedItemRow>(),
             HighRiskWarnings = warnings,
         };
 
@@ -81,7 +72,7 @@ public class PrescriptionController : Controller
         string? searchMedication,
         DateTime? dateFrom,
         DateTime? dateTo,
-        int page = 1,
+        int page = FirstPage,
         int? returnPatientId = null,
         CancellationToken cancellationToken = default)
     {
@@ -120,7 +111,7 @@ public class PrescriptionController : Controller
                 };
 
                 prescriptions = (await prescriptionService.ApplyFilterAsync(filter))
-                    .Skip((page - 1) * PageSize)
+                    .Skip((page - PageIndexAdjustment) * PageSize)
                     .Take(PageSize)
                     .ToList();
             }
@@ -129,7 +120,7 @@ public class PrescriptionController : Controller
                 prescriptions = await prescriptionService.GetLatestPrescriptionsAsync(PageSize, page);
             }
 
-            if (prescriptions.Count == 0)
+            if (prescriptions.Count == EmptyCollectionCount)
             {
                 model.InfoMessage = "No prescriptions found.";
             }
@@ -194,7 +185,7 @@ public class PrescriptionController : Controller
             return new List<string>();
         }
 
-        var highRiskReference = await adminService.GetAllHighRiskMedicinesAsync();
+        var highRiskReference = await adminService.GetHighRiskMedicinesAsync();
         var warnings = new List<string>();
 
         foreach (var medicineName in ParseMedicineNames(evaluation.MedicationsList))
@@ -219,7 +210,7 @@ public class PrescriptionController : Controller
         foreach (var part in medicationsList.Split(MedicineSeparators, StringSplitOptions.RemoveEmptyEntries))
         {
             var trimmed = part.Trim();
-            if (trimmed.Length > 0) yield return trimmed;
+            if (trimmed.Length > EmptyTextLength) yield return trimmed;
         }
     }
 

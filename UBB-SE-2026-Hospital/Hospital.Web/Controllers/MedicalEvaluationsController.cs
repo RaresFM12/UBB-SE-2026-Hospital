@@ -1,4 +1,4 @@
-﻿namespace UBB_SE_2026_923_2.Web.Controllers
+namespace Hospital.Web.Controllers
 {
     using System;
     using System.Linq;

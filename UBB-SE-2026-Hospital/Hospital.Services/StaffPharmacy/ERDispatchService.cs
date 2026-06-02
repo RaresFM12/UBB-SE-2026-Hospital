@@ -34,6 +34,9 @@ public class ERDispatchService(
         return request.Id;
     }
 
+    public Task<int> CreateRequestAsync(string specialization, string location, CancellationToken cancellationToken = default) =>
+        CreateRequestAsync(specialization, location, ERRequest.PendingStatus, cancellationToken);
+
     public async Task UpdateRequestStatusAsync(int requestId, string status, int? assignedDoctorId, string? assignedDoctorName, CancellationToken cancellationToken = default)
     {
         var request = await dispatchRepository.GetByIdAsync(requestId)
@@ -47,6 +50,9 @@ public class ERDispatchService(
 
         await dispatchRepository.UpdateAsync(request);
     }
+
+    public Task UpdateRequestStatusAsync(int requestId, string status, CancellationToken cancellationToken = default) =>
+        UpdateRequestStatusAsync(requestId, status, null, null, cancellationToken);
 
     public async Task<IReadOnlyList<int>> GetPendingRequestIdsAsync(CancellationToken cancellationToken = default)
         => (await dispatchRepository.GetPendingAsync())
@@ -143,6 +149,40 @@ public class ERDispatchService(
         }
 
         return results;
+    }
+
+    public async Task<IReadOnlyList<int>> SimulateIncomingRequestsAsync(int count, CancellationToken cancellationToken = default)
+    {
+        var ids = new List<int>();
+        for (int index = 0; index < count; index++)
+        {
+            ids.Add(await CreateRequestAsync("General", "ER", cancellationToken));
+        }
+
+        return ids;
+    }
+
+    public async Task<IReadOnlyList<DoctorProfile>> GetManualOverrideCandidatesAsync(int requestId, int nearEndMinutes, CancellationToken cancellationToken = default)
+    {
+        var now = DateTime.UtcNow;
+        var doctors = await staffRepository.GetAllDoctorsAsync();
+        var shifts = await shiftRepository.GetAllAsync();
+
+        return doctors
+            .Where(doctor => shifts.Any(shift =>
+                shift.Staff.StaffId == doctor.StaffId &&
+                shift.Status == ShiftStatus.Active &&
+                shift.EndTime >= now &&
+                (shift.EndTime - now).TotalMinutes <= nearEndMinutes))
+            .Select(doctor => new DoctorProfile
+            {
+                DoctorId = doctor.StaffId,
+                FirstName = doctor.FirstName,
+                LastName = doctor.LastName,
+                Specialization = doctor.Specialization,
+                IsAvailable = true,
+            })
+            .ToList();
     }
 
     private async Task<Doctor?> FindBestMatchingDoctorAsync(ERRequest request)

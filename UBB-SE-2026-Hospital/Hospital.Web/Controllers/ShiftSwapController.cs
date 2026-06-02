@@ -5,7 +5,7 @@ using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Hospital.Web.Models;
 
-namespace UBB_SE_2026_923_2.Web.Controllers
+namespace Hospital.Web.Controllers
 {
     [Authorize(Roles = "Doctor")]
     public class ShiftSwapController : Controller

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace Hospital.Data.Models;
@@ -9,6 +10,13 @@ namespace Hospital.Data.Models;
 public class Staff : IStaff
 {
     public int StaffId { get; set; }
+    [NotMapped]
+    public int StaffID
+    {
+        get => StaffId;
+        set => StaffId = value;
+    }
+
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;

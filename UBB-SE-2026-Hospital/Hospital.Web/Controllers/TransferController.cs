@@ -1,7 +1,7 @@
 using Hospital.Data.Models.DTOs;
 using Hospital.Data.Models;
 using Hospital.Web.Models.Transfer;
-using Hospital.Shared.Services;
+using Hospital.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,13 +10,11 @@ namespace Hospital.Web.Controllers;
 [Authorize]
 public class TransferController : Controller
 {
-    private readonly ITransferLogService transferLogService;
-    private readonly IERVisitService erVisitService;
+    private readonly IErWorkflowApiClient erApiClient;
 
-    public TransferController(ITransferLogService transferLogService, IERVisitService erVisitService)
+    public TransferController(IErWorkflowApiClient erApiClient)
     {
-        this.transferLogService = transferLogService;
-        this.erVisitService = erVisitService;
+        this.erApiClient = erApiClient;
     }
 
     [HttpGet]
@@ -43,7 +41,7 @@ public class TransferController : Controller
     {
         try
         {
-            await transferLogService.TransferVisitAsync(visitId);
+            await erApiClient.TransferVisitAsync(visitId, cancellationToken);
             TempData["SuccessMessage"] = $"Visit {visitId} was transferred to Patient Management.";
         }
         catch (UnauthorizedAccessException)
@@ -65,7 +63,7 @@ public class TransferController : Controller
     {
         try
         {
-            await transferLogService.RetryTransferAsync(visitId);
+            await erApiClient.RetryTransferAsync(visitId, cancellationToken);
             TempData["SuccessMessage"] = $"Transfer retry for visit {visitId} succeeded.";
         }
         catch (UnauthorizedAccessException)
@@ -87,7 +85,7 @@ public class TransferController : Controller
     {
         try
         {
-            await erVisitService.CloseVisitAsync(visitId);
+            await erApiClient.CloseVisitAsync(visitId, cancellationToken);
             TempData["SuccessMessage"] = $"Visit {visitId} was closed.";
         }
         catch (UnauthorizedAccessException)
@@ -105,16 +103,16 @@ public class TransferController : Controller
 
     private async Task<TransferViewModel> BuildModelAsync(int? selectedVisitId, CancellationToken cancellationToken)
     {
-        List<ERTransferEligibleVisitDto> eligibleVisits = await transferLogService.GetEligibleTransferVisitsAsync();
+        List<ERTransferEligibleVisit> eligibleVisits = await erApiClient.GetEligibleTransferVisitsAsync(cancellationToken);
         var model = new TransferViewModel
         {
             SelectedVisitId = selectedVisitId,
             EligibleVisits = eligibleVisits
                 .Select(visit => new TransferVisitViewModel
                 {
-                    VisitId = visit.Visit_ID,
+                    VisitId = visit.VisitId,
                     PatientName = visit.PatientName,
-                    ChiefComplaint = visit.Chief_Complaint,
+                    ChiefComplaint = visit.ChiefComplaint,
                     Status = visit.Status,
                     Transferred = visit.Transferred
                 })
@@ -126,14 +124,14 @@ public class TransferController : Controller
             return model;
         }
 
-        List<Transfer_Log> logs = await transferLogService.GetLogsByVisitIdAsync(selectedVisitId.Value);
+        List<TransferLog> logs = await erApiClient.GetTransferLogsByVisitIdAsync(selectedVisitId.Value, cancellationToken);
         model.TransferLogs = logs
             .Select(log => new TransferLogItemViewModel
             {
-                TransferId = log.Transfer_ID,
-                VisitId = log.Visit_ID,
-                TransferTime = log.Transfer_Time,
-                TargetSystem = log.Target_System,
+                TransferId = log.TransferLogId,
+                VisitId = log.Visit.VisitId,
+                TransferTime = log.TransferTime,
+                TargetSystem = log.TargetSystem,
                 Status = log.Status
             })
             .ToList();

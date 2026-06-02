@@ -22,6 +22,8 @@ public class Order : IEquatable<Order>
 
     [JsonIgnore]
     public User Client { get; set; } = null!;
+    public int ClientId { get; set; }
+
     [JsonIgnore]
     public ICollection<OrderItem> OrderItemEntries { get; set; } = new List<OrderItem>();
 
@@ -31,6 +33,7 @@ public class Order : IEquatable<Order>
     {
         Id = id;
         Client = client;
+        ClientId = client.Id;
         PickUpDate = pickUpDate;
         IsCompleted = isCompleted;
         IsExpired = isExpired;

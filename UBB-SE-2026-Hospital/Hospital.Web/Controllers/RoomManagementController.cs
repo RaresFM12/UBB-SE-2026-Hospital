@@ -1,5 +1,5 @@
-using Hospital.Data.Models.DTOs;
 using Hospital.Data.Models;
+using Hospital.Data.Models.DTOs;
 using Hospital.Web.Models.RoomManagement;
 using Hospital.Web.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -79,9 +79,9 @@ public class RoomManagementController : Controller
 
     private async Task<RoomManagementViewModel> BuildModelAsync(int? selectedRoomId, CancellationToken cancellationToken)
     {
-        List<ER_Room> availableRooms = await erApiClient.GetRoomsByStatusAsync(ER_Room.RoomStatus.Available, cancellationToken);
-        List<ER_Room> occupiedRooms = await erApiClient.GetRoomsByStatusAsync(ER_Room.RoomStatus.Occupied, cancellationToken);
-        List<ER_Room> cleaningRooms = await erApiClient.GetRoomsByStatusAsync(ER_Room.RoomStatus.Cleaning, cancellationToken);
+        List<ERRoom> availableRooms = await erApiClient.GetRoomsByStatusAsync(ERRoom.RoomStatus.Available, cancellationToken);
+        List<ERRoom> occupiedRooms = await erApiClient.GetRoomsByStatusAsync(ERRoom.RoomStatus.Occupied, cancellationToken);
+        List<ERRoom> cleaningRooms = await erApiClient.GetRoomsByStatusAsync(ERRoom.RoomStatus.Cleaning, cancellationToken);
 
         var model = new RoomManagementViewModel
         {
@@ -96,7 +96,7 @@ public class RoomManagementController : Controller
             return model;
         }
 
-        ERRoomVisitDetailsDto? visitDetails = await erApiClient.GetRoomVisitDetailsAsync(selectedRoomId.Value, cancellationToken);
+        ERRoomVisitDetails? visitDetails = await erApiClient.GetRoomVisitDetailsAsync(selectedRoomId.Value, cancellationToken);
         if (visitDetails?.Visit is null)
         {
             return model;
@@ -104,25 +104,25 @@ public class RoomManagementController : Controller
 
         model.SelectedRoomVisit = new RoomVisitDetailsViewModel
         {
-            VisitId = visitDetails.Visit.Visit_ID,
-            PatientId = visitDetails.Visit.Patient_ID,
-            PatientName = visitDetails.Patient?.FullName ?? visitDetails.Visit.Patient_ID,
-            ChiefComplaint = visitDetails.Visit.Chief_Complaint,
+            VisitId = visitDetails.Visit.VisitId,
+            PatientId = visitDetails.Visit.Patient.Cnp,
+            PatientName = visitDetails.Patient?.FullName ?? visitDetails.Visit.Patient.FullName,
+            ChiefComplaint = visitDetails.Visit.ChiefComplaint,
             VisitStatus = visitDetails.Visit.Status,
-            TriageLevel = visitDetails.Triage?.Triage_Level,
+            TriageLevel = visitDetails.Triage?.TriageLevel,
             Specialization = visitDetails.Triage?.Specialization
         };
 
         return model;
     }
 
-    private static RoomStatusItemViewModel MapRoom(ER_Room room) =>
+    private static RoomStatusItemViewModel MapRoom(ERRoom room) =>
         new ()
         {
-            RoomId = room.Room_ID,
-            RoomType = room.Room_Type,
-            Status = room.Availability_Status,
-            CurrentVisitId = room.Current_Visit_ID
+            RoomId = room.RoomId,
+            RoomType = room.RoomTypeName,
+            Status = room.AvailabilityStatus,
+            CurrentVisitId = room.CurrentVisit?.VisitId
         };
 
     private IActionResult RedirectToLogin()

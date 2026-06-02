@@ -1,4 +1,4 @@
-﻿using Hospital.Data.Models;
+using Hospital.Data.Models;
 using Hospital.Data.Models.DTOs;
 using Hospital.Web.Models.MedicalStaff;
 using Hospital.Web.Services;
@@ -10,6 +10,9 @@ namespace Hospital.Web.Controllers;
 [Authorize]
 public class MedicalStaffController : Controller
 {
+    private const int NoSearchResultsCount = 0;
+    private const int CnpLength = 13;
+
     private readonly IPatientApiClient patientApiClient;
 
     public MedicalStaffController(IPatientApiClient patientApiClient)
@@ -32,10 +35,10 @@ public class MedicalStaffController : Controller
 
         try
         {
-            SearchPatientsRequest dto = BuildSearchDto(searchQuery);
+            SearchPatientsDto dto = BuildSearchDto(searchQuery);
             List<Patient> results = await patientApiClient.SearchPatientsAsync(dto, cancellationToken);
 
-            if (results.Count == 0)
+            if (results.Count == NoSearchResultsCount)
             {
                 model.ErrorMessage = string.IsNullOrWhiteSpace(searchQuery)
                     ? "There are no patients."
@@ -45,11 +48,11 @@ public class MedicalStaffController : Controller
             {
                 model.SearchResults = results.Select(p => new PatientSearchResultViewModel
                 {
-                    Id = p.Id,
+                    Id = p.PatientId,
                     FirstName = p.FirstName,
                     LastName = p.LastName,
                     Cnp = p.Cnp,
-                    Dob = p.Dob
+                    Dob = p.DateOfBirth
                 }).ToList();
             }
         }
@@ -79,7 +82,7 @@ public class MedicalStaffController : Controller
         }
 
         string trimmed = searchQuery.Trim();
-        return trimmed.Length == 13 && trimmed.All(char.IsDigit)
+        return trimmed.Length == CnpLength && trimmed.All(char.IsDigit)
             ? new SearchPatientsDto { Cnp = trimmed }
             : new SearchPatientsDto { NamePart = trimmed };
     }

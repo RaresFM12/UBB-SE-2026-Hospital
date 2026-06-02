@@ -9,10 +9,15 @@ namespace Hospital.Data.Repositories;
 public class BasketRepository(HospitalDbContext context) : IBasketRepository
 {
     public async Task<List<BasketEntry>> GetBasketByUserIdAsync(int userId)
-        => await context.BasketEntries.Where(b => b.User.Id == userId).ToListAsync();
+        => await context.BasketEntries
+            .Include(b => b.Item)
+                .ThenInclude(item => item.ItemBatchEntries)
+            .Where(b => b.User.Id == userId)
+            .ToListAsync();
 
     public async Task<BasketEntry?> GetBasketEntryAsync(int userId, int itemId)
         => await context.BasketEntries
+            .Include(b => b.Item)
             .FirstOrDefaultAsync(b => b.User.Id == userId && b.Item.Id == itemId);
 
     public async Task<BasketEntry> AddToBasketAsync(BasketEntry entry)
@@ -41,7 +46,9 @@ public class BasketRepository(HospitalDbContext context) : IBasketRepository
 
     public async Task ClearBasketAsync(int userId)
     {
-        var entries = await context.BasketEntries.Where(b => b.User.Id == userId).ToListAsync();
+        var entries = await context.BasketEntries
+            .Where(b => b.User.Id == userId)
+            .ToListAsync();
         context.BasketEntries.RemoveRange(entries);
         await context.SaveChangesAsync();
     }

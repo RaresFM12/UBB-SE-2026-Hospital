@@ -1,6 +1,6 @@
-﻿using Hospital.Services.PatientEr;
 using Hospital.Shared.Models.PatientEr;
 using Hospital.Shared.Services;
+using Hospital.Services.PatientEr;
 using Hospital.Web.Models.BloodCompatibility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,12 +8,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Patient = Hospital.Shared.Models.PatientEr.Patient;
 
 namespace Hospital.Web.Controllers;
 
 [Authorize]
 public class BloodCompatibilityController : Controller
 {
+    private const int NoCompatibilityScore = 0;
+    private const int ExactBloodRhMatchScore = 50;
+    private const int PartialBloodRhMatchScore = 25;
+    private const int MaxAgeScore = 30;
+    private const int AgeScoreStepYears = 5;
+    private const int SameSexScore = 20;
+    private const int DifferentSexScore = 10;
+
     private readonly IBloodCompatibilityService _bloodCompatibilityService;
     private readonly IPatientService _patientService;
 
@@ -81,17 +90,17 @@ public class BloodCompatibilityController : Controller
     {
         if (donor.MedicalHistory is null || recipient.MedicalHistory is null)
         {
-            return 0;
+            return NoCompatibilityScore;
         }
 
         int total = donor.MedicalHistory.BloodType == recipient.MedicalHistory.BloodType
                     && donor.MedicalHistory.Rh == recipient.MedicalHistory.Rh
-            ? 50
-            : 25;
+            ? ExactBloodRhMatchScore
+            : PartialBloodRhMatchScore;
 
         int ageGap = Math.Abs(donor.DateOfBirth.Year - recipient.DateOfBirth.Year);
-        total += Math.Max(0, 30 - (ageGap / 5 * 5));
-        total += donor.Sex == recipient.Sex ? 20 : 10;
+        total += Math.Max(NoCompatibilityScore, MaxAgeScore - (ageGap / AgeScoreStepYears * AgeScoreStepYears));
+        total += donor.Sex == recipient.Sex ? SameSexScore : DifferentSexScore;
 
         return total;
     }

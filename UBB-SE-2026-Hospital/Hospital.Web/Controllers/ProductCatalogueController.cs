@@ -8,28 +8,41 @@ using Hospital.Data.Repositories;
 using Hospital.Shared.Services;
 using Hospital.Web.Models;
 
-namespace UBB_SE_2026_923_2.Web.Controllers
+namespace Hospital.Web.Controllers
 {
     public class ProductCatalogueController : Controller
     {
         private readonly IProductCatalogueService _catalogueService;
-        private readonly IOrderService _orderService;
+        private readonly IBasketService _basketService;
         private readonly IUsersRepository _usersRepository;
-        const int ItemsPerPage = 12;
+        private const int ItemsPerPage = 12;
+        private const int MinimumQuantity = 1;
+        private const int MaximumQuantity = 50;
+        private const int CatalogueFirstPageIndex = 0;
+        private const int AllItemsPageSize = int.MaxValue;
+        private const float FirstPriceRangeMinimum = 0f;
+        private const float FirstPriceRangeMaximum = 49.99f;
+        private const float SecondPriceRangeMinimum = 50f;
+        private const float SecondPriceRangeMaximum = 99.99f;
+        private const float ThirdPriceRangeMinimum = 100f;
+        private const float ThirdPriceRangeMaximum = 199.99f;
+        private const float FourthPriceRangeMinimum = 200f;
+        private const float FourthPriceRangeMaximum = 499.99f;
+        private const float FifthPriceRangeMinimum = 500f;
 
         public ProductCatalogueController(
             IProductCatalogueService catalogueService,
-            IOrderService orderService,
+            IBasketService basketService,
             IUsersRepository usersRepository)
         {
             _catalogueService = catalogueService;
-            _orderService = orderService;
+            _basketService = basketService;
             _usersRepository = usersRepository;
         }
 
         [AllowAnonymous]
         [HttpGet]
-        public IActionResult Index(
+        public async Task<IActionResult> Index(
             string searchText,
             List<string> categories,
             List<string> priceRanges,
@@ -42,11 +55,11 @@ namespace UBB_SE_2026_923_2.Web.Controllers
             var parsedPriceRanges = new List<(float, float)>();
             if (priceRanges != null)
             {
-                if (priceRanges.Contains("0-49")) parsedPriceRanges.Add((0f, 49.99f));
-                if (priceRanges.Contains("50-99")) parsedPriceRanges.Add((50f, 99.99f));
-                if (priceRanges.Contains("100-199")) parsedPriceRanges.Add((100f, 199.99f));
-                if (priceRanges.Contains("200-499")) parsedPriceRanges.Add((200f, 499.99f));
-                if (priceRanges.Contains("500+")) parsedPriceRanges.Add((500f, float.MaxValue));
+                if (priceRanges.Contains("0-49")) parsedPriceRanges.Add((FirstPriceRangeMinimum, FirstPriceRangeMaximum));
+                if (priceRanges.Contains("50-99")) parsedPriceRanges.Add((SecondPriceRangeMinimum, SecondPriceRangeMaximum));
+                if (priceRanges.Contains("100-199")) parsedPriceRanges.Add((ThirdPriceRangeMinimum, ThirdPriceRangeMaximum));
+                if (priceRanges.Contains("200-499")) parsedPriceRanges.Add((FourthPriceRangeMinimum, FourthPriceRangeMaximum));
+                if (priceRanges.Contains("500+")) parsedPriceRanges.Add((FifthPriceRangeMinimum, float.MaxValue));
             }
 
             string serviceStockFilter = stockFilter == "in_stock" ? Hospital.Shared.Services.IProductCatalogueService.StockFilterInStock :
@@ -61,7 +74,7 @@ namespace UBB_SE_2026_923_2.Web.Controllers
 
             int pageSize = ItemsPerPage; 
 
-            var rawItems = _catalogueService.GetItems(
+            var rawItems = await _catalogueService.GetItemsAsync(
                 searchText,
                 categories?.Any() == true ? categories : null,
                 parsedPriceRanges.Any() ? parsedPriceRanges : null,
@@ -74,7 +87,7 @@ namespace UBB_SE_2026_923_2.Web.Controllers
                 serviceSortBy
             );
 
-            var peekNextPage = _catalogueService.GetItems(
+            var peekNextPage = await _catalogueService.GetItemsAsync(
                 searchText, categories?.Any() == true ? categories : null, parsedPriceRanges.Any() ? parsedPriceRanges : null,
                 serviceStockFilter, serviceDiscountFilter, null, isAscending, pageIndex + 1, pageSize, serviceSortBy);
 
@@ -97,9 +110,9 @@ namespace UBB_SE_2026_923_2.Web.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var item = _catalogueService.GetItems(null, null, null, null, null, null, true, 0, int.MaxValue)
+            var item = (await _catalogueService.GetItemsAsync(null, null, null, null, null, null, true, CatalogueFirstPageIndex, AllItemsPageSize))
                                         .FirstOrDefault(item => item.Id == id);
 
             if (item == null) return NotFound();
@@ -111,7 +124,7 @@ namespace UBB_SE_2026_923_2.Web.Controllers
                 var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (int.TryParse(idClaim, out int userId))
                 {
-                    var currentUser = _usersRepository.GetUserById(userId);
+                    var currentUser = await _usersRepository.GetUserByIdAsync(userId);
                     if (currentUser != null)
                     {
                         viewModel.ShowStockAlertButton = true;
@@ -126,7 +139,7 @@ namespace UBB_SE_2026_923_2.Web.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult ToggleStockAlert(int id)
+        public async Task<IActionResult> ToggleStockAlert(int id)
         {
             var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!int.TryParse(idClaim, out int userId))
@@ -134,7 +147,7 @@ namespace UBB_SE_2026_923_2.Web.Controllers
                 return this.Forbid();
             }
 
-            var currentUser = _usersRepository.GetUserById(userId);
+            var currentUser = await _usersRepository.GetUserByIdAsync(userId);
             if (currentUser == null)
             {
                 return this.Forbid();
@@ -149,7 +162,7 @@ namespace UBB_SE_2026_923_2.Web.Controllers
                 currentUser.AddStockAlertToUser(id);
             }
 
-            _usersRepository.UpdateUser(currentUser);
+            await _usersRepository.UpdateUserAsync(currentUser);
 
             return RedirectToAction(nameof(Details), new { id });
         }
@@ -157,12 +170,12 @@ namespace UBB_SE_2026_923_2.Web.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AddToCart(int itemId, int quantity)
+        public async Task<IActionResult> AddToCart(int itemId, int quantity)
         {
-            var item = _catalogueService.GetItems(null, null, null, null, null, null, true, 0, int.MaxValue)
+            var item = (await _catalogueService.GetItemsAsync(null, null, null, null, null, null, true, CatalogueFirstPageIndex, AllItemsPageSize))
                                         .FirstOrDefault(itemNew => itemNew.Id == itemId);
 
-            if (item == null || quantity <= 0 || quantity > 50 || quantity > item.Quantity)
+            if (item == null || quantity < MinimumQuantity || quantity > MaximumQuantity || quantity > item.Quantity)
             {
                 TempData["ErrorMessage"] = "Invalid quantity selected.";
                 return RedirectToAction(nameof(Details), new { id = itemId });
@@ -170,8 +183,13 @@ namespace UBB_SE_2026_923_2.Web.Controllers
 
             try
             {
-                _orderService.AddToBasket(itemId, quantity);
-                BasketStore.Save(_orderService.ActiveUser);
+                var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!int.TryParse(idClaim, out int userId))
+                {
+                    return Forbid();
+                }
+
+                await _basketService.AddToBasketAsync(userId, itemId, quantity);
                 TempData["SuccessMessage"] = "Item added to basket successfully!";
             }
             catch (Exception)
@@ -208,7 +226,6 @@ namespace UBB_SE_2026_923_2.Web.Controllers
             };
         }
 
-        // Placeholders
         [Authorize(Roles = "Admin")][HttpGet] public IActionResult Create() => View();
         [Authorize(Roles = "Admin")][HttpPost][ValidateAntiForgeryToken] public IActionResult Create(object model) => RedirectToAction(nameof(Index));
         [Authorize(Roles = "Admin")][HttpGet] public IActionResult Edit(int id) => View();
