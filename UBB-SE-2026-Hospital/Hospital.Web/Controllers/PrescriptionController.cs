@@ -1,12 +1,12 @@
 ﻿using System.Security.Cryptography;
-using Common.Data.Entity;
-using Common.Data.Entity.DTOs;
-using Common.Data.Integration;
+using Hospital.Data.Models;
+using Hospital.Data.Models.DTOs;
 using Hospital.Web.Models.Prescription;
-using Hospital.Web.ViewModels; 
+using Hospital.Web.Models; 
 using Hospital.Shared.Services; 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Hospital.Services.PatientEr;
 
 namespace Hospital.Web.Controllers;
 
@@ -114,7 +114,7 @@ public class PrescriptionController : Controller
                     PrescriptionId = TryParseInt(searchIdText),
                     PatientName = searchName,
                     DoctorName = searchName,
-                    MedName = searchMedication,
+                    MedicationName = searchMedication,
                     DateFrom = dateFrom,
                     DateTo = dateTo
                 };
@@ -136,14 +136,14 @@ public class PrescriptionController : Controller
 
             model.Prescriptions = prescriptions.Select(p => new PrescriptionCardViewModel
             {
-                Id = p.Id,
+                Id = p.PrescriptionId,
                 PatientName = p.PatientName ?? string.Empty,
                 DoctorName = ResolveDoctorName(p.DoctorName),
                 DoctorNotes = p.DoctorNotes ?? string.Empty,
                 Date = p.Date,
                 Items = p.MedicationList?.Select(i => new PrescriptionItemViewModel
                 {
-                    MedName = i.MedName,
+                    MedName = i.MedicationName,
                     Quantity = i.Quantity
                 }).ToList() ?? new List<PrescriptionItemViewModel>()
             }).ToList();

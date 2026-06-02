@@ -1,9 +1,10 @@
-using Common.Data.Entity.DTOs;
-using Common.Data.Models;
+using Hospital.Data.Models.DTOs;
 using Hospital.Web.Models.Examination;
 using Hospital.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Hospital.Web.Services;
+using Hospital.Data.Models;
 
 namespace Hospital.Web.Controllers;
 

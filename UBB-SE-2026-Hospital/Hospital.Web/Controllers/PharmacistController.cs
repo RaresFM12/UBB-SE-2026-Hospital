@@ -1,4 +1,4 @@
-using Common.Data.Entity;
+using Hospital.Data.Models;
 using Common.Data.Integration;
 using Hospital.Web.Models.Pharmacist;
 using Hospital.Web.Models.Prescription;

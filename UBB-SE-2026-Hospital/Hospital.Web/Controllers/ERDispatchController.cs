@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
-using Hospital.Web.ViewModels;
+using Hospital.Web.Models;
 
 namespace Hospital.Web.Controllers;
 
@@ -225,7 +225,7 @@ public class ERDispatchController : Controller
         var result = await this.dispatchService.ManualOverrideAsync(id, selectedDoctorId, NearEndMinutes);
         var dashboard = this.LoadDashboardState();
 
-        if (result.IsSuccess && result.Request != null)
+        if (result.Success && result.RequestId != null)
         {
             dashboard.SessionUnmatched = dashboard.SessionUnmatched
                 .Where(request => request.RequestId != id)

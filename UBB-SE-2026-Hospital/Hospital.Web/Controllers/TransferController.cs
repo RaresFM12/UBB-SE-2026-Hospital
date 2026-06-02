@@ -1,5 +1,5 @@
-using Common.Data.Entity.DTOs;
-using Common.Data.Models;
+using Hospital.Data.Models.DTOs;
+using Hospital.Data.Models;
 using Hospital.Web.Models.Transfer;
 using Hospital.Shared.Services;
 using Microsoft.AspNetCore.Authorization;

@@ -1,4 +1,4 @@
-﻿using Common.Data.Entity;
+﻿using Hospital.Data.Models;
 using Hospital.Web.Models.Transplant;
 using Hospital.Web.Services;
 using Microsoft.AspNetCore.Authorization;

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Hospital.Shared.Services;
-using Hospital.Web.ViewModels;
-using BasketItemViewModel = Hospital.Shared.ViewModels.Orders.BasketItemViewModel;
+using Hospital.Web.Models;
+using BasketItemViewModel = Hospital.Shared.Models.Orders.BasketItemViewModel;
 
 namespace Hospital.Web.Controllers;
 

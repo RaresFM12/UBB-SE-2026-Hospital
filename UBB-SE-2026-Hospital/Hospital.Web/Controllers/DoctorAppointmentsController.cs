@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
-using Hospital.Web.ViewModels;
+using Hospital.Web.Models;
 
 namespace Hospital.Web.Controllers;
 
@@ -42,7 +42,7 @@ public class DoctorAppointmentsController : Controller
 
             model.SelectedDoctorId = doctorId ?? model.Doctors[0].DoctorId;
 
-            var appointments = await this.appointmentService.GetAppointmentsForAdminAsync(model.SelectedDoctorId.Value);
+            var appointments = await this.appointmentService.GetAppointmentsForDoctorAsync(model.SelectedDoctorId.Value);
             var doctorLookup = model.Doctors.ToDictionary(item => item.DoctorId, item => item.DoctorName);
 
             model.Appointments = appointments
@@ -103,7 +103,7 @@ public class DoctorAppointmentsController : Controller
     [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
-        var appointment = await this.appointmentService.GetAppointmentDetailsAsync(id);
+        var appointment = await this.appointmentService.GetAppointmentByIdAsync(id);
         if (appointment == null)
         {
             return this.NotFound();
@@ -112,20 +112,20 @@ public class DoctorAppointmentsController : Controller
         if (this.User.IsInRole("Doctor"))
         {
             int? doctorId = await this.GetCurrentDoctorIdAsync();
-            if (!doctorId.HasValue || appointment.Doctor?.StaffID != doctorId.Value)
+            if (!doctorId.HasValue || appointment.Doctor?.StaffId != doctorId.Value)
             {
                 return this.Forbid();
             }
         }
 
-        var doctorName = await this.ResolveDoctorNameAsync(appointment.Doctor?.StaffID);
+        var doctorName = await this.ResolveDoctorNameAsync(appointment.Doctor?.StaffId);
 
         var model = new DoctorAppointmentDetailsViewModel
         {
             Id = appointment.Id,
             DoctorName = doctorName,
             PatientName = appointment.PatientName,
-            Date = appointment.Date,
+            Date = appointment.AppointmentDate,
             StartTime = appointment.StartTime,
             EndTime = appointment.EndTime,
             Status = appointment.Status,
@@ -142,7 +142,7 @@ public class DoctorAppointmentsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Finish(int id)
     {
-        var appointment = await this.appointmentService.GetAppointmentDetailsAsync(id);
+        var appointment = await this.appointmentService.GetAppointmentByIdAsync(id);
         if (appointment == null)
         {
             return this.NotFound();
@@ -151,7 +151,7 @@ public class DoctorAppointmentsController : Controller
         if (this.User.IsInRole("Doctor"))
         {
             int? doctorId = await this.GetCurrentDoctorIdAsync();
-            if (!doctorId.HasValue || appointment.Doctor?.StaffID != doctorId.Value)
+            if (!doctorId.HasValue || appointment.Doctor?.StaffId != doctorId.Value)
             {
                 return this.Forbid();
             }
@@ -159,7 +159,7 @@ public class DoctorAppointmentsController : Controller
 
         try
         {
-            await this.appointmentService.FinishAppointmentAsync(appointment);
+            await this.appointmentService.FinishAppointmentAsync(appointment.Id);
             this.TempData["DetailsSuccess"] = "Appointment finished successfully! Doctor status updated.";
         }
         catch (Exception exception)
@@ -201,10 +201,11 @@ public class DoctorAppointmentsController : Controller
         try
         {
             await this.appointmentService.CreateAppointmentAsync(
-                model.PatientName,
                 model.DoctorId,
+                model.,
                 model.Date,
-                model.StartTime);
+                model.StartTime,
+                "ACTIVE");
         }
         catch (Exception exception)
         {

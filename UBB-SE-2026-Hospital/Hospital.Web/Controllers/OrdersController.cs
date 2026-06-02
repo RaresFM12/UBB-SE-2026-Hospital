@@ -6,10 +6,10 @@ namespace UBB_SE_2026_923_2.Web.Controllers
     using System.Security.Claims;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-    using UBB_SE_2026_923_2.Models;
-    using UBB_SE_2026_923_2.Services;
-    using UBB_SE_2026_923_2.Web.ViewModels;
-    using BasketItemViewModel = UBB_SE_2026_923_2.ViewModels.Orders.BasketItemViewModel;
+    using Hospital.Data.Models;
+    using Hospital.Shared.Services;
+    using Hospital.Web.Models;
+    using BasketItemViewModel = Hospital.Shared.Models.Orders.BasketItemViewModel;
 
     [Authorize]
     public class OrdersController : Controller

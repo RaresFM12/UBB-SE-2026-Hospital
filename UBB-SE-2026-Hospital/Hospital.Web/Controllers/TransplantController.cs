@@ -5,6 +5,7 @@ using Hospital.Web.Models.Transplant;
 using Hospital.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Hospital.Services.PatientEr;
 
 namespace Hospital.Web.Controllers;
 

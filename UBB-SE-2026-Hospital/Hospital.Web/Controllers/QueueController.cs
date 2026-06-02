@@ -1,4 +1,4 @@
-using Common.Data.Models;
+using Hospital.Data.Models;
 using Hospital.Web.Models.Queue;
 using Hospital.Web.Services;
 using Microsoft.AspNetCore.Authorization;

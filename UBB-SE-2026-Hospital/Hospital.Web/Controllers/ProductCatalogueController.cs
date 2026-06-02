@@ -4,9 +4,9 @@ using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using UBB_SE_2026_923_2.Repositories;
-using UBB_SE_2026_923_2.Services;
-using UBB_SE_2026_923_2.Web.ViewModels;
+using Hospital.Data.Repositories;
+using Hospital.Shared.Services;
+using Hospital.Web.Models;
 
 namespace UBB_SE_2026_923_2.Web.Controllers
 {
@@ -49,14 +49,14 @@ namespace UBB_SE_2026_923_2.Web.Controllers
                 if (priceRanges.Contains("500+")) parsedPriceRanges.Add((500f, float.MaxValue));
             }
 
-            string serviceStockFilter = stockFilter == "in_stock" ? ProductCatalogueService.StockFilterInStock :
-                                        stockFilter == "low_stock" ? ProductCatalogueService.StockFilterLowStock : null;
+            string serviceStockFilter = stockFilter == "in_stock" ? Hospital.Shared.Services.IProductCatalogueService.StockFilterInStock :
+                                        stockFilter == "low_stock" ? Hospital.Shared.Services.IProductCatalogueService.StockFilterLowStock : null;
 
             bool? serviceDiscountFilter = discountFilter == "yes" ? true :
                                           discountFilter == "no" ? false : (bool?)null;
 
-            string serviceSortBy = sortBy == "price" ? ProductCatalogueService.SortByPrice :
-                                   sortBy == "newest" ? ProductCatalogueService.SortByNewest : null;
+            string serviceSortBy = sortBy == "price" ? Hospital.Shared.Services.IProductCatalogueService.SortByPrice :
+                                   sortBy == "newest" ? Hospital.Shared.Services.IProductCatalogueService.SortByNewest : null;
             bool isAscending = sortDirection == "asc";
 
             int pageSize = ItemsPerPage; 
@@ -182,7 +182,7 @@ namespace UBB_SE_2026_923_2.Web.Controllers
             return RedirectToAction(nameof(Details), new { id = itemId });
         }
 
-        private CatalogueItemViewModel MapToViewModel(UBB_SE_2026_923_2.Models.Item item)
+        private CatalogueItemViewModel MapToViewModel(Hospital.Data.Models.Item item)
         {
             string cleanImage = item.ImagePath?.TrimStart('/') ?? "";
             if (cleanImage.StartsWith("ms-appx:///")) cleanImage = cleanImage.Replace("ms-appx:///", "");

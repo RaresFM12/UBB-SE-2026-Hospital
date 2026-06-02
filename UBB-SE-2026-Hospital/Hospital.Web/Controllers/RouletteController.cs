@@ -1,4 +1,4 @@
-using Common.Data.Entity;
+using Hospital.Data.Models;
 using Hospital.Web.Models.Consultations;
 using Hospital.Web.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -38,7 +38,7 @@ public class RouletteController : Controller
         }
 
         MedicalRecord? record = patient.MedicalHistory?.MedicalRecords?
-            .FirstOrDefault(r => r.Id == recordId);
+            .FirstOrDefault(r => r.RecordId == recordId);
         if (record is null)
         {
             TempData["ErrorMessage"] = "Consultation record not found.";
