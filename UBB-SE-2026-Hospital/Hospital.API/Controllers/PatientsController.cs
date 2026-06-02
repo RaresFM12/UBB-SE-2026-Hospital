@@ -1,3 +1,4 @@
+#if false
 using Hospital.Shared.Models.PatientEr;
 using Hospital.Shared.Services;
 using Hospital.API.Auth;
@@ -14,3 +15,4 @@ public class PatientsController(IPatientService patientService) : ControllerBase
     public async Task<ActionResult<IReadOnlyList<Patient>>> GetAll(CancellationToken cancellationToken)
         => Ok(await patientService.GetPatientsAsync(cancellationToken));
 }
+#endif

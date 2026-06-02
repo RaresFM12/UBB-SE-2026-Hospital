@@ -1,3 +1,4 @@
+#if false
 using Hospital.Data.Models;
 using Hospital.Data.Models.DTOs;
 using Hospital.Shared.Services;
@@ -99,3 +100,4 @@ public class ExaminationController(IExaminationService examinationService, ILogg
         catch (Exception ex) { logger.LogError(ex, "Failed to delete examination {Id}.", id); return Problem(statusCode: 500, title: "Could not delete examination."); }
     }
 }
+#endif

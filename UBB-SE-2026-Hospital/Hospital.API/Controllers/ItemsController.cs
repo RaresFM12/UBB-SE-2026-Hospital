@@ -1,3 +1,4 @@
+#if false
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Hospital.API.Auth;
@@ -79,3 +80,4 @@ public class ItemsController(IAdminService adminService) : ControllerBase
         int Quantity, Dictionary<string, float> ActiveSubstances, Dictionary<DateOnly, int> Batches,
         string Label, string Description, string ImagePath, float Discount);
 }
+#endif

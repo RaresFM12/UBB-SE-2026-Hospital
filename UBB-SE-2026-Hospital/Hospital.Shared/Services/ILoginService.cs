@@ -1,8 +1,15 @@
-namespace Hospital.Shared.Services;
-
-public interface ILoginService
+namespace Hospital.Shared.Services
 {
-    Task<bool> LoginAsync(string email, string password, CancellationToken cancellationToken = default);
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
 
-    Task<bool> RegisterAsync(string email, string password, string phoneNumber, string username, CancellationToken cancellationToken = default);
+    public interface ILoginService
+    {
+        public bool Login(string email, string password);
+
+        public bool Register(string email, string password, string phoneNumber, string username);
+    }
 }

@@ -1,23 +1,29 @@
-using Hospital.Data.Models;
-using Hospital.Shared.Models.StaffPharmacy;
-
-namespace Hospital.Shared.Services;
-
-public interface IPeriodTrackerService
+namespace Hospital.Shared.Services
 {
-    Task<User> GetCurrentUserAsync(CancellationToken cancellationToken = default);
+    using System;
+    using System.Collections.Generic;
+    using Hospital.Shared.Models;
 
-    PeriodTrackerState GetTrackerState();
+    public interface IPeriodTrackerService
+    {
+        User GetCurrentUser();
 
-    PeriodTrackerDashboardSnapshot GetDashboardSnapshot(int monthOffset);
+        PeriodTrackerState GetTrackerState();
 
-    Task<Dictionary<int, (string Body, bool IsDone)>> GetNotesAsync(CancellationToken cancellationToken = default);
+        PeriodTrackerDashboardSnapshot GetDashboardSnapshot(int monthOffset);
 
-    Task UpdatePeriodTrackerAsync(DateTimeOffset startPeriodDate, double cycleDays, double periodLasts, int premenstrualSyndromeOption, CancellationToken cancellationToken = default);
+        Dictionary<int, Tuple<string, bool>> GetNotes();
 
-    Task AddNoteAsync(string noteBody, CancellationToken cancellationToken = default);
+        int GetMaxNoteId();
 
-    Task UpdateNoteAsync(int noteId, string noteBody, bool isDone, CancellationToken cancellationToken = default);
+        void UpdatePeriodTracker(DateTimeOffset startPeriodDate, double cycleDays, double periodLasts, int premenstrualSyndromeOption);
 
-    Task DeleteNoteAsync(int noteId, CancellationToken cancellationToken = default);
+        void AddNote(string noteBody);
+
+        void UpdateNote(int noteId, string noteBody, bool isDone);
+
+        void DeleteNote(int noteId);
+
+        void SaveCurrentUser();
+    }
 }

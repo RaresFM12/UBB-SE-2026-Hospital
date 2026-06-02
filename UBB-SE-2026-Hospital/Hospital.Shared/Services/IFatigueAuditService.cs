@@ -1,10 +1,12 @@
-using Hospital.Shared.Models.StaffPharmacy;
-
-namespace Hospital.Shared.Services;
-
-public interface IFatigueAuditService
+namespace Hospital.Shared.Services
 {
-    AutoAuditResult RunAutoAudit(DateTime weekStart);
+    using System;
+    using Hospital.Shared.Models;
 
-    bool ReassignShift(int shiftId, int newStaffId);
+    public interface IFatigueAuditService
+    {
+        AutoAuditResult RunAutoAudit(DateTime weekStart);
+
+        bool ReassignShift(int shiftId, int newStaffId);
+    }
 }

@@ -1,3 +1,4 @@
+#if false
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Hospital.API.Auth;
@@ -119,3 +120,4 @@ public class ERVisitsController(IERVisitService erVisitService, ILogger<ERVisits
         catch (Exception ex) { logger.LogError(ex, "Failed to close ER visit {VisitId}.", visitId); return Problem(statusCode: 500, title: "Could not close ER visit."); }
     }
 }
+#endif

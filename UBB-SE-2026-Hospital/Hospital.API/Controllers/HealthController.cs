@@ -1,3 +1,4 @@
+#if false
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hospital.API.Controllers;
@@ -15,3 +16,4 @@ public class HealthController : ControllerBase
             message = "Merged API skeleton is running.",
         });
 }
+#endif

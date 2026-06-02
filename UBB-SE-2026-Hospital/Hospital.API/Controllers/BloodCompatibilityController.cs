@@ -1,3 +1,4 @@
+#if false
 using Hospital.Data.Models;
 using Hospital.Data.Models.DTOs;
 using Hospital.Services.PatientEr;
@@ -27,3 +28,4 @@ public class BloodCompatibilityController(
         }
     }
 }
+#endif

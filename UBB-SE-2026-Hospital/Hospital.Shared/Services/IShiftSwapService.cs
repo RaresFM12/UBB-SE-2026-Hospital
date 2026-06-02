@@ -1,22 +1,24 @@
-using Hospital.Data.Models;
-
-namespace Hospital.Shared.Services;
-
-public interface IShiftSwapService
+namespace Hospital.Shared.Services
 {
-    Task<IReadOnlyList<ShiftSwapRequest>> GetAllShiftSwapRequestsAsync(CancellationToken cancellationToken = default);
+    using System.Collections.Generic;
+    using Hospital.Shared.Models;
 
-    Task<ShiftSwapRequest?> GetShiftSwapByIdAsync(int swapId, CancellationToken cancellationToken = default);
+    public interface IShiftSwapService
+    {
+        List<Shift> GetFutureShiftsForStaff(int staffId);
 
-    Task<int> CreateShiftSwapRequestAsync(int shiftId, int requesterId, int colleagueId, DateTime requestedAt, ShiftSwapRequestStatus status, CancellationToken cancellationToken = default);
+        List<IStaff> GetEligibleSwapColleaguesForShift(int requesterId, int shiftId, out string error);
 
-    Task UpdateShiftSwapStatusAsync(int swapId, string status, CancellationToken cancellationToken = default);
+        bool RequestShiftSwap(int requesterId, int shiftId, int colleagueId, out string message);
 
-    Task<IReadOnlyList<Shift>> GetFutureShiftsForStaffAsync(int staffId, CancellationToken cancellationToken = default);
+        List<ShiftSwapRequest> GetIncomingSwapRequests(int colleagueId);
 
-    Task<IReadOnlyList<Staff>> GetEligibleSwapColleaguesAsync(int requesterId, int shiftId, CancellationToken cancellationToken = default);
+        bool AcceptSwapRequest(int swapId, int colleagueId, out string message);
 
-    Task<bool> AcceptSwapRequestAsync(int swapId, int colleagueId, CancellationToken cancellationToken = default);
+        bool RejectSwapRequest(int swapId, int colleagueId, out string message);
 
-    Task<bool> RejectSwapRequestAsync(int swapId, int colleagueId, CancellationToken cancellationToken = default);
+        List<Doctor> GetAllDoctors();
+
+        List<ShiftSwapRequest> GetAllShiftSwapRequests();
+    }
 }

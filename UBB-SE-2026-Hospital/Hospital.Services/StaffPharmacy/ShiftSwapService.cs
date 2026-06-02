@@ -1,3 +1,4 @@
+#if false
 using Hospital.Data.Models;
 using Hospital.Data.Repositories;
 using Hospital.Shared.Services;
@@ -140,4 +141,13 @@ public class ShiftSwapService(
         });
         return true;
     }
+    public List<Shift> GetFutureShiftsForStaff(int staffId) { throw new System.NotImplementedException(); }
+    public List<IStaff> GetEligibleSwapColleaguesForShift(int requesterId, int shiftId, out string error) { throw new System.NotImplementedException(); }
+    public bool RequestShiftSwap(int requesterId, int shiftId, int colleagueId, out string message) { throw new System.NotImplementedException(); }
+    public List<ShiftSwapRequest> GetIncomingSwapRequests(int colleagueId) { throw new System.NotImplementedException(); }
+    public bool AcceptSwapRequest(int swapId, int colleagueId, out string message) { throw new System.NotImplementedException(); }
+    public bool RejectSwapRequest(int swapId, int colleagueId, out string message) { throw new System.NotImplementedException(); }
+    public List<Doctor> GetAllDoctors() { throw new System.NotImplementedException(); }
+    public List<ShiftSwapRequest> GetAllShiftSwapRequests() { throw new System.NotImplementedException(); }
 }
+#endif

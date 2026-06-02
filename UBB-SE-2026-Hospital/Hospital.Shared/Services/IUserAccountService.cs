@@ -1,28 +1,34 @@
-using Hospital.Data.Models;
-
-namespace Hospital.Shared.Services;
-
-public interface IUserAccountService
+namespace Hospital.Shared.Services
 {
-    Task<IReadOnlyList<User>> GetAllUsersAsync(CancellationToken cancellationToken = default);
+    using System.Collections.Generic;
+    using Hospital.Shared.Models;
 
-    Task<User?> GetUserByIdAsync(int userId, CancellationToken cancellationToken = default);
+    public interface IUserAccountService
+    {
+        User? CurrentUser { get; }
 
-    Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken = default);
+        User? LoadCurrentUser(int userId);
 
-    Task<bool> UserExistsByIdAsync(int userId, CancellationToken cancellationToken = default);
+        void Login(string email, string password);
 
-    Task<bool> UserExistsByEmailAsync(string email, CancellationToken cancellationToken = default);
+        void Register(
+            string email,
+            string password,
+            string confirmPassword,
+            string username,
+            string phoneNumber,
+            string role = "Client");
 
-    Task<bool> UserHasPeriodTrackerAsync(int userId, CancellationToken cancellationToken = default);
+        void UpdateProfile(string newUsername, string newPhoneNumber);
 
-    Task CreateUserAsync(string email, string phoneNumber, string passwordHash, string username, bool discountNotifications, bool isDisabled, bool isAdmin, int loyaltyPoints, string role, CancellationToken cancellationToken = default);
+        void ChangePassword(string oldPassword, string newPassword, string confirmNewPassword);
 
-    Task UpdateUserAsync(User user, CancellationToken cancellationToken = default);
+        List<User> SearchUsers(string query);
 
-    Task<IReadOnlyList<User>> SearchUsersAsync(string query, CancellationToken cancellationToken = default);
+        void PromoteToAdmin(User client);
 
-    Task PromoteToAdminAsync(int userId, CancellationToken cancellationToken = default);
+        void DisableAccount(User client);
 
-    Task DisableAccountAsync(int userId, CancellationToken cancellationToken = default);
+        void Logout();
+    }
 }

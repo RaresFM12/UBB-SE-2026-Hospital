@@ -1,3 +1,4 @@
+#if false
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Hospital.API.Auth;
@@ -55,3 +56,4 @@ public class ShiftSwapsController(IShiftSwapService shiftSwapService) : Controll
     public record CreateShiftSwapRequest(int ShiftId, int RequesterId, int ColleagueId, DateTime RequestedAt, ShiftSwapRequestStatus Status);
     public record UpdateStatusRequest(string Status);
 }
+#endif

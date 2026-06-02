@@ -1,28 +1,51 @@
-using Hospital.Data.Models;
-
-namespace Hospital.Shared.Services;
-
-public interface IOrderService
+namespace Hospital.Shared.Services
 {
-    Task<IReadOnlyList<Order>> GetAllOrdersAsync(CancellationToken cancellationToken = default);
+    using System;
+    using System.Collections.Generic;
+    using Hospital.Shared.Models;
+    using Hospital.Shared.Repositories;
+    using Hospital.Shared.ViewModels.Orders;
 
-    Task<IReadOnlyList<Order>> GetOrdersByClientAsync(int clientId, CancellationToken cancellationToken = default);
+    public interface IOrderService
+    {
+        ISubstancesRepository SubstancesRepository { get; }
 
-    Task<Order?> GetOrderByIdAsync(int orderId, CancellationToken cancellationToken = default);
+        IItemsRepository ItemsRepository { get; }
 
-    Task<bool> OrderExistsAsync(int orderId, CancellationToken cancellationToken = default);
+        IUsersRepository UsersRepository { get; }
 
-    Task<int> CreateOrderAsync(int clientId, DateOnly pickUpDate, bool isCompleted, bool isExpired, CancellationToken cancellationToken = default);
+        IOrdersRepository OrdersRepository { get; }
 
-    Task UpdateOrderAsync(Order order, CancellationToken cancellationToken = default);
+        User ActiveUser { get; }
 
-    Task DeleteOrderAsync(int orderId, CancellationToken cancellationToken = default);
+        void PlaceOrderFromBasket(DateOnly chosenPickUpDate);
 
-    Task PlaceOrderFromBasketAsync(int userId, DateOnly chosenPickUpDate, CancellationToken cancellationToken = default);
+        void CompleteOrder(int orderId, Dictionary<int, Tuple<int, float>> updatedQuantities);
 
-    Task CompleteOrderAsync(int orderId, Dictionary<int, (int Quantity, float Discount)> updatedQuantities, CancellationToken cancellationToken = default);
+        void ModifyIncompleteOrder(int orderIdToModify, Dictionary<int, Tuple<int, float>> updatedQuantities, DateOnly updatedPickUpDate);
 
-    Task CancelOrderAsync(int orderId, CancellationToken cancellationToken = default);
+        void ResubmitExpiredOrder(int orderIdToResubmit, DateOnly chosenPickUpDate);
 
-    Task ExpireOverdueOrdersAsync(CancellationToken cancellationToken = default);
+        void CancelOrder(int orderId);
+
+        void ExpireOverdueOrders();
+
+        void AddToBasket(int itemId, int quantityToBuy);
+
+        void AddItemToBasket(int itemId, int quantityToBuy, float extraDiscountPercentage = 0f);
+
+        void UpdateBasketItemQuantity(int itemId, int newQuantityToBuy);
+
+        void RemoveFromBasket(int itemIdToRemove);
+
+        Dictionary<int, int> FillBasketFromPrescription(string prescriptionId);
+
+        List<BasketItemViewModel> GetBasketItems();
+
+        void ApplyPrescriptionToBasket(string prescriptionId);
+
+        void RecalculateBasketItemPrices(BasketItemViewModel basketItem);
+
+        Tuple<float, float> CalculateBasketTotalSum(IEnumerable<BasketItemViewModel> basketItems);
+    }
 }

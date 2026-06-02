@@ -1,3 +1,4 @@
+#if false
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Hospital.API.Auth;
@@ -81,3 +82,4 @@ public class TriageParametersController(
         catch (Exception ex) { logger.LogError(ex, "Failed to delete triage parameters {Id}.", id); return Problem(statusCode: 500, title: "Could not delete triage parameters."); }
     }
 }
+#endif

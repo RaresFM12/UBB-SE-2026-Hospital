@@ -1,3 +1,4 @@
+#if false
 using Hospital.Shared.Models.StaffPharmacy;
 using Hospital.Shared.Services;
 using Hospital.API.Auth;
@@ -28,3 +29,4 @@ public class BasketsController(IBasketService basketService) : ControllerBase
         return NoContent();
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if false
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Hospital.API.Auth;
@@ -40,3 +41,4 @@ public class EvaluationsController(IMedicalEvaluationService evaluationService) 
     public record CreateEvaluationRequest(int DoctorId, int PatientId, string Diagnosis, string Notes, string Medications, bool AssumedRisk);
     public record UpdateEvaluationRequest(string Diagnosis, string Notes, string Medications);
 }
+#endif

@@ -1,6 +1,6 @@
 using Hospital.Services.Auth;
 using Hospital.Services.PatientEr;
-using Hospital.Services.StaffPharmacy;
+// using Hospital.Services.StaffPharmacy;
 using Hospital.Shared.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,7 +19,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAllergyService, AllergyService>();
         services.AddScoped<IBillingService, BillingService>();
         services.AddScoped<IBloodCompatibilityService, BloodCompatibilityService>();
-        services.AddScoped<IPrescriptionService, PrescriptionService>();
+        services.AddScoped<Hospital.Services.PatientEr.IPrescriptionService, Hospital.Services.PatientEr.PrescriptionService>();
         services.AddScoped<IStatisticsService, StatisticsService>();
         services.AddScoped<ITransferLogService, TransferLogService>();
         services.AddScoped<ITransplantService, TransplantService>();
@@ -32,6 +32,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITriageDecisionService, TriageDecisionService>();
         services.AddScoped<IExaminationService, ExaminationService>();
 
+#if false
         // Staff / Pharmacy domain (from 923-2) — stubs until Phase 3
         services.AddScoped<IAdminService, AdminService>();
         services.AddScoped<IOrderService, OrderService>();
@@ -45,7 +46,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IHangoutService, HangoutService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IPharmacyHandoverService, PharmacyHandoverService>();
-
+#endif
         return services;
     }
 }

@@ -1,3 +1,4 @@
+#if false
 using Hospital.Data.Models;
 using Hospital.Data.Repositories;
 using Hospital.Shared.Services;
@@ -111,4 +112,33 @@ public class MedicalEvaluationService(
 
     private static bool ContainsKeyword(string? text, string keyword)
         => !string.IsNullOrWhiteSpace(text) && text.Contains(keyword, StringComparison.OrdinalIgnoreCase);
+    public List<Doctor> GetAllDoctors() { throw new System.NotImplementedException(); }
+    public List<Appointment> GetAppointmentsByDoctor(int doctorId) { throw new System.NotImplementedException(); }
+    public List<MedicalEvaluation> GetEvaluationsByDoctor(string doctorId) { throw new System.NotImplementedException(); }
+    public void SaveEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
+    public void UpdateEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
+    public void DeleteEvaluation(int evaluationId) { throw new System.NotImplementedException(); }
+    public bool IsDoctorFatigued(string doctorId) { throw new System.NotImplementedException(); }
+    public void RaiseFatigueIntervention(int doctorId, string doctorName) { throw new System.NotImplementedException(); }
+    public string? CheckMedicineConflict(string patientId, string medications) { throw new System.NotImplementedException(); }
+    public MedicalEvaluation? GetEvaluationById(int evaluationId) { throw new System.NotImplementedException(); }
+    public void SaveEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
+    public void UpdateEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
+    public void SaveEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
+    public void UpdateEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
+    public void SaveEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
+    public void UpdateEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
+    public void SaveEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
+    public void UpdateEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
+    public void SaveEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
+    public void UpdateEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
+    public void SaveEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
+    public void UpdateEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
+    public void SaveEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
+    public void UpdateEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
+    public void SaveEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
+    public void UpdateEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
+    public void SaveEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
+    public void UpdateEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
 }
+#endif

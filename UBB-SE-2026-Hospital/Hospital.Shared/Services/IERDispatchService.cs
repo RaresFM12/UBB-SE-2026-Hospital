@@ -1,23 +1,33 @@
-using Hospital.Data.Models;
-using Hospital.Shared.Models.StaffPharmacy;
-
-namespace Hospital.Shared.Services;
-
-public interface IERDispatchService
+namespace Hospital.Shared.Services
 {
-    Task<IReadOnlyList<ERRequest>> GetAllRequestsAsync(CancellationToken cancellationToken = default);
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using Hospital.Shared.Models;
 
-    Task<ERRequest?> GetRequestByIdAsync(int requestId, CancellationToken cancellationToken = default);
+    public interface IERDispatchService
+    {
+        Task<IReadOnlyList<int>> SimulateIncomingRequestsAsync(int count);
 
-    Task<int> CreateRequestAsync(string specialization, string location, string status, CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<int>> GetPendingRequestIdsAsync();
 
-    Task UpdateRequestStatusAsync(int requestId, string status, int? assignedDoctorId, string? assignedDoctorName, CancellationToken cancellationToken = default);
+        Task<ERDispatchResult> DispatchERRequestAsync(int requestId);
 
-    Task<IReadOnlyList<int>> GetPendingRequestIdsAsync(CancellationToken cancellationToken = default);
+        Task<ERDispatchResult> ManualOverrideAsync(int requestId, int doctorId, int nearEndMinutes);
 
-    Task<ERDispatchResult> DispatchERRequestAsync(int requestId, CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<DoctorProfile>> GetManualOverrideCandidatesAsync(int requestId, int nearEndMinutes);
 
-    Task<ERDispatchResult> ManualOverrideAsync(int requestId, int doctorId, int nearEndMinutes, CancellationToken cancellationToken = default);
+        // Read/create helpers used by the web GUI (the desktop never needed
+        // these because its dispatch screen is fire-and-forget). They stay in
+        // the service so the MVC controller never touches a repository.
+        Task<IReadOnlyList<ERRequest>> GetAllRequestsAsync();
 
-    Task<IReadOnlyList<ERDispatchResult>> DispatchAllPendingAsync(CancellationToken cancellationToken = default);
+        Task<ERRequest?> GetRequestByIdAsync(int requestId);
+
+        Task<int> CreateRequestAsync(string specialization, string location);
+
+        Task UpdateRequestStatusAsync(int requestId, string status);
+
+        Task<IReadOnlyList<ERDispatchResult>> DispatchAllPendingAsync();
+    }
 }

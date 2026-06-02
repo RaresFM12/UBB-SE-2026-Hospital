@@ -1,3 +1,4 @@
+#if false
 using Hospital.Data.Models;
 using Hospital.Data.Repositories;
 using Hospital.Shared.Services;
@@ -254,4 +255,109 @@ public class AdminService(
             })
             .ToList();
     }
+    public List<Item> GetAllItems() { throw new System.NotImplementedException(); }
+    public List<Substance> GetAllSubstances() { throw new System.NotImplementedException(); }
+    public List<Item> SearchItemsByName(string query) { throw new System.NotImplementedException(); }
+    public Item GetItemById(int itemId) { throw new System.NotImplementedException(); }
+    public Substance GetSubstanceByName(string name) { throw new System.NotImplementedException(); }
+    public bool SubstanceExists(string name) { throw new System.NotImplementedException(); }
+    public void AddItem(Item newItem) { throw new System.NotImplementedException(); }
+    public void AddItemWithQuantity(Item newItem) { throw new System.NotImplementedException(); }
+    public void RemoveItemById(int itemId) { throw new System.NotImplementedException(); }
+    public void UpdateItemById(int itemId, Item updatedItem) { throw new System.NotImplementedException(); }
+    public void AddItem(Item newItem) { throw new System.NotImplementedException(); }
+    public void AddItemWithQuantity(Item newItem) { throw new System.NotImplementedException(); }
+    public void UpdateItemById(int itemId, Item updatedItem) { throw new System.NotImplementedException(); }
+    public void AddSubstance(Substance newSubstance) { throw new System.NotImplementedException(); }
+    public void RemoveSubstanceByName(Substance substance) { throw new System.NotImplementedException(); }
+    public void UpdateSubstanceByName(string name, Substance substance) { throw new System.NotImplementedException(); }
+    public void ValidateItemForAdd(Item item) { throw new System.NotImplementedException(); }
+    public List<Item> GetExpiredItems() { throw new System.NotImplementedException(); }
+    public Notification SendNewStockNotification(Item item) { throw new System.NotImplementedException(); }
+    public Notification SendAboutToExpireNotification() { throw new System.NotImplementedException(); }
+    public List<Notification> GetNotificationsForUser(User user) { throw new System.NotImplementedException(); }
+    public List<Tuple<int, string, int>> GetTop30Items() { throw new System.NotImplementedException(); }
+    public Dictionary<string, int> GetTop30Substances() { throw new System.NotImplementedException(); }
+    public void AddItem(Item newItem) { throw new System.NotImplementedException(); }
+    public void AddItemWithQuantity(Item newItem) { throw new System.NotImplementedException(); }
+    public void UpdateItemById(int itemId, Item updatedItem) { throw new System.NotImplementedException(); }
+    public void AddSubstance(Substance newSubstance) { throw new System.NotImplementedException(); }
+    public void RemoveSubstanceByName(Substance substance) { throw new System.NotImplementedException(); }
+    public void UpdateSubstanceByName(string name, Substance substance) { throw new System.NotImplementedException(); }
+    public void ValidateItemForAdd(Item item) { throw new System.NotImplementedException(); }
+    public Notification SendNewStockNotification(Item item) { throw new System.NotImplementedException(); }
+    public List<Notification> GetNotificationsForUser(User user) { throw new System.NotImplementedException(); }
+    public void AddItem(Item newItem) { throw new System.NotImplementedException(); }
+    public void AddItemWithQuantity(Item newItem) { throw new System.NotImplementedException(); }
+    public void UpdateItemById(int itemId, Item updatedItem) { throw new System.NotImplementedException(); }
+    public void AddSubstance(Substance newSubstance) { throw new System.NotImplementedException(); }
+    public void RemoveSubstanceByName(Substance substance) { throw new System.NotImplementedException(); }
+    public void UpdateSubstanceByName(string name, Substance substance) { throw new System.NotImplementedException(); }
+    public void ValidateItemForAdd(Item item) { throw new System.NotImplementedException(); }
+    public Notification SendNewStockNotification(Item item) { throw new System.NotImplementedException(); }
+    public List<Notification> GetNotificationsForUser(User user) { throw new System.NotImplementedException(); }
+    public void AddItem(Item newItem) { throw new System.NotImplementedException(); }
+    public void AddItemWithQuantity(Item newItem) { throw new System.NotImplementedException(); }
+    public void UpdateItemById(int itemId, Item updatedItem) { throw new System.NotImplementedException(); }
+    public void AddSubstance(Substance newSubstance) { throw new System.NotImplementedException(); }
+    public void RemoveSubstanceByName(Substance substance) { throw new System.NotImplementedException(); }
+    public void UpdateSubstanceByName(string name, Substance substance) { throw new System.NotImplementedException(); }
+    public void ValidateItemForAdd(Item item) { throw new System.NotImplementedException(); }
+    public Notification SendNewStockNotification(Item item) { throw new System.NotImplementedException(); }
+    public List<Notification> GetNotificationsForUser(User user) { throw new System.NotImplementedException(); }
+    public void AddItem(Item newItem) { throw new System.NotImplementedException(); }
+    public void AddItemWithQuantity(Item newItem) { throw new System.NotImplementedException(); }
+    public void UpdateItemById(int itemId, Item updatedItem) { throw new System.NotImplementedException(); }
+    public void AddSubstance(Substance newSubstance) { throw new System.NotImplementedException(); }
+    public void RemoveSubstanceByName(Substance substance) { throw new System.NotImplementedException(); }
+    public void UpdateSubstanceByName(string name, Substance substance) { throw new System.NotImplementedException(); }
+    public void ValidateItemForAdd(Item item) { throw new System.NotImplementedException(); }
+    public Notification SendNewStockNotification(Item item) { throw new System.NotImplementedException(); }
+    public List<Notification> GetNotificationsForUser(User user) { throw new System.NotImplementedException(); }
+    public void AddItem(Item newItem) { throw new System.NotImplementedException(); }
+    public void AddItemWithQuantity(Item newItem) { throw new System.NotImplementedException(); }
+    public void UpdateItemById(int itemId, Item updatedItem) { throw new System.NotImplementedException(); }
+    public void AddSubstance(Substance newSubstance) { throw new System.NotImplementedException(); }
+    public void RemoveSubstanceByName(Substance substance) { throw new System.NotImplementedException(); }
+    public void UpdateSubstanceByName(string name, Substance substance) { throw new System.NotImplementedException(); }
+    public void ValidateItemForAdd(Item item) { throw new System.NotImplementedException(); }
+    public Notification SendNewStockNotification(Item item) { throw new System.NotImplementedException(); }
+    public List<Notification> GetNotificationsForUser(User user) { throw new System.NotImplementedException(); }
+    public void AddItem(Item newItem) { throw new System.NotImplementedException(); }
+    public void AddItemWithQuantity(Item newItem) { throw new System.NotImplementedException(); }
+    public void UpdateItemById(int itemId, Item updatedItem) { throw new System.NotImplementedException(); }
+    public void AddSubstance(Substance newSubstance) { throw new System.NotImplementedException(); }
+    public void RemoveSubstanceByName(Substance substance) { throw new System.NotImplementedException(); }
+    public void UpdateSubstanceByName(string name, Substance substance) { throw new System.NotImplementedException(); }
+    public void ValidateItemForAdd(Item item) { throw new System.NotImplementedException(); }
+    public Notification SendNewStockNotification(Item item) { throw new System.NotImplementedException(); }
+    public List<Notification> GetNotificationsForUser(User user) { throw new System.NotImplementedException(); }
+    public void AddItem(Item newItem) { throw new System.NotImplementedException(); }
+    public void AddItemWithQuantity(Item newItem) { throw new System.NotImplementedException(); }
+    public void UpdateItemById(int itemId, Item updatedItem) { throw new System.NotImplementedException(); }
+    public void AddSubstance(Substance newSubstance) { throw new System.NotImplementedException(); }
+    public void RemoveSubstanceByName(Substance substance) { throw new System.NotImplementedException(); }
+    public void UpdateSubstanceByName(string name, Substance substance) { throw new System.NotImplementedException(); }
+    public void ValidateItemForAdd(Item item) { throw new System.NotImplementedException(); }
+    public Notification SendNewStockNotification(Item item) { throw new System.NotImplementedException(); }
+    public List<Notification> GetNotificationsForUser(User user) { throw new System.NotImplementedException(); }
+    public void AddItem(Item newItem) { throw new System.NotImplementedException(); }
+    public void AddItemWithQuantity(Item newItem) { throw new System.NotImplementedException(); }
+    public void UpdateItemById(int itemId, Item updatedItem) { throw new System.NotImplementedException(); }
+    public void AddSubstance(Substance newSubstance) { throw new System.NotImplementedException(); }
+    public void RemoveSubstanceByName(Substance substance) { throw new System.NotImplementedException(); }
+    public void UpdateSubstanceByName(string name, Substance substance) { throw new System.NotImplementedException(); }
+    public void ValidateItemForAdd(Item item) { throw new System.NotImplementedException(); }
+    public Notification SendNewStockNotification(Item item) { throw new System.NotImplementedException(); }
+    public List<Notification> GetNotificationsForUser(User user) { throw new System.NotImplementedException(); }
+    public void AddItem(Item newItem) { throw new System.NotImplementedException(); }
+    public void AddItemWithQuantity(Item newItem) { throw new System.NotImplementedException(); }
+    public void UpdateItemById(int itemId, Item updatedItem) { throw new System.NotImplementedException(); }
+    public void AddSubstance(Substance newSubstance) { throw new System.NotImplementedException(); }
+    public void RemoveSubstanceByName(Substance substance) { throw new System.NotImplementedException(); }
+    public void UpdateSubstanceByName(string name, Substance substance) { throw new System.NotImplementedException(); }
+    public void ValidateItemForAdd(Item item) { throw new System.NotImplementedException(); }
+    public Notification SendNewStockNotification(Item item) { throw new System.NotImplementedException(); }
+    public List<Notification> GetNotificationsForUser(User user) { throw new System.NotImplementedException(); }
 }
+#endif

@@ -1,12 +1,19 @@
-namespace Hospital.Shared.Services;
-
-public interface IUserValidationService
+namespace Hospital.Shared.Services
 {
-    bool IsCorrectEmailFormat(string email);
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
 
-    bool IsCorrectPasswordFormat(string password);
+    public interface IUserValidationService
+    {
+        bool IsCorrectEmailFormat(string email);
 
-    bool IsCorrectPhoneNumberFormat(string phoneNumber);
+        bool IsCorrectPasswordFormat(string password);
 
-    bool IsCorrectUsernameFormat(string username);
+        bool IsCorrectPhoneNumberFormat(string phoneNumber);
+
+        bool IsCorrectUsernameFormat(string username);
+    }
 }

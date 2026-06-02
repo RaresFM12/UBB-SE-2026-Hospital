@@ -1,3 +1,4 @@
+#if false
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Hospital.API.Auth;
@@ -70,3 +71,4 @@ public class UsersController(IUserAccountService userAccountService) : Controlle
         string Email, string PhoneNumber, string PasswordHash, string Username,
         bool DiscountNotifications, bool IsDisabled, bool IsAdmin, int LoyaltyPoints, string Role);
 }
+#endif

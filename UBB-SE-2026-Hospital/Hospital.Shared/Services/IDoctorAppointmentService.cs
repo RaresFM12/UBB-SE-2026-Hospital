@@ -1,28 +1,32 @@
-using Hospital.Data.Models;
-
-namespace Hospital.Shared.Services;
-
-public interface IDoctorAppointmentService
+namespace Hospital.Shared.Services
 {
-    Task<IReadOnlyList<Appointment>> GetAllAppointmentsAsync(CancellationToken cancellationToken = default);
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using Hospital.Shared.Models;
 
-    Task<IReadOnlyList<Appointment>> GetUpcomingAppointmentsAsync(int doctorUserId, DateTime fromDate, int skipCount, int takeCount, CancellationToken cancellationToken = default);
+    public interface IDoctorAppointmentService
+    {
+        Task<IReadOnlyList<Appointment>> GetUpcomingAppointmentsAsync(int doctorUserId, DateTime fromDate, int skipCount, int takeCount);
 
-    Task<IReadOnlyList<Appointment>> GetAppointmentsForDoctorAsync(int doctorId, CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<(int DoctorId, string DoctorName)>> GetAllDoctorsAsync();
 
-    Task<IReadOnlyList<Appointment>> GetAppointmentsInRangeAsync(int doctorId, DateTime fromDate, DateTime toDate, CancellationToken cancellationToken = default);
+        Task<Appointment?> GetAppointmentDetailsAsync(int appointmentId);
 
-    Task<Appointment?> GetAppointmentByIdAsync(int appointmentId, CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<Appointment>> GetAppointmentsForAdminAsync(int doctorId);
 
-    Task CreateAppointmentAsync(int patientId, int doctorId, DateTime startTime, DateTime endTime, string status, CancellationToken cancellationToken = default);
+        Task CreateAppointmentAsync(string patientName, int doctorId, DateTime date, TimeSpan startTime);
 
-    Task UpdateAppointmentStatusAsync(int appointmentId, string status, CancellationToken cancellationToken = default);
+        Task BookAppointmentAsync(Appointment appointment);
 
-    Task BookAppointmentAsync(int appointmentId, CancellationToken cancellationToken = default);
+        Task FinishAppointmentAsync(Appointment appointment);
 
-    Task FinishAppointmentAsync(int appointmentId, CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<Appointment>> GetAppointmentsInRangeAsync(int doctorId, DateTime fromDate, DateTime toDate);
 
-    Task CancelAppointmentAsync(int appointmentId, CancellationToken cancellationToken = default);
+        Task CancelAppointmentAsync(Appointment appointment);
 
-    Task<int?> GetDoctorIdByEmailAsync(string email, CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<Shift>> GetShiftsForStaffInRangeAsync(int doctorId, DateTime fromDate, DateTime toDate);
+
+        Task<int?> GetDoctorIdByEmailAsync(string email);
+    }
 }
