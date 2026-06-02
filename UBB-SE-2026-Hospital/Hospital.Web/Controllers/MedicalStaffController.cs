@@ -21,6 +21,15 @@ public class MedicalStaffController : Controller
     }
 
     [HttpGet]
+    public IActionResult Index()
+    {
+        return View("Dashboard", new MedicalStaffDashboardViewModel
+        {
+            HasSearched = false,
+        });
+    }
+
+    [HttpGet]
     public async Task<IActionResult> Dashboard(
         string? searchQuery,
         int? selectedId,

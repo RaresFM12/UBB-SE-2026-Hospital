@@ -22,6 +22,12 @@ public class ConsultationController : Controller
     }
 
     [HttpGet]
+    public IActionResult Index()
+    {
+        return View();
+    }
+
+    [HttpGet]
     public async Task<IActionResult> Details(int patientId, int recordId)
     {
         PatientErPatient patient;

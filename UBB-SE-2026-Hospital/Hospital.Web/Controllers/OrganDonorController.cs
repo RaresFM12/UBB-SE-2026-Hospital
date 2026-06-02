@@ -23,6 +23,12 @@ public class OrganDonorController : Controller
     }
 
     [HttpGet]
+    public IActionResult Index()
+    {
+        return View();
+    }
+
+    [HttpGet]
     public async Task<IActionResult> Assign(int patientId, string? organ)
     {
         Patient? patient;

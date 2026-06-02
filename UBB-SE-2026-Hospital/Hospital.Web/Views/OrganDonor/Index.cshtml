@@ -1,0 +1,34 @@
+@{
+    ViewData["Title"] = "Organ Donor Assignment";
+}
+
+<div class="container mt-4" style="max-width: 720px;">
+    <h1 class="mb-3">Organ Donor Assignment</h1>
+    <p class="text-muted">Pick a donor patient and organ to search for compatible recipients.</p>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form method="get" asp-action="Assign" class="row g-3">
+                <div class="col-md-6">
+                    <label for="patientId" class="form-label">Patient ID</label>
+                    <input id="patientId" name="patientId" type="number" class="form-control" min="1" required />
+                </div>
+                <div class="col-md-6">
+                    <label for="organ" class="form-label">Organ</label>
+                    <select id="organ" name="organ" class="form-select" required>
+                        <option value="">Choose an organ...</option>
+                        <option value="Kidney">Kidney</option>
+                        <option value="Heart">Heart</option>
+                        <option value="Liver">Liver</option>
+                        <option value="Lung">Lung</option>
+                        <option value="Pancreas">Pancreas</option>
+                        <option value="Cornea">Cornea</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">Search matches</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

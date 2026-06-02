@@ -23,6 +23,12 @@ public class TransplantController : Controller
     }
 
     [HttpGet]
+    public IActionResult Index()
+    {
+        return View();
+    }
+
+    [HttpGet]
     public async Task<IActionResult> Request(int patientId, CancellationToken cancellationToken)
     {
         var patient = await patientService.GetByIdAsync(patientId, cancellationToken);

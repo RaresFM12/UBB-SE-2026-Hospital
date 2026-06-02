@@ -35,6 +35,12 @@ public class BloodCompatibilityController : Controller
     }
 
     [HttpGet]
+    public IActionResult Index()
+    {
+        return View();
+    }
+
+    [HttpGet]
     public async Task<IActionResult> Donors(int patientId)
     {
         Patient? patient = await _patientService.GetPatientDetailsAsync(patientId, default);
