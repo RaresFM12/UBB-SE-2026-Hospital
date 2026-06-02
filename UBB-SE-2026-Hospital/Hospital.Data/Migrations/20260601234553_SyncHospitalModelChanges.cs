@@ -5,10 +5,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Hospital.Data.Migrations
 {
-    /// <inheritdoc />
     public partial class SyncHospitalModelChanges : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<TimeSpan>(
@@ -16,17 +14,16 @@ namespace Hospital.Data.Migrations
                 table: "Appointments",
                 type: "time",
                 nullable: false,
-                defaultValue: new TimeSpan(0, 0, 0, 0, 0));
+                defaultValue: TimeSpan.Zero);
 
             migrationBuilder.AddColumn<TimeSpan>(
                 name: "StartTime",
                 table: "Appointments",
                 type: "time",
                 nullable: false,
-                defaultValue: new TimeSpan(0, 0, 0, 0, 0));
+                defaultValue: TimeSpan.Zero);
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
