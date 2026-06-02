@@ -1,10 +1,13 @@
-using Hospital.Data.Models;
-
-namespace Hospital.Shared.Services;
-
-public interface IPharmacyVacationService
+namespace Hospital.Shared.Services
 {
-    Task<IReadOnlyList<Pharmacyst>> GetPharmacistsAsync(CancellationToken cancellationToken = default);
+    using System;
+    using System.Collections.Generic;
+    using Hospital.Shared.Models;
 
-    Task RegisterVacationAsync(int pharmacistStaffId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
+    public interface IPharmacyVacationService
+    {
+        IReadOnlyList<Pharmacyst> GetPharmacists();
+
+        void RegisterVacation(int pharmacistStaffId, DateTime startDate, DateTime endDate);
+    }
 }

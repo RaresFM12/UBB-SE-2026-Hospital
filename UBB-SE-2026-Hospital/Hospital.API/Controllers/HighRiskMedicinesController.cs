@@ -1,3 +1,4 @@
+#if false
 using Hospital.Shared.Services;
 using Hospital.API.Auth;
 using Microsoft.AspNetCore.Mvc;
@@ -21,3 +22,4 @@ public class HighRiskMedicinesController(IAdminService adminService) : Controlle
 
     public record HighRiskMedicineSummary(string MedicineName, string WarningMessage);
 }
+#endif

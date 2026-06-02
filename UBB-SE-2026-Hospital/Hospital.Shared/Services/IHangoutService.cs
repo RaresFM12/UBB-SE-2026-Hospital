@@ -1,16 +1,15 @@
-using Hospital.Data.Models;
-
-namespace Hospital.Shared.Services;
-
-public interface IHangoutService
+namespace Hospital.Shared.Services
 {
-    Task<IReadOnlyList<Hangout>> GetAllHangoutsAsync(CancellationToken cancellationToken = default);
+    using System;
+    using System.Collections.Generic;
+    using Hospital.Shared.Models;
 
-    Task<Hangout?> GetHangoutByIdAsync(int hangoutId, CancellationToken cancellationToken = default);
+    public interface IHangoutService
+    {
+        int CreateHangout(string title, string description, DateTime date, int maxParticipants, IStaff creator);
 
-    Task<int> CreateHangoutAsync(string title, string description, DateTime date, int maxParticipants, CancellationToken cancellationToken = default);
+        void JoinHangout(int hangoutId, IStaff staff);
 
-    Task<IReadOnlyList<HangoutParticipant>> GetAllParticipantsAsync(CancellationToken cancellationToken = default);
-
-    Task AddParticipantAsync(int hangoutId, int staffId, CancellationToken cancellationToken = default);
+        List<Hangout> GetAllHangouts();
+    }
 }

@@ -1,3 +1,4 @@
+#if false
 using Hospital.Data.Models;
 using Hospital.Data.Repositories;
 using Hospital.Shared.Services;
@@ -221,4 +222,43 @@ public class OrderService(
         price *= MaximumDiscount - NormalizeDiscount(userDiscount);
         return price;
     }
+    public void PlaceOrderFromBasket(DateOnly chosenPickUpDate) { throw new System.NotImplementedException(); }
+    public void CompleteOrder(int orderId, Dictionary<int, Tuple<int, float>> updatedQuantities) { throw new System.NotImplementedException(); }
+    public void ModifyIncompleteOrder(int orderIdToModify, Dictionary<int, Tuple<int, float>> updatedQuantities, DateOnly updatedPickUpDate) { throw new System.NotImplementedException(); }
+    public void ResubmitExpiredOrder(int orderIdToResubmit, DateOnly chosenPickUpDate) { throw new System.NotImplementedException(); }
+    public void CancelOrder(int orderId) { throw new System.NotImplementedException(); }
+    public void ExpireOverdueOrders() { throw new System.NotImplementedException(); }
+    public void AddToBasket(int itemId, int quantityToBuy) { throw new System.NotImplementedException(); }
+    public void AddItemToBasket(int itemId, int quantityToBuy, float extraDiscountPercentage = 0f) { throw new System.NotImplementedException(); }
+    public void UpdateBasketItemQuantity(int itemId, int newQuantityToBuy) { throw new System.NotImplementedException(); }
+    public void RemoveFromBasket(int itemIdToRemove) { throw new System.NotImplementedException(); }
+    public Dictionary<int, int> FillBasketFromPrescription(string prescriptionId) { throw new System.NotImplementedException(); }
+    public List<BasketItemViewModel> GetBasketItems() { throw new System.NotImplementedException(); }
+    public void ApplyPrescriptionToBasket(string prescriptionId) { throw new System.NotImplementedException(); }
+    public void RecalculateBasketItemPrices(BasketItemViewModel basketItem) { throw new System.NotImplementedException(); }
+    public Tuple<float, float> CalculateBasketTotalSum(IEnumerable<BasketItemViewModel> basketItems) { throw new System.NotImplementedException(); }
+    public ISubstancesRepository SubstancesRepository => throw new System.NotImplementedException();
+    public IItemsRepository ItemsRepository => throw new System.NotImplementedException();
+    public IUsersRepository UsersRepository => throw new System.NotImplementedException();
+    public IOrdersRepository OrdersRepository => throw new System.NotImplementedException();
+    public User ActiveUser => throw new System.NotImplementedException();
+    public void RecalculateBasketItemPrices(BasketItemViewModel basketItem) { throw new System.NotImplementedException(); }
+    public Tuple<float, float> CalculateBasketTotalSum(IEnumerable<BasketItemViewModel> basketItems) { throw new System.NotImplementedException(); }
+    public void RecalculateBasketItemPrices(BasketItemViewModel basketItem) { throw new System.NotImplementedException(); }
+    public Tuple<float, float> CalculateBasketTotalSum(IEnumerable<BasketItemViewModel> basketItems) { throw new System.NotImplementedException(); }
+    public void RecalculateBasketItemPrices(BasketItemViewModel basketItem) { throw new System.NotImplementedException(); }
+    public Tuple<float, float> CalculateBasketTotalSum(IEnumerable<BasketItemViewModel> basketItems) { throw new System.NotImplementedException(); }
+    public void RecalculateBasketItemPrices(BasketItemViewModel basketItem) { throw new System.NotImplementedException(); }
+    public Tuple<float, float> CalculateBasketTotalSum(IEnumerable<BasketItemViewModel> basketItems) { throw new System.NotImplementedException(); }
+    public void RecalculateBasketItemPrices(BasketItemViewModel basketItem) { throw new System.NotImplementedException(); }
+    public Tuple<float, float> CalculateBasketTotalSum(IEnumerable<BasketItemViewModel> basketItems) { throw new System.NotImplementedException(); }
+    public void RecalculateBasketItemPrices(BasketItemViewModel basketItem) { throw new System.NotImplementedException(); }
+    public Tuple<float, float> CalculateBasketTotalSum(IEnumerable<BasketItemViewModel> basketItems) { throw new System.NotImplementedException(); }
+    public void RecalculateBasketItemPrices(BasketItemViewModel basketItem) { throw new System.NotImplementedException(); }
+    public Tuple<float, float> CalculateBasketTotalSum(IEnumerable<BasketItemViewModel> basketItems) { throw new System.NotImplementedException(); }
+    public void RecalculateBasketItemPrices(BasketItemViewModel basketItem) { throw new System.NotImplementedException(); }
+    public Tuple<float, float> CalculateBasketTotalSum(IEnumerable<BasketItemViewModel> basketItems) { throw new System.NotImplementedException(); }
+    public void RecalculateBasketItemPrices(BasketItemViewModel basketItem) { throw new System.NotImplementedException(); }
+    public Tuple<float, float> CalculateBasketTotalSum(IEnumerable<BasketItemViewModel> basketItems) { throw new System.NotImplementedException(); }
 }
+#endif

@@ -1,41 +1,49 @@
-using Hospital.Data.Models;
-
-namespace Hospital.Shared.Services;
-
-public interface IAdminService
+namespace Hospital.Shared.Services
 {
-    // Items
-    Task<IReadOnlyList<Item>> GetItemsAsync(string? name = null, CancellationToken cancellationToken = default);
+    using System;
+    using System.Collections.Generic;
+    using Hospital.Shared.Models;
 
-    Task<Item?> GetItemByIdAsync(int itemId, CancellationToken cancellationToken = default);
+    public interface IAdminService
+    {
+        List<Item> GetAllItems();
 
-    Task<bool> ItemExistsAsync(int itemId, CancellationToken cancellationToken = default);
+        List<Substance> GetAllSubstances();
 
-    Task<IReadOnlyList<(int ItemId, string ItemName, int OrderCount)>> GetTopItemsAsync(CancellationToken cancellationToken = default);
+        List<Item> SearchItemsByName(string query);
 
-    Task CreateItemAsync(string name, string producer, string category, float price, int numberOfPills, string label, string description, string imagePath, float discount, CancellationToken cancellationToken = default);
+        Item GetItemById(int itemId);
 
-    Task CreateItemWithQuantityAsync(string name, string producer, string category, float price, int numberOfPills, int quantity, Dictionary<string, float> activeSubstances, Dictionary<DateOnly, int> batches, string label, string description, string imagePath, float discount, CancellationToken cancellationToken = default);
+        Substance GetSubstanceByName(string name);
 
-    Task UpdateItemAsync(Item item, CancellationToken cancellationToken = default);
+        bool SubstanceExists(string name);
 
-    Task DeleteItemAsync(int itemId, CancellationToken cancellationToken = default);
+        void AddItem(Item newItem);
 
-    // Substances
-    Task<IReadOnlyList<Substance>> GetSubstancesAsync(CancellationToken cancellationToken = default);
+        void AddItemWithQuantity(Item newItem);
 
-    Task<Substance?> GetSubstanceByNameAsync(string name, CancellationToken cancellationToken = default);
+        void RemoveItemById(int itemId);
 
-    Task<bool> SubstanceExistsAsync(string name, CancellationToken cancellationToken = default);
+        void UpdateItemById(int itemId, Item updatedItem);
 
-    Task<Dictionary<string, int>> GetTopSubstancesAsync(CancellationToken cancellationToken = default);
+        void AddSubstance(Substance newSubstance);
 
-    Task CreateSubstanceAsync(string name, float lethalDose, string description, CancellationToken cancellationToken = default);
+        void RemoveSubstanceByName(Substance substance);
 
-    Task UpdateSubstanceAsync(Substance substance, CancellationToken cancellationToken = default);
+        void UpdateSubstanceByName(string name, Substance substance);
 
-    Task DeleteSubstanceAsync(string name, CancellationToken cancellationToken = default);
+        void ValidateItemForAdd(Item item);
 
-    // HighRiskMedicines
-    Task<IReadOnlyList<HighRiskMedicine>> GetHighRiskMedicinesAsync(CancellationToken cancellationToken = default);
+        List<Item> GetExpiredItems();
+
+        Notification SendNewStockNotification(Item item);
+
+        Notification SendAboutToExpireNotification();
+
+        List<Notification> GetNotificationsForUser(User user);
+
+        List<Tuple<int, string, int>> GetTop30Items();
+
+        Dictionary<string, int> GetTop30Substances();
+    }
 }

@@ -1,15 +1,15 @@
-using Hospital.Data.Models;
-using Hospital.Shared.Enums;
-
-namespace Hospital.Shared.Services;
-
-public interface ICurrentUserService
+namespace Hospital.Shared.Services
 {
-    int UserId { get; set; }
+    using Hospital.Shared.Models;
 
-    string Role { get; }
+    public interface ICurrentUserService
+    {
+        int UserId { get; set; }
 
-    UserRole RoleType { get; set; }
+        string Role { get; }
 
-    void SetFromUser(User user);
+        UserRole RoleType { get; set; }
+
+        void SetFromUser(User user);
+    }
 }

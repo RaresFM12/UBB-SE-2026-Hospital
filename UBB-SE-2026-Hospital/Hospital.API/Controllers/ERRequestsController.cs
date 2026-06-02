@@ -1,3 +1,4 @@
+#if false
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Hospital.API.Auth;
@@ -38,3 +39,4 @@ public class ERRequestsController(IERDispatchService erDispatchService) : Contro
     public record CreateERRequest(string Specialization, string Location, string Status);
     public record UpdateStatusRequest(string Status, int? AssignedDoctorId, string? AssignedDoctorName);
 }
+#endif

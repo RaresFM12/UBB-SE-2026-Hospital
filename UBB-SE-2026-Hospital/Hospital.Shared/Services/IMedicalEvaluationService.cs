@@ -1,22 +1,28 @@
-using Hospital.Data.Models;
-
-namespace Hospital.Shared.Services;
-
-public interface IMedicalEvaluationService
+namespace Hospital.Shared.Services
 {
-    Task<IReadOnlyList<MedicalEvaluation>> GetAllEvaluationsAsync(CancellationToken cancellationToken = default);
+    using System.Collections.Generic;
+    using Hospital.Shared.Models;
 
-    Task<IReadOnlyList<MedicalEvaluation>> GetEvaluationsByDoctorAsync(int doctorId, CancellationToken cancellationToken = default);
+    public interface IMedicalEvaluationService
+    {
+        List<Doctor> GetAllDoctors();
 
-    Task<MedicalEvaluation?> GetEvaluationByIdAsync(int evaluationId, CancellationToken cancellationToken = default);
+        List<Appointment> GetAppointmentsByDoctor(int doctorId);
 
-    Task CreateEvaluationAsync(int doctorId, int patientId, string diagnosis, string notes, string medications, bool assumedRisk, CancellationToken cancellationToken = default);
+        List<MedicalEvaluation> GetEvaluationsByDoctor(string doctorId);
 
-    Task UpdateEvaluationAsync(int evaluationId, string diagnosis, string notes, string medications, CancellationToken cancellationToken = default);
+        void SaveEvaluation(MedicalEvaluation record);
 
-    Task DeleteEvaluationAsync(int evaluationId, CancellationToken cancellationToken = default);
+        void UpdateEvaluation(MedicalEvaluation record);
 
-    Task<bool> IsDoctorFatiguedAsync(int doctorId, CancellationToken cancellationToken = default);
+        void DeleteEvaluation(int evaluationId);
 
-    Task<string?> CheckMedicineConflictAsync(int patientId, string medications, CancellationToken cancellationToken = default);
+        bool IsDoctorFatigued(string doctorId);
+
+        void RaiseFatigueIntervention(int doctorId, string doctorName);
+
+        string? CheckMedicineConflict(string patientId, string medications);
+
+        MedicalEvaluation? GetEvaluationById(int evaluationId);
+    }
 }

@@ -1,8 +1,15 @@
-namespace Hospital.Shared.Services;
-
-public interface ISecurityService
+namespace Hospital.Shared.Services
 {
-    string HashPassword(string password);
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
 
-    bool VerifyPassword(string password, string stored);
+    public interface ISecurityService
+    {
+        string HashPassword(string password);
+
+        bool VerifyPassword(string password, string stored);
+    }
 }

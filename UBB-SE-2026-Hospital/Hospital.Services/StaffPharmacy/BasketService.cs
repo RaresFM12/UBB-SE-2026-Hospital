@@ -1,3 +1,4 @@
+#if false
 using Hospital.Data.Models;
 using Hospital.Data.Repositories;
 using Hospital.Shared.Models.StaffPharmacy;
@@ -66,4 +67,6 @@ public class BasketService(
             Item = item,
         });
     }
+    public void AddToBasket(int itemId, int quantity, float extraDiscountPercentage = 0f) { throw new System.NotImplementedException(); }
 }
+#endif

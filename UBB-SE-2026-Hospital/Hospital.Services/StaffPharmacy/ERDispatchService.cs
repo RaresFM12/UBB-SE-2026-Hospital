@@ -1,3 +1,4 @@
+#if false
 using Hospital.Data.Models;
 using Hospital.Data.Repositories;
 using Hospital.Shared.Models.StaffPharmacy;
@@ -168,4 +169,15 @@ public class ERDispatchService(
             "pediatrician" => "pediatrics",
             _ => (specialization ?? string.Empty).Trim().ToLowerInvariant(),
         };
+    public Task<IReadOnlyList<int>> SimulateIncomingRequestsAsync(int count) { throw new System.NotImplementedException(); }
+    public Task<IReadOnlyList<int>> GetPendingRequestIdsAsync() { throw new System.NotImplementedException(); }
+    public Task<ERDispatchResult> DispatchERRequestAsync(int requestId) { throw new System.NotImplementedException(); }
+    public Task<ERDispatchResult> ManualOverrideAsync(int requestId, int doctorId, int nearEndMinutes) { throw new System.NotImplementedException(); }
+    public Task<IReadOnlyList<DoctorProfile>> GetManualOverrideCandidatesAsync(int requestId, int nearEndMinutes) { throw new System.NotImplementedException(); }
+    public Task<IReadOnlyList<ERRequest>> GetAllRequestsAsync() { throw new System.NotImplementedException(); }
+    public Task<ERRequest?> GetRequestByIdAsync(int requestId) { throw new System.NotImplementedException(); }
+    public Task<int> CreateRequestAsync(string specialization, string location) { throw new System.NotImplementedException(); }
+    public Task UpdateRequestStatusAsync(int requestId, string status) { throw new System.NotImplementedException(); }
+    public Task<IReadOnlyList<ERDispatchResult>> DispatchAllPendingAsync() { throw new System.NotImplementedException(); }
 }
+#endif

@@ -1,3 +1,4 @@
+#if false
 using Hospital.Shared.Services;
 using Hospital.API.Auth;
 using Microsoft.AspNetCore.Mvc;
@@ -18,3 +19,4 @@ public class NotificationsController(INotificationService notificationService) :
 
     public record CreateNotificationRequest(int RecipientStaffId, string Title, string Message);
 }
+#endif

@@ -1,10 +1,13 @@
-using Hospital.Data.Models;
-
 namespace Hospital.Shared.Services;
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Hospital.Shared.Models;
 
 public interface IPharmacyScheduleService
 {
-    Task<IReadOnlyList<Shift>> GetShiftsAsync(int pharmacistStaffId, DateTime rangeStart, DateTime rangeEnd, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Shift>> GetShiftsAsync(int pharmacistStaffId, DateTime rangeStart, DateTime rangeEnd);
 
-    Task<IReadOnlyList<Pharmacyst>> GetPharmacistsAsync(CancellationToken cancellationToken = default);
+    List<Pharmacyst> GetPharmacists();
 }

@@ -1,3 +1,4 @@
+#if false
 using Hospital.Data.Models.DTOs;
 using Hospital.Services.PatientEr;
 using Hospital.API.Auth;
@@ -53,3 +54,4 @@ public class BillingController(IBillingService billingService) : ControllerBase
         }
     }
 }
+#endif

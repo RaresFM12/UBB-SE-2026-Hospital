@@ -1,8 +1,10 @@
-using Hospital.Data.Models;
-
-namespace Hospital.Shared.Services;
-
-public interface IWellnessItemsService
+namespace Hospital.Shared.Services
 {
-    Task<IReadOnlyList<Item>> GetWellnessItemsAsync(CancellationToken cancellationToken = default);
+    using System.Collections.Generic;
+    using Hospital.Shared.Models;
+
+    public interface IWellnessItemsService
+    {
+        List<Item> GetWellnessItems();
+    }
 }

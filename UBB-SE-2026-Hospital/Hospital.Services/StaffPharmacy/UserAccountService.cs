@@ -1,3 +1,4 @@
+#if false
 using Hospital.Data.Models;
 using Hospital.Data.Repositories;
 using Hospital.Shared.Services;
@@ -101,4 +102,39 @@ public class UserAccountService(IUsersRepository usersRepository) : IUserAccount
         user.IsDisabled = true;
         await usersRepository.UpdateUserAsync(user);
     }
+    public User? LoadCurrentUser(int userId) { throw new System.NotImplementedException(); }
+    public void Login(string email, string password) { throw new System.NotImplementedException(); }
+    public void Register(
+            string email,
+            string password,
+            string confirmPassword,
+            string username,
+            string phoneNumber,
+            string role = "Client") { throw new System.NotImplementedException(); }
+    public void UpdateProfile(string newUsername, string newPhoneNumber) { throw new System.NotImplementedException(); }
+    public void ChangePassword(string oldPassword, string newPassword, string confirmNewPassword) { throw new System.NotImplementedException(); }
+    public List<User> SearchUsers(string query) { throw new System.NotImplementedException(); }
+    public void PromoteToAdmin(User client) { throw new System.NotImplementedException(); }
+    public void DisableAccount(User client) { throw new System.NotImplementedException(); }
+    public void Logout() { throw new System.NotImplementedException(); }
+    public User? CurrentUser => throw new System.NotImplementedException();
+    public void PromoteToAdmin(User client) { throw new System.NotImplementedException(); }
+    public void DisableAccount(User client) { throw new System.NotImplementedException(); }
+    public void PromoteToAdmin(User client) { throw new System.NotImplementedException(); }
+    public void DisableAccount(User client) { throw new System.NotImplementedException(); }
+    public void PromoteToAdmin(User client) { throw new System.NotImplementedException(); }
+    public void DisableAccount(User client) { throw new System.NotImplementedException(); }
+    public void PromoteToAdmin(User client) { throw new System.NotImplementedException(); }
+    public void DisableAccount(User client) { throw new System.NotImplementedException(); }
+    public void PromoteToAdmin(User client) { throw new System.NotImplementedException(); }
+    public void DisableAccount(User client) { throw new System.NotImplementedException(); }
+    public void PromoteToAdmin(User client) { throw new System.NotImplementedException(); }
+    public void DisableAccount(User client) { throw new System.NotImplementedException(); }
+    public void PromoteToAdmin(User client) { throw new System.NotImplementedException(); }
+    public void DisableAccount(User client) { throw new System.NotImplementedException(); }
+    public void PromoteToAdmin(User client) { throw new System.NotImplementedException(); }
+    public void DisableAccount(User client) { throw new System.NotImplementedException(); }
+    public void PromoteToAdmin(User client) { throw new System.NotImplementedException(); }
+    public void DisableAccount(User client) { throw new System.NotImplementedException(); }
 }
+#endif

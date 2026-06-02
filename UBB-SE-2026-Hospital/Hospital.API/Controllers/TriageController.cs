@@ -1,3 +1,4 @@
+#if false
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Hospital.API.Auth;
@@ -84,3 +85,4 @@ public class TriageController(
 
     public record TriageDecisionResponse(int TriageLevel, string Specialization);
 }
+#endif

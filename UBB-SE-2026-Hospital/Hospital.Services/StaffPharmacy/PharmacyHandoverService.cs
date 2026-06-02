@@ -1,3 +1,4 @@
+#if false
 using Hospital.Data.Models;
 using Hospital.Data.Repositories;
 using Hospital.Shared.Services;
@@ -9,3 +10,4 @@ public class PharmacyHandoverService(IPharmacyHandoverRepository pharmacyHandove
     public async Task<IReadOnlyList<PharmacyHandover>> GetAllPharmacyHandoversAsync(CancellationToken cancellationToken = default)
         => await pharmacyHandoverRepository.GetAllAsync();
 }
+#endif

@@ -1,3 +1,4 @@
+#if false
 using Hospital.Services.PatientEr;
 using Hospital.API.Auth;
 using Microsoft.AspNetCore.Mvc;
@@ -65,3 +66,4 @@ public class StatisticsController(IStatisticsService statisticsService, ILogger<
         catch (Exception ex) { logger.LogError(ex, "Failed to fetch top meds."); return Problem(statusCode: 500, title: "Could not fetch statistics."); }
     }
 }
+#endif

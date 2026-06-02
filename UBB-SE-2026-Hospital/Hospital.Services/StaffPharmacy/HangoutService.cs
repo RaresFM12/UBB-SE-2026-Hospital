@@ -1,3 +1,4 @@
+#if false
 using Hospital.Data.Models;
 using Hospital.Data.Repositories;
 using Hospital.Shared.Services;
@@ -117,4 +118,28 @@ public class HangoutService(
     private async Task<bool> HasMedicalEvaluationOnDateAsync(int staffId, DateTime date)
         => (await evaluationsRepository.GetByDoctorIdAsync(staffId))
             .Any(evaluation => evaluation.EvaluationDate.Date == date.Date);
+    public int CreateHangout(string title, string description, DateTime date, int maxParticipants, IStaff creator) { throw new System.NotImplementedException(); }
+    public void JoinHangout(int hangoutId, IStaff staff) { throw new System.NotImplementedException(); }
+    public List<Hangout> GetAllHangouts() { throw new System.NotImplementedException(); }
+    public int CreateHangout(string title, string description, DateTime date, int maxParticipants, IStaff creator) { throw new System.NotImplementedException(); }
+    public void JoinHangout(int hangoutId, IStaff staff) { throw new System.NotImplementedException(); }
+    public int CreateHangout(string title, string description, DateTime date, int maxParticipants, IStaff creator) { throw new System.NotImplementedException(); }
+    public void JoinHangout(int hangoutId, IStaff staff) { throw new System.NotImplementedException(); }
+    public int CreateHangout(string title, string description, DateTime date, int maxParticipants, IStaff creator) { throw new System.NotImplementedException(); }
+    public void JoinHangout(int hangoutId, IStaff staff) { throw new System.NotImplementedException(); }
+    public int CreateHangout(string title, string description, DateTime date, int maxParticipants, IStaff creator) { throw new System.NotImplementedException(); }
+    public void JoinHangout(int hangoutId, IStaff staff) { throw new System.NotImplementedException(); }
+    public int CreateHangout(string title, string description, DateTime date, int maxParticipants, IStaff creator) { throw new System.NotImplementedException(); }
+    public void JoinHangout(int hangoutId, IStaff staff) { throw new System.NotImplementedException(); }
+    public int CreateHangout(string title, string description, DateTime date, int maxParticipants, IStaff creator) { throw new System.NotImplementedException(); }
+    public void JoinHangout(int hangoutId, IStaff staff) { throw new System.NotImplementedException(); }
+    public int CreateHangout(string title, string description, DateTime date, int maxParticipants, IStaff creator) { throw new System.NotImplementedException(); }
+    public void JoinHangout(int hangoutId, IStaff staff) { throw new System.NotImplementedException(); }
+    public int CreateHangout(string title, string description, DateTime date, int maxParticipants, IStaff creator) { throw new System.NotImplementedException(); }
+    public void JoinHangout(int hangoutId, IStaff staff) { throw new System.NotImplementedException(); }
+    public int CreateHangout(string title, string description, DateTime date, int maxParticipants, IStaff creator) { throw new System.NotImplementedException(); }
+    public void JoinHangout(int hangoutId, IStaff staff) { throw new System.NotImplementedException(); }
+    public int CreateHangout(string title, string description, DateTime date, int maxParticipants, IStaff creator) { throw new System.NotImplementedException(); }
+    public void JoinHangout(int hangoutId, IStaff staff) { throw new System.NotImplementedException(); }
 }
+#endif

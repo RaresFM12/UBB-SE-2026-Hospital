@@ -1,14 +1,17 @@
-using Hospital.Data.Models;
-
-namespace Hospital.Shared.Services;
-
-public interface ISalaryComputationService
+namespace Hospital.Shared.Services
 {
-    Task<double> ComputeSalaryDoctorAsync(Doctor doctor, IReadOnlyList<Shift> monthlyShifts, int month, int year, CancellationToken cancellationToken = default);
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using Hospital.Shared.Models;
 
-    Task<double> ComputeSalaryPharmacistAsync(Pharmacyst pharmacist, IReadOnlyList<Shift> monthlyShifts, int month, int year, CancellationToken cancellationToken = default);
+    public interface ISalaryComputationService
+    {
+        Task<double> ComputeSalaryDoctorAsync(Doctor doctor, List<Shift> monthlyShifts, int month, int year);
 
-    Task<IReadOnlyList<Staff>> GetAllStaffAsync(CancellationToken cancellationToken = default);
+        Task<double> ComputeSalaryPharmacistAsync(Pharmacyst pharmacist, List<Shift> monthlyShifts, int month, int year);
 
-    Task<IReadOnlyList<Shift>> GetAllShiftsAsync(CancellationToken cancellationToken = default);
+        List<IStaff> GetAllStaff();
+
+        List<Shift> GetAllShifts();
+    }
 }
