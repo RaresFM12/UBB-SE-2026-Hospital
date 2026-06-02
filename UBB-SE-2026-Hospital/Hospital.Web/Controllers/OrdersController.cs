@@ -115,16 +115,28 @@ namespace Hospital.Web.Controllers
 
         [Authorize(Roles = "Client,Admin")]
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return this.View(this.BuildCheckoutViewModel());
+            User? currentUser = this.LoadCurrentUser();
+            if (currentUser == null)
+            {
+                return this.Forbid();
+            }
+
+            return this.View(await this.BuildCheckoutViewModelAsync(currentUser.Id));
         }
 
         [Authorize(Roles = "Client,Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(OrderCheckoutViewModel viewModel)
+        public async Task<IActionResult> Create(OrderCheckoutViewModel viewModel)
         {
+            User? currentUser = this.LoadCurrentUser();
+            if (currentUser == null)
+            {
+                return this.Forbid();
+            }
+
             if (viewModel.PickUpDate <= DateOnly.FromDateTime(DateTime.Today))
             {
                 this.ModelState.AddModelError(string.Empty, "The pick-up date must be at least one day after today.");
@@ -132,20 +144,19 @@ namespace Hospital.Web.Controllers
 
             if (!this.ModelState.IsValid)
             {
-                return this.View(this.BuildCheckoutViewModel(viewModel.PickUpDate));
+                return this.View(await this.BuildCheckoutViewModelAsync(currentUser.Id, viewModel.PickUpDate));
             }
 
             try
             {
-                this.orderService.PlaceOrderFromBasket(viewModel.PickUpDate);
-                BasketStore.Clear(this.orderService.ActiveUser);
+                await this.orderService.PlaceOrderFromBasketAsync(currentUser.Id, viewModel.PickUpDate);
                 this.TempData["SuccessMessage"] = "Order placed successfully.";
                 return this.RedirectToAction(nameof(this.Index));
             }
             catch (ArgumentException exception)
             {
                 this.ModelState.AddModelError(string.Empty, exception.Message);
-                return this.View(this.BuildCheckoutViewModel(viewModel.PickUpDate));
+                return this.View(await this.BuildCheckoutViewModelAsync(currentUser.Id, viewModel.PickUpDate));
             }
         }
 
@@ -367,9 +378,9 @@ namespace Hospital.Web.Controllers
             return orderBelongsToCurrentUser ? order : null;
         }
 
-        private OrderCheckoutViewModel BuildCheckoutViewModel(DateOnly? pickUpDate = null)
+        private async Task<OrderCheckoutViewModel> BuildCheckoutViewModelAsync(int userId, DateOnly? pickUpDate = null)
         {
-            List<BasketItemViewModel> basketItems = this.orderService.GetBasketItems();
+            List<BasketItemViewModel> basketItems = await this.orderService.GetBasketItemsAsync(userId);
             Tuple<float, float> totals = this.orderService.CalculateBasketTotalSum(basketItems);
 
             return new OrderCheckoutViewModel

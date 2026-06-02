@@ -10,12 +10,10 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddHospitalServices(this IServiceCollection services)
     {
-        // Auth
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IModuleAccessService, ModuleAccessService>();
         services.AddSingleton<IRolePermissionCache, RolePermissionCache>();
 
-        // Patient / ER domain (from 926-2)
         services.AddScoped<IAllergyService, AllergyService>();
         services.AddScoped<Hospital.Shared.Services.IBillingService, BillingService>();
         services.AddScoped<IBloodCompatibilityService, BloodCompatibilityService>();
@@ -32,7 +30,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITriageDecisionService, TriageDecisionService>();
         services.AddScoped<IExaminationService, ExaminationService>();
 
-        // Staff / Pharmacy domain (from 923-2) — stubs until Phase 3
         services.AddScoped<IAdminService, AdminService>();
         services.AddScoped<IProductCatalogueService, AdminService>();
         services.AddScoped<IOrderService, OrderService>();

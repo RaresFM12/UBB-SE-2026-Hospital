@@ -17,7 +17,8 @@ public class PatientsController : Controller
 {
     private const string EmergencyRoomRecordSource = "ER";
     private const string MissingValueLabel = "N/A";
-    private const int DefaultStaffId = 1;
+    private const int MissingStaffId = 0;
+    private const int NoDiscountApplied = 0;
 
     private readonly IPatientService _patientService;
     private readonly IBillingService _billingService;
@@ -91,12 +92,12 @@ public class PatientsController : Controller
             Id = record.RecordId,                   
             ConsultationDate = record.ConsultationDate,
             SourceType = EmergencyRoomRecordSource,
-            StaffId = DefaultStaffId,
+            StaffId = record.StaffMember?.StaffId ?? MissingStaffId,
             Symptoms = record.Symptoms ?? MissingValueLabel,
             Diagnosis = record.Diagnosis ?? MissingValueLabel,
             BasePrice = record.BasePrice,
             FinalPrice = record.FinalPrice,
-            DiscountApplied = record.DiscountApplied ?? 0
+            DiscountApplied = record.DiscountApplied ?? NoDiscountApplied
         };
     }
 

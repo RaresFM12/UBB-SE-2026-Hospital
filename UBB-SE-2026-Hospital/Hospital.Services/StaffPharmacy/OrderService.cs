@@ -9,13 +9,12 @@ public class OrderService(
     IOrdersRepository ordersRepository,
     IItemsRepository itemsRepository,
     IUsersRepository usersRepository,
-    IBasketRepository basketRepository) : IOrderService
+    IBasketRepository basketRepository,
+    IPrescriptionRepository prescriptionRepository) : IOrderService
 {
     private const float MaximumDiscount = 1f;
     private const float MinimumDiscount = 0f;
-    private const int DefaultUserId = 1;
-
-    public User ActiveUser => usersRepository.GetUserByIdAsync(DefaultUserId).GetAwaiter().GetResult() ?? new User { Id = DefaultUserId };
+    private const int DefaultPrescriptionQuantity = 1;
 
     public OrderRepositoryFacade OrdersRepository => new(this);
 
@@ -112,13 +111,14 @@ public class OrderService(
         var user = await usersRepository.GetUserByIdAsync(userId)
             ?? throw new ArgumentException("User not found.");
         var userDiscounts = (await usersRepository.GetUserDiscountsAsync(userId))
-            .ToDictionary(discount => discount.Item.Id, discount => NormalizeDiscount(discount.DiscountPercentage));
+            .Where(discount => discount.Item is not null)
+            .ToDictionary(discount => discount.Item!.Id, discount => NormalizeDiscount(discount.DiscountPercentage));
         var basketEntries = await basketRepository.GetBasketByUserIdAsync(userId);
 
         var order = await ordersRepository.CreateAsync(new Order(0, user, chosenPickUpDate));
         foreach (var basketEntry in basketEntries)
         {
-            var item = basketEntry.Item ?? await itemsRepository.GetByIdAsync(basketEntry.Item.Id);
+            var item = basketEntry.Item;
             if (item is null)
             {
                 continue;
@@ -144,9 +144,6 @@ public class OrderService(
 
         await basketRepository.ClearBasketAsync(userId);
     }
-
-    public void PlaceOrderFromBasket(DateOnly chosenPickUpDate) =>
-        PlaceOrderFromBasketAsync(ActiveUser.Id, chosenPickUpDate).GetAwaiter().GetResult();
 
     public async Task CompleteOrderAsync(int orderId, Dictionary<int, (int Quantity, float Discount)> updatedQuantities, CancellationToken cancellationToken = default)
     {
@@ -234,29 +231,136 @@ public class OrderService(
         UpdateOrderAsync(order).GetAwaiter().GetResult();
     }
 
-    public List<BasketItemViewModel> GetBasketItems() =>
-        [];
+    public async Task<List<BasketItemViewModel>> GetBasketItemsAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        var userDiscounts = (await usersRepository.GetUserDiscountsAsync(userId))
+            .Where(discount => discount.Item is not null)
+            .ToDictionary(discount => discount.Item!.Id, discount => NormalizeDiscount(discount.DiscountPercentage));
+        var entries = await basketRepository.GetBasketByUserIdAsync(userId);
+        var basketItems = new List<BasketItemViewModel>();
+
+        foreach (var entry in entries)
+        {
+            if (entry.Item is null)
+            {
+                continue;
+            }
+
+            HydrateItem(entry.Item);
+            float userDiscount = userDiscounts.GetValueOrDefault(entry.Item.Id);
+            var item = new BasketItemViewModel(
+                entry.Item.Id,
+                entry.Item.ImagePath,
+                entry.Item.Name,
+                entry.Item.Producer,
+                entry.Quantity,
+                NormalizeDiscount(entry.Item.DiscountPercentage),
+                NormalizeDiscount(entry.ExtraDiscountPercentage),
+                userDiscount,
+                entry.Item.Price);
+            item.SetFinalPrices(
+                entry.Item.Price * entry.Quantity,
+                CalculateFinalPrice(entry.Item, entry.Quantity, entry.ExtraDiscountPercentage, userDiscount));
+            basketItems.Add(item);
+        }
+
+        return basketItems;
+    }
 
     public Tuple<float, float> CalculateBasketTotalSum(List<BasketItemViewModel> basketItems) =>
-        Tuple.Create(0f, 0f);
+        Tuple.Create(
+            basketItems.Sum(item => item.FinalPriceBeforeDiscount),
+            basketItems.Sum(item => item.FinalPriceAfterDiscount));
 
-    public void AddItemToBasket(int itemId, int quantity, float extraDiscountPercentage = 0f)
+    public async Task AddItemToBasketAsync(int userId, int itemId, int quantity, float extraDiscountPercentage = 0f, CancellationToken cancellationToken = default)
     {
+        if (quantity <= 0)
+        {
+            throw new ArgumentException("Quantity must be positive.");
+        }
+
+        var user = await usersRepository.GetUserByIdAsync(userId)
+            ?? throw new ArgumentException("User not found.");
+        var item = await itemsRepository.GetByIdAsync(itemId)
+            ?? throw new ArgumentException("Item not found.");
+        HydrateItem(item);
+
+        var existing = await basketRepository.GetBasketEntryAsync(userId, itemId);
+        int requestedQuantity = quantity + (existing?.Quantity ?? 0);
+        if (requestedQuantity > item.GetQuantityAtSpecifiedDate(DateOnly.FromDateTime(DateTime.Today)))
+        {
+            throw new ArgumentException("Requested quantity is not available in stock.");
+        }
+
+        if (existing is not null)
+        {
+            existing.Quantity = requestedQuantity;
+            existing.ExtraDiscountPercentage = Math.Max(existing.ExtraDiscountPercentage, extraDiscountPercentage);
+            await basketRepository.UpdateBasketEntryAsync(existing);
+            return;
+        }
+
+        await basketRepository.AddToBasketAsync(new BasketEntry(quantity, extraDiscountPercentage)
+        {
+            User = user,
+            Item = item,
+        });
     }
 
-    public void AddToBasket(int itemId, int quantity) =>
-        AddItemToBasket(itemId, quantity);
-
-    public void UpdateBasketItemQuantity(int itemId, int quantity)
+    public async Task UpdateBasketItemQuantityAsync(int userId, int itemId, int quantity, CancellationToken cancellationToken = default)
     {
+        if (quantity <= 0)
+        {
+            await basketRepository.RemoveFromBasketAsync(userId, itemId);
+            return;
+        }
+
+        var entry = await basketRepository.GetBasketEntryAsync(userId, itemId)
+            ?? throw new ArgumentException("Basket item not found.");
+        var item = entry.Item ?? await itemsRepository.GetByIdAsync(itemId)
+            ?? throw new ArgumentException("Item not found.");
+        HydrateItem(item);
+
+        if (quantity > item.GetQuantityAtSpecifiedDate(DateOnly.FromDateTime(DateTime.Today)))
+        {
+            throw new ArgumentException("Requested quantity is not available in stock.");
+        }
+
+        entry.Quantity = quantity;
+        await basketRepository.UpdateBasketEntryAsync(entry);
     }
 
-    public void RemoveFromBasket(int itemId)
+    public async Task RemoveFromBasketAsync(int userId, int itemId, CancellationToken cancellationToken = default)
     {
+        await basketRepository.RemoveFromBasketAsync(userId, itemId);
     }
 
-    public void ApplyPrescriptionToBasket(string prescriptionId)
+    public async Task ApplyPrescriptionToBasketAsync(int userId, string prescriptionId, CancellationToken cancellationToken = default)
     {
+        if (!int.TryParse(prescriptionId, out int id))
+        {
+            throw new ArgumentException("Prescription ID must be numeric.");
+        }
+
+        var prescription = await prescriptionRepository.GetByIdAsync(id)
+            ?? throw new ArgumentException("Prescription not found.");
+        if (prescription.MedicationList.Count == 0)
+        {
+            throw new ArgumentException("Prescription has no medication items.");
+        }
+
+        var catalogueItems = await itemsRepository.GetAllAsync();
+        foreach (var medication in prescription.MedicationList)
+        {
+            var item = catalogueItems.FirstOrDefault(candidate =>
+                string.Equals(candidate.Name, medication.MedicationName, StringComparison.OrdinalIgnoreCase));
+            if (item is null)
+            {
+                throw new ArgumentException($"No catalogue item matches {medication.MedicationName}.");
+            }
+
+            await AddItemToBasketAsync(userId, item.Id, ParsePrescriptionQuantity(medication.Quantity), cancellationToken: cancellationToken);
+        }
     }
 
     private async Task<IReadOnlyList<Order>> HydrateOrdersAsync(List<Order> orders)
@@ -299,5 +403,18 @@ public class OrderService(
         price *= MaximumDiscount - NormalizeDiscount(extraDiscount);
         price *= MaximumDiscount - NormalizeDiscount(userDiscount);
         return price;
+    }
+
+    private static int ParsePrescriptionQuantity(string? quantity)
+    {
+        if (string.IsNullOrWhiteSpace(quantity))
+        {
+            return DefaultPrescriptionQuantity;
+        }
+
+        string digits = new(quantity.Where(char.IsDigit).ToArray());
+        return int.TryParse(digits, out int parsedQuantity) && parsedQuantity > 0
+            ? parsedQuantity
+            : DefaultPrescriptionQuantity;
     }
 }

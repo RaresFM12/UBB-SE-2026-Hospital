@@ -1,5 +1,7 @@
-using System;
-using System.Collections.Generic;
+    using System;
+    using System.Collections.Generic;
+    using System.Security.Claims;
+    using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Hospital.Shared.Services;
@@ -19,14 +21,20 @@ public class BasketController : Controller
     }
 
     [HttpGet]
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        return this.View(this.BuildViewModel());
+        int? userId = this.GetCurrentUserId();
+        if (!userId.HasValue)
+        {
+            return this.Forbid();
+        }
+
+        return this.View(await this.BuildViewModelAsync(userId.Value));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Add(BasketAddItemViewModel viewModel)
+    public async Task<IActionResult> Add(BasketAddItemViewModel viewModel)
     {
         if (!this.ModelState.IsValid)
         {
@@ -36,8 +44,13 @@ public class BasketController : Controller
 
         try
         {
-            this.orderService.AddItemToBasket(viewModel.ItemId, viewModel.Quantity, viewModel.ExtraDiscountPercentage);
-            BasketStore.Save(this.orderService.ActiveUser);
+            int? userId = this.GetCurrentUserId();
+            if (!userId.HasValue)
+            {
+                return this.Forbid();
+            }
+
+            await this.orderService.AddItemToBasketAsync(userId.Value, viewModel.ItemId, viewModel.Quantity, viewModel.ExtraDiscountPercentage);
             this.TempData["SuccessMessage"] = "Item added to basket.";
         }
         catch (ArgumentException exception)
@@ -50,7 +63,7 @@ public class BasketController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult UpdateQuantity(BasketQuantityViewModel viewModel)
+    public async Task<IActionResult> UpdateQuantity(BasketQuantityViewModel viewModel)
     {
         if (!this.ModelState.IsValid)
         {
@@ -60,8 +73,13 @@ public class BasketController : Controller
 
         try
         {
-            this.orderService.UpdateBasketItemQuantity(viewModel.ItemId, viewModel.Quantity);
-            BasketStore.Save(this.orderService.ActiveUser);
+            int? userId = this.GetCurrentUserId();
+            if (!userId.HasValue)
+            {
+                return this.Forbid();
+            }
+
+            await this.orderService.UpdateBasketItemQuantityAsync(userId.Value, viewModel.ItemId, viewModel.Quantity);
             this.TempData["SuccessMessage"] = "Basket updated.";
         }
         catch (ArgumentException exception)
@@ -74,12 +92,17 @@ public class BasketController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Remove(int itemId)
+    public async Task<IActionResult> Remove(int itemId)
     {
         try
         {
-            this.orderService.RemoveFromBasket(itemId);
-            BasketStore.Save(this.orderService.ActiveUser);
+            int? userId = this.GetCurrentUserId();
+            if (!userId.HasValue)
+            {
+                return this.Forbid();
+            }
+
+            await this.orderService.RemoveFromBasketAsync(userId.Value, itemId);
             this.TempData["SuccessMessage"] = "Item removed from basket.";
         }
         catch (ArgumentException exception)
@@ -92,7 +115,7 @@ public class BasketController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult ApplyPrescription(BasketViewModel viewModel)
+    public async Task<IActionResult> ApplyPrescription(BasketViewModel viewModel)
     {
         if (string.IsNullOrWhiteSpace(viewModel.PrescriptionId))
         {
@@ -102,8 +125,13 @@ public class BasketController : Controller
 
         try
         {
-            this.orderService.ApplyPrescriptionToBasket(viewModel.PrescriptionId);
-            BasketStore.Save(this.orderService.ActiveUser);
+            int? userId = this.GetCurrentUserId();
+            if (!userId.HasValue)
+            {
+                return this.Forbid();
+            }
+
+            await this.orderService.ApplyPrescriptionToBasketAsync(userId.Value, viewModel.PrescriptionId);
             this.TempData["SuccessMessage"] = "Prescription items added to basket.";
         }
         catch (ArgumentException exception)
@@ -114,9 +142,9 @@ public class BasketController : Controller
         return this.RedirectToAction(nameof(this.Index));
     }
 
-    private BasketViewModel BuildViewModel()
+    private async Task<BasketViewModel> BuildViewModelAsync(int userId)
     {
-        List<BasketItemViewModel> basketItems = this.orderService.GetBasketItems();
+        List<BasketItemViewModel> basketItems = await this.orderService.GetBasketItemsAsync(userId);
         Tuple<float, float> totals = this.orderService.CalculateBasketTotalSum(basketItems);
 
         return new BasketViewModel
@@ -143,5 +171,11 @@ public class BasketController : Controller
     private string? ReadTempData(string key)
     {
         return this.TempData.TryGetValue(key, out object? value) ? value?.ToString() : null;
+    }
+
+    private int? GetCurrentUserId()
+    {
+        string? idValue = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return int.TryParse(idValue, out int userId) ? userId : null;
     }
 }

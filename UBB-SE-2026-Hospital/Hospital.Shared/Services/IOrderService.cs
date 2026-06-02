@@ -5,7 +5,6 @@ namespace Hospital.Shared.Services;
 
 public interface IOrderService
 {
-    User ActiveUser { get; }
     OrderRepositoryFacade OrdersRepository { get; }
     OrderItemRepositoryFacade ItemsRepository { get; }
     OrderUserRepositoryFacade UsersRepository { get; }
@@ -21,7 +20,6 @@ public interface IOrderService
     void ModifyIncompleteOrder(int orderId, Dictionary<int, Tuple<int, float>> updatedItems, DateOnly pickUpDate);
     Task DeleteOrderAsync(int orderId, CancellationToken cancellationToken = default);
     Task PlaceOrderFromBasketAsync(int userId, DateOnly chosenPickUpDate, CancellationToken cancellationToken = default);
-    void PlaceOrderFromBasket(DateOnly chosenPickUpDate);
     Task CompleteOrderAsync(int orderId, Dictionary<int, (int Quantity, float Discount)> updatedQuantities, CancellationToken cancellationToken = default);
     void CompleteOrder(int orderId, Dictionary<int, Tuple<int, float>> updatedItems);
     Task CancelOrderAsync(int orderId, CancellationToken cancellationToken = default);
@@ -29,13 +27,12 @@ public interface IOrderService
     Task ExpireOverdueOrdersAsync(CancellationToken cancellationToken = default);
     void ExpireOverdueOrders();
     void ResubmitExpiredOrder(int orderId, DateOnly pickUpDate);
-    List<BasketItemViewModel> GetBasketItems();
+    Task<List<BasketItemViewModel>> GetBasketItemsAsync(int userId, CancellationToken cancellationToken = default);
     Tuple<float, float> CalculateBasketTotalSum(List<BasketItemViewModel> basketItems);
-    void AddItemToBasket(int itemId, int quantity, float extraDiscountPercentage = 0f);
-    void AddToBasket(int itemId, int quantity);
-    void UpdateBasketItemQuantity(int itemId, int quantity);
-    void RemoveFromBasket(int itemId);
-    void ApplyPrescriptionToBasket(string prescriptionId);
+    Task AddItemToBasketAsync(int userId, int itemId, int quantity, float extraDiscountPercentage = 0f, CancellationToken cancellationToken = default);
+    Task UpdateBasketItemQuantityAsync(int userId, int itemId, int quantity, CancellationToken cancellationToken = default);
+    Task RemoveFromBasketAsync(int userId, int itemId, CancellationToken cancellationToken = default);
+    Task ApplyPrescriptionToBasketAsync(int userId, string prescriptionId, CancellationToken cancellationToken = default);
 }
 
 public sealed class OrderRepositoryFacade(IOrderService orderService)
