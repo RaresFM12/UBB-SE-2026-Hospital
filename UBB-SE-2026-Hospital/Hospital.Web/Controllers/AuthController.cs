@@ -1,20 +1,21 @@
 using System.Security.Claims;
 using Hospital.Shared.Services;
-using Hospital.Web.Models;
+using Hospital.Shared.DTOs.Auth; 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Hospital.Web.Controllers;
 
 public class AuthController : Controller
 {
-    private readonly IAuthService authService;
+    private readonly IAuthService _authService;
 
     public AuthController(IAuthService authService)
     {
-        this.authService = authService;
+        _authService = authService;
     }
 
     [HttpGet]
@@ -28,40 +29,48 @@ public class AuthController : Controller
 
         ViewData["HideShell"] = true;
         ViewData["ReturnUrl"] = returnUrl;
-        return View("AuthenticationView", new AuthenticationViewModel());
+
+        // Returns Views/Auth/Login.cshtml passing a fresh DTO
+        return View(new LoginRequest());
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     [AllowAnonymous]
-    public async Task<IActionResult> Login(AuthenticationViewModel model, string? returnUrl, CancellationToken cancellationToken)
+    public async Task<IActionResult> Login(LoginRequest model, string? returnUrl, CancellationToken cancellationToken)
     {
         ViewData["HideShell"] = true;
 
         if (!ModelState.IsValid)
         {
-            return View("AuthenticationView", model);
+            return View(model);
         }
 
         try
         {
-            var response = await authService.LoginAsync(model.Username.Trim(), model.Password, cancellationToken);
+            var response = await _authService.LoginAsync(model, cancellationToken);
+
+            var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(response.Token);
+
+            var username = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ?? model.Email;
+            var role = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value ?? "Client";
 
             HttpContext.Session.SetString("AccessToken", response.Token);
-            HttpContext.Session.SetString("Username", response.Username);
-            HttpContext.Session.SetString("Role", response.Role);
+            HttpContext.Session.SetString("Username", username);
+            HttpContext.Session.SetString("Role", role);
 
             var claims = new List<Claim>
             {
-                new(ClaimTypes.Name, response.Username),
-                new(ClaimTypes.Role, response.Role)
+                new(ClaimTypes.Name, username),
+                new(ClaimTypes.Role, role)
             };
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(identity));
-
+            
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);
@@ -71,16 +80,21 @@ public class AuthController : Controller
         }
         catch (UnauthorizedAccessException e)
         {
-            model.ErrorMessage = e.Message;
             ModelState.AddModelError(string.Empty, e.Message);
-            return View("AuthenticationView", model);
+            return View(model);
         }
         catch (Exception e)
         {
-            model.ErrorMessage = e.Message;
             ModelState.AddModelError(string.Empty, e.Message);
-            return View("AuthenticationView", model);
+            return View(model);
         }
+    }
+
+    [HttpGet]
+    [AllowAnonymous]
+    public IActionResult AccessDenied()
+    {
+        return View();
     }
 
     [HttpPost]

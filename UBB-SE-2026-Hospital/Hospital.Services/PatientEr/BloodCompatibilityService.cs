@@ -8,7 +8,7 @@ public class BloodCompatibilityService(
     IPatientRepository patientRepository,
     IMedicalHistoryRepository historyRepository) : IBloodCompatibilityService
 {
-    public async Task<List<Patient>> GetTopCompatibleDonorsAsync(int recipientId)
+    public async Task<List<Hospital.Shared.Models.PatientEr.Patient>> GetTopCompatibleDonorsAsync(int recipientId)
     {
         Patient? recipient = await patientRepository.GetByIdAsync(recipientId);
 
@@ -45,10 +45,20 @@ public class BloodCompatibilityService(
         }
 
         return rankedDonors
-            .OrderByDescending(x => x.Score)
-            .Select(x => x.Donor)
-            .Take(20)
-            .ToList();
+        .OrderByDescending(x => x.Score)
+        .Select(x => x.Donor) 
+        .Take(20)
+        .Select(p => new Hospital.Shared.Models.PatientEr.Patient 
+        {
+            PatientId = p.PatientId,
+            FirstName = p.FirstName,
+            LastName = p.LastName,
+            Cnp = p.Cnp,
+            DateOfBirth = p.DateOfBirth,
+            Sex = (char)p.Sex,
+            IsArchived = p.IsArchived
+        })
+        .ToList();
     }
 
     public int CalculateScore(Patient donor, Patient recipient)

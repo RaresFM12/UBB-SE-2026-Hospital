@@ -3,7 +3,7 @@ using Hospital.Data.Models;
 
 namespace Hospital.Data.Models.DTOs;
 
-public class RecordExportData
+public class RecordExportDataDto
 {
     public MedicalRecord Record { get; set; } = null!;
     public Patient Patient { get; set; } = null!;
