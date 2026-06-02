@@ -8,6 +8,7 @@ public interface IERVisitService
     Task<ERVisit?> GetByIdAsync(int id);
     Task<List<ERVisit>> GetByPatientIdAsync(int patientId);
     Task<List<ERVisit>> GetActiveVisitsAsync();
+    Task<List<ERVisit>> GetByStatusAsync(string status);
     Task<ERVisit> CreateAsync(ERVisit visit);
     Task<ERVisit> UpdateAsync(ERVisit visit);
     Task DeleteAsync(int id);

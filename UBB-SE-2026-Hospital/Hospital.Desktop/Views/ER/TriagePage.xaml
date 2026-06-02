@@ -1,0 +1,64 @@
+<Page
+    x:Class="Hospital.Desktop.Views.ER.TriagePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:models="using:Hospital.Data.Models"
+    xmlns:vm="using:Hospital.Desktop.ViewModels.ER">
+
+    <Page.DataContext>
+        <vm:TriageViewModel/>
+    </Page.DataContext>
+
+    <Grid Background="{StaticResource AppBackgroundBrush}" Padding="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Triage" FontSize="28" FontWeight="SemiBold" Foreground="{StaticResource AppAccentBrush}" Margin="0,0,0,16"/>
+
+        <Grid Grid.Row="1" ColumnSpacing="24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="400"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Background="{StaticResource AppSurfaceBrush}" CornerRadius="12" Padding="16">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Registered Visits" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                    <Button Content="Load Visits" Command="{Binding LoadVisitsForTriageCommand}" HorizontalAlignment="Stretch"/>
+                    <ListView ItemsSource="{Binding RegisteredVisits}" SelectedItem="{Binding SelectedVisit, Mode=TwoWay}" MaxHeight="400">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:ERVisit">
+                                <StackPanel>
+                                    <TextBlock Text="{x:Bind VisitId}" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                                    <TextBlock Text="{x:Bind Status}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="1" Background="{StaticResource AppSurfaceBrush}" CornerRadius="12" Padding="16">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Triage Parameters" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                    <TextBlock Text="{Binding SelectedVisit.VisitId, FallbackValue='No visit selected'}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+
+                    <Slider Header="Consciousness" Minimum="1" Maximum="3" Value="{Binding Consciousness, Mode=TwoWay}" TickFrequency="1" SnapsTo="Ticks"/>
+                    <Slider Header="Breathing" Minimum="1" Maximum="3" Value="{Binding Breathing, Mode=TwoWay}" TickFrequency="1" SnapsTo="Ticks"/>
+                    <Slider Header="Bleeding" Minimum="1" Maximum="3" Value="{Binding Bleeding, Mode=TwoWay}" TickFrequency="1" SnapsTo="Ticks"/>
+                    <Slider Header="Injury Type" Minimum="1" Maximum="3" Value="{Binding InjuryType, Mode=TwoWay}" TickFrequency="1" SnapsTo="Ticks"/>
+                    <Slider Header="Pain Level" Minimum="1" Maximum="3" Value="{Binding PainLevel, Mode=TwoWay}" TickFrequency="1" SnapsTo="Ticks"/>
+
+                    <Button Content="Perform Triage" Command="{Binding PerformTriageCommand}" HorizontalAlignment="Stretch" IsEnabled="{Binding IsNotTriaged}"/>
+                    <Button Content="Move to Queue" Command="{Binding MoveToQueueCommand}" HorizontalAlignment="Stretch" IsEnabled="{Binding IsTriaged}"/>
+                    <Button Content="Close Visit" Command="{Binding CancelTriageCommand}" HorizontalAlignment="Stretch"/>
+
+                    <TextBlock Text="{Binding CalculatedSeverity, FallbackValue='Severity: -'}" Foreground="{StaticResource AppAccentBrush}" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding CalculatedSpecialization, FallbackValue='Specialization: -'}" Foreground="{StaticResource AppAccentBrush}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>

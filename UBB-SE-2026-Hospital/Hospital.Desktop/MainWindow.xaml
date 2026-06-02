@@ -7,29 +7,52 @@
     mc:Ignorable="d"
     Title="Hospital Desktop">
 
-    <Grid Padding="24" RowDefinitions="Auto,Auto,*" ColumnDefinitions="*,Auto">
-        <TextBlock
-            FontSize="28"
-            FontWeight="SemiBold"
-            Text="UBB-SE-2026-Hospital" />
-        <Button
-            Grid.Column="1"
-            VerticalAlignment="Top"
-            Content="Logout"
-            Click="OnLogoutClick" />
-        <TextBlock
-            Grid.Row="1"
-            Margin="0,8,0,0"
-            Opacity="0.75"
-            Text="Unified desktop shell for Staff, ER, and Patient workflows." />
-        <ListView
-            Grid.Row="2"
-            Margin="0,24,0,0"
-            SelectionMode="None">
-            <x:String>Port 923-2 staff and pharmacy pages into Views/</x:String>
-            <x:String>Port House-MD ER screens into Views/</x:String>
-            <x:String>Port MysteryInc patient and billing screens into Views/</x:String>
-            <x:String>Move HTTP proxies into Proxy/ and wire them through DI</x:String>
-        </ListView>
+    <Grid>
+        <NavigationView
+            x:Name="ShellNavigationView"
+            IsBackButtonVisible="Collapsed"
+            PaneDisplayMode="Left"
+            SelectionChanged="OnNavigationSelectionChanged">
+
+            <NavigationView.MenuItems>
+                <NavigationViewItem Content="Dashboard" Tag="Dashboard" Icon="Home"/>
+
+                <NavigationViewItemHeader Content="Admin &amp; Client"/>
+                <NavigationViewItem Content="Accounts" Tag="AdminAccounts" Icon="Contact"/>
+                <NavigationViewItem Content="Appointments" Tag="Appointments" Icon="Calendar"/>
+                <NavigationViewItem Content="ER Dispatch" Tag="ERDispatch" Icon="Mail"/>
+                <NavigationViewItem Content="Fatigue Audit" Tag="FatigueAudit" Icon="Switch"/>
+                <NavigationViewItem Content="Admin Schedule" Tag="AdminSchedule" Icon="CalendarWeek"/>
+                <NavigationViewItem Content="Admin Shift" Tag="AdminShift" Icon="People"/>
+
+                <NavigationViewItemHeader Content="Emergency Room"/>
+                <NavigationViewItem Content="Triage" Tag="Triage" Icon="Favorite"/>
+                <NavigationViewItem Content="Queue" Tag="Queue" Icon="List"/>
+                <NavigationViewItem Content="Patient Registration" Tag="PatientRegistration" Icon="AddFriend"/>
+                <NavigationViewItem Content="Room Management" Tag="RoomManagement" Icon="DockLeft"/>
+                <NavigationViewItem Content="Room Assignment" Tag="RoomAssignment" Icon="Assign"/>
+                <NavigationViewItem Content="Examination" Tag="Examination" Icon="Document"/>
+                <NavigationViewItem Content="Transfer Log" Tag="TransferLog" Icon="Forward"/>
+
+                <NavigationViewItemHeader Content="Patient &amp; Billing"/>
+                <NavigationViewItem Content="Patients" Tag="Patients" Icon="Contact2"/>
+                <NavigationViewItem Content="Prescriptions" Tag="Prescriptions" Icon="Medication"/>
+                <NavigationViewItem Content="Transplants" Tag="Transplants" Icon="Organize"/>
+                <NavigationViewItem Content="Blood Donors" Tag="BloodDonors" Icon="Drop"/>
+                <NavigationViewItem Content="Statistics" Tag="Statistics" Icon="Chart"/>
+                <NavigationViewItem Content="Billing" Tag="Billing" Icon="Shop"/>
+                <NavigationViewItem Content="Addict Detection" Tag="AddictDetection" Icon="Police"/>
+            </NavigationView.MenuItems>
+
+            <NavigationView.PaneFooter>
+                <Button
+                    x:Name="LogoutButton"
+                    Content="Logout"
+                    Margin="12"
+                    Click="OnLogoutClick"/>
+            </NavigationView.PaneFooter>
+
+            <Frame x:Name="ContentFrame" Padding="12"/>
+        </NavigationView>
     </Grid>
 </Window>

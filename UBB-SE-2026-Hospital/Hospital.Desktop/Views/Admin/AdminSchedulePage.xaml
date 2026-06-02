@@ -109,8 +109,8 @@
 
                                     <TextBlock Grid.Column="0" Text="{x:Bind Id}" Foreground="{StaticResource AppTextPrimaryBrush}" VerticalAlignment="Center"/>
                                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                                        <TextBlock Text="{x:Bind AppointedStaff.FirstName}" Foreground="{StaticResource AppTextPrimaryBrush}" FontWeight="SemiBold"/>
-                                        <TextBlock Text="{x:Bind AppointedStaff.LastName}" Foreground="{StaticResource AppTextPrimaryBrush}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{x:Bind ((models:Staff)AppointedStaff).FirstName}" Foreground="{StaticResource AppTextPrimaryBrush}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{x:Bind ((models:Staff)AppointedStaff).LastName}" Foreground="{StaticResource AppTextPrimaryBrush}" FontWeight="SemiBold"/>
                                     </StackPanel>
                                     <TextBlock Grid.Column="2" Text="{x:Bind Location}" Foreground="{StaticResource AppTextPrimaryBrush}" VerticalAlignment="Center"/>
                                     <TextBlock Grid.Column="3" Text="{x:Bind StartTime}" Foreground="{StaticResource AppTextPrimaryBrush}" VerticalAlignment="Center"/>
