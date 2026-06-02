@@ -12,6 +12,9 @@ public class TriageService(ITriageRepository triageRepository) : ITriageService
     public Task<Triage?> GetByIdAsync(int id)
         => triageRepository.GetByIdAsync(id);
 
+    public Task<Triage?> GetByVisitIdAsync(int visitId)
+        => triageRepository.GetByVisitIdAsync(visitId);
+
     public Task<Triage> CreateAsync(Triage triage)
         => triageRepository.CreateAsync(triage);
 

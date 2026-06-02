@@ -15,6 +15,7 @@ public class TransplantService(
     private const int MinScoreModifier = 5;
     private const int ComparativeERVisitCount = 10;
     private const int TimeIntervalMonths = 3;
+    private const int TopTransplantMatchCount = 5;
 
     public Task<List<Transplant>> GetAllAsync()
         => transplantRepository.GetAllAsync();
@@ -121,7 +122,7 @@ public class TransplantService(
         return matches
             .OrderByDescending(m => m.CompatibilityScore)
             .ThenBy(m => m.RequestDate)
-            .Take(5)
+            .Take(TopTransplantMatchCount)
             .ToList();
     }
 
