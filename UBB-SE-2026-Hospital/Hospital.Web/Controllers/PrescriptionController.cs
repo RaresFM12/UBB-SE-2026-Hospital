@@ -19,8 +19,8 @@ public class PrescriptionController : Controller
     private const int PageIndexAdjustment = 1;
 
     private readonly IPrescriptionService prescriptionService;
-    private readonly IAdminService adminService; 
-    private readonly IMedicalEvaluationService evaluationService; 
+    private readonly IAdminService adminService;
+    private readonly IMedicalEvaluationService evaluationService;
 
     private const int PageSize = 9;
     private static readonly char[] MedicineSeparators = new[] { ',', ';', '\n', '\r' };
@@ -37,7 +37,7 @@ public class PrescriptionController : Controller
 
     [HttpGet]
     [Authorize(Roles = "Pharmacist,Admin")]
-    public IActionResult Resolve() 
+    public IActionResult Resolve()
     {
         return View("Index", new ResolvePrescriptionViewModel());
     }
@@ -52,27 +52,13 @@ public class PrescriptionController : Controller
             return View("Index", model);
         }
 
-        Dictionary<int, int> resolved;
-        try
-        {
-            resolved = prescriptionService.GetItemsFromPrescription(
-                model.PrescriptionId,
-                new Dictionary<int, float>());
-        }
-        catch (ArgumentException exception)
-        {
-            ModelState.AddModelError(string.Empty, exception.Message);
-            return View("Index", model);
-        }
-
-        var rows = BuildResolvedRows(resolved).GetAwaiter().GetResult();
         var warnings = BuildHighRiskWarnings(model.PrescriptionId).GetAwaiter().GetResult();
 
         var populatedModel = new ResolvePrescriptionViewModel
         {
             PrescriptionId = model.PrescriptionId,
             HasResult = true,
-            ResolvedRows = rows,
+            ResolvedRows = new List<ResolvedItemRow>(),
             HighRiskWarnings = warnings,
         };
 
@@ -119,7 +105,7 @@ public class PrescriptionController : Controller
                     PrescriptionId = TryParseInt(searchIdText),
                     PatientName = searchName,
                     DoctorName = searchName,
-                    MedName = searchMedication,
+                    MedicationName = searchMedication,
                     DateFrom = dateFrom,
                     DateTo = dateTo
                 };
@@ -141,14 +127,14 @@ public class PrescriptionController : Controller
 
             model.Prescriptions = prescriptions.Select(p => new PrescriptionCardViewModel
             {
-                Id = p.Id,
+                Id = p.PrescriptionId,
                 PatientName = p.PatientName ?? string.Empty,
                 DoctorName = ResolveDoctorName(p.DoctorName),
                 DoctorNotes = p.DoctorNotes ?? string.Empty,
                 Date = p.Date,
                 Items = p.MedicationList?.Select(i => new PrescriptionItemViewModel
                 {
-                    MedName = i.MedName,
+                    MedName = i.MedicationName,
                     Quantity = i.Quantity
                 }).ToList() ?? new List<PrescriptionItemViewModel>()
             }).ToList();

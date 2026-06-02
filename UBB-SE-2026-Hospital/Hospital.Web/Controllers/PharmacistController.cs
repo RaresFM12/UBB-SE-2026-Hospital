@@ -51,7 +51,7 @@ public class PharmacistController : Controller
 
         var model = new PrescriptionDetailViewModel
         {
-            Id = prescription.Id,
+            Id = prescription.PrescriptionId,
             PatientName = prescription.PatientName,
             DoctorName = prescription.DoctorName,
             Date = prescription.Date,
@@ -61,7 +61,7 @@ public class PharmacistController : Controller
             Medications = (prescription.MedicationList ?? new List<PrescriptionItem>())
                 .Select(medication => new PrescriptionItemViewModel
                 {
-                    MedName = medication.MedName,
+                    MedName = medication.MedicationName,
                     Quantity = medication.Quantity
                 })
                 .ToList()

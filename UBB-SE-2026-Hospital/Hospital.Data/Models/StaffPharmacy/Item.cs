@@ -59,6 +59,19 @@ public class Item
                 float discount = 0f)
         : this(0, name, producer, category, price, numberOfPills, label, description, imagePath, discount, quantity) { }
 
+    public Item(string name, string producer, string category,
+                float price, int numberOfPills,
+                Dictionary<string, float> activeSubstances,
+                Dictionary<DateOnly, int> batches,
+                int quantity,
+                string label = "", string description = "", string imagePath = ImagePathDefault,
+                float discount = 0f)
+        : this(0, name, producer, category, price, numberOfPills, label, description, imagePath, discount, quantity)
+    {
+        ActiveSubstances = activeSubstances;
+        Batches = batches;
+    }
+
     public void AddActiveSubstanceToItem(string substanceName, float concentration)
     {
         if (ActiveSubstances.ContainsKey(substanceName))

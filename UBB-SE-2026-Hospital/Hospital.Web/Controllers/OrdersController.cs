@@ -1,4 +1,4 @@
-namespace UBB_SE_2026_923_2.Web.Controllers
+namespace Hospital.Web.Controllers
 {
     using System;
     using System.Collections.Generic;
@@ -14,6 +14,8 @@ namespace UBB_SE_2026_923_2.Web.Controllers
     [Authorize]
     public class OrdersController : Controller
     {
+        private const int MinimumPickupLeadDays = 1;
+
         private readonly IOrderService orderService;
         private readonly IUserAccountService userAccountService;
 
@@ -372,7 +374,7 @@ namespace UBB_SE_2026_923_2.Web.Controllers
 
             return new OrderCheckoutViewModel
             {
-                PickUpDate = pickUpDate ?? DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+                PickUpDate = pickUpDate ?? DateOnly.FromDateTime(DateTime.Today.AddDays(MinimumPickupLeadDays)),
                 Items = basketItems,
                 TotalBeforeDiscount = totals.Item1,
                 TotalAfterDiscount = totals.Item2,
@@ -415,7 +417,7 @@ namespace UBB_SE_2026_923_2.Web.Controllers
             return new OrderResubmitViewModel
             {
                 Id = order.Id,
-                PickUpDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+                PickUpDate = DateOnly.FromDateTime(DateTime.Today.AddDays(MinimumPickupLeadDays)),
                 Items = items,
                 Total = items.Sum(item => item.FinalPrice),
             };

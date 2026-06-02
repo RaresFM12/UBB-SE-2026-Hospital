@@ -1,16 +1,25 @@
 using System;
 using System.Linq;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Hospital.Web.Models;
 
-namespace UBB_SE_2026_923_2.Web.Controllers
+namespace Hospital.Web.Controllers
 {
     [Authorize(Roles = "Client")]
     public class PeriodTrackerController : Controller
     {
+        private const int MinimumCycleDays = 20;
+        private const int MaximumCycleDays = 45;
+        private const int MinimumPeriodDays = 1;
+        private const int MaximumPeriodDays = 9;
+        private const int MinimumPmsOption = 0;
+        private const int MaximumPmsOption = 3;
+        private const int DefaultBasketQuantity = 1;
+
         private readonly IPeriodTrackerService _periodTrackerService;
         private readonly IBasketService _basketService;
 
@@ -22,14 +31,12 @@ namespace UBB_SE_2026_923_2.Web.Controllers
             _basketService = basketService;
         }
 
-        // GET: PeriodTracker
         [HttpGet]
         public IActionResult Index(int monthOffset = 0)
         {
             return View(ToViewModel(_periodTrackerService.GetDashboardSnapshot(monthOffset)));
         }
 
-        // GET: PeriodTracker/Details
         [HttpGet]
         public IActionResult Details(int id = 0)
         {
@@ -42,7 +49,6 @@ namespace UBB_SE_2026_923_2.Web.Controllers
             return View(ToViewModel(_periodTrackerService.GetDashboardSnapshot(0)));
         }
 
-        // GET: PeriodTracker/Create
         [HttpGet]
         public IActionResult Create()
         {
@@ -52,15 +58,13 @@ namespace UBB_SE_2026_923_2.Web.Controllers
             return View(new PeriodTrackerViewModel());
         }
 
-        // POST: PeriodTracker/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(PeriodTrackerInputModel inputModel)
         {
 
-            if (inputModel.StartPeriodDate == default || inputModel.CycleDays < 20 || inputModel.CycleDays > 45 || inputModel.PeriodLasts < 1 || inputModel.PeriodLasts > 9 || inputModel.PMSOption < 0 || inputModel.PMSOption > 3)
+            if (IsInvalidTrackerInput(inputModel))
             {
-                // Rebuild the dashboard model strictly for returning the user to the form
                 return View(new PeriodTrackerViewModel
                 {
                     StartPeriodDate = DateOnly.FromDateTime(inputModel.StartPeriodDate),
@@ -75,7 +79,6 @@ namespace UBB_SE_2026_923_2.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: PeriodTracker/Edit
         [HttpGet]
         public IActionResult Edit(int id = 0)
         {
@@ -88,12 +91,11 @@ namespace UBB_SE_2026_923_2.Web.Controllers
             return View(ToViewModel(state));
         }
 
-        // POST: PeriodTracker/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(PeriodTrackerInputModel inputModel)
         {
-            if (inputModel.StartPeriodDate == default || inputModel.CycleDays < 20 || inputModel.CycleDays > 45 || inputModel.PeriodLasts < 1 || inputModel.PeriodLasts > 9 || inputModel.PMSOption < 0 || inputModel.PMSOption > 3)
+            if (IsInvalidTrackerInput(inputModel))
             {
                 return View(new PeriodTrackerViewModel
                 {
@@ -109,7 +111,6 @@ namespace UBB_SE_2026_923_2.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: PeriodTracker/Delete
         [HttpGet]
         public IActionResult Delete(int id = 0)
         {
@@ -122,7 +123,6 @@ namespace UBB_SE_2026_923_2.Web.Controllers
             return View(ToViewModel(state));
         }
 
-        // POST: PeriodTracker/Delete
         [HttpPost]
         [ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -140,7 +140,6 @@ namespace UBB_SE_2026_923_2.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        /* Standard Sub-Actions used by the view forms */
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult CreateNote([FromForm] string noteBody)
@@ -170,10 +169,27 @@ namespace UBB_SE_2026_923_2.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AddProductToBasket(int itemId, float discountPercentage)
+        public async Task<IActionResult> AddProductToBasket(int itemId, float discountPercentage)
         {
-            _basketService.AddToBasket(itemId, 1, discountPercentage);
+            string? idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(idClaim, out int userId))
+            {
+                return Forbid();
+            }
+
+            await _basketService.AddToBasketAsync(userId, itemId, DefaultBasketQuantity, discountPercentage);
             return RedirectToAction(nameof(Index));
+        }
+
+        private static bool IsInvalidTrackerInput(PeriodTrackerInputModel inputModel)
+        {
+            return inputModel.StartPeriodDate == default ||
+                inputModel.CycleDays < MinimumCycleDays ||
+                inputModel.CycleDays > MaximumCycleDays ||
+                inputModel.PeriodLasts < MinimumPeriodDays ||
+                inputModel.PeriodLasts > MaximumPeriodDays ||
+                inputModel.PMSOption < MinimumPmsOption ||
+                inputModel.PMSOption > MaximumPmsOption;
         }
 
         private static PeriodTrackerViewModel ToViewModel(PeriodTrackerState state)

@@ -1,4 +1,4 @@
-﻿namespace UBB_SE_2026_923_2.Web.Controllers;
+namespace Hospital.Web.Controllers;
 
 using System;
 using System.Collections.Generic;
@@ -62,10 +62,10 @@ public class ShiftManagementController : Controller
 
     [HttpGet]
     [Authorize(Roles = AdminManagerRoles)]
-    public IActionResult Details(int shiftId)
+    public async Task<IActionResult> Details(int shiftId)
     {
         bool IsMatchingShift(Shift shift) => shift.Id == shiftId;
-        var shift = this.salaryComputationService.GetAllShifts().FirstOrDefault(IsMatchingShift);
+        var shift = (await this.salaryComputationService.GetAllShiftsAsync()).FirstOrDefault(IsMatchingShift);
 
         if (shift == null)
         {
@@ -77,26 +77,26 @@ public class ShiftManagementController : Controller
 
     [HttpGet]
     [Authorize(Roles = AdminManagerRoles)]
-    public IActionResult Edit(int shiftId)
+    public async Task<IActionResult> Edit(int shiftId)
     {
         bool IsMatchingShift(Shift shift) => shift.Id == shiftId;
-        var shift = this.salaryComputationService.GetAllShifts().FirstOrDefault(IsMatchingShift);
+        var shift = (await this.salaryComputationService.GetAllShiftsAsync()).FirstOrDefault(IsMatchingShift);
 
         if (shift == null)
         {
             return this.NotFound();
         }
 
-        this.ViewBag.StaffList = this.salaryComputationService.GetAllStaff();
+        this.ViewBag.StaffList = await this.salaryComputationService.GetAllStaffAsync();
         return this.View(shift);
     }
 
     [HttpGet]
     [Authorize(Roles = AdminManagerRoles)]
-    public IActionResult Delete(int shiftId)
+    public async Task<IActionResult> Delete(int shiftId)
     {
         bool IsMatchingShift(Shift shift) => shift.Id == shiftId;
-        var shift = this.salaryComputationService.GetAllShifts().FirstOrDefault(IsMatchingShift);
+        var shift = (await this.salaryComputationService.GetAllShiftsAsync()).FirstOrDefault(IsMatchingShift);
 
         if (shift == null)
         {
@@ -188,12 +188,12 @@ public class ShiftManagementController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = AdminManagerRoles)]
-    public IActionResult AutoReassign(int shiftId, DateTime? shiftDate)
+    public async Task<IActionResult> AutoReassign(int shiftId, DateTime? shiftDate)
     {
         var selectedDate = shiftDate?.Date ?? DateTime.Today;
         bool IsMatchingShift(Shift shift) => shift.Id == shiftId;
         var shift = this.shiftManagementService.GetDailyShifts(selectedDate).FirstOrDefault(IsMatchingShift)
-            ?? this.salaryComputationService.GetAllShifts().FirstOrDefault(IsMatchingShift);
+            ?? (await this.salaryComputationService.GetAllShiftsAsync()).FirstOrDefault(IsMatchingShift);
 
         if (shift == null)
         {
@@ -251,9 +251,9 @@ public class ShiftManagementController : Controller
 
     [HttpGet]
     [Authorize(Roles = SalaryRoles)]
-    public IActionResult Salary()
+    public async Task<IActionResult> Salary()
     {
-        this.ViewBag.StaffList = this.salaryComputationService.GetAllStaff();
+        this.ViewBag.StaffList = await this.salaryComputationService.GetAllStaffAsync();
         return this.View();
     }
 
@@ -262,10 +262,11 @@ public class ShiftManagementController : Controller
     [Authorize(Roles = SalaryRoles)]
     public async Task<IActionResult> ComputeSalary(int staffId, int month, int year)
     {
-        this.ViewBag.StaffList = this.salaryComputationService.GetAllStaff();
+        var allStaff = await this.salaryComputationService.GetAllStaffAsync();
+        this.ViewBag.StaffList = allStaff;
 
         bool IsMatchingStaff(IStaff staffMember) => staffMember.StaffID == staffId;
-        var staff = this.salaryComputationService.GetAllStaff().FirstOrDefault(IsMatchingStaff);
+        var staff = allStaff.FirstOrDefault(IsMatchingStaff);
 
         if (staff == null)
         {
@@ -278,7 +279,7 @@ public class ShiftManagementController : Controller
             shift.StartTime.Month == month &&
             shift.StartTime.Year == year;
 
-        var allShifts = this.salaryComputationService.GetAllShifts();
+        var allShifts = await this.salaryComputationService.GetAllShiftsAsync();
         var monthlyShifts = allShifts.Where(IsStaffShiftInTargetMonth).ToList();
 
         double computedSalary = 0;

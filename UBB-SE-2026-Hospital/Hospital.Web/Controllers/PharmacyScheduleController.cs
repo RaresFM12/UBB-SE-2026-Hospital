@@ -4,7 +4,7 @@ using System.Security.Claims;
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 
-namespace UBB_SE_2026_923_2.Web.Controllers
+namespace Hospital.Web.Controllers
 {
     [Authorize(Roles = "Pharmacist,Admin")]
     public class PharmacyScheduleController : Controller

@@ -33,6 +33,9 @@ public class HangoutService(
         return hangouts;
     }
 
+    public List<Hangout> GetAllHangouts() =>
+        GetAllHangoutsAsync().GetAwaiter().GetResult().ToList();
+
     public async Task<Hangout?> GetHangoutByIdAsync(int hangoutId, CancellationToken cancellationToken = default)
         => await hangoutRepository.GetByIdAsync(hangoutId);
 
@@ -63,6 +66,12 @@ public class HangoutService(
 
         return hangout.HangoutID;
     }
+
+    public int CreateHangout(string title, string description, DateTime date, int maxParticipants) =>
+        CreateHangoutAsync(title, description, date, maxParticipants).GetAwaiter().GetResult();
+
+    public int CreateHangout(string title, string description, DateTime date, int maxParticipants, Staff creator) =>
+        CreateHangout(title, description, date, maxParticipants);
 
     public async Task<IReadOnlyList<HangoutParticipant>> GetAllParticipantsAsync(CancellationToken cancellationToken = default)
     {
@@ -105,6 +114,12 @@ public class HangoutService(
             Staff = staff,
         });
     }
+
+    public void JoinHangout(int hangoutId, int staffId) =>
+        AddParticipantAsync(hangoutId, staffId).GetAwaiter().GetResult();
+
+    public void JoinHangout(int hangoutId, Staff staff) =>
+        JoinHangout(hangoutId, staff.StaffId);
 
     private async Task<bool> HasConflictingAppointmentOnDateAsync(int staffId, DateTime date)
         => (await appointmentRepository.GetByDoctorIdAsync(staffId))

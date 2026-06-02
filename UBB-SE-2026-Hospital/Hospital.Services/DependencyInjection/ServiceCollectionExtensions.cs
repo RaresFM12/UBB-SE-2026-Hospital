@@ -34,6 +34,7 @@ public static class ServiceCollectionExtensions
 
         // Staff / Pharmacy domain (from 923-2) — stubs until Phase 3
         services.AddScoped<IAdminService, AdminService>();
+        services.AddScoped<IProductCatalogueService, AdminService>();
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<IBasketService, BasketService>();
         services.AddScoped<IUserAccountService, UserAccountService>();

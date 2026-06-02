@@ -58,7 +58,7 @@ public class OrganDonorController : Controller
 
                 model.TopMatches = matches.Select(m => new TransplantMatchViewModel
                 {
-                    TransplantId = m.TransplantId,
+                    TransplantId = m.Transplant.TransplantId,
                     ReceiverName = m.ReceiverName,
                     BloodType = m.BloodType,
                     CompatibilityScore = m.CompatibilityScore,

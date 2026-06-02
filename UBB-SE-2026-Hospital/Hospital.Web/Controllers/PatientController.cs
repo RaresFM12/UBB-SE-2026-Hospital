@@ -1,29 +1,28 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Hospital.Shared.DTOs;
 using Hospital.Shared.Services;
 using Hospital.Web.Models.Patient;
-using Hospital.Services.PatientEr;
 using Patient = Hospital.Shared.Models.PatientEr.Patient;
 using MedicalRecord = Hospital.Shared.Models.PatientEr.MedicalRecord;
-using Prescription = Hospital.Shared.Models.PatientEr.Prescription;
 using IBillingService = Hospital.Shared.Services.IBillingService;
 
 namespace Hospital.Web.Controllers;
 
 [Authorize]
-public class PatientController : Controller
+public class PatientsController : Controller
 {
+    private const string EmergencyRoomRecordSource = "ER";
+    private const string MissingValueLabel = "N/A";
+    private const int DefaultStaffId = 1;
+
     private readonly IPatientService _patientService;
     private readonly IBillingService _billingService;
 
-    public PatientController(IPatientService patientService, IBillingService billingService)
+    public PatientsController(IPatientService patientService, IBillingService billingService)
     {
         _patientService = patientService;
         _billingService = billingService;
@@ -90,11 +89,11 @@ public class PatientController : Controller
         return new PatientRecordViewModel
         {
             Id = record.RecordId,                   
-            ConsultationDate = record.ConsultationDate, 
-            SourceType = "ER",
-            StaffId = 1,
-            Symptoms = record.Symptoms ?? "N/A",        
-            Diagnosis = record.Diagnosis ?? "N/A",      
+            ConsultationDate = record.ConsultationDate,
+            SourceType = EmergencyRoomRecordSource,
+            StaffId = DefaultStaffId,
+            Symptoms = record.Symptoms ?? MissingValueLabel,
+            Diagnosis = record.Diagnosis ?? MissingValueLabel,
             BasePrice = record.BasePrice,
             FinalPrice = record.FinalPrice,
             DiscountApplied = record.DiscountApplied ?? 0

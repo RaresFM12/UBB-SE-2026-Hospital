@@ -1,5 +1,6 @@
 using Hospital.Data.Models;
 using Hospital.Data.Repositories;
+using Hospital.Shared.Models.Orders;
 using Hospital.Shared.Services;
 
 namespace Hospital.Services.StaffPharmacy;
@@ -12,12 +13,29 @@ public class OrderService(
 {
     private const float MaximumDiscount = 1f;
     private const float MinimumDiscount = 0f;
+    private const int DefaultUserId = 1;
+
+    public User ActiveUser => usersRepository.GetUserByIdAsync(DefaultUserId).GetAwaiter().GetResult() ?? new User { Id = DefaultUserId };
+
+    public OrderRepositoryFacade OrdersRepository => new(this);
+
+    public OrderItemRepositoryFacade ItemsRepository => new(itemId => itemsRepository.GetByIdAsync(itemId).GetAwaiter().GetResult());
+
+    public OrderUserRepositoryFacade UsersRepository => new(
+        () => usersRepository.GetAllUsersAsync().GetAwaiter().GetResult(),
+        userId => usersRepository.GetUserByIdAsync(userId).GetAwaiter().GetResult());
 
     public async Task<IReadOnlyList<Order>> GetAllOrdersAsync(CancellationToken cancellationToken = default)
         => await HydrateOrdersAsync(await ordersRepository.GetAllAsync());
 
+    public List<Order> GetAllOrders() =>
+        GetAllOrdersAsync().GetAwaiter().GetResult().ToList();
+
     public async Task<IReadOnlyList<Order>> GetOrdersByClientAsync(int clientId, CancellationToken cancellationToken = default)
         => await HydrateOrdersAsync(await ordersRepository.GetByUserIdAsync(clientId));
+
+    public List<Order> GetOrdersOfClient(int clientId) =>
+        GetOrdersByClientAsync(clientId).GetAwaiter().GetResult().ToList();
 
     public async Task<Order?> GetOrderByIdAsync(int orderId, CancellationToken cancellationToken = default)
     {
@@ -30,6 +48,9 @@ public class OrderService(
         await HydrateOrderAsync(order);
         return order;
     }
+
+    public Order? GetOrder(int orderId) =>
+        GetOrderByIdAsync(orderId).GetAwaiter().GetResult();
 
     public async Task<bool> OrderExistsAsync(int orderId, CancellationToken cancellationToken = default)
         => await ordersRepository.GetByIdAsync(orderId) is not null;
@@ -74,6 +95,15 @@ public class OrderService(
         }
     }
 
+    public void ModifyIncompleteOrder(int orderId, Dictionary<int, Tuple<int, float>> updatedItems, DateOnly pickUpDate)
+    {
+        var order = GetOrderByIdAsync(orderId).GetAwaiter().GetResult()
+            ?? throw new ArgumentException("Order not found.");
+        order.PickUpDate = pickUpDate;
+        order.ItemQuantitiesWithFinalPrice = updatedItems;
+        UpdateOrderAsync(order).GetAwaiter().GetResult();
+    }
+
     public async Task DeleteOrderAsync(int orderId, CancellationToken cancellationToken = default)
         => await ordersRepository.DeleteAsync(orderId);
 
@@ -114,6 +144,9 @@ public class OrderService(
 
         await basketRepository.ClearBasketAsync(userId);
     }
+
+    public void PlaceOrderFromBasket(DateOnly chosenPickUpDate) =>
+        PlaceOrderFromBasketAsync(ActiveUser.Id, chosenPickUpDate).GetAwaiter().GetResult();
 
     public async Task CompleteOrderAsync(int orderId, Dictionary<int, (int Quantity, float Discount)> updatedQuantities, CancellationToken cancellationToken = default)
     {
@@ -159,6 +192,12 @@ public class OrderService(
         }
     }
 
+    public void CompleteOrder(int orderId, Dictionary<int, Tuple<int, float>> updatedItems) =>
+        CompleteOrderAsync(
+            orderId,
+            updatedItems.ToDictionary(pair => pair.Key, pair => (pair.Value.Item1, pair.Value.Item2)))
+            .GetAwaiter().GetResult();
+
     public async Task CancelOrderAsync(int orderId, CancellationToken cancellationToken = default)
     {
         var order = await ordersRepository.GetByIdAsync(orderId)
@@ -166,6 +205,9 @@ public class OrderService(
         order.IsExpired = true;
         await ordersRepository.UpdateAsync(order);
     }
+
+    public void CancelOrder(int orderId) =>
+        CancelOrderAsync(orderId).GetAwaiter().GetResult();
 
     public async Task ExpireOverdueOrdersAsync(CancellationToken cancellationToken = default)
     {
@@ -178,6 +220,43 @@ public class OrderService(
                 await ordersRepository.UpdateAsync(order);
             }
         }
+    }
+
+    public void ExpireOverdueOrders() =>
+        ExpireOverdueOrdersAsync().GetAwaiter().GetResult();
+
+    public void ResubmitExpiredOrder(int orderId, DateOnly pickUpDate)
+    {
+        var order = GetOrderByIdAsync(orderId).GetAwaiter().GetResult()
+            ?? throw new ArgumentException("Order not found.");
+        order.PickUpDate = pickUpDate;
+        order.IsExpired = false;
+        UpdateOrderAsync(order).GetAwaiter().GetResult();
+    }
+
+    public List<BasketItemViewModel> GetBasketItems() =>
+        [];
+
+    public Tuple<float, float> CalculateBasketTotalSum(List<BasketItemViewModel> basketItems) =>
+        Tuple.Create(0f, 0f);
+
+    public void AddItemToBasket(int itemId, int quantity, float extraDiscountPercentage = 0f)
+    {
+    }
+
+    public void AddToBasket(int itemId, int quantity) =>
+        AddItemToBasket(itemId, quantity);
+
+    public void UpdateBasketItemQuantity(int itemId, int quantity)
+    {
+    }
+
+    public void RemoveFromBasket(int itemId)
+    {
+    }
+
+    public void ApplyPrescriptionToBasket(string prescriptionId)
+    {
     }
 
     private async Task<IReadOnlyList<Order>> HydrateOrdersAsync(List<Order> orders)

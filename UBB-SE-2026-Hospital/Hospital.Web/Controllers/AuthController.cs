@@ -53,8 +53,10 @@ public class AuthController : Controller
             var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
             var jwtToken = handler.ReadJwtToken(response.Token);
 
-            var username = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ?? model.Email;
+            var userId = jwtToken.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Sub)?.Value;
+            var username = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.UniqueName)?.Value ?? model.Email;
             var role = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value ?? "Client";
+            var email = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Email)?.Value ?? model.Email;
 
             HttpContext.Session.SetString("AccessToken", response.Token);
             HttpContext.Session.SetString("Username", username);
@@ -63,8 +65,14 @@ public class AuthController : Controller
             var claims = new List<Claim>
             {
                 new(ClaimTypes.Name, username),
-                new(ClaimTypes.Role, role)
+                new(ClaimTypes.Role, role),
+                new(ClaimTypes.Email, email)
             };
+
+            if (!string.IsNullOrWhiteSpace(userId))
+            {
+                claims.Add(new Claim(ClaimTypes.NameIdentifier, userId));
+            }
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignInAsync(
