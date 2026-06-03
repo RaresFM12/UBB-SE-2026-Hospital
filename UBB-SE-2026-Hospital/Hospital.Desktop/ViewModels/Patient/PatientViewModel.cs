@@ -144,6 +144,10 @@ public partial class PatientViewModel : ObservableObject
             {
                 StatusMessage = "No patients found matching your search.";
             }
+            else if (SelectedPatient is null || Patients.All(patient => patient.PatientId != SelectedPatient.PatientId))
+            {
+                SelectedPatient = Patients[0];
+            }
         }
         catch (System.Exception ex)
         {

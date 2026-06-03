@@ -14,6 +14,7 @@ public sealed partial class PatientsPage : Page
     {
         base.OnNavigatedTo(e);
         ViewModel = App.Services.GetRequiredService<PatientViewModel>();
+        DataContext = ViewModel;
         ViewModel.LoadPatientsCommand.Execute(null);
     }
 
