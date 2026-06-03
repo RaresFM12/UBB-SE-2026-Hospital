@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media.Animation;
 
 namespace Hospital.Desktop.Views.Patient;
 
@@ -38,7 +39,18 @@ public sealed partial class DiscountRouletteDialog : ContentDialog
     {
         IsSpinEnabled = false;
         Bindings.Update();
-        SpinAnimation.Begin();
+        Storyboard storyboard = new();
+        DoubleAnimation spinAnimation = new()
+        {
+            From = WheelRotate.Angle,
+            To = WheelRotate.Angle + 3600,
+            Duration = new Duration(TimeSpan.FromSeconds(3)),
+        };
+
+        Storyboard.SetTarget(spinAnimation, WheelRotate);
+        Storyboard.SetTargetProperty(spinAnimation, "Angle");
+        storyboard.Children.Add(spinAnimation);
+        storyboard.Begin();
 
         await Task.Delay(3000);
 
