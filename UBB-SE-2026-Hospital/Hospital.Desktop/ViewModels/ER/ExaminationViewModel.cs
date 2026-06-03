@@ -16,6 +16,7 @@ public partial class ExaminationViewModel : ObservableObject
     private readonly IERVisitService erVisitService;
     private readonly IERRoomService erRoomService;
     private readonly ITriageService triageService;
+    private readonly IERDispatchService dispatchService;
 
     public Microsoft.UI.Xaml.XamlRoot? XamlRoot { get; set; }
 
@@ -47,12 +48,14 @@ public partial class ExaminationViewModel : ObservableObject
         IExaminationService examinationService,
         IERVisitService erVisitService,
         IERRoomService erRoomService,
-        ITriageService triageService)
+        ITriageService triageService,
+        IERDispatchService dispatchService)
     {
         this.examinationService = examinationService;
         this.erVisitService = erVisitService;
         this.erRoomService = erRoomService;
         this.triageService = triageService;
+        this.dispatchService = dispatchService;
     }
 
     private bool CanRequestDoctor()
@@ -87,6 +90,10 @@ public partial class ExaminationViewModel : ObservableObject
         {
             EligibleVisits.Add(visit);
         }
+
+        StatusMessage = EligibleVisits.Count == 0
+            ? "No visits are ready for examination yet. Visits must be in room or waiting for doctor."
+            : $"{EligibleVisits.Count} visit(s) are ready for examination.";
     }
 
     partial void OnSelectedVisitChanged(ERVisit? value)
@@ -126,11 +133,21 @@ public partial class ExaminationViewModel : ObservableObject
             }
             else
             {
-                var triage = await triageService.GetByVisitIdAsync(value.VisitId);
-                if (triage != null && !string.IsNullOrEmpty(triage.Specialization))
+                var request = await dispatchService.GetRequestByVisitIdAsync(value.VisitId);
+                if (ApplyDispatchAssignment(request))
                 {
-                    DoctorName = $"Auto: {triage.Specialization}";
-                    DoctorSpecialty = triage.Specialization;
+                    StatusMessage = request?.Status == "ASSIGNED"
+                        ? $"Doctor assigned through ER Dispatch for visit {value.VisitId}."
+                        : $"Doctor request for visit {value.VisitId} is pending in ER Dispatch.";
+                }
+                else
+                {
+                    var triage = await triageService.GetByVisitIdAsync(value.VisitId);
+                    if (triage != null && !string.IsNullOrEmpty(triage.Specialization))
+                    {
+                        DoctorName = $"Pending: {triage.Specialization}";
+                        DoctorSpecialty = triage.Specialization;
+                    }
                 }
             }
         }
@@ -165,16 +182,20 @@ public partial class ExaminationViewModel : ObservableObject
     public async Task RequestDoctor()
     {
         if (SelectedVisit == null) return;
+
         try
         {
-            var triage = await triageService.GetByVisitIdAsync(SelectedVisit.VisitId)
-                ?? throw new InvalidOperationException($"Triage record not found for visit {SelectedVisit.VisitId}");
+            var triage = await triageService.GetByVisitIdAsync(SelectedVisit.VisitId);
+            if (triage == null || string.IsNullOrWhiteSpace(triage.Specialization))
+            {
+                await ShowDialog("Missing Triage", "This visit must have triage information and a target specialization before requesting a doctor.");
+                return;
+            }
 
-            DoctorId = triage.NurseId > 0 ? triage.NurseId : 1;
-            DoctorName = $"Doctor for {triage.Specialization}";
-            DoctorSpecialty = triage.Specialization;
-            StatusMessage = $"Doctor {DoctorName} assigned.";
-            await ShowDialog("Doctor Assigned", $"Doctor {DoctorName} assigned to Visit {SelectedVisit.VisitId}.");
+            var requestId = await dispatchService.CreateRequestAsync(triage.Specialization, "ER", SelectedVisit.VisitId);
+            StatusMessage = $"Doctor request #{requestId} was sent to ER Dispatch for {triage.Specialization}.";
+            await ShowDialog("Doctor Requested",
+                $"Visit {SelectedVisit.VisitId} was sent to ER Dispatch.\nRequired specialization: {triage.Specialization}\nRequest ID: {requestId}");
             await LoadData();
         }
         catch (Exception ex)
@@ -200,6 +221,7 @@ public partial class ExaminationViewModel : ObservableObject
             };
 
             await examinationService.CreateAsync(examination);
+
             await erVisitService.UpdateAsync(new ERVisit
             {
                 VisitId = SelectedVisit.VisitId,
@@ -208,6 +230,8 @@ public partial class ExaminationViewModel : ObservableObject
                 ChiefComplaint = SelectedVisit.ChiefComplaint,
                 ArrivalDateTime = SelectedVisit.ArrivalDateTime,
             });
+
+            StatusMessage = $"Examination saved for visit {SelectedVisit.VisitId}.";
 
             await ShowDialog("Examination Saved",
                 $"Examination for Visit {SelectedVisit.VisitId} has been saved.\nDoctor: {DoctorName} ({DoctorSpecialty})");
@@ -254,6 +278,24 @@ public partial class ExaminationViewModel : ObservableObject
 
         var fallbackRoom = rooms.OrderBy(r => r.RoomId).FirstOrDefault();
         return fallbackRoom?.RoomId ?? throw new InvalidOperationException("No ER rooms available.");
+    }
+
+    private bool ApplyDispatchAssignment(Hospital.Shared.Models.ERRequest? request)
+    {
+        if (request?.AssignedDoctor == null)
+        {
+            DoctorId = 0;
+            return false;
+        }
+
+        DoctorId = request.AssignedDoctor.StaffID;
+        DoctorName = string.IsNullOrWhiteSpace(request.AssignedDoctor.FullName)
+            ? $"Dr. #{request.AssignedDoctor.StaffID}"
+            : request.AssignedDoctor.FullName;
+        DoctorSpecialty = string.IsNullOrWhiteSpace(request.AssignedDoctor.Specialization)
+            ? "General"
+            : request.AssignedDoctor.Specialization;
+        return true;
     }
 
     private async Task ShowDialog(string title, string message)

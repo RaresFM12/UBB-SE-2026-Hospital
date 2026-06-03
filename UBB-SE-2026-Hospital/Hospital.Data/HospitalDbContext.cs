@@ -152,6 +152,12 @@ public class HospitalDbContext(DbContextOptions<HospitalDbContext> options) : Db
             .HasForeignKey("AssignedDoctorId")
             .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<ERRequest>()
+            .HasOne(r => r.Visit)
+            .WithMany()
+            .HasForeignKey("VisitId")
+            .OnDelete(DeleteBehavior.Restrict);
+
         // PharmacyHandover → Staff
         modelBuilder.Entity<PharmacyHandover>()
             .HasOne(h => h.Pharmacist)

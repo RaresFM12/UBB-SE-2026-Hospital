@@ -24,32 +24,64 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Border Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
-                <StackPanel>
+                <Grid RowSpacing="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
                     <TextBlock Text="Eligible Visits" FontWeight="SemiBold"/>
-                    <ListView ItemsSource="{Binding EligibleVisits}" SelectedItem="{Binding SelectedVisit, Mode=TwoWay}">
+                    <ListView Grid.Row="1" ItemsSource="{Binding EligibleVisits}" SelectedItem="{Binding SelectedVisit, Mode=TwoWay}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Padding="8">
-                                    <TextBlock Text="{Binding VisitId}" FontWeight="SemiBold"/>
-                                    <TextBlock Text="{Binding ChiefComplaint}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
-                                    <TextBlock Text="{Binding Status}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
-                                </StackPanel>
+                                <Border Background="{StaticResource AppBackgroundBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,8">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Foreground="{StaticResource AppTextPrimaryBrush}" FontWeight="SemiBold">
+                                            <Run Text="Visit #"/>
+                                            <Run Text="{Binding VisitId}"/>
+                                        </TextBlock>
+                                        <TextBlock Foreground="{StaticResource AppTextPrimaryBrush}" FontWeight="SemiBold">
+                                            <Run Text="{Binding Patient.FirstName}"/>
+                                            <Run Text=" "/>
+                                            <Run Text="{Binding Patient.LastName}"/>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding ChiefComplaint}" Foreground="{StaticResource AppTextSecondaryBrush}" TextWrapping="Wrap"/>
+                                        <TextBlock Foreground="{StaticResource AppAccentBrush}" FontWeight="SemiBold">
+                                            <Run Text="Status: "/>
+                                            <Run Text="{Binding Status}"/>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding ArrivalDateTime}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                                    </StackPanel>
+                                </Border>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                </StackPanel>
+                </Grid>
             </Border>
             <Border Grid.Column="1" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
                 <StackPanel Spacing="10">
                     <TextBlock Text="Examination Details" FontWeight="SemiBold"/>
-                    <TextBlock Text="{Binding TriageLevelDisplay}" Foreground="{StaticResource AppAccentBrush}"/>
-                    <TextBlock Text="{Binding TriageSpecialization}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                    <Border Background="{StaticResource AppBackgroundBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="{Binding TriageLevelDisplay}" Foreground="{StaticResource AppAccentBrush}" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding TriageSpecialization}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding TriageNurseId}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                        </StackPanel>
+                    </Border>
                     <NumberBox Header="Doctor ID" Value="{Binding DoctorId, Mode=TwoWay}"/>
                     <TextBox Header="Notes" Text="{Binding Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" MinHeight="140"/>
-                    <ListView ItemsSource="{Binding ExaminationHistory}" MaxHeight="180">
+                    <TextBlock Text="Previous Examination Notes" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                    <ListView ItemsSource="{Binding ExaminationHistory}" MaxHeight="220">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Padding="6" Text="{Binding Findings}" TextWrapping="Wrap"/>
+                                <Border Background="{StaticResource AppBackgroundBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,0,0,8">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Foreground="{StaticResource AppTextSecondaryBrush}">
+                                            <Run Text="Exam on "/>
+                                            <Run Text="{Binding ExaminationDate}"/>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding Findings}" TextWrapping="Wrap" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                                    </StackPanel>
+                                </Border>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>

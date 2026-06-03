@@ -30,8 +30,11 @@ public class HttpERDispatchProxy(HttpClient httpClient) : ProxyBase(httpClient),
     public async Task<ERRequest?> GetRequestByIdAsync(int requestId)
         => await GetAsync<ERRequest>($"{BaseUri}/{requestId}");
 
-    public async Task<int> CreateRequestAsync(string specialization, string location)
-        => await PostAsync<object, int>(BaseUri, new { specialization, location });
+    public async Task<ERRequest?> GetRequestByVisitIdAsync(int visitId)
+        => await GetAsync<ERRequest>($"{BaseUri}/by-visit/{visitId}");
+
+    public async Task<int> CreateRequestAsync(string specialization, string location, int? visitId = null)
+        => await PostAsync<object, int>(BaseUri, new { specialization, location, visitId });
 
     public async Task UpdateRequestStatusAsync(int requestId, string status)
         => await PutAsync<object>($"{BaseUri}/{requestId}/status", new { status });

@@ -74,7 +74,7 @@ public class TriageService(
             Specialization = string.IsNullOrWhiteSpace(parameters.Specialization)
                 ? triageDecisionService.DetermineSpecialization(triageParameters)
                 : parameters.Specialization,
-            NurseId = parameters.NurseId,
+            NurseId = parameters.NurseId > 0 ? parameters.NurseId : Random.Shared.Next(1, 11),
             TriageTime = parameters.TriageTime == default ? DateTime.Now : parameters.TriageTime,
         };
 

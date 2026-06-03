@@ -49,57 +49,53 @@
             </Border>
 
             <Border Grid.Column="1" Background="{StaticResource AppSurfaceBrush}" CornerRadius="12" Padding="16">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="Triage Parameters" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
-                        <TextBlock Foreground="{StaticResource AppTextSecondaryBrush}">
-                            <Run Text="Selected visit: "/>
-                            <Run Text="{Binding SelectedVisitLabel}"/>
-                        </TextBlock>
-                        <TextBlock Text="{Binding SelectedVisit.ChiefComplaint, FallbackValue='Select a visit from the left to start triage.'}" Foreground="{StaticResource AppTextSecondaryBrush}" TextWrapping="Wrap"/>
-                        <Border Background="{StaticResource AppBackgroundBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
-                            <StackPanel Spacing="4">
-                                <TextBlock Text="How to score each parameter" Foreground="{StaticResource AppTextPrimaryBrush}" FontWeight="SemiBold"/>
-                                <TextBlock Text="1 = mild / stable" Foreground="{StaticResource AppTextSecondaryBrush}"/>
-                                <TextBlock Text="2 = moderate / concerning" Foreground="{StaticResource AppTextSecondaryBrush}"/>
-                                <TextBlock Text="3 = severe / critical" Foreground="{StaticResource AppTextSecondaryBrush}"/>
-                            </StackPanel>
-                        </Border>
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Triage Parameters" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                    <TextBlock Foreground="{StaticResource AppTextSecondaryBrush}">
+                        <Run Text="Selected visit: "/>
+                        <Run Text="{Binding SelectedVisitLabel}"/>
+                    </TextBlock>
+                    <TextBlock Text="{Binding SelectedVisit.ChiefComplaint, FallbackValue='Select a visit from the left to start triage.'}" Foreground="{StaticResource AppTextSecondaryBrush}" TextWrapping="Wrap"/>
+                    <Border Background="{StaticResource AppBackgroundBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
+                        <TextBlock
+                            Text="Score each parameter from 1 (mild/stable) to 3 (severe/critical)."
+                            Foreground="{StaticResource AppTextSecondaryBrush}"
+                            TextWrapping="Wrap"/>
+                    </Border>
 
-                        <TextBlock Foreground="{StaticResource AppTextPrimaryBrush}">
-                            <Run Text="Consciousness: "/>
-                            <Run Text="{Binding Consciousness}"/>
-                        </TextBlock>
-                        <Slider Minimum="1" Maximum="3" Value="{Binding Consciousness, Mode=TwoWay}" TickFrequency="1" SnapsTo="Ticks"/>
-                        <TextBlock Foreground="{StaticResource AppTextPrimaryBrush}">
-                            <Run Text="Breathing: "/>
-                            <Run Text="{Binding Breathing}"/>
-                        </TextBlock>
-                        <Slider Minimum="1" Maximum="3" Value="{Binding Breathing, Mode=TwoWay}" TickFrequency="1" SnapsTo="Ticks"/>
-                        <TextBlock Foreground="{StaticResource AppTextPrimaryBrush}">
-                            <Run Text="Bleeding: "/>
-                            <Run Text="{Binding Bleeding}"/>
-                        </TextBlock>
-                        <Slider Minimum="1" Maximum="3" Value="{Binding Bleeding, Mode=TwoWay}" TickFrequency="1" SnapsTo="Ticks"/>
-                        <TextBlock Foreground="{StaticResource AppTextPrimaryBrush}">
-                            <Run Text="Injury Type: "/>
-                            <Run Text="{Binding InjuryType}"/>
-                        </TextBlock>
-                        <Slider Minimum="1" Maximum="3" Value="{Binding InjuryType, Mode=TwoWay}" TickFrequency="1" SnapsTo="Ticks"/>
-                        <TextBlock Foreground="{StaticResource AppTextPrimaryBrush}">
-                            <Run Text="Pain Level: "/>
-                            <Run Text="{Binding PainLevel}"/>
-                        </TextBlock>
-                        <Slider Minimum="1" Maximum="3" Value="{Binding PainLevel, Mode=TwoWay}" TickFrequency="1" SnapsTo="Ticks"/>
+                    <TextBlock Foreground="{StaticResource AppTextPrimaryBrush}">
+                        <Run Text="Consciousness: "/>
+                        <Run Text="{Binding Consciousness}"/>
+                    </TextBlock>
+                    <Slider Minimum="1" Maximum="3" Value="{Binding Consciousness, Mode=TwoWay}" TickFrequency="1" SnapsTo="Ticks"/>
+                    <TextBlock Foreground="{StaticResource AppTextPrimaryBrush}">
+                        <Run Text="Breathing: "/>
+                        <Run Text="{Binding Breathing}"/>
+                    </TextBlock>
+                    <Slider Minimum="1" Maximum="3" Value="{Binding Breathing, Mode=TwoWay}" TickFrequency="1" SnapsTo="Ticks"/>
+                    <TextBlock Foreground="{StaticResource AppTextPrimaryBrush}">
+                        <Run Text="Bleeding: "/>
+                        <Run Text="{Binding Bleeding}"/>
+                    </TextBlock>
+                    <Slider Minimum="1" Maximum="3" Value="{Binding Bleeding, Mode=TwoWay}" TickFrequency="1" SnapsTo="Ticks"/>
+                    <TextBlock Foreground="{StaticResource AppTextPrimaryBrush}">
+                        <Run Text="Injury Type: "/>
+                        <Run Text="{Binding InjuryType}"/>
+                    </TextBlock>
+                    <Slider Minimum="1" Maximum="3" Value="{Binding InjuryType, Mode=TwoWay}" TickFrequency="1" SnapsTo="Ticks"/>
+                    <TextBlock Foreground="{StaticResource AppTextPrimaryBrush}">
+                        <Run Text="Pain Level: "/>
+                        <Run Text="{Binding PainLevel}"/>
+                    </TextBlock>
+                    <Slider Minimum="1" Maximum="3" Value="{Binding PainLevel, Mode=TwoWay}" TickFrequency="1" SnapsTo="Ticks"/>
 
-                        <Button Content="Perform Triage" Command="{Binding PerformTriageCommand}" HorizontalAlignment="Stretch" IsEnabled="{Binding IsNotTriaged}"/>
-                        <Button Content="Move to Queue" Command="{Binding MoveToQueueCommand}" HorizontalAlignment="Stretch" IsEnabled="{Binding IsTriaged}"/>
-                        <Button Content="Close Visit" Command="{Binding CancelTriageCommand}" HorizontalAlignment="Stretch"/>
+                    <Button Content="Perform Triage" Command="{Binding PerformTriageCommand}" HorizontalAlignment="Stretch" IsEnabled="{Binding IsNotTriaged}"/>
+                    <Button Content="Move to Queue" Command="{Binding MoveToQueueCommand}" HorizontalAlignment="Stretch" IsEnabled="{Binding IsTriaged}"/>
+                    <Button Content="Close Visit" Command="{Binding CancelTriageCommand}" HorizontalAlignment="Stretch"/>
 
-                        <TextBlock Text="{Binding TriageResultText}" Foreground="{StaticResource AppAccentBrush}" FontWeight="SemiBold"/>
-                        <TextBlock Text="{Binding SpecializationResultText}" Foreground="{StaticResource AppAccentBrush}"/>
-                    </StackPanel>
-                </ScrollViewer>
+                    <TextBlock Text="{Binding TriageResultText}" Foreground="{StaticResource AppAccentBrush}" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding SpecializationResultText}" Foreground="{StaticResource AppAccentBrush}"/>
+                </StackPanel>
             </Border>
         </Grid>
     </Grid>

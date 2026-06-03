@@ -8,6 +8,8 @@ namespace Hospital.Shared.Models
 
         public int Id { get; set; }
 
+        public int? VisitId { get; set; }
+
         public string Specialization { get; set; } = string.Empty;
 
         public string Location { get; set; } = string.Empty;

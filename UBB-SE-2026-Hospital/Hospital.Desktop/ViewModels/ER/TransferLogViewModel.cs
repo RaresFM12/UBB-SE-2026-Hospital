@@ -88,6 +88,9 @@ public partial class TransferLogViewModel : ObservableObject
         }
 
         EligibleVisits = freshList;
+        StatusMessage = EligibleVisits.Count == 0
+            ? "No visits are ready for transfer yet. A visit must reach IN_EXAMINATION first."
+            : $"{EligibleVisits.Count} visit(s) are ready for transfer or closure.";
     }
 
     [RelayCommand]

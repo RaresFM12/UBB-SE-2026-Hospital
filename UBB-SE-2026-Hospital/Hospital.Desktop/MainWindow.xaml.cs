@@ -1,5 +1,7 @@
+using System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Media;
 
@@ -20,6 +22,13 @@ public partial class MainWindow : Window
     {
         Title = "Hospital Desktop";
         Content = BuildShell();
+        if (Content is UIElement rootElement)
+        {
+            rootElement.AddHandler(
+                UIElement.PointerWheelChangedEvent,
+                new PointerEventHandler(OnPointerWheelChanged),
+                true);
+        }
         contentFrame.Navigated += OnContentFrameNavigated;
         contentFrame.NavigationFailed += OnContentFrameNavigationFailed;
         contentFrame.Navigate(typeof(Views.DashboardPage));
@@ -229,4 +238,51 @@ public partial class MainWindow : Window
 
     private void OnLogoutClick(object sender, RoutedEventArgs e)
         => ((App)Application.Current).Logout(this);
+
+    private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)
+    {
+        if (e.OriginalSource is not DependencyObject source)
+        {
+            return;
+        }
+
+        ScrollViewer? scrollViewer = FindAncestor<ScrollViewer>(source);
+        if (scrollViewer is null || scrollViewer.ScrollableHeight <= 0)
+        {
+            return;
+        }
+
+        int delta = e.GetCurrentPoint(scrollViewer).Properties.MouseWheelDelta;
+        if (delta == 0)
+        {
+            return;
+        }
+
+        double nextOffset = scrollViewer.VerticalOffset - (delta / 3.0);
+        nextOffset = Math.Clamp(nextOffset, 0, scrollViewer.ScrollableHeight);
+
+        if (Math.Abs(nextOffset - scrollViewer.VerticalOffset) < 0.1)
+        {
+            return;
+        }
+
+        scrollViewer.ChangeView(scrollViewer.HorizontalOffset, nextOffset, null, true);
+        e.Handled = true;
+    }
+
+    private static T? FindAncestor<T>(DependencyObject start) where T : DependencyObject
+    {
+        DependencyObject? current = start;
+        while (current is not null)
+        {
+            if (current is T match)
+            {
+                return match;
+            }
+
+            current = VisualTreeHelper.GetParent(current);
+        }
+
+        return null;
+    }
 }

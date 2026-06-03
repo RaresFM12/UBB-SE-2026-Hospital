@@ -18,7 +18,7 @@ namespace Hospital.Desktop.ViewModels.Admin
         private const int NearEndMinutesThreshold = OverrideWindowDays * MinutesPerDay;
         private const int DefaultSimulatedRequestCount = 3;
         private const string UnknownDoctorName = "Unknown";
-        private const string ManualOverrideHintText = "Manual override accepts IN_EXAMINATION doctors whose active shift ends within 3 days.";
+        private const string ManualOverrideHintText = "Manual override prefers IN_EXAMINATION doctors ending within 3 days, then falls back to matching doctors.";
         private readonly IERDispatchService dispatchService;
 
         public ObservableCollection<UnmatchedRequestRow> UnmatchedRequests { get; } = new ObservableCollection<UnmatchedRequestRow>();
@@ -53,13 +53,12 @@ namespace Hospital.Desktop.ViewModels.Admin
         {
             this.dispatchService = dispatchService;
             this.RunDispatchCommand = new AsyncRelayCommand(this.RunDispatchAsync);
-            bool CanRefresh() => this.UnmatchedRequests.Count > 0 || this.SuccessfulMatches.Count > 0;
-            this.RefreshCommand = new RelayCommand(this.Refresh, CanRefresh);
+            this.RefreshCommand = new RelayCommand(this.Refresh);
 
             async Task SimulateDefaultCount() => await this.SimulateIncomingAsync(DefaultSimulatedRequestCount);
             this.SimulateIncomingCommand = new AsyncRelayCommand(SimulateDefaultCount);
 
-            this.Refresh();
+            _ = this.RefreshFromServerAsync();
         }
 
         public void LoadFlaggedRequests() => this.Refresh();
@@ -72,11 +71,65 @@ namespace Hospital.Desktop.ViewModels.Admin
 
         public void Refresh()
         {
+            _ = this.RefreshFromServerAsync();
+        }
+
+        private async Task RefreshFromServerAsync()
+        {
             this.UnmatchedRequests.Clear();
             this.SuccessfulMatches.Clear();
             this.OverrideCandidates.Clear();
-            this.StatusMessage = "Ready";
+            this.StatusMessage = "Loading...";
             this.ManualInterventionHint = ManualOverrideHintText;
+
+            try
+            {
+                var requests = await this.dispatchService.GetAllRequestsAsync();
+
+                foreach (var request in requests.OrderByDescending(item => item.Id))
+                {
+                    if (string.Equals(request.Status, "UNMATCHED", StringComparison.OrdinalIgnoreCase))
+                    {
+                        this.UnmatchedRequests.Add(new UnmatchedRequestRow
+                        {
+                            RequestId = request.Id,
+                            RequestSpecialization = request.Specialization,
+                            RequestLocation = request.Location,
+                            NoMatchReason = "No available matching doctor found.",
+                        });
+                    }
+                    else if (string.Equals(request.Status, "ASSIGNED", StringComparison.OrdinalIgnoreCase))
+                    {
+                        this.SuccessfulMatches.Add(new SuccessfulMatchRow
+                        {
+                            RequestId = request.Id,
+                            AssignedDoctor = request.AssignedDoctor?.FullName ?? UnknownDoctorName,
+                            Specialization = request.Specialization,
+                            MatchReason = "Assigned through ER Dispatch.",
+                        });
+                    }
+                }
+
+                this.StatusMessage = $"{this.SuccessfulMatches.Count} matched, {this.UnmatchedRequests.Count} unmatched";
+
+                if (this.UnmatchedRequests.Count > 0)
+                {
+                    await this.LoadOverrideCandidatesAsync(this.UnmatchedRequests.First().RequestId);
+                }
+                else if (this.SuccessfulMatches.Count == 0)
+                {
+                    this.StatusMessage = "Ready";
+                    this.ManualInterventionHint = "No dispatch results yet. Run dispatch to process pending ER requests.";
+                }
+                else
+                {
+                    this.ManualInterventionHint = "No unmatched requests. Override not needed.";
+                }
+            }
+            catch (Exception exception)
+            {
+                this.StatusMessage = $"Error: {exception.Message}";
+            }
         }
 
         public async Task SimulateIncomingAsync(int requestCount)
@@ -133,7 +186,7 @@ namespace Hospital.Desktop.ViewModels.Admin
             this.OverrideCandidates.ReplaceWith(overrideCandidateDoctors.Select(OverrideCandidateRow.From));
 
             this.ManualInterventionHint = this.OverrideCandidates.Count == 0
-                ? "No eligible override doctor found (need IN_EXAMINATION doctor ending within 3 days)."
+                ? "No matching doctor found for this request."
                 : $"Found {this.OverrideCandidates.Count} eligible override candidate(s).";
         }
 

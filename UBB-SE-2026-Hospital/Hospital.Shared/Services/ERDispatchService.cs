@@ -248,7 +248,13 @@ namespace Hospital.Shared.Services
             return Task.FromResult(this.requestRepository.GetRequestById(requestId));
         }
 
-        public Task<int> CreateRequestAsync(string specialization, string location)
+        public Task<ERRequest?> GetRequestByVisitIdAsync(int visitId)
+        {
+            bool HasMatchingVisitId(ERRequest request) => request.VisitId == visitId;
+            return Task.FromResult(this.requestRepository.GetAllRequests().FirstOrDefault(HasMatchingVisitId));
+        }
+
+        public Task<int> CreateRequestAsync(string specialization, string location, int? visitId = null)
         {
             var newId = this.requestRepository.AddRequest(specialization, location, PendingStatus);
             return Task.FromResult(newId);
@@ -390,11 +396,15 @@ namespace Hospital.Shared.Services
             return normalizedSpecialization switch
             {
                 "surgeon" => "surgery",
+                "general surgery" => "surgery",
                 "cardiologist" => "cardiology",
                 "cardio" => "cardiology",
                 "cariology" => "cardiology",
                 "pediatric" => "pediatrics",
                 "pediatrician" => "pediatrics",
+                "general" => "diagnostician",
+                "emergency medicine" => "diagnostician",
+                "emergency" => "diagnostician",
                 _ => normalizedSpecialization,
             };
         }

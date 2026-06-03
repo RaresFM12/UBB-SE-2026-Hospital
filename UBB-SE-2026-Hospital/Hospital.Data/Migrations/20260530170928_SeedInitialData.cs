@@ -298,11 +298,10 @@ namespace Hospital.Data.Migrations
                     { 13, 13, 4, "General",     1, new DateTime(2026,4,5,8,10,0)  },
                     { 14, 14, 1, "Cardiology",  2, new DateTime(2026,4,5,9,10,0)  },
                     { 15, 15, 3, "Orthopedics", 3, new DateTime(2026,4,5,10,10,0) },
-                    { 16, 16, 2, "Cardiology",  1, new DateTime(2026,4,6,8,10,0)  },
+                    // Keep visits 16, 19 and 20 untriaged so fresh databases have real
+                    // REGISTERED cases available for the triage flow.
                     { 17, 17, 3, "Neurology",   2, new DateTime(2026,4,6,9,10,0)  },
-                    { 18, 18, 4, "General",     3, new DateTime(2026,4,6,10,10,0) },
-                    { 19, 19, 3, "Orthopedics", 1, new DateTime(2026,4,7,8,10,0)  },
-                    { 20, 20, 2, "Pulmonology", 2, new DateTime(2026,4,7,9,10,0)  }
+                    { 18, 18, 4, "General",     3, new DateTime(2026,4,6,10,10,0) }
                 });
 
             // ── 13. TriageParameters ──────────────────────────────────────────────
@@ -326,11 +325,8 @@ namespace Hospital.Data.Migrations
                     { 13, 13, 1, 1, 1, 1, 1 },
                     { 14, 14, 1, 1, 1, 1, 3 },
                     { 15, 15, 1, 1, 2, 3, 2 },
-                    { 16, 16, 1, 2, 1, 1, 2 },
                     { 17, 17, 2, 1, 1, 2, 3 },
-                    { 18, 18, 1, 1, 1, 1, 2 },
-                    { 19, 19, 1, 1, 2, 3, 2 },
-                    { 20, 20, 1, 2, 1, 1, 2 }
+                    { 18, 18, 1, 1, 1, 1, 2 }
                 });
 
             // ── 14. Examinations ──────────────────────────────────────────────────

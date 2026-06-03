@@ -7,6 +7,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -18,57 +19,159 @@
             <Button Content="Mark Available" Command="{Binding MarkRoomAsCleanedCommand}"/>
         </StackPanel>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="24">
-            <TextBlock Text="{Binding TotalRooms}" FontWeight="SemiBold"/>
-            <TextBlock Text="{Binding AvailableCount}" Foreground="{StaticResource AppAccentBrush}"/>
-            <TextBlock Text="{Binding OccupiedCount}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
-            <TextBlock Text="{Binding CleaningCount}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
-        </StackPanel>
+        <Grid Grid.Row="1" ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-        <Grid Grid.Row="2" ColumnSpacing="16">
+            <Border Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="10" Padding="12">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Total Rooms" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                    <TextBlock Text="{Binding TotalRooms}" FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="1" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="10" Padding="12">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Available" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                    <TextBlock Text="{Binding AvailableCount}" FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppAccentBrush}"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="2" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="10" Padding="12">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Occupied" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                    <TextBlock Text="{Binding OccupiedCount}" FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="3" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="10" Padding="12">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Cleaning" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                    <TextBlock Text="{Binding CleaningCount}" FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="2" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+            <Grid ColumnSpacing="24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Selected Patient" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                    <TextBlock Text="{Binding SelectedPatient.FullName, FallbackValue='No patient selected'}" Foreground="{StaticResource AppTextSecondaryBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Spacing="4">
+                    <TextBlock Text="Current Visit" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                    <TextBlock Text="{Binding SelectedVisit.ChiefComplaint, FallbackValue='Select an occupied or cleaning room to inspect its visit'}" Foreground="{StaticResource AppTextSecondaryBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Spacing="4">
+                    <TextBlock Text="Triage Context" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                    <TextBlock Foreground="{StaticResource AppTextSecondaryBrush}" TextWrapping="Wrap">
+                        <Run Text="Level "/>
+                        <Run Text="{Binding SelectedTriage.TriageLevel, FallbackValue='-'}"/>
+                        <Run Text="  "/>
+                        <Run Text="{Binding SelectedTriage.Specialization, FallbackValue=''}"/>
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="3" ColumnSpacing="16">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Border Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
-                <StackPanel>
-                    <TextBlock Text="Available" FontWeight="SemiBold"/>
-                    <ListView ItemsSource="{Binding AvailableRooms}">
+
+            <Border Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="12" Padding="12">
+                <Grid RowSpacing="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Available Rooms" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                    <ListView Grid.Row="1" ItemsSource="{Binding AvailableRooms}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Padding="8" Text="{Binding RoomTypeName}" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                                <Border Background="{StaticResource AppBackgroundBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,8">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}">
+                                            <Run Text="Room #"/>
+                                            <Run Text="{Binding RoomId}"/>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding RoomTypeName}" Foreground="{StaticResource AppAccentBrush}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding AvailabilityStatus}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                                    </StackPanel>
+                                </Border>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                </StackPanel>
+                </Grid>
             </Border>
-            <Border Grid.Column="1" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
-                <StackPanel>
-                    <TextBlock Text="Occupied" FontWeight="SemiBold"/>
-                    <ListView ItemsSource="{Binding OccupiedRooms}" SelectedItem="{Binding SelectedOccupiedRoom, Mode=TwoWay}">
+
+            <Border Grid.Column="1" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="12" Padding="12">
+                <Grid RowSpacing="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Occupied Rooms" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                    <ListView Grid.Row="1" ItemsSource="{Binding OccupiedRooms}" SelectedItem="{Binding SelectedOccupiedRoom, Mode=TwoWay}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Padding="8" Text="{Binding RoomTypeName}" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                                <Border Background="{StaticResource AppBackgroundBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,8">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}">
+                                            <Run Text="Room #"/>
+                                            <Run Text="{Binding RoomId}"/>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding RoomTypeName}" Foreground="{StaticResource AppAccentBrush}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding AvailabilityStatus}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                                    </StackPanel>
+                                </Border>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                </StackPanel>
+                </Grid>
             </Border>
-            <Border Grid.Column="2" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
-                <StackPanel>
-                    <TextBlock Text="Cleaning" FontWeight="SemiBold"/>
-                    <ListView ItemsSource="{Binding CleaningRooms}" SelectedItem="{Binding SelectedCleaningRoom, Mode=TwoWay}">
+
+            <Border Grid.Column="2" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="12" Padding="12">
+                <Grid RowSpacing="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Cleaning Queue" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                    <ListView Grid.Row="1" ItemsSource="{Binding CleaningRooms}" SelectedItem="{Binding SelectedCleaningRoom, Mode=TwoWay}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Padding="8" Text="{Binding RoomTypeName}" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                                <Border Background="{StaticResource AppBackgroundBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,8">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}">
+                                            <Run Text="Room #"/>
+                                            <Run Text="{Binding RoomId}"/>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding RoomTypeName}" Foreground="{StaticResource AppAccentBrush}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding AvailabilityStatus}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                                    </StackPanel>
+                                </Border>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                </StackPanel>
+                </Grid>
             </Border>
         </Grid>
 
-        <TextBlock Grid.Row="3" Text="{Binding StatusMessage}" Foreground="{StaticResource AppErrorBrush}" TextWrapping="Wrap"/>
+        <TextBlock Grid.Row="4" Text="{Binding StatusMessage}" Foreground="{StaticResource AppTextSecondaryBrush}" TextWrapping="Wrap"/>
     </Grid>
 </Page>

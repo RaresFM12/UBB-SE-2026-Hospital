@@ -328,6 +328,15 @@ public static class DesktopCompatibilityRoutes
             return request is null ? Results.NotFound() : Results.Ok(request);
         });
 
+        app.MapGet("api/er-requests/by-visit/{visitId:int}", async (int visitId, HospitalDbContext db) =>
+        {
+            var request = await LoadRequests(db)
+                .Where(item => item.VisitId == visitId)
+                .OrderByDescending(item => item.CreatedAt)
+                .FirstOrDefaultAsync();
+            return request is null ? Results.NotFound() : Results.Ok(request);
+        });
+
         app.MapGet("api/er-requests/pending", async (HospitalDbContext db) =>
             Results.Ok(await db.ERRequests
                 .Where(request => request.Status == PendingStatus)
@@ -337,8 +346,26 @@ public static class DesktopCompatibilityRoutes
 
         app.MapPost("api/er-requests", async (JsonElement payload, HospitalDbContext db) =>
         {
+            var visitId = ReadInt(payload, "visitId");
+            if (visitId.HasValue)
+            {
+                var existingRequest = await LoadRequests(db)
+                    .Where(item => item.VisitId == visitId.Value)
+                    .Where(item => item.Status != CancelledStatus)
+                    .OrderByDescending(item => item.CreatedAt)
+                    .FirstOrDefaultAsync();
+
+                if (existingRequest is not null)
+                {
+                    await MarkVisitWaitingForDoctorAsync(db, visitId.Value);
+                    await db.SaveChangesAsync();
+                    return Results.Ok(existingRequest.Id);
+                }
+            }
+
             var request = new ERRequest
             {
+                VisitId = visitId,
                 Specialization = ReadString(payload, "specialization") ?? "General",
                 Location = ReadString(payload, "location") ?? "Ward A",
                 Status = PendingStatus,
@@ -346,6 +373,10 @@ public static class DesktopCompatibilityRoutes
             };
 
             db.ERRequests.Add(request);
+            if (visitId.HasValue)
+            {
+                await MarkVisitWaitingForDoctorAsync(db, visitId.Value);
+            }
             await db.SaveChangesAsync();
             return Results.Ok(request.Id);
         });
@@ -446,9 +477,35 @@ public static class DesktopCompatibilityRoutes
                 };
             });
 
-            return Results.Ok(candidates
+            var preferredCandidates = candidates
                 .Where(candidate => IsSameSpecialization(candidate.Specialization, request.Specialization))
-                .ToList());
+                .ToList();
+
+            if (preferredCandidates.Count > 0)
+            {
+                return Results.Ok(preferredCandidates);
+            }
+
+            var fallbackDoctors = await db.Staff
+                .OfType<Doctor>()
+                .ToListAsync();
+
+            var fallbackCandidates = fallbackDoctors
+                .Where(doctor => IsSameSpecialization(doctor.Specialization, request.Specialization))
+                .OrderBy(doctor => doctor.FullName)
+                .Select(doctor => new
+                {
+                    DoctorId = doctor.StaffId,
+                    FullName = doctor.FullName,
+                    Specialization = doctor.Specialization,
+                    Status = doctor.DoctorStatus,
+                    Location = doctor.Department ?? "ER",
+                    ScheduleStart = (DateTime?)null,
+                    ScheduleEnd = (DateTime?)null,
+                })
+                .ToList();
+
+            return Results.Ok(fallbackCandidates);
         });
 
         app.MapPost("api/er-requests/{requestId:int}/override", async (int requestId, JsonElement payload, HospitalDbContext db) =>
@@ -470,6 +527,7 @@ public static class DesktopCompatibilityRoutes
             request.AssignedDoctor = doctor;
             doctor.DoctorStatus = DoctorStatus.InExamination;
             doctor.Available = false;
+            await UpdateVisitAfterDoctorAssignedAsync(db, request.VisitId);
             await db.SaveChangesAsync();
 
             return Results.Ok(DispatchResult(request, doctor, true, "Manual override by administrator."));
@@ -480,7 +538,9 @@ public static class DesktopCompatibilityRoutes
         db.Shifts.Include(shift => shift.Staff).AsNoTracking();
 
     private static IQueryable<ERRequest> LoadRequests(HospitalDbContext db) =>
-        db.ERRequests.Include(request => request.AssignedDoctor);
+        db.ERRequests
+            .Include(request => request.AssignedDoctor)
+            .Include(request => request.Visit);
 
     private static async Task<bool> HasShiftOverlap(
         HospitalDbContext db,
@@ -619,8 +679,33 @@ public static class DesktopCompatibilityRoutes
         request.AssignedDoctor = doctor;
         doctor.DoctorStatus = DoctorStatus.InExamination;
         doctor.Available = false;
+        await UpdateVisitAfterDoctorAssignedAsync(db, request.VisitId);
         await db.SaveChangesAsync();
         return DispatchResult(request, doctor, true, $"Assigned to {doctor.FullName}.");
+    }
+
+    private static async Task MarkVisitWaitingForDoctorAsync(HospitalDbContext db, int visitId)
+    {
+        var visit = await db.ERVisits.FindAsync(visitId);
+        if (visit is null)
+        {
+            return;
+        }
+
+        if (string.Equals(visit.Status, ERVisit.VisitStatus.IN_ROOM, StringComparison.OrdinalIgnoreCase))
+        {
+            visit.Status = ERVisit.VisitStatus.WAITING_FOR_DOCTOR;
+        }
+    }
+
+    private static async Task UpdateVisitAfterDoctorAssignedAsync(HospitalDbContext db, int? visitId)
+    {
+        if (!visitId.HasValue)
+        {
+            return;
+        }
+
+        await MarkVisitWaitingForDoctorAsync(db, visitId.Value);
     }
 
     private static object DispatchResult(ERRequest request, Doctor? doctor, bool success, string message) => new
@@ -647,10 +732,14 @@ public static class DesktopCompatibilityRoutes
         Normalize(value).ToLowerInvariant() switch
         {
             "surgeon" => "surgery",
+            "general surgery" => "surgery",
             "cardiologist" => "cardiology",
             "cardio" => "cardiology",
             "pediatric" => "pediatrics",
             "pediatrician" => "pediatrics",
+            "general" => "diagnostician",
+            "emergency medicine" => "diagnostician",
+            "emergency" => "diagnostician",
             _ => Normalize(value).ToLowerInvariant(),
         };
 
