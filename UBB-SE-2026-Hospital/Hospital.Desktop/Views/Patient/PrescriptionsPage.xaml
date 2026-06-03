@@ -1,34 +1,144 @@
 <Page
     x:Class="Hospital.Desktop.Views.Patient.PrescriptionsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:model="using:Hospital.Data.Models">
 
-    <Grid Background="{StaticResource AppBackgroundBrush}" Padding="24" RowSpacing="16">
+    <Page.Resources>
+        <SolidColorBrush x:Key="BrandDark" Color="#1E2A38"/>
+        <SolidColorBrush x:Key="BrandPrimary" Color="#2A6478"/>
+        <SolidColorBrush x:Key="BrandSecondary" Color="#4A90A4"/>
+        <SolidColorBrush x:Key="BrandAccent" Color="#5EC499"/>
+        <SolidColorBrush x:Key="GhostAccent" Color="#FFE779"/>
+    </Page.Resources>
+
+    <Grid Background="#F4F6F8" Padding="24" RowSpacing="16">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Horizontal" Spacing="12">
-            <TextBlock Text="Prescriptions" FontSize="28" FontWeight="SemiBold" Foreground="{StaticResource AppAccentBrush}" VerticalAlignment="Center"/>
-            <Button Content="Refresh" Command="{Binding LoadPrescriptionsCommand}"/>
+        <StackPanel Spacing="6">
+            <TextBlock Text="PRESCRIPTIONS FEED" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrandSecondary}" CharacterSpacing="50"/>
+            <TextBlock Text="Chronological Overview" FontSize="26" FontWeight="Bold" Foreground="{StaticResource BrandDark}"/>
         </StackPanel>
 
-        <Border Grid.Row="1" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
-            <ListView ItemsSource="{Binding Prescriptions}">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Padding="8">
-                            <TextBlock Text="{Binding PrescriptionId}" Foreground="{StaticResource AppTextPrimaryBrush}" FontWeight="SemiBold"/>
-                            <TextBlock Text="{Binding Date}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
-                            <TextBlock Text="{Binding DoctorNotes}" Foreground="{StaticResource AppTextSecondaryBrush}" TextWrapping="Wrap"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+        <Border Grid.Row="1" Background="{StaticResource BrandDark}" CornerRadius="10" Padding="20,12" HorizontalAlignment="Left">
+            <StackPanel Spacing="10">
+                <TextBlock Text="Filter Options" FontWeight="SemiBold" FontSize="14" Foreground="White"/>
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <TextBox Width="90" PlaceholderText="ID..." Text="{Binding SearchIdText, Mode=TwoWay}"/>
+                    <TextBox Width="180" PlaceholderText="Patient Name" Text="{Binding SearchName, Mode=TwoWay}"/>
+                    <TextBox Width="170" PlaceholderText="Medication Name" Text="{Binding SearchMedication, Mode=TwoWay}"/>
+                    <CalendarDatePicker Width="150" PlaceholderText="Date From" Date="{Binding DateFrom, Mode=TwoWay}"/>
+                    <CalendarDatePicker Width="150" PlaceholderText="Date To" Date="{Binding DateTo, Mode=TwoWay}"/>
+                    <Button Content="Search" Command="{Binding ApplyFilterCommand}" Background="{StaticResource BrandAccent}" Foreground="White"/>
+                    <Button Content="Refresh" Command="{Binding LoadPrescriptionsCommand}" Background="#FFFFFF22" Foreground="White"/>
+                </StackPanel>
+                <TextBlock Text="{Binding InfoMessage}" Foreground="{StaticResource GhostAccent}" FontWeight="SemiBold"/>
+            </StackPanel>
         </Border>
 
-        <TextBlock Grid.Row="2" Text="{Binding StatusMessage}" Foreground="{StaticResource AppTextPrimaryBrush}" TextWrapping="Wrap"/>
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <GridView ItemsSource="{Binding Prescriptions}" SelectionMode="None">
+                <GridView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <ItemsWrapGrid MaximumRowsOrColumns="3" Orientation="Horizontal" HorizontalAlignment="Center"/>
+                    </ItemsPanelTemplate>
+                </GridView.ItemsPanel>
+
+                <GridView.ItemTemplate>
+                    <DataTemplate x:DataType="model:Prescription">
+                        <Border Background="White" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="10" Width="285" Height="165" Margin="6" Padding="8">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <Button Grid.Row="0" HorizontalAlignment="Center" Background="#F0F9F6" BorderBrush="{StaticResource BrandAccent}" BorderThickness="1" Padding="10,2">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon Glyph="&#xE814;" Foreground="{StaticResource BrandPrimary}" FontSize="12"/>
+                                        <TextBlock Text="{x:Bind PrescriptionId}" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrandPrimary}"/>
+                                    </StackPanel>
+
+                                    <Button.Flyout>
+                                        <Flyout>
+                                            <StackPanel Width="240" Padding="15" Spacing="10">
+                                                <TextBlock Text="Medication Details" FontWeight="Bold" FontSize="15" Foreground="{StaticResource BrandDark}"/>
+                                                <ListView ItemsSource="{x:Bind MedicationList}" SelectionMode="None">
+                                                    <ListView.ItemTemplate>
+                                                        <DataTemplate x:DataType="model:PrescriptionItem">
+                                                            <Grid Margin="0,4">
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBlock Text="{x:Bind MedicationName}" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource BrandDark}" TextWrapping="Wrap"/>
+                                                                <Border Grid.Column="1" Background="#F4F6F8" CornerRadius="4" Padding="6,2" Margin="5,0,0,0">
+                                                                    <TextBlock Text="{x:Bind Quantity}" FontSize="10" FontWeight="SemiBold" Foreground="#4B5563"/>
+                                                                </Border>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ListView.ItemTemplate>
+                                                </ListView>
+                                            </StackPanel>
+                                        </Flyout>
+                                    </Button.Flyout>
+                                </Button>
+
+                                <StackPanel Grid.Row="1" Margin="0,8,0,0" Spacing="4">
+                                    <TextBlock FontSize="11" TextTrimming="CharacterEllipsis">
+                                        <Run Text="Patient: " FontWeight="SemiBold" Foreground="{StaticResource BrandDark}"/>
+                                        <Run Text="{x:Bind PatientName}" Foreground="#4B5563"/>
+                                    </TextBlock>
+                                    <TextBlock FontSize="11" TextTrimming="CharacterEllipsis">
+                                        <Run Text="Doctor: " FontWeight="SemiBold" Foreground="{StaticResource BrandDark}"/>
+                                        <Run Text="{x:Bind DoctorName}" Foreground="#4B5563"/>
+                                    </TextBlock>
+                                    <TextBlock Margin="0,2,0,0">
+                                        <Run Text="Instructions:" FontWeight="SemiBold" FontSize="10" Foreground="{StaticResource BrandDark}"/>
+                                    </TextBlock>
+                                    <TextBlock Text="{x:Bind DoctorNotes}" TextWrapping="Wrap" MaxLines="3" TextTrimming="CharacterEllipsis" Foreground="#4B5563" FontSize="10"/>
+                                </StackPanel>
+
+                                <Border Grid.Row="2" Background="#F4F6F8" CornerRadius="4" Padding="6,2" HorizontalAlignment="Right">
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <FontIcon Glyph="&#xE787;" FontSize="10" Foreground="#6B7280"/>
+                                        <TextBlock Foreground="#6B7280" FontSize="10" FontWeight="SemiBold" Text="{x:Bind Date}"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </GridView.ItemTemplate>
+            </GridView>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="24">
+            <Button Command="{Binding PrevPageCommand}" Width="110" Height="40" Background="#00A896" Foreground="White">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE72B;" FontSize="12"/>
+                    <TextBlock Text="Previous" FontWeight="SemiBold"/>
+                </StackPanel>
+            </Button>
+
+            <Border Background="{StaticResource BrandDark}" CornerRadius="20" Padding="20,10">
+                <TextBlock Foreground="White" FontWeight="Bold">
+                    <Run Text="PAGE "/>
+                    <Run Text="{Binding CurrentPage}"/>
+                </TextBlock>
+            </Border>
+
+            <Button Command="{Binding NextPageCommand}" Width="110" Height="40" Background="#00A896" Foreground="White">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="Next" FontWeight="SemiBold"/>
+                    <FontIcon Glyph="&#xE72A;" FontSize="12"/>
+                </StackPanel>
+            </Button>
+        </StackPanel>
     </Grid>
 </Page>

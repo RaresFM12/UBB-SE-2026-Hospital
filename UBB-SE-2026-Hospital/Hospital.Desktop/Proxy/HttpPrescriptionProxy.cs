@@ -1,4 +1,5 @@
 using Hospital.Shared.Services;
+using Hospital.Data.Models.DTOs;
 using Prescription = Hospital.Data.Models.Prescription;
 
 namespace Hospital.Desktop.Proxy;
@@ -15,4 +16,10 @@ public class HttpPrescriptionProxy(HttpClient httpClient) : ProxyBase(httpClient
 
     public async Task<List<Prescription>> GetLatestPrescriptionsAsync(int count = 50, int page = 1)
         => await GetAsync<List<Prescription>>($"{BaseUri}/latest?n={count}&page={page}") ?? [];
+
+    public async Task<List<Prescription>> ApplyFilterAsync(PrescriptionFilter filter)
+        => await PostAsync<PrescriptionFilter, List<Prescription>>(BaseUri, filter) ?? [];
+
+    public async Task<Prescription?> GetPrescriptionDetailsAsync(int prescriptionId)
+        => await GetAsync<Prescription>($"{BaseUri}/{prescriptionId}");
 }
