@@ -69,6 +69,7 @@
                 ItemsSource="{Binding Patients}"
                 SelectedItem="{Binding SelectedPatient, Mode=TwoWay}"
                 SelectionMode="Single"
+                HorizontalContentAlignment="Stretch"
                 DoubleTapped="PatientListView_DoubleTapped">
                 <ListView.Header>
                     <Grid Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}" Padding="12,4" CornerRadius="4" Margin="0,0,0,8">

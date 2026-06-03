@@ -14,12 +14,8 @@ public sealed partial class PatientProfileWindow : Window
     {
         ViewModel = App.Services.GetRequiredService<PatientViewModel>();
         InitializeComponent();
+        Title = "Patient Medical Information";
         RootGrid.DataContext = ViewModel;
-    }
-
-    public async Task InitializeAsync(int patientId)
-    {
-        await ViewModel.LoadPatientProfileAsync(patientId);
     }
 
     private void BackButton_Click(object sender, RoutedEventArgs e) => Close();
@@ -52,5 +48,8 @@ public sealed partial class PatientProfileWindow : Window
         }
     }
 
-    private string FormatDate(DateTime value) => value == default ? "N/A" : value.ToString("dd/MM/yyyy");
+    public async Task InitializeAsync(int patientId)
+    {
+        await ViewModel.LoadPatientProfileAsync(patientId);
+    }
 }
