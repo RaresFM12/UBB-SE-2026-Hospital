@@ -10,6 +10,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Required by EF Core tools when the startup project hosts the application's services -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0-preview.4.25258.110">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Hospital.Data\Hospital.Data.csproj" />
     <ProjectReference Include="..\Hospital.Shared\Hospital.Shared.csproj" />
     <ProjectReference Include="..\Hospital.Services\Hospital.Services.csproj" />
