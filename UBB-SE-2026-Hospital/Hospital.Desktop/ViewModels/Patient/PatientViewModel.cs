@@ -31,6 +31,14 @@ public partial class PatientViewModel : ObservableObject
     [ObservableProperty] private int discountPercentage;
     [ObservableProperty] private string billingStatusMessage = string.Empty;
 
+    public bool HasSelectedMedicalRecord => SelectedMedicalRecord is not null;
+
+    public bool HasNoSelectedMedicalRecord => SelectedMedicalRecord is null;
+
+    public bool HasAllergies => Allergies.Count > 0;
+
+    public bool HasNoAllergies => Allergies.Count == 0;
+
     public string ChronicConditionsFormatted
         => MedicalHistory?.ChronicConditions is { Count: > 0 }
             ? string.Join(", ", MedicalHistory.ChronicConditions)
@@ -95,6 +103,8 @@ public partial class PatientViewModel : ObservableObject
         OnPropertyChanged(nameof(SelectedRecordVisibility));
         OnPropertyChanged(nameof(EmptySelectionVisibility));
         OnPropertyChanged(nameof(StaffDisplay));
+        OnPropertyChanged(nameof(HasSelectedMedicalRecord));
+        OnPropertyChanged(nameof(HasNoSelectedMedicalRecord));
 
         if (value == null)
         {
@@ -134,7 +144,10 @@ public partial class PatientViewModel : ObservableObject
         StatusMessage = string.Empty;
         try
         {
-            var result = await patientService.SearchPatientsAsync(new SearchPatientsRequest { NamePart = SearchQuery });
+            IReadOnlyList<PatientModel> result = string.IsNullOrWhiteSpace(SearchQuery)
+                ? await patientService.GetPatientsAsync()
+                : await patientService.SearchPatientsAsync(new SearchPatientsRequest { NamePart = SearchQuery.Trim() });
+
             foreach (var patient in result)
             {
                 Patients.Add(patient);
@@ -144,15 +157,25 @@ public partial class PatientViewModel : ObservableObject
             {
                 StatusMessage = "No patients found matching your search.";
             }
-            else if (SelectedPatient is null || Patients.All(patient => patient.PatientId != SelectedPatient.PatientId))
-            {
-                SelectedPatient = Patients[0];
-            }
         }
         catch (System.Exception ex)
         {
             StatusMessage = $"Error: {ex.Message}";
         }
+    }
+
+    public async Task LoadPatientProfileAsync(int patientId)
+    {
+        SelectedMedicalRecord = null;
+        DiscountApplied = false;
+        DiscountPercentage = 0;
+        BasePrice = 0;
+        FinalPrice = 0;
+        BillingStatusMessage = string.Empty;
+
+        PatientModel details = await patientService.GetPatientDetailsAsync(patientId);
+        SelectedPatient = details;
+        await LoadSelectedPatientDetailsAsync(patientId);
     }
 
     private async Task LoadSelectedPatientDetailsAsync(int patientId)
@@ -179,6 +202,8 @@ public partial class PatientViewModel : ObservableObject
             {
                 Allergies.Add(allergy);
             }
+            OnPropertyChanged(nameof(HasAllergies));
+            OnPropertyChanged(nameof(HasNoAllergies));
 
             await LoadMedicalRecordsAsync(details.MedicalHistory?.MedicalHistoryId ?? 0);
         }

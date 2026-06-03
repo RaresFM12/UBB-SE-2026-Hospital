@@ -1,12 +1,15 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Hospital.Desktop.ViewModels.Patient;
+using Microsoft.UI.Xaml.Input;
 
 namespace Hospital.Desktop.Views.Patient;
 
 public sealed partial class PatientsPage : Page
 {
     public PatientViewModel ViewModel { get; private set; } = null!;
+    private PatientProfileWindow? patientProfileWindow;
+    private bool isOpeningPatientProfile;
 
     public PatientsPage() => InitializeComponent();
 
@@ -18,23 +21,34 @@ public sealed partial class PatientsPage : Page
         ViewModel.LoadPatientsCommand.Execute(null);
     }
 
-    private async void ViewPrescription_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private async void PatientListView_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
     {
-        PrescriptionDetailsDialog dialog = new();
-        dialog.XamlRoot = XamlRoot;
-        dialog.LoadPrescription(await ViewModel.GetSelectedPrescriptionAsync());
-        await dialog.ShowAsync();
-    }
-
-    private async void ApplyDiscount_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
-    {
-        DiscountRouletteDialog dialog = new(ViewModel.BasePrice);
-        dialog.XamlRoot = XamlRoot;
-        await dialog.ShowAsync();
-
-        if (dialog.SelectedDiscountPercentage.HasValue)
+        if (ViewModel.SelectedPatient is null || isOpeningPatientProfile)
         {
-            await ViewModel.ApplyDiscountAsync(dialog.SelectedDiscountPercentage.Value);
+            return;
+        }
+
+        try
+        {
+            isOpeningPatientProfile = true;
+
+            if (patientProfileWindow is not null)
+            {
+                await patientProfileWindow.InitializeAsync(ViewModel.SelectedPatient.PatientId);
+                patientProfileWindow.Activate();
+                return;
+            }
+
+            PatientProfileWindow window = App.Services.GetRequiredService<PatientProfileWindow>();
+            window.Closed += (_, _) => patientProfileWindow = null;
+            await window.InitializeAsync(ViewModel.SelectedPatient.PatientId);
+
+            patientProfileWindow = window;
+            window.Activate();
+        }
+        finally
+        {
+            isOpeningPatientProfile = false;
         }
     }
 }

@@ -99,6 +99,7 @@ public partial class App : Application
         // Windows & Pages
         services.AddTransient<LoginWindow>();
         services.AddTransient<MainWindow>();
+        services.AddTransient<Views.Patient.PatientProfileWindow>();
 
         Services = services.BuildServiceProvider();
     }

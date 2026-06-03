@@ -12,32 +12,32 @@
         <SolidColorBrush x:Key="GhostAccent" Color="#FFE779"/>
     </Page.Resources>
 
-    <Grid Background="#F4F6F8" Padding="24" RowSpacing="16">
+    <Grid Background="#F4F6F8" Padding="20">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <StackPanel Spacing="6">
-            <TextBlock Text="PRESCRIPTIONS FEED" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrandSecondary}" CharacterSpacing="50"/>
-            <TextBlock Text="Chronological Overview" FontSize="26" FontWeight="Bold" Foreground="{StaticResource BrandDark}"/>
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="PRESCRIPTIONS FEED" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrandSecondary}" CharacterSpacing="50" />
+            <TextBlock Text="Chronological Overview" FontSize="26" Foreground="{StaticResource BrandDark}" FontWeight="Bold" Margin="0,5,0,0" />
         </StackPanel>
 
-        <Border Grid.Row="1" Background="{StaticResource BrandDark}" CornerRadius="10" Padding="20,12" HorizontalAlignment="Left">
-            <StackPanel Spacing="10">
-                <TextBlock Text="Filter Options" FontWeight="SemiBold" FontSize="14" Foreground="White"/>
-                <StackPanel Orientation="Horizontal" Spacing="12">
-                    <TextBox Width="90" PlaceholderText="ID..." Text="{Binding SearchIdText, Mode=TwoWay}"/>
-                    <TextBox Width="180" PlaceholderText="Patient Name" Text="{Binding SearchName, Mode=TwoWay}"/>
-                    <TextBox Width="170" PlaceholderText="Medication Name" Text="{Binding SearchMedication, Mode=TwoWay}"/>
-                    <CalendarDatePicker Width="150" PlaceholderText="Date From" Date="{Binding DateFrom, Mode=TwoWay}"/>
-                    <CalendarDatePicker Width="150" PlaceholderText="Date To" Date="{Binding DateTo, Mode=TwoWay}"/>
-                    <Button Content="Search" Command="{Binding ApplyFilterCommand}" Background="{StaticResource BrandAccent}" Foreground="White"/>
-                    <Button Content="Refresh" Command="{Binding LoadPrescriptionsCommand}" Background="#FFFFFF22" Foreground="White"/>
+        <Border Grid.Row="1" Background="{StaticResource BrandDark}" CornerRadius="8" Padding="20,10,20,10" Margin="0,0,0,10" HorizontalAlignment="Left">
+            <StackPanel>
+                <TextBlock Text="Filter Options" FontWeight="SemiBold" FontSize="14" Foreground="White" Margin="0,0,0,6" />
+                <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                    <TextBox Width="80" MinWidth="80" Height="36" CornerRadius="6" VerticalContentAlignment="Center" PlaceholderText="ID..." Text="{Binding SearchIdText, Mode=TwoWay}" />
+                    <TextBox Width="160" Height="36" CornerRadius="6" VerticalContentAlignment="Center" PlaceholderText="Patient Name" Text="{Binding SearchName, Mode=TwoWay}" />
+                    <TextBox Width="150" Height="36" CornerRadius="6" VerticalContentAlignment="Center" PlaceholderText="Medication Name" Text="{Binding SearchMedication, Mode=TwoWay}" />
+                    <CalendarDatePicker Width="140" Height="36" CornerRadius="6" VerticalAlignment="Center" PlaceholderText="Date From" Date="{Binding DateFrom, Mode=TwoWay}" />
+                    <TextBlock Text="-" VerticalAlignment="Center" Foreground="#A1A1AA" FontWeight="Bold" />
+                    <CalendarDatePicker Width="140" Height="36" CornerRadius="6" VerticalAlignment="Center" PlaceholderText="Date To" Date="{Binding DateTo, Mode=TwoWay}" />
+                    <Button Content="Search" Width="90" Height="36" Command="{Binding ApplyFilterCommand}" Background="{StaticResource BrandAccent}" Foreground="White" Margin="10,0,0,0" />
+                    <TextBlock Text="{Binding InfoMessage}" Foreground="{StaticResource GhostAccent}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="15,0,0,0" />
                 </StackPanel>
-                <TextBlock Text="{Binding InfoMessage}" Foreground="{StaticResource GhostAccent}" FontWeight="SemiBold"/>
             </StackPanel>
         </Border>
 
@@ -51,35 +51,47 @@
 
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="model:Prescription">
-                        <Border Background="White" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="10" Width="285" Height="165" Margin="6" Padding="8">
+                        <Border Background="White" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="10" Width="280" Height="135" Margin="6" Padding="5">
                             <Grid>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
 
-                                <Button Grid.Row="0" HorizontalAlignment="Center" Background="#F0F9F6" BorderBrush="{StaticResource BrandAccent}" BorderThickness="1" Padding="10,2">
+                                <Button Grid.Row="0" HorizontalAlignment="Center" Background="#F0F9F6" BorderBrush="{StaticResource BrandAccent}" BorderThickness="1" CornerRadius="20" Padding="10,2">
                                     <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <FontIcon Glyph="&#xE814;" Foreground="{StaticResource BrandPrimary}" FontSize="12"/>
-                                        <TextBlock Text="{x:Bind PrescriptionId}" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrandPrimary}"/>
+                                        <FontIcon Glyph="&#xE814;" Foreground="{StaticResource BrandPrimary}" FontSize="12" />
+                                        <TextBlock Text="{x:Bind PrescriptionId}" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrandPrimary}" />
                                     </StackPanel>
 
                                     <Button.Flyout>
                                         <Flyout>
-                                            <StackPanel Width="240" Padding="15" Spacing="10">
-                                                <TextBlock Text="Medication Details" FontWeight="Bold" FontSize="15" Foreground="{StaticResource BrandDark}"/>
+                                            <Flyout.FlyoutPresenterStyle>
+                                                <Style TargetType="FlyoutPresenter">
+                                                    <Setter Property="Background" Value="White" />
+                                                    <Setter Property="BorderBrush" Value="#E5E7EB" />
+                                                    <Setter Property="BorderThickness" Value="1" />
+                                                    <Setter Property="CornerRadius" Value="10" />
+                                                    <Setter Property="Padding" Value="0" />
+                                                </Style>
+                                            </Flyout.FlyoutPresenterStyle>
+                                            <StackPanel Width="230" Padding="15">
+                                                <TextBlock Text="Medication Details" FontWeight="Bold" FontSize="15" Foreground="#1E2A38" Margin="0,0,0,15" />
                                                 <ListView ItemsSource="{x:Bind MedicationList}" SelectionMode="None">
                                                     <ListView.ItemTemplate>
                                                         <DataTemplate x:DataType="model:PrescriptionItem">
                                                             <Grid Margin="0,4">
                                                                 <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="*"/>
-                                                                    <ColumnDefinition Width="Auto"/>
+                                                                    <ColumnDefinition Width="*" />
+                                                                    <ColumnDefinition Width="Auto" />
                                                                 </Grid.ColumnDefinitions>
-                                                                <TextBlock Text="{x:Bind MedicationName}" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource BrandDark}" TextWrapping="Wrap"/>
-                                                                <Border Grid.Column="1" Background="#F4F6F8" CornerRadius="4" Padding="6,2" Margin="5,0,0,0">
-                                                                    <TextBlock Text="{x:Bind Quantity}" FontSize="10" FontWeight="SemiBold" Foreground="#4B5563"/>
+                                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                    <FontIcon Glyph="&#xE1D0;" Foreground="#6B7280" FontSize="11" VerticalAlignment="Center" />
+                                                                    <TextBlock Text="{x:Bind MedicationName}" FontSize="12" FontWeight="SemiBold" Foreground="#1E2A38" TextWrapping="Wrap" />
+                                                                </StackPanel>
+                                                                <Border Grid.Column="1" Background="#F4F6F8" CornerRadius="4" Padding="6,2" BorderBrush="#E5E7EB" BorderThickness="1" VerticalAlignment="Center" Margin="5,0,0,0">
+                                                                    <TextBlock Text="{x:Bind Quantity}" FontSize="10" FontWeight="SemiBold" Foreground="#4B5563" />
                                                                 </Border>
                                                             </Grid>
                                                         </DataTemplate>
@@ -90,25 +102,25 @@
                                     </Button.Flyout>
                                 </Button>
 
-                                <StackPanel Grid.Row="1" Margin="0,8,0,0" Spacing="4">
+                                <StackPanel Grid.Row="1" Margin="0,5,0,0" Spacing="1">
                                     <TextBlock FontSize="11" TextTrimming="CharacterEllipsis">
-                                        <Run Text="Patient: " FontWeight="SemiBold" Foreground="{StaticResource BrandDark}"/>
-                                        <Run Text="{x:Bind PatientName}" Foreground="#4B5563"/>
+                                        <Run Text="Patient: " FontWeight="SemiBold" Foreground="#1E2A38" />
+                                        <Run Text="{x:Bind PatientName}" Foreground="#4B5563" />
                                     </TextBlock>
                                     <TextBlock FontSize="11" TextTrimming="CharacterEllipsis">
-                                        <Run Text="Doctor: " FontWeight="SemiBold" Foreground="{StaticResource BrandDark}"/>
-                                        <Run Text="{x:Bind DoctorName}" Foreground="#4B5563"/>
+                                        <Run Text="Doctor: " FontWeight="SemiBold" Foreground="#1E2A38" />
+                                        <Run Text="{x:Bind DoctorName}" Foreground="#4B5563" />
                                     </TextBlock>
                                     <TextBlock Margin="0,2,0,0">
-                                        <Run Text="Instructions:" FontWeight="SemiBold" FontSize="10" Foreground="{StaticResource BrandDark}"/>
+                                        <Run Text="Instructions:" FontWeight="SemiBold" FontSize="10" Foreground="#1E2A38" />
                                     </TextBlock>
-                                    <TextBlock Text="{x:Bind DoctorNotes}" TextWrapping="Wrap" MaxLines="3" TextTrimming="CharacterEllipsis" Foreground="#4B5563" FontSize="10"/>
+                                    <TextBlock Text="{x:Bind DoctorNotes}" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" Foreground="#4B5563" FontSize="10" />
                                 </StackPanel>
 
                                 <Border Grid.Row="2" Background="#F4F6F8" CornerRadius="4" Padding="6,2" HorizontalAlignment="Right">
                                     <StackPanel Orientation="Horizontal" Spacing="4">
-                                        <FontIcon Glyph="&#xE787;" FontSize="10" Foreground="#6B7280"/>
-                                        <TextBlock Foreground="#6B7280" FontSize="10" FontWeight="SemiBold" Text="{x:Bind Date}"/>
+                                        <FontIcon Glyph="&#xE787;" FontSize="10" Foreground="#6B7280" VerticalAlignment="Center" />
+                                        <TextBlock Foreground="#6B7280" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center" Text="{x:Bind Date}" />
                                     </StackPanel>
                                 </Border>
                             </Grid>
@@ -118,25 +130,25 @@
             </GridView>
         </ScrollViewer>
 
-        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="24">
-            <Button Command="{Binding PrevPageCommand}" Width="110" Height="40" Background="#00A896" Foreground="White">
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="30" Margin="0,20,0,0">
+            <Button Command="{Binding PrevPageCommand}" Width="110" Height="40" CornerRadius="20" Background="#00A896" BorderThickness="0" Foreground="White">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE72B;" FontSize="12"/>
-                    <TextBlock Text="Previous" FontWeight="SemiBold"/>
+                    <FontIcon Glyph="&#xE72B;" FontSize="12" />
+                    <TextBlock Text="Previous" FontWeight="SemiBold" />
                 </StackPanel>
             </Button>
 
-            <Border Background="{StaticResource BrandDark}" CornerRadius="20" Padding="20,10">
+            <Border Background="{StaticResource BrandDark}" CornerRadius="20" Padding="20,0" Height="40">
                 <TextBlock Foreground="White" FontWeight="Bold">
-                    <Run Text="PAGE "/>
-                    <Run Text="{Binding CurrentPage}"/>
+                    <Run Text="PAGE " />
+                    <Run Text="{Binding CurrentPage}" />
                 </TextBlock>
             </Border>
 
-            <Button Command="{Binding NextPageCommand}" Width="110" Height="40" Background="#00A896" Foreground="White">
+            <Button Command="{Binding NextPageCommand}" Width="110" Height="40" CornerRadius="20" Background="#00A896" BorderThickness="0" Foreground="White">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <TextBlock Text="Next" FontWeight="SemiBold"/>
-                    <FontIcon Glyph="&#xE72A;" FontSize="12"/>
+                    <TextBlock Text="Next" FontWeight="SemiBold" />
+                    <FontIcon Glyph="&#xE72A;" FontSize="12" />
                 </StackPanel>
             </Button>
         </StackPanel>
