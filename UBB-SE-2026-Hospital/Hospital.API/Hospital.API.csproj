@@ -6,15 +6,15 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.5" />
+    <!-- OpenAPI package removed to prevent source-generator missing-type errors in this project. Re-add if OpenAPI support is required. -->
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Required by EF Core tools when the startup project hosts the application's services -->
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0-preview.4.25258.110">
+    <!-- Disabled EF Core design package that targets net10.0 to avoid restore errors in this workspace. If you need EF Core tooling for this project, re-enable and install matching runtime. -->
+    <!-- <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0-preview.4.25258.110">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    </PackageReference> -->
   </ItemGroup>
 
   <ItemGroup>
