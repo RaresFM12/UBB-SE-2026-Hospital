@@ -21,13 +21,14 @@ public partial class RoomAssignmentViewModel : ObservableObject
 
     public Microsoft.UI.Xaml.XamlRoot? XamlRoot { get; set; }
 
-    [ObservableProperty] private ObservableCollection<ERVisit> waitingVisits = new ObservableCollection<ERVisit>();
+    [ObservableProperty] private ObservableCollection<RoomAssignmentVisitDisplay> waitingVisits = new ObservableCollection<RoomAssignmentVisitDisplay>();
     [ObservableProperty] private ObservableCollection<ERRoom> availableRooms = new ObservableCollection<ERRoom>();
-    [ObservableProperty] private ERVisit? selectedVisit;
+    [ObservableProperty] private RoomAssignmentVisitDisplay? selectedVisit;
     [ObservableProperty] private ERRoom? selectedRoom;
     [ObservableProperty] private PatientModel? selectedPatient;
     [ObservableProperty] private Triage? selectedTriage;
     [ObservableProperty] private string statusMessage = string.Empty;
+    [ObservableProperty] private string actionFeedback = "Select a waiting visit and a room, then choose auto or manual assignment.";
 
     public RoomAssignmentViewModel(
         IERVisitService erVisitService,
@@ -41,10 +42,10 @@ public partial class RoomAssignmentViewModel : ObservableObject
         this.patientService = patientService;
     }
 
-    partial void OnSelectedVisitChanged(ERVisit? value)
+    partial void OnSelectedVisitChanged(RoomAssignmentVisitDisplay? value)
         => _ = HandleSelectedVisitChangedAsync(value);
 
-    private async Task HandleSelectedVisitChangedAsync(ERVisit? value)
+    private async Task HandleSelectedVisitChangedAsync(RoomAssignmentVisitDisplay? value)
     {
         if (value == null)
         {
@@ -54,8 +55,8 @@ public partial class RoomAssignmentViewModel : ObservableObject
         }
         try
         {
-            SelectedPatient = value.Patient;
-            SelectedTriage = await triageService.GetByVisitIdAsync(value.VisitId);
+            SelectedPatient = value.Visit.Patient;
+            SelectedTriage = value.Triage;
         }
         catch
         {
@@ -71,24 +72,37 @@ public partial class RoomAssignmentViewModel : ObservableObject
         {
             StatusMessage = string.Empty;
             var waiting = await erVisitService.GetByStatusAsync(ERVisit.VisitStatus.WAITING_FOR_ROOM);
-            var triages = await triageService.GetAllAsync();
-            var ordered = waiting
-                .Join(triages, v => v.VisitId, t => t.Visit.VisitId, (v, t) => (v, t))
-                .OrderBy(q => q.t.TriageLevel)
-                .ThenBy(q => q.v.ArrivalDateTime)
-                .ToList();
 
-            WaitingVisits = new ObservableCollection<ERVisit>();
-            foreach (var (visit, _) in ordered)
+            var visitsWithTriage = new List<(ERVisit Visit, Triage Triage)>();
+            foreach (var visit in waiting)
             {
-                WaitingVisits.Add(visit);
+                Triage? triage = await triageService.GetByVisitIdAsync(visit.VisitId);
+                if (triage is null)
+                {
+                    continue;
+                }
+
+                visitsWithTriage.Add((visit, triage));
             }
 
+            WaitingVisits = new ObservableCollection<RoomAssignmentVisitDisplay>(
+                visitsWithTriage
+                    .OrderByDescending(item => item.Triage.TriageLevel)
+                    .ThenBy(item => item.Visit.ArrivalDateTime)
+                    .Select(item => new RoomAssignmentVisitDisplay(item.Visit, item.Triage)));
+
             AvailableRooms = new ObservableCollection<ERRoom>(await erRoomService.GetByStatusAsync(ERRoom.RoomStatus.Available));
+            StatusMessage = WaitingVisits.Count == 0
+                ? "No visits are currently waiting for a room."
+                : $"{WaitingVisits.Count} visit(s) are ready for room assignment.";
+            ActionFeedback = WaitingVisits.Count == 0
+                ? "Nothing to assign right now."
+                : "Higher triage levels are shown first.";
         }
         catch (Exception ex)
         {
             StatusMessage = $"Error loading data: {ex.Message}";
+            ActionFeedback = "Room assignment data could not be loaded.";
         }
     }
 
@@ -105,16 +119,19 @@ public partial class RoomAssignmentViewModel : ObservableObject
             bool assigned = await erVisitService.AutoAssignHighestPriorityRoomAsync();
             if (assigned)
             {
+                ActionFeedback = "Auto assign succeeded. The highest-priority visit was assigned first.";
                 await ShowDialog("Room Assigned", "The highest-priority visit has been automatically assigned to a matching room.");
                 await LoadData();
             }
             else
             {
+                ActionFeedback = "Auto assign could not find a suitable available room.";
                 await ShowDialog("No Suitable Room", "No proper room matching this patient's requirements is currently available.");
             }
         }
         catch (Exception ex)
         {
+            ActionFeedback = $"Auto assign failed: {ex.Message}";
             await ShowDialog("Assignment Failed", ex.Message);
         }
     }
@@ -140,6 +157,7 @@ public partial class RoomAssignmentViewModel : ObservableObject
         try
         {
             await erVisitService.AssignRoomAsync(SelectedVisit.VisitId, SelectedRoom.RoomId);
+            ActionFeedback = $"Manual assign succeeded: visit {SelectedVisit.VisitId} -> room {SelectedRoom.RoomId}.";
             await ShowDialog("Room Assigned", $"Visit {SelectedVisit.VisitId} -> Room {SelectedRoom.RoomId} ({SelectedRoom.RoomTypeName}).");
             SelectedVisit = null;
             SelectedRoom = null;
@@ -147,6 +165,7 @@ public partial class RoomAssignmentViewModel : ObservableObject
         }
         catch (Exception ex)
         {
+            ActionFeedback = $"Manual assign failed: {ex.Message}";
             await ShowDialog("Assignment Failed", ex.Message);
         }
     }
@@ -156,5 +175,29 @@ public partial class RoomAssignmentViewModel : ObservableObject
         if (XamlRoot == null) return;
         var dialog = new ContentDialog { Title = title, Content = message, CloseButtonText = "OK", XamlRoot = XamlRoot };
         await dialog.ShowAsync();
+    }
+}
+
+public class RoomAssignmentVisitDisplay
+{
+    public ERVisit Visit { get; }
+    public Triage Triage { get; }
+    public int VisitId => Visit.VisitId;
+    public string PatientName { get; }
+    public string ChiefComplaint => Visit.ChiefComplaint;
+    public string Status => Visit.Status;
+    public int TriageLevel => Triage.TriageLevel;
+    public string Specialization => Triage.Specialization;
+    public string ArrivalTime => Visit.ArrivalDateTime.ToString("HH:mm");
+
+    public RoomAssignmentVisitDisplay(ERVisit visit, Triage triage)
+    {
+        Visit = visit;
+        Triage = triage;
+
+        string firstName = visit.Patient?.FirstName?.Trim() ?? string.Empty;
+        string lastName = visit.Patient?.LastName?.Trim() ?? string.Empty;
+        string fullName = $"{firstName} {lastName}".Trim();
+        PatientName = string.IsNullOrWhiteSpace(fullName) ? "Unknown patient" : fullName;
     }
 }

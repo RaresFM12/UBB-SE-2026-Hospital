@@ -44,7 +44,20 @@ public partial class TriageViewModel : ObservableObject
     [ObservableProperty]
     private bool isTriaged;
 
+    public bool HasRegisteredVisits => RegisteredVisits.Count > 0;
     public bool IsNotTriaged => !IsTriaged;
+    public string SelectedVisitLabel => SelectedVisit == null
+        ? "none"
+        : $"#{SelectedVisit.VisitId} - {SelectedVisit.Patient?.FirstName} {SelectedVisit.Patient?.LastName}".TrimEnd();
+    public string RegisteredVisitsStatusText => HasRegisteredVisits
+        ? $"{RegisteredVisits.Count} visit(s) available in triage."
+        : "No visits are currently available in triage.";
+    public string TriageResultText => CalculatedSeverity > 0
+        ? $"Calculated triage level: {CalculatedSeverity}"
+        : "Calculated triage level: pending";
+    public string SpecializationResultText => string.IsNullOrWhiteSpace(CalculatedSpecialization)
+        ? "Suggested specialization: pending"
+        : $"Suggested specialization: {CalculatedSpecialization}";
 
     private Triage? lastTriageResult;
 
@@ -61,6 +74,11 @@ public partial class TriageViewModel : ObservableObject
         if (value == null)
         {
             IsTriaged = false;
+            CalculatedSeverity = 0;
+            CalculatedSpecialization = string.Empty;
+            OnPropertyChanged(nameof(SelectedVisitLabel));
+            OnPropertyChanged(nameof(TriageResultText));
+            OnPropertyChanged(nameof(SpecializationResultText));
             return;
         }
 
@@ -75,6 +93,15 @@ public partial class TriageViewModel : ObservableObject
                 CalculatedSpecialization = triage.Specialization;
             }
         }
+        else
+        {
+            CalculatedSeverity = 0;
+            CalculatedSpecialization = string.Empty;
+        }
+
+        OnPropertyChanged(nameof(SelectedVisitLabel));
+        OnPropertyChanged(nameof(TriageResultText));
+        OnPropertyChanged(nameof(SpecializationResultText));
     }
 
     [RelayCommand]
@@ -120,6 +147,8 @@ public partial class TriageViewModel : ObservableObject
             CalculatedSeverity = lastTriageResult.TriageLevel;
             CalculatedSpecialization = lastTriageResult.Specialization;
             IsTriaged = true;
+            OnPropertyChanged(nameof(TriageResultText));
+            OnPropertyChanged(nameof(SpecializationResultText));
 
             await ShowDialog("Triage Complete",
                 $"Visit {SelectedVisit.VisitId} triaged successfully.\n" +
@@ -181,6 +210,9 @@ public partial class TriageViewModel : ObservableObject
         CalculatedSpecialization = string.Empty;
         IsTriaged = false;
         lastTriageResult = null;
+        OnPropertyChanged(nameof(SelectedVisitLabel));
+        OnPropertyChanged(nameof(TriageResultText));
+        OnPropertyChanged(nameof(SpecializationResultText));
     }
 
     private async Task LoadVisitsForTriageAsync()
@@ -191,6 +223,9 @@ public partial class TriageViewModel : ObservableObject
         {
             RegisteredVisits.Add(visit);
         }
+
+        OnPropertyChanged(nameof(HasRegisteredVisits));
+        OnPropertyChanged(nameof(RegisteredVisitsStatusText));
     }
 
     private async Task ShowDialog(string title, string content)

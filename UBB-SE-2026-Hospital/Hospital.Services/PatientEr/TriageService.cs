@@ -49,6 +49,12 @@ public class TriageService(
         ERVisit visit = await erVisitRepository.GetByIdAsync(visitId)
             ?? throw new ArgumentException($"ER visit {visitId} was not found.");
 
+        Triage? existingTriage = await triageRepository.GetByVisitIdAsync(visitId);
+        if (existingTriage is not null)
+        {
+            throw new InvalidOperationException($"Visit {visitId} already has a triage record.");
+        }
+
         var triageParameters = new TriageParameters
         {
             Consciousness = parameters.Consciousness,
@@ -102,6 +108,10 @@ public class TriageService(
 
     public async Task<List<ERVisit>> GetVisitsForTriageAsync()
         => (await erVisitRepository.GetAllAsync())
-            .Where(visit => string.Equals(visit.Status, ERVisit.VisitStatus.REGISTERED, StringComparison.OrdinalIgnoreCase))
+            .Where(visit =>
+                string.Equals(visit.Status, ERVisit.VisitStatus.REGISTERED, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(visit.Status, ERVisit.VisitStatus.TRIAGED, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(visit => string.Equals(visit.Status, ERVisit.VisitStatus.TRIAGED, StringComparison.OrdinalIgnoreCase))
+            .ThenBy(visit => visit.ArrivalDateTime)
             .ToList();
 }

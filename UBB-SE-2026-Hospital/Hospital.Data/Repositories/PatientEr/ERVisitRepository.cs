@@ -9,16 +9,24 @@ namespace Hospital.Data.Repositories;
 public class ERVisitRepository(HospitalDbContext context) : IERVisitRepository
 {
     public async Task<ERVisit?> GetByIdAsync(int visitId)
-        => await context.ERVisits.FindAsync(visitId);
+        => await context.ERVisits
+            .Include(v => v.Patient)
+            .FirstOrDefaultAsync(v => v.VisitId == visitId);
 
     public async Task<List<ERVisit>> GetAllAsync()
-        => await context.ERVisits.ToListAsync();
+        => await context.ERVisits
+            .Include(v => v.Patient)
+            .ToListAsync();
 
     public async Task<List<ERVisit>> GetByPatientIdAsync(int patientId)
-        => await context.ERVisits.Where(v => v.Patient.PatientId == patientId).ToListAsync();
+        => await context.ERVisits
+            .Include(v => v.Patient)
+            .Where(v => v.Patient.PatientId == patientId)
+            .ToListAsync();
 
     public async Task<List<ERVisit>> GetActiveVisitsAsync()
         => await context.ERVisits
+            .Include(v => v.Patient)
             .Where(v => v.Status != ERVisit.VisitStatus.CLOSED && v.Status != ERVisit.VisitStatus.TRANSFERRED)
             .ToListAsync();
 

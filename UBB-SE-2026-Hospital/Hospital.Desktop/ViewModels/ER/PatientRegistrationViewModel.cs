@@ -19,8 +19,7 @@ public partial class PatientRegistrationViewModel : ObservableObject
     [ObservableProperty] private string patientCnp = string.Empty;
     [ObservableProperty] private string firstName = string.Empty;
     [ObservableProperty] private string lastName = string.Empty;
-    [ObservableProperty] private DateTimeOffset dateOfBirth = DateTimeOffset.Now;
-    [ObservableProperty] private bool hasDateOfBirth;
+    [ObservableProperty] private DateTimeOffset? dateOfBirth;
     [ObservableProperty] private string gender = string.Empty;
     [ObservableProperty] private string phone = string.Empty;
     [ObservableProperty] private string emergencyContact = string.Empty;
@@ -30,6 +29,7 @@ public partial class PatientRegistrationViewModel : ObservableObject
     [ObservableProperty] private string firstNameError = string.Empty;
     [ObservableProperty] private string lastNameError = string.Empty;
     [ObservableProperty] private string dateOfBirthError = string.Empty;
+    [ObservableProperty] private string genderError = string.Empty;
     [ObservableProperty] private string phoneError = string.Empty;
     [ObservableProperty] private string emergencyContactError = string.Empty;
     [ObservableProperty] private string chiefComplaintError = string.Empty;
@@ -45,8 +45,8 @@ public partial class PatientRegistrationViewModel : ObservableObject
     partial void OnPatientCnpChanged(string value) => ValidateAll();
     partial void OnFirstNameChanged(string value) => ValidateAll();
     partial void OnLastNameChanged(string value) => ValidateAll();
-    partial void OnDateOfBirthChanged(DateTimeOffset value) => ValidateAll();
-    partial void OnHasDateOfBirthChanged(bool value) => ValidateAll();
+    partial void OnDateOfBirthChanged(DateTimeOffset? value) => ValidateAll();
+    partial void OnGenderChanged(string value) => ValidateAll();
     partial void OnPhoneChanged(string value) => ValidateAll();
     partial void OnEmergencyContactChanged(string value) => ValidateAll();
     partial void OnChiefComplaintChanged(string value) => ValidateAll();
@@ -81,7 +81,7 @@ public partial class PatientRegistrationViewModel : ObservableObject
         }
         else { LastNameError = string.Empty; }
 
-        if (!HasDateOfBirth)
+        if (DateOfBirth is null)
         {
             if (submitAttempted) DateOfBirthError = "Date of birth is required.";
             valid = false;
@@ -92,6 +92,19 @@ public partial class PatientRegistrationViewModel : ObservableObject
             valid = false;
         }
         else { DateOfBirthError = string.Empty; }
+
+        if (string.IsNullOrWhiteSpace(Gender))
+        {
+            if (submitAttempted) GenderError = "Gender is required.";
+            valid = false;
+        }
+        else if (!string.Equals(Gender, "Male", StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(Gender, "Female", StringComparison.OrdinalIgnoreCase))
+        {
+            if (submitAttempted) GenderError = "Gender must be Male or Female.";
+            valid = false;
+        }
+        else { GenderError = string.Empty; }
 
         if (string.IsNullOrWhiteSpace(Phone))
         {
@@ -148,7 +161,7 @@ public partial class PatientRegistrationViewModel : ObservableObject
                     FirstName = FirstName,
                     LastName = LastName,
                     Cnp = PatientCnp,
-                    DateOfBirth = DateOfBirth.DateTime,
+                    DateOfBirth = DateOfBirth!.Value.DateTime,
                     Sex = Gender.Equals("Female", StringComparison.OrdinalIgnoreCase) ? Sex.F : Sex.M,
                     PhoneNumber = Phone,
                     EmergencyContact = EmergencyContact,
@@ -187,8 +200,7 @@ public partial class PatientRegistrationViewModel : ObservableObject
         PatientCnp = string.Empty;
         FirstName = string.Empty;
         LastName = string.Empty;
-        DateOfBirth = DateTimeOffset.Now;
-        HasDateOfBirth = false;
+        DateOfBirth = null;
         Gender = string.Empty;
         Phone = string.Empty;
         EmergencyContact = string.Empty;
@@ -197,6 +209,7 @@ public partial class PatientRegistrationViewModel : ObservableObject
         FirstNameError = string.Empty;
         LastNameError = string.Empty;
         DateOfBirthError = string.Empty;
+        GenderError = string.Empty;
         PhoneError = string.Empty;
         EmergencyContactError = string.Empty;
         ChiefComplaintError = string.Empty;

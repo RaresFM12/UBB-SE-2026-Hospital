@@ -15,26 +15,40 @@
         </StackPanel>
 
         <Border Grid.Row="1" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
-            <ListView ItemsSource="{Binding ActiveVisits}">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Padding="8" ColumnSpacing="12">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="80"/>
-                                <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="100"/>
-                                <ColumnDefinition Width="160"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="{Binding VisitId}" Foreground="{StaticResource AppTextPrimaryBrush}"/>
-                            <TextBlock Grid.Column="1" Text="{Binding PatientName}" Foreground="{StaticResource AppTextPrimaryBrush}" FontWeight="SemiBold"/>
-                            <TextBlock Grid.Column="2" Text="{Binding ChiefComplaint}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
-                            <TextBlock Grid.Column="3" Text="{Binding TriageLevel}" Foreground="{StaticResource AppAccentBrush}" FontWeight="SemiBold"/>
-                            <TextBlock Grid.Column="4" Text="{Binding ArrivalTime}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
-                        </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+            <Grid RowSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource AppTextSecondaryBrush}" TextWrapping="Wrap"/>
+                <ListView Grid.Row="1" ItemsSource="{Binding ActiveVisits}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{StaticResource AppBackgroundBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,8">
+                                <StackPanel Spacing="4">
+                                    <TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}">
+                                        <Run Text="Visit #"/>
+                                        <Run Text="{Binding VisitId}"/>
+                                        <Run Text="  "/>
+                                        <Run Text="{Binding PatientName}"/>
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding ChiefComplaint}" Foreground="{StaticResource AppTextSecondaryBrush}" TextWrapping="Wrap"/>
+                                    <TextBlock Foreground="{StaticResource AppAccentBrush}" FontWeight="SemiBold">
+                                        <Run Text="Triage Level "/>
+                                        <Run Text="{Binding TriageLevel}"/>
+                                        <Run Text="  "/>
+                                        <Run Text="{Binding Specialization}"/>
+                                    </TextBlock>
+                                    <TextBlock Foreground="{StaticResource AppTextSecondaryBrush}">
+                                        <Run Text="Arrived at "/>
+                                        <Run Text="{Binding ArrivalTime}"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
         </Border>
     </Grid>
 </Page>
