@@ -17,7 +17,7 @@
         <StackPanel Grid.Row="0" Spacing="5">
             <TextBlock Text="Try Your Luck - Spin the Wheel!" FontSize="16" FontWeight="Bold" Foreground="#1F2A37"/>
             <TextBlock Text="Base Price:" FontSize="12" Foreground="Gray"/>
-            <TextBlock Text="{x:Bind BasePriceText, Mode=OneWay}" FontSize="18" FontWeight="SemiBold" Foreground="#00FF88"/>
+            <TextBlock x:Name="BasePriceTextBlock" Text="{x:Bind BasePriceText, Mode=OneWay}" FontSize="18" FontWeight="SemiBold" Foreground="#00FF88"/>
         </StackPanel>
 
         <Border Grid.Row="1" Background="#1F2A37" CornerRadius="10" HorizontalAlignment="Center" Width="300" Height="300" Padding="20">
@@ -39,10 +39,9 @@
                 <Ellipse Width="80" Height="80" Fill="#1F2A37" Stroke="#FFD700" StrokeThickness="2"
                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
-                <Button Width="70" Height="70" Background="#FFD700" Foreground="Black"
+                <Button x:Name="SpinButton" Width="70" Height="70" Background="#FFD700" Foreground="Black"
                         Content="SPIN" FontWeight="Bold" FontSize="16"
                         HorizontalAlignment="Center" VerticalAlignment="Center"
-                        IsEnabled="{x:Bind IsSpinEnabled, Mode=OneWay}"
                         Click="SpinButton_Click"/>
             </Grid>
         </Border>
@@ -63,9 +62,9 @@
             <Border Background="#4444FF" Padding="10" CornerRadius="6" Grid.Column="4"><TextBlock Text="100%" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center"/></Border>
         </Grid>
 
-        <StackPanel Grid.Row="3" Spacing="8" Visibility="{x:Bind ResultVisibility, Mode=OneWay}">
-            <TextBlock Text="{x:Bind DiscountResultText, Mode=OneWay}" FontSize="18" FontWeight="Bold" Foreground="#FFD700"/>
-            <TextBlock Text="{x:Bind FinalPriceText, Mode=OneWay}" FontSize="16" FontWeight="Bold" Foreground="#00FF88"/>
+        <StackPanel x:Name="ResultPanel" Grid.Row="3" Spacing="8" Visibility="Collapsed">
+            <TextBlock x:Name="DiscountResultTextBlock" FontSize="18" FontWeight="Bold" Foreground="#FFD700"/>
+            <TextBlock x:Name="FinalPriceTextBlock" FontSize="16" FontWeight="Bold" Foreground="#00FF88"/>
         </StackPanel>
     </Grid>
 </ContentDialog>

@@ -66,6 +66,10 @@ public partial class BloodDonorsViewModel : ObservableObject
                     PatientId = donor.PatientId,
                     FullName = $"{donor.FirstName} {donor.LastName}",
                     Cnp = donor.Cnp,
+                    PhoneNumber = donor.PhoneNumber,
+                    EmergencyContact = donor.EmergencyContact,
+                    Sex = donor.Sex.ToString(),
+                    DateOfBirth = donor.DateOfBirth.ToString("dd/MM/yyyy"),
                 });
             }
         }
@@ -81,4 +85,8 @@ public class DonorMatchRow
     public int PatientId { get; set; }
     public string FullName { get; set; } = string.Empty;
     public string Cnp { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
+    public string EmergencyContact { get; set; } = string.Empty;
+    public string Sex { get; set; } = string.Empty;
+    public string DateOfBirth { get; set; } = string.Empty;
 }

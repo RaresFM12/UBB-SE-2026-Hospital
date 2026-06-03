@@ -62,7 +62,7 @@
                                 <Button Grid.Row="0" HorizontalAlignment="Center" Background="#F0F9F6" BorderBrush="{StaticResource BrandAccent}" BorderThickness="1" CornerRadius="20" Padding="10,2">
                                     <StackPanel Orientation="Horizontal" Spacing="6">
                                         <FontIcon Glyph="&#xE814;" Foreground="{StaticResource BrandPrimary}" FontSize="12" />
-                                        <TextBlock Text="{x:Bind PrescriptionId}" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrandPrimary}" />
+                                        <TextBlock Text="{Binding PrescriptionId}" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrandPrimary}" />
                                     </StackPanel>
 
                                     <Button.Flyout>
@@ -78,7 +78,7 @@
                                             </Flyout.FlyoutPresenterStyle>
                                             <StackPanel Width="230" Padding="15">
                                                 <TextBlock Text="Medication Details" FontWeight="Bold" FontSize="15" Foreground="#1E2A38" Margin="0,0,0,15" />
-                                                <ListView ItemsSource="{x:Bind MedicationList}" SelectionMode="None">
+                                                <ListView ItemsSource="{Binding MedicationList}" SelectionMode="None">
                                                     <ListView.ItemTemplate>
                                                         <DataTemplate x:DataType="model:PrescriptionItem">
                                                             <Grid Margin="0,4">
@@ -88,10 +88,10 @@
                                                                 </Grid.ColumnDefinitions>
                                                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                                                     <FontIcon Glyph="&#xE1D0;" Foreground="#6B7280" FontSize="11" VerticalAlignment="Center" />
-                                                                    <TextBlock Text="{x:Bind MedicationName}" FontSize="12" FontWeight="SemiBold" Foreground="#1E2A38" TextWrapping="Wrap" />
+                                                                    <TextBlock Text="{Binding MedicationName}" FontSize="12" FontWeight="SemiBold" Foreground="#1E2A38" TextWrapping="Wrap" />
                                                                 </StackPanel>
                                                                 <Border Grid.Column="1" Background="#F4F6F8" CornerRadius="4" Padding="6,2" BorderBrush="#E5E7EB" BorderThickness="1" VerticalAlignment="Center" Margin="5,0,0,0">
-                                                                    <TextBlock Text="{x:Bind Quantity}" FontSize="10" FontWeight="SemiBold" Foreground="#4B5563" />
+                                                                    <TextBlock Text="{Binding Quantity}" FontSize="10" FontWeight="SemiBold" Foreground="#4B5563" />
                                                                 </Border>
                                                             </Grid>
                                                         </DataTemplate>
@@ -105,22 +105,22 @@
                                 <StackPanel Grid.Row="1" Margin="0,5,0,0" Spacing="1">
                                     <TextBlock FontSize="11" TextTrimming="CharacterEllipsis">
                                         <Run Text="Patient: " FontWeight="SemiBold" Foreground="#1E2A38" />
-                                        <Run Text="{x:Bind PatientName}" Foreground="#4B5563" />
+                                        <Run Text="{Binding PatientName}" Foreground="#4B5563" />
                                     </TextBlock>
                                     <TextBlock FontSize="11" TextTrimming="CharacterEllipsis">
                                         <Run Text="Doctor: " FontWeight="SemiBold" Foreground="#1E2A38" />
-                                        <Run Text="{x:Bind DoctorName}" Foreground="#4B5563" />
+                                        <Run Text="{Binding DoctorName}" Foreground="#4B5563" />
                                     </TextBlock>
                                     <TextBlock Margin="0,2,0,0">
                                         <Run Text="Instructions:" FontWeight="SemiBold" FontSize="10" Foreground="#1E2A38" />
                                     </TextBlock>
-                                    <TextBlock Text="{x:Bind DoctorNotes}" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" Foreground="#4B5563" FontSize="10" />
+                                    <TextBlock Text="{Binding DoctorNotes}" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" Foreground="#4B5563" FontSize="10" />
                                 </StackPanel>
 
                                 <Border Grid.Row="2" Background="#F4F6F8" CornerRadius="4" Padding="6,2" HorizontalAlignment="Right">
                                     <StackPanel Orientation="Horizontal" Spacing="4">
                                         <FontIcon Glyph="&#xE787;" FontSize="10" Foreground="#6B7280" VerticalAlignment="Center" />
-                                        <TextBlock Foreground="#6B7280" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center" Text="{x:Bind Date}" />
+                                        <TextBlock Foreground="#6B7280" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center" Text="{Binding Date}" />
                                     </StackPanel>
                                 </Border>
                             </Grid>

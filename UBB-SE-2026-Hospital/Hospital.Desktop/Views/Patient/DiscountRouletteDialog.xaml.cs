@@ -15,8 +15,6 @@ public sealed partial class DiscountRouletteDialog : ContentDialog
 
     public decimal SelectedFinalPrice { get; private set; }
 
-    public bool IsSpinEnabled { get; private set; } = true;
-
     public string BasePriceText => $"{BasePrice:0.00} lei";
 
     public string DiscountResultText
@@ -26,24 +24,22 @@ public sealed partial class DiscountRouletteDialog : ContentDialog
 
     public string FinalPriceText => $"{SelectedFinalPrice:0.00} lei";
 
-    public Visibility ResultVisibility
-        => SelectedDiscountPercentage.HasValue ? Visibility.Visible : Visibility.Collapsed;
-
     public DiscountRouletteDialog(decimal basePrice)
     {
         BasePrice = basePrice;
         InitializeComponent();
+        SpinButton.IsEnabled = true;
+        ResultPanel.Visibility = Visibility.Collapsed;
     }
 
     private async void SpinButton_Click(object sender, RoutedEventArgs e)
     {
-        IsSpinEnabled = false;
-        Bindings.Update();
+        SpinButton.IsEnabled = false;
         Storyboard storyboard = new();
         DoubleAnimation spinAnimation = new()
         {
-            From = WheelRotate.Angle,
-            To = WheelRotate.Angle + 3600,
+            From = 0,
+            To = 3600,
             Duration = new Duration(TimeSpan.FromSeconds(3)),
         };
 
@@ -57,7 +53,9 @@ public sealed partial class DiscountRouletteDialog : ContentDialog
         int discount = DiscountOptions[RandomNumberGenerator.GetInt32(DiscountOptions.Length)];
         SelectedDiscountPercentage = discount;
         SelectedFinalPrice = BasePrice * (1 - (discount / 100m));
-        Bindings.Update();
+        DiscountResultTextBlock.Text = DiscountResultText;
+        FinalPriceTextBlock.Text = FinalPriceText;
+        ResultPanel.Visibility = Visibility.Visible;
 
         await Task.Delay(1200);
         Hide();

@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Hospital.Desktop.ViewModels.Patient;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml;
 
 namespace Hospital.Desktop.Views.Patient;
 
@@ -20,6 +21,12 @@ public sealed partial class PatientsPage : Page
         DataContext = ViewModel;
         ViewModel.LoadPatientsCommand.Execute(null);
     }
+
+    private async void UpdatePatient_Click(object sender, RoutedEventArgs e)
+        => await ViewModel.UpdateSelectedPatientAsync();
+
+    private async void ArchivePatient_Click(object sender, RoutedEventArgs e)
+        => await ViewModel.ArchiveSelectedPatientAsync();
 
     private async void PatientListView_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
     {

@@ -59,41 +59,22 @@
             </Grid>
         </StackPanel>
 
-        <Border Grid.Row="1" Margin="0,16,0,12" Background="#2C3A4A" Padding="14" CornerRadius="10">
-            <TextBlock Text="Double-click a patient to open the full medical profile, exactly like the original 926-2 flow." Foreground="White" FontWeight="SemiBold" />
-        </Border>
+        <Grid Grid.Row="2" ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="320" />
+            </Grid.ColumnDefinitions>
 
-        <Border Grid.Row="2" Background="#F8FAFC" CornerRadius="10" Padding="10">
-            <ListView
-                x:Name="PatientListView"
-                ItemsSource="{Binding Patients}"
-                SelectedItem="{Binding SelectedPatient, Mode=TwoWay}"
-                SelectionMode="Single"
-                HorizontalContentAlignment="Stretch"
-                DoubleTapped="PatientListView_DoubleTapped">
-                <ListView.Header>
-                    <Grid Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}" Padding="12,4" CornerRadius="4" Margin="0,0,0,8">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="120" />
-                            <ColumnDefinition Width="120" />
-                            <ColumnDefinition Width="80" />
-                            <ColumnDefinition Width="130" />
-                            <ColumnDefinition Width="160" />
-                            <ColumnDefinition Width="140" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="FIRST NAME" FontWeight="Bold" FontSize="11" Foreground="Gray" Grid.Column="0" Margin="10,0,0,0" />
-                        <TextBlock Text="LAST NAME" FontWeight="Bold" FontSize="11" Foreground="Gray" Grid.Column="1" Margin="10,0,0,0" />
-                        <TextBlock Text="SEX" FontWeight="Bold" FontSize="11" Foreground="Gray" Grid.Column="2" HorizontalAlignment="Center" />
-                        <TextBlock Text="DOB" FontWeight="Bold" FontSize="10" Foreground="Gray" Grid.Column="3" Margin="45,0,0,0" />
-                        <TextBlock Text="CNP" FontWeight="Bold" FontSize="10" Foreground="Gray" Grid.Column="4" Margin="55,0,0,0" />
-                        <TextBlock Text="PHONE" FontWeight="Bold" FontSize="10" Foreground="Gray" Grid.Column="5" Margin="45,0,0,0" />
-                        <TextBlock Text="EMERGENCY" FontWeight="Bold" FontSize="10" Foreground="Gray" Grid.Column="6" Margin="30,0,0,0" />
-                    </Grid>
-                </ListView.Header>
-                <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="model:Patient">
-                        <Grid Padding="12,10">
+            <Border Background="#F8FAFC" CornerRadius="10" Padding="10">
+                <ListView
+                    x:Name="PatientListView"
+                    ItemsSource="{Binding Patients}"
+                    SelectedItem="{Binding SelectedPatient, Mode=TwoWay}"
+                    SelectionMode="Single"
+                    HorizontalContentAlignment="Stretch"
+                    DoubleTapped="PatientListView_DoubleTapped">
+                    <ListView.Header>
+                        <Grid Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}" Padding="12,4" CornerRadius="4" Margin="0,0,0,8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="120" />
                                 <ColumnDefinition Width="120" />
@@ -103,17 +84,55 @@
                                 <ColumnDefinition Width="140" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="{x:Bind FirstName}" Grid.Column="0" Foreground="Black" Margin="10,0,0,0" />
-                            <TextBlock Text="{x:Bind LastName}" Grid.Column="1" Foreground="Black" Margin="10,0,0,0" />
-                            <TextBlock Text="{x:Bind Sex}" Grid.Column="2" Foreground="Black" FontWeight="SemiBold" HorizontalAlignment="Center" />
-                            <TextBlock Text="{Binding DateOfBirth, Converter={StaticResource DateToStringConverter}}" Foreground="Black" Grid.Column="3" Margin="10,0,0,0" />
-                            <TextBlock Text="{x:Bind Cnp}" Grid.Column="4" Foreground="Black" FontSize="12" Margin="10,0,0,0" />
-                            <TextBlock Text="{x:Bind PhoneNumber}" Grid.Column="5" Foreground="Black" Margin="10,0,0,0" />
-                            <TextBlock Text="{x:Bind EmergencyContact}" Grid.Column="6" Foreground="Black" FontStyle="Italic" Margin="10,0,0,0" />
+                            <TextBlock Text="FIRST NAME" FontWeight="Bold" FontSize="11" Foreground="Gray" Grid.Column="0" Margin="10,0,0,0" />
+                            <TextBlock Text="LAST NAME" FontWeight="Bold" FontSize="11" Foreground="Gray" Grid.Column="1" Margin="10,0,0,0" />
+                            <TextBlock Text="SEX" FontWeight="Bold" FontSize="11" Foreground="Gray" Grid.Column="2" HorizontalAlignment="Center" />
+                            <TextBlock Text="DOB" FontWeight="Bold" FontSize="10" Foreground="Gray" Grid.Column="3" Margin="45,0,0,0" />
+                            <TextBlock Text="CNP" FontWeight="Bold" FontSize="10" Foreground="Gray" Grid.Column="4" Margin="55,0,0,0" />
+                            <TextBlock Text="PHONE" FontWeight="Bold" FontSize="10" Foreground="Gray" Grid.Column="5" Margin="45,0,0,0" />
+                            <TextBlock Text="EMERGENCY" FontWeight="Bold" FontSize="10" Foreground="Gray" Grid.Column="6" Margin="30,0,0,0" />
                         </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </Border>
+                    </ListView.Header>
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="model:Patient">
+                            <Grid Padding="12,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120" />
+                                    <ColumnDefinition Width="120" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="130" />
+                                    <ColumnDefinition Width="160" />
+                                    <ColumnDefinition Width="140" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding FirstName}" Grid.Column="0" Foreground="Black" Margin="10,0,0,0" />
+                                <TextBlock Text="{Binding LastName}" Grid.Column="1" Foreground="Black" Margin="10,0,0,0" />
+                                <TextBlock Text="{Binding Sex}" Grid.Column="2" Foreground="Black" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                                <TextBlock Text="{Binding DateOfBirth, Converter={StaticResource DateToStringConverter}}" Foreground="Black" Grid.Column="3" Margin="10,0,0,0" />
+                                <TextBlock Text="{Binding Cnp}" Grid.Column="4" Foreground="Black" FontSize="12" Margin="10,0,0,0" />
+                                <TextBlock Text="{Binding PhoneNumber}" Grid.Column="5" Foreground="Black" Margin="10,0,0,0" />
+                                <TextBlock Text="{Binding EmergencyContact}" Grid.Column="6" Foreground="Black" FontStyle="Italic" Margin="10,0,0,0" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Border>
+
+            <Border Grid.Column="1" Background="#1F2A37" Padding="20" CornerRadius="10">
+                <StackPanel Spacing="10" Visibility="{Binding HasSelectedPatient}">
+                    <TextBlock Text="Patient Details" FontSize="22" FontWeight="Bold" Foreground="White" Margin="0,0,0,15" />
+                    <TextBlock Text="First Name" Foreground="White" />
+                    <TextBox Text="{Binding SelectedPatient.FirstName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBlock Text="Last Name" Foreground="White" />
+                    <TextBox Text="{Binding SelectedPatient.LastName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBlock Text="Phone Number" Foreground="White" />
+                    <TextBox Text="{Binding SelectedPatient.PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBlock Text="Emergency Contact" Foreground="White" />
+                    <TextBox Text="{Binding SelectedPatient.EmergencyContact, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <Button Content="Update Patient" Click="UpdatePatient_Click" HorizontalAlignment="Stretch" Margin="0,15,0,0" CornerRadius="6" />
+                    <Button Content="Archive Patient" Click="ArchivePatient_Click" HorizontalAlignment="Stretch" Foreground="Red" CornerRadius="6" />
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </Page>

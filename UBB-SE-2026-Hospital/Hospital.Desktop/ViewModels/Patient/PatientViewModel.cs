@@ -35,6 +35,8 @@ public partial class PatientViewModel : ObservableObject
 
     public bool HasNoSelectedMedicalRecord => SelectedMedicalRecord is null;
 
+    public bool HasSelectedPatient => SelectedPatient is not null;
+
     public bool HasAllergies => Allergies.Count > 0;
 
     public bool HasNoAllergies => Allergies.Count == 0;
@@ -79,6 +81,7 @@ public partial class PatientViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(SelectedRecordVisibility));
         OnPropertyChanged(nameof(EmptySelectionVisibility));
+        OnPropertyChanged(nameof(HasSelectedPatient));
 
         if (isRefreshingSelectedPatient)
         {
@@ -176,6 +179,62 @@ public partial class PatientViewModel : ObservableObject
         PatientModel details = await patientService.GetPatientDetailsAsync(patientId);
         SelectedPatient = details;
         await LoadSelectedPatientDetailsAsync(patientId);
+    }
+
+    public async Task UpdateSelectedPatientAsync()
+    {
+        if (SelectedPatient is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await patientService.UpdatePatientAsync(SelectedPatient.PatientId, new UpdatePatientRequest
+            {
+                FirstName = SelectedPatient.FirstName,
+                LastName = SelectedPatient.LastName,
+                Cnp = SelectedPatient.Cnp,
+                DateOfBirth = SelectedPatient.DateOfBirth,
+                Sex = SelectedPatient.Sex,
+                PhoneNumber = SelectedPatient.PhoneNumber,
+                EmergencyContact = SelectedPatient.EmergencyContact,
+                IsDonor = SelectedPatient.IsDonor,
+                Transferred = SelectedPatient.Transferred,
+                DateOfDeath = SelectedPatient.DateOfDeath,
+                IsArchived = SelectedPatient.IsArchived,
+            });
+
+            StatusMessage = "Patient updated successfully.";
+            await LoadPatientsAsync();
+        }
+        catch (System.Exception ex)
+        {
+            StatusMessage = $"Error updating patient: {ex.Message}";
+        }
+    }
+
+    public async Task ArchiveSelectedPatientAsync()
+    {
+        if (SelectedPatient is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await patientService.ArchivePatientAsync(SelectedPatient.PatientId);
+            StatusMessage = "Patient archived successfully.";
+            await LoadPatientsAsync();
+            MedicalHistory = null;
+            MedicalRecords.Clear();
+            Allergies.Clear();
+            SelectedPatient = null;
+        }
+        catch (System.Exception ex)
+        {
+            StatusMessage = $"Error archiving patient: {ex.Message}";
+        }
     }
 
     private async Task LoadSelectedPatientDetailsAsync(int patientId)
