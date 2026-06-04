@@ -1,15 +1,14 @@
-namespace Hospital.Desktop.ViewModels.PharmacyManagement
-{
-    using System.Collections.ObjectModel;
-    using System.ComponentModel;
-    using System.Runtime.CompilerServices;
-    using Microsoft.UI.Xaml;
-    
-    using Hospital.Desktop.Services;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using Microsoft.UI.Xaml;
+
+using Hospital.Desktop.Services;
 using Hospital.Shared.Services;
 using Hospital.Shared.Models;
-using Hospital.Shared.Services;
 
+namespace Hospital.Desktop.ViewModels.PharmacyManagement
+{
     public class EditPageViewModel : INotifyPropertyChanged
     {
         private readonly IAdminService adminService;
@@ -17,11 +16,10 @@ using Hospital.Shared.Services;
         public event PropertyChangedEventHandler PropertyChanged;
 
         public ObservableCollection<Item> Items { get; } = new ObservableCollection<Item>();
-
         public ObservableCollection<Substance> Substances { get; } = new ObservableCollection<Substance>();
 
+        // Visibility properties
         private Visibility itemListButtonsVisibility = Visibility.Visible;
-
         public Visibility ItemListButtonsVisibility
         {
             get => this.itemListButtonsVisibility;
@@ -33,7 +31,6 @@ using Hospital.Shared.Services;
         }
 
         private Visibility itemBottomButtonsVisibility = Visibility.Visible;
-
         public Visibility ItemBottomButtonsVisibility
         {
             get => this.itemBottomButtonsVisibility;
@@ -45,7 +42,6 @@ using Hospital.Shared.Services;
         }
 
         private Visibility showExpiredItemsToggleVisibility = Visibility.Visible;
-
         public Visibility ShowExpiredItemsToggleVisibility
         {
             get => this.showExpiredItemsToggleVisibility;
@@ -57,7 +53,6 @@ using Hospital.Shared.Services;
         }
 
         private Visibility substanceListButtonsVisibility = Visibility.Collapsed;
-
         public Visibility SubstanceListButtonsVisibility
         {
             get => this.substanceListButtonsVisibility;
@@ -69,7 +64,6 @@ using Hospital.Shared.Services;
         }
 
         private Visibility substanceBottomButtonsVisibility = Visibility.Collapsed;
-
         public Visibility SubstanceBottomButtonsVisibility
         {
             get => this.substanceBottomButtonsVisibility;
@@ -81,7 +75,6 @@ using Hospital.Shared.Services;
         }
 
         private Visibility addSubstanceGridVisibility = Visibility.Collapsed;
-
         public Visibility AddSubstanceGridVisibility
         {
             get => this.addSubstanceGridVisibility;
@@ -93,7 +86,6 @@ using Hospital.Shared.Services;
         }
 
         private Visibility updateSubstanceGridVisibility = Visibility.Collapsed;
-
         public Visibility UpdateSubstanceGridVisibility
         {
             get => this.updateSubstanceGridVisibility;
@@ -101,19 +93,14 @@ using Hospital.Shared.Services;
             {
                 this.updateSubstanceGridVisibility = value;
                 this.OnPropertyChanged();
+                this.RefreshSubstances();
             }
         }
 
-        public EditPageViewModel()
-            : this(new AdminService())
-        {
-        }
-
+        // Constructor for DI
         public EditPageViewModel(IAdminService adminService)
         {
             this.adminService = adminService;
-            this.RefreshItems();
-            this.RefreshSubstances();
         }
 
         public void RefreshItems()
@@ -153,21 +140,13 @@ using Hospital.Shared.Services;
         }
 
         public Item GetItemById(int itemId) => this.adminService.GetItemById(itemId);
-
         public Substance GetSubstanceByName(string name) => this.adminService.GetSubstanceByName(name);
-
         public bool SubstanceExists(string name) => this.adminService.SubstanceExists(name);
-
         public void AddItemWithQuantity(Item item) => this.adminService.AddItemWithQuantity(item);
-
         public void UpdateItemById(int itemId, Item item) => this.adminService.UpdateItemById(itemId, item);
-
         public void RemoveItemById(int itemId) => this.adminService.RemoveItemById(itemId);
-
         public void AddSubstance(Substance substance) => this.adminService.AddSubstance(substance);
-
         public void UpdateSubstanceByName(string name, Substance substance) => this.adminService.UpdateSubstanceByName(name, substance);
-
         public void RemoveSubstanceByName(Substance substance) => this.adminService.RemoveSubstanceByName(substance);
 
         public void ActivateItemsSection()

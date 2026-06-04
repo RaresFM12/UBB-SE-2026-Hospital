@@ -1,6 +1,7 @@
 namespace Hospital.Desktop.Views.Accounts
 {
     using System;
+    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using Hospital.Shared.Services;
@@ -8,7 +9,7 @@ namespace Hospital.Desktop.Views.Accounts
 
     public sealed partial class ProfileManagementView : Page
     {
-        private readonly UserAccountService accountService;
+        private readonly IUserAccountService accountService;
 
         public ProfileManagementViewModel ProfileManagementViewModel { get; }
 
@@ -17,7 +18,8 @@ namespace Hospital.Desktop.Views.Accounts
             this.InitializeComponent();
 
             this.accountService = ServiceWrapper.UserAccountService;
-            this.ProfileManagementViewModel = new ProfileManagementViewModel(this.accountService);
+            var currentUserService = App.Services.GetRequiredService<ICurrentUserService>();
+            this.ProfileManagementViewModel = new ProfileManagementViewModel(this.accountService, currentUserService);
 
             this.DataContext = this.ProfileManagementViewModel;
             this.Loaded += this.OnProfileLoaded;

@@ -7,14 +7,16 @@ namespace Hospital.Desktop.ViewModels.Accounts
     public class ProfileManagementViewModel : INotifyPropertyChanged
     {
         private readonly IUserAccountService userAccountService;
+        private readonly ICurrentUserService currentUserService;
 
         private string username;
         private string phoneNumber;
         private string errorMessage;
 
-        public ProfileManagementViewModel(IUserAccountService userAccountService)
+        public ProfileManagementViewModel(IUserAccountService userAccountService, ICurrentUserService currentUserService)
         {
             this.userAccountService = userAccountService;
+            this.currentUserService = currentUserService;
             this.LoadUserData();
         }
 
@@ -53,12 +55,13 @@ namespace Hospital.Desktop.ViewModels.Accounts
         public void LoadUserData()
         {
             var currentUser = this.userAccountService.CurrentUser;
-            if (currentUser == null)
+            int userId = currentUser?.Id ?? this.currentUserService.UserId;
+            if (userId <= 0)
             {
                 return;
             }
 
-            currentUser = this.userAccountService.LoadCurrentUser(currentUser.Id);
+            currentUser = this.userAccountService.LoadCurrentUser(userId);
             if (currentUser == null)
             {
                 return;

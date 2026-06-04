@@ -46,7 +46,7 @@ using Hospital.Shared.Services;
         {
             InitializeComponent();
             this.NavigationCacheMode = NavigationCacheMode.Disabled;
-            this.ViewModel = new EditPageViewModel();
+            this.ViewModel = App.Services.GetRequiredService<EditPageViewModel>();
             this.DataContext = this.ViewModel;
             this.ApplyUiStateFromViewModel();
             this.ResetUiValidationState();
