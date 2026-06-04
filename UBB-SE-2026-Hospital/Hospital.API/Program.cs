@@ -97,3 +97,5 @@ app.MapGet("api/users/{id:int}/period-tracker", async (int userId, [FromServices
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }

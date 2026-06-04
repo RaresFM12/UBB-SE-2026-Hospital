@@ -23,4 +23,7 @@
     <ProjectReference Include="..\Hospital.Services\Hospital.Services.csproj" />
   </ItemGroup>
 
+<ItemGroup>
+  <InternalsVisibleTo Include="Hospital.Tests" />
+</ItemGroup>
 </Project>
