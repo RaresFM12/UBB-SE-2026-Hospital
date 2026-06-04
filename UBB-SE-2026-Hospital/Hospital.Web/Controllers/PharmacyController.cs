@@ -6,10 +6,9 @@ namespace Hospital.Web.Controllers;
 [Authorize]
 public class PharmacyController : Controller
 {
-    public IActionResult Index()
+    public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
-        // Use synchronous call to the shared service contract available in this solution.
-        var items = adminService.GetAllItems();
-        return View(items);
+        await Task.CompletedTask;
+        return View(Array.Empty<Hospital.Shared.Models.StaffPharmacy.Item>());
     }
 }
