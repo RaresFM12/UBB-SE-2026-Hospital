@@ -23,24 +23,7 @@
             <div class="card shadow-sm h-100">
                 <div class="card-body">
                     <h2 class="h4 mb-3">1. Living Recipient</h2>
-                    <p class="text-muted">Search the existing active patients and add one to the transplant waitlist.</p>
-
-                    <form method="get" asp-action="Index" class="row g-3 mb-4">
-                        <div class="col-sm-8">
-                            <label for="recipientSearch" class="form-label">Search living patients</label>
-                            <input id="recipientSearch"
-                                   name="recipientSearch"
-                                   value="@Model.RecipientSearchQuery"
-                                   class="form-control"
-                                   placeholder="Name or exact CNP" />
-                        </div>
-                        <div class="col-sm-4 d-flex align-items-end gap-2">
-                            <button type="submit" class="btn btn-outline-primary">Search</button>
-                            <a asp-action="Index"
-                               asp-route-donorSearch="@Model.DonorSearchQuery"
-                               class="btn btn-outline-secondary">Reset</a>
-                        </div>
-                    </form>
+                    <p class="text-muted">Type a name or exact CNP, then pick the living patient from the suggestions.</p>
 
                     @if (Model.RecipientPatients.Count == 0)
                     {
@@ -51,14 +34,20 @@
                         <form method="post" asp-action="CreateRequest" class="row g-3">
                             @Html.AntiForgeryToken()
                             <div class="col-12">
-                                <label for="recipientPatientId" class="form-label">Recipient patient</label>
-                                <select id="recipientPatientId" name="patientId" class="form-select" required>
-                                    <option value="">Choose a patient...</option>
+                                <label for="recipientPatientLookup" class="form-label">Recipient patient</label>
+                                <input id="recipientPatientLookup"
+                                       class="form-control"
+                                       list="recipientPatients"
+                                       placeholder="Start typing a name or exact CNP"
+                                       autocomplete="off"
+                                       required />
+                                <datalist id="recipientPatients">
                                     @foreach (var patient in Model.RecipientPatients)
                                     {
-                                        <option value="@patient.Id">@patient.FirstName @patient.LastName (@patient.Cnp)</option>
+                                        <option value="@patient.FirstName @patient.LastName (@patient.Cnp)" data-patient-id="@patient.Id"></option>
                                     }
-                                </select>
+                                </datalist>
+                                <input id="recipientPatientId" name="patientId" type="hidden" required />
                             </div>
                             <div class="col-12">
                                 <label for="recipientOrgan" class="form-label">Needed organ</label>
@@ -83,24 +72,7 @@
             <div class="card shadow-sm h-100">
                 <div class="card-body">
                     <h2 class="h4 mb-3">2. Deceased Donor</h2>
-                    <p class="text-muted">Search deceased patients and find the best waiting recipients for an available organ.</p>
-
-                    <form method="get" asp-action="Index" class="row g-3 mb-4">
-                        <div class="col-sm-8">
-                            <label for="donorSearch" class="form-label">Search deceased patients</label>
-                            <input id="donorSearch"
-                                   name="donorSearch"
-                                   value="@Model.DonorSearchQuery"
-                                   class="form-control"
-                                   placeholder="Name or exact CNP" />
-                        </div>
-                        <div class="col-sm-4 d-flex align-items-end gap-2">
-                            <button type="submit" class="btn btn-outline-primary">Search</button>
-                            <a asp-action="Index"
-                               asp-route-recipientSearch="@Model.RecipientSearchQuery"
-                               class="btn btn-outline-secondary">Reset</a>
-                        </div>
-                    </form>
+                    <p class="text-muted">Type a name or exact CNP, then pick the deceased patient from the suggestions.</p>
 
                     @if (Model.DonorPatients.Count == 0)
                     {
@@ -110,14 +82,20 @@
                     {
                         <form method="get" asp-action="Assign" class="row g-3">
                             <div class="col-12">
-                                <label for="donorPatientId" class="form-label">Donor patient</label>
-                                <select id="donorPatientId" name="patientId" class="form-select" required>
-                                    <option value="">Choose a patient...</option>
+                                <label for="donorPatientLookup" class="form-label">Donor patient</label>
+                                <input id="donorPatientLookup"
+                                       class="form-control"
+                                       list="donorPatients"
+                                       placeholder="Start typing a name or exact CNP"
+                                       autocomplete="off"
+                                       required />
+                                <datalist id="donorPatients">
                                     @foreach (var patient in Model.DonorPatients)
                                     {
-                                        <option value="@patient.Id">@patient.FirstName @patient.LastName (@patient.Cnp)</option>
+                                        <option value="@patient.FirstName @patient.LastName (@patient.Cnp)" data-patient-id="@patient.Id"></option>
                                     }
-                                </select>
+                                </datalist>
+                                <input id="donorPatientId" name="patientId" type="hidden" required />
                             </div>
                             <div class="col-12">
                                 <label for="donorOrgan" class="form-label">Available organ</label>
@@ -139,3 +117,42 @@
         </div>
     </div>
 </div>
+
+<script>
+    (() => {
+        function bindPatientLookup(inputId, listId, hiddenId, formSelector) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+            const hidden = document.getElementById(hiddenId);
+            const form = input?.closest(formSelector);
+
+            if (!input || !list || !hidden || !form) {
+                return;
+            }
+
+            const syncSelection = () => {
+                const option = Array.from(list.options).find(item => item.value === input.value);
+                hidden.value = option?.dataset.patientId ?? "";
+            };
+
+            input.addEventListener("input", syncSelection);
+            input.addEventListener("change", syncSelection);
+
+            form.addEventListener("submit", event => {
+                syncSelection();
+
+                if (!hidden.value) {
+                    event.preventDefault();
+                    input.setCustomValidity("Please choose a patient from the suggestions.");
+                    input.reportValidity();
+                    return;
+                }
+
+                input.setCustomValidity("");
+            });
+        }
+
+        bindPatientLookup("recipientPatientLookup", "recipientPatients", "recipientPatientId", "form");
+        bindPatientLookup("donorPatientLookup", "donorPatients", "donorPatientId", "form");
+    })();
+</script>
