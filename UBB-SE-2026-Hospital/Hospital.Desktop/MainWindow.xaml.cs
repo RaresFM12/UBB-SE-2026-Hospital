@@ -4,11 +4,14 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Media;
+using Hospital.Shared.Services;
+using Hospital.Shared.Models;
 
 namespace Hospital.Desktop;
 
 public partial class MainWindow : Window
 {
+    private readonly ICurrentUserService currentUserService;
     private readonly Frame contentFrame = new();
     private readonly TextBlock currentPageTitle = new()
     {
@@ -18,8 +21,9 @@ public partial class MainWindow : Window
         Margin = new Thickness(12, 12, 12, 0),
     };
 
-    public MainWindow()
+    public MainWindow(ICurrentUserService currentUserService)
     {
+        this.currentUserService = currentUserService;
         Title = "Hospital Desktop";
         Content = BuildShell();
         if (Content is UIElement rootElement)
@@ -76,31 +80,79 @@ public partial class MainWindow : Window
         var panel = new StackPanel { Padding = new Thickness(12), Spacing = 6 };
         AddNavigationButton(panel, "Dashboard", "Dashboard");
 
-        AddSectionHeader(panel, "Admin & Client", "AdminAccounts");
-        AddNavigationButton(panel, "Accounts", "AdminAccounts");
-        AddNavigationButton(panel, "Appointments", "Appointments");
-        AddNavigationButton(panel, "ER Dispatch", "ERDispatch");
-        AddNavigationButton(panel, "Fatigue Audit", "FatigueAudit");
-        AddNavigationButton(panel, "Admin Schedule", "AdminSchedule");
-        AddNavigationButton(panel, "Admin Shift", "AdminShift");
+        // Section: Admin & Client
+        bool showAdminClientHeader = IsFeatureVisibleForRole("AdminAccounts", currentUserService.RoleType)
+            || IsFeatureVisibleForRole("Appointments", currentUserService.RoleType)
+            || IsFeatureVisibleForRole("ERDispatch", currentUserService.RoleType)
+            || IsFeatureVisibleForRole("FatigueAudit", currentUserService.RoleType)
+            || IsFeatureVisibleForRole("AdminSchedule", currentUserService.RoleType)
+            || IsFeatureVisibleForRole("DoctorSchedule", currentUserService.RoleType)
+            || IsFeatureVisibleForRole("PharmacySchedule", currentUserService.RoleType)
+            || IsFeatureVisibleForRole("Inventory", currentUserService.RoleType)
+            || IsFeatureVisibleForRole("AdminShift", currentUserService.RoleType);
+            
+        if (showAdminClientHeader)
+        {
+            AddSectionHeader(panel, "Admin & Client", "AdminAccounts");
+            if (IsFeatureVisibleForRole("AdminAccounts", currentUserService.RoleType)) AddNavigationButton(panel, "Accounts", "AdminAccounts");
+            if (IsFeatureVisibleForRole("Appointments", currentUserService.RoleType)) AddNavigationButton(panel, "Appointments", "Appointments");
+            if (IsFeatureVisibleForRole("DoctorSchedule", currentUserService.RoleType)) AddNavigationButton(panel, "Doctor Schedule", "DoctorSchedule");
+            if (IsFeatureVisibleForRole("PharmacySchedule", currentUserService.RoleType)) AddNavigationButton(panel, "Pharmacy Schedule", "PharmacySchedule");
+            if (IsFeatureVisibleForRole("Inventory", currentUserService.RoleType)) AddNavigationButton(panel, "Inventory", "Inventory");
+            if (IsFeatureVisibleForRole("ERDispatch", currentUserService.RoleType)) AddNavigationButton(panel, "ER Dispatch", "ERDispatch");
+            if (IsFeatureVisibleForRole("FatigueAudit", currentUserService.RoleType)) AddNavigationButton(panel, "Fatigue Audit", "FatigueAudit");
+            if (IsFeatureVisibleForRole("AdminSchedule", currentUserService.RoleType)) AddNavigationButton(panel, "Admin Schedule", "AdminSchedule");
+            if (IsFeatureVisibleForRole("AdminShift", currentUserService.RoleType)) AddNavigationButton(panel, "Admin Shift", "AdminShift");
+        }
 
-        AddSectionHeader(panel, "Emergency Room", "Triage");
-        AddNavigationButton(panel, "Triage", "Triage");
-        AddNavigationButton(panel, "Queue", "Queue");
-        AddNavigationButton(panel, "Patient Registration", "PatientRegistration");
-        AddNavigationButton(panel, "Room Management", "RoomManagement");
-        AddNavigationButton(panel, "Room Assignment", "RoomAssignment");
-        AddNavigationButton(panel, "Examination", "Examination");
-        AddNavigationButton(panel, "Transfer Log", "TransferLog");
+        // Section: Emergency Room
+        bool showERHeader = IsFeatureVisibleForRole("Triage", currentUserService.RoleType)
+            || IsFeatureVisibleForRole("Queue", currentUserService.RoleType)
+            || IsFeatureVisibleForRole("PatientRegistration", currentUserService.RoleType)
+            || IsFeatureVisibleForRole("RoomManagement", currentUserService.RoleType)
+            || IsFeatureVisibleForRole("RoomAssignment", currentUserService.RoleType)
+            || IsFeatureVisibleForRole("Examination", currentUserService.RoleType)
+            || IsFeatureVisibleForRole("TransferLog", currentUserService.RoleType);
 
-        AddSectionHeader(panel, "Patient & Billing", "Patients");
-        AddNavigationButton(panel, "Patients", "Patients");
-        AddNavigationButton(panel, "Prescriptions", "Prescriptions");
-        AddNavigationButton(panel, "Transplants", "Transplants");
-        AddNavigationButton(panel, "Blood Donors", "BloodDonors");
-        AddNavigationButton(panel, "Statistics", "Statistics");
-        AddNavigationButton(panel, "Billing", "Billing");
-        AddNavigationButton(panel, "Addict Detection", "AddictDetection");
+        if (showERHeader)
+        {
+            AddSectionHeader(panel, "Emergency Room", "Triage");
+            if (IsFeatureVisibleForRole("Triage", currentUserService.RoleType)) AddNavigationButton(panel, "Triage", "Triage");
+            if (IsFeatureVisibleForRole("Queue", currentUserService.RoleType)) AddNavigationButton(panel, "Queue", "Queue");
+            if (IsFeatureVisibleForRole("PatientRegistration", currentUserService.RoleType)) AddNavigationButton(panel, "Patient Registration", "PatientRegistration");
+            if (IsFeatureVisibleForRole("RoomManagement", currentUserService.RoleType)) AddNavigationButton(panel, "Room Management", "RoomManagement");
+            if (IsFeatureVisibleForRole("RoomAssignment", currentUserService.RoleType)) AddNavigationButton(panel, "Room Assignment", "RoomAssignment");
+            if (IsFeatureVisibleForRole("Examination", currentUserService.RoleType)) AddNavigationButton(panel, "Examination", "Examination");
+            if (IsFeatureVisibleForRole("TransferLog", currentUserService.RoleType)) AddNavigationButton(panel, "Transfer Log", "TransferLog");
+        }
+
+        // Section: Patient & Billing
+        bool showPatientBillingHeader = IsFeatureVisibleForRole("Patients", currentUserService.RoleType)
+            || IsFeatureVisibleForRole("Prescriptions", currentUserService.RoleType)
+            || IsFeatureVisibleForRole("Transplants", currentUserService.RoleType)
+            || IsFeatureVisibleForRole("BloodDonors", currentUserService.RoleType)
+            || IsFeatureVisibleForRole("Statistics", currentUserService.RoleType)
+            || IsFeatureVisibleForRole("Billing", currentUserService.RoleType)
+            || IsFeatureVisibleForRole("AddictDetection", currentUserService.RoleType);
+
+        if (showPatientBillingHeader)
+        {
+            AddSectionHeader(panel, "Patient & Billing", "Patients");
+            if (IsFeatureVisibleForRole("Patients", currentUserService.RoleType)) AddNavigationButton(panel, "Patients", "Patients");
+            if (IsFeatureVisibleForRole("Prescriptions", currentUserService.RoleType)) AddNavigationButton(panel, "Prescriptions", "Prescriptions");
+            if (IsFeatureVisibleForRole("Transplants", currentUserService.RoleType)) AddNavigationButton(panel, "Transplants", "Transplants");
+            if (IsFeatureVisibleForRole("BloodDonors", currentUserService.RoleType)) AddNavigationButton(panel, "Blood Donors", "BloodDonors");
+            if (IsFeatureVisibleForRole("Statistics", currentUserService.RoleType)) AddNavigationButton(panel, "Statistics", "Statistics");
+            if (IsFeatureVisibleForRole("Billing", currentUserService.RoleType)) AddNavigationButton(panel, "Billing", "Billing");
+            if (IsFeatureVisibleForRole("AddictDetection", currentUserService.RoleType)) AddNavigationButton(panel, "Addict Detection", "AddictDetection");
+        }
+
+        // Section: Personal
+        if (IsFeatureVisibleForRole("ProfileManagement", currentUserService.RoleType))
+        {
+            AddSectionHeader(panel, "Personal", "ProfileManagement");
+            AddNavigationButton(panel, "Profile", "ProfileManagement");
+        }
 
         panel.Children.Add(new Button
         {
@@ -156,11 +208,21 @@ public partial class MainWindow : Window
 
     private void NavigateToTag(string tag, string label)
     {
+        if (!IsFeatureVisibleForRole(tag, this.currentUserService.RoleType))
+        {
+            ShowNavigationError(label, "Access Denied: You do not have permission to view this section.");
+            return;
+        }
+
         Type? pageType = tag switch
         {
             "Dashboard" => typeof(Views.DashboardPage),
+            "ProfileManagement" => typeof(Views.Accounts.ProfileManagementView),
             "AdminAccounts" => typeof(Views.Accounts.AdminAccountsManagementView),
             "Appointments" => typeof(Views.Admin.AppointmentsPage),
+            "DoctorSchedule" => typeof(Views.Doctor.DoctorSchedulePage),
+            "PharmacySchedule" => typeof(Views.Pharmacy.PharmacySchedulePage),
+            "Inventory" => typeof(Views.PharmacyManagement.EditPage),
             "ERDispatch" => typeof(Views.Admin.ERDispatchPage),
             "FatigueAudit" => typeof(Views.Admin.FatigueAuditPage),
             "AdminSchedule" => typeof(Views.Admin.AdminSchedulePage),
@@ -284,5 +346,57 @@ public partial class MainWindow : Window
         }
 
         return null;
+    }
+
+    private static bool IsFeatureVisibleForRole(string navigationTag, UserRole userRole)
+    {
+        if (userRole == UserRole.Admin)
+        {
+            return navigationTag is "Dashboard"
+                || navigationTag is "ProfileManagement"
+                || navigationTag is "Appointments"
+                || navigationTag is "DoctorSchedule"
+                || navigationTag is "PharmacySchedule"
+                || navigationTag is "Inventory"
+                || navigationTag is "AdminAccounts"
+                || navigationTag is "ERDispatch"
+                || navigationTag is "FatigueAudit"
+                || navigationTag is "AdminSchedule"
+                || navigationTag is "AdminShift"
+                || navigationTag is "Statistics";
+        }
+
+        if (userRole == UserRole.Doctor)
+        {
+            return navigationTag is "Dashboard" 
+                || navigationTag is "Appointments" 
+                || navigationTag is "Triage" 
+                || navigationTag is "Queue" 
+                || navigationTag is "PatientRegistration"
+                || navigationTag is "RoomManagement" 
+                || navigationTag is "RoomAssignment" 
+                || navigationTag is "Examination" 
+                || navigationTag is "TransferLog" 
+                || navigationTag is "Patients" 
+                || navigationTag is "Transplants" 
+                || navigationTag is "BloodDonors";
+        }
+
+        if (userRole == UserRole.Pharmacist)
+        {
+            return navigationTag is "Dashboard" 
+                || navigationTag is "Prescriptions" 
+                || navigationTag is "AddictDetection";
+        }
+
+        if (userRole == UserRole.Client)
+        {
+            return navigationTag is "Dashboard" 
+                || navigationTag is "Appointments" 
+                || navigationTag is "Billing" 
+                || navigationTag is "Prescriptions";
+        }
+
+        return false;
     }
 }

@@ -41,9 +41,14 @@ public partial class App : Application
             c.BaseAddress = new Uri(apiBaseUrl);
             c.Timeout = TimeSpan.FromSeconds(10);
         })
-                .AddHttpMessageHandler<JwtAuthHandler>();
+        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+        })
+        .AddHttpMessageHandler<JwtAuthHandler>();
         services.AddSingleton(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("api"));
 
+        services.AddSingleton<ICurrentUserService, CurrentUserService>();
         services.AddSingleton<AuthClient>();
         services.AddSingleton<NavigationService>();
 
@@ -100,6 +105,15 @@ public partial class App : Application
         services.AddTransient<LoginWindow>();
         services.AddTransient<MainWindow>();
         services.AddTransient<Views.Patient.PatientProfileWindow>();
+
+        // Migrated ViewModels & Services
+        services.AddTransient<Hospital.Desktop.ViewModels.Doctor.DoctorScheduleViewModel>();
+        services.AddTransient<Hospital.Desktop.ViewModels.Doctor.AppointmentItemViewModel>();
+        services.AddTransient<Hospital.Desktop.ViewModels.Doctor.DoctorShiftItemViewModel>();
+        services.AddTransient<Hospital.Desktop.ViewModels.Pharmacy.PharmacyScheduleViewModel>();
+        services.AddTransient<Hospital.Desktop.ViewModels.Pharmacy.PharmacyShiftItemViewModel>();
+        services.AddTransient<Hospital.Desktop.ViewModels.PharmacyManagement.EditPageViewModel>();
+        services.AddTransient<Hospital.Desktop.Views.Shell.DialogPresenter>();
 
         Services = services.BuildServiceProvider();
     }
