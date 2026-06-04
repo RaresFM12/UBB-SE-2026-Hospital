@@ -1,11 +1,11 @@
-namespace UBB_SE_2026_923_2.Repositories
+namespace Hospital.Shared.Repositories
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Net.Http;
     using System.Net.Http.Json;
-    using UBB_SE_2026_923_2.Models;
+    using Hospital.Shared.Models;
 
     /// <summary>
     /// HTTP-backed implementation of <see cref="IHangoutParticipantRepository"/>.

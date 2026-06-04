@@ -9,13 +9,18 @@ namespace Hospital.Data.Repositories;
 public class PharmacyHandoverRepository(HospitalDbContext context) : IPharmacyHandoverRepository
 {
     public async Task<PharmacyHandover?> GetByIdAsync(int handoverId)
-        => await context.PharmacyHandovers.FindAsync(handoverId);
+        => await context.PharmacyHandovers
+            .Include(h => h.Pharmacist)
+            .FirstOrDefaultAsync(h => h.Id == handoverId);
 
     public async Task<List<PharmacyHandover>> GetAllAsync()
-        => await context.PharmacyHandovers.ToListAsync();
+        => await context.PharmacyHandovers
+            .Include(h => h.Pharmacist)
+            .ToListAsync();
 
     public async Task<List<PharmacyHandover>> GetByPharmacistIdAsync(int pharmacistId)
         => await context.PharmacyHandovers
+            .Include(h => h.Pharmacist)
             .Where(h => h.Pharmacist.StaffId == pharmacistId)
             .ToListAsync();
 

@@ -1,4 +1,4 @@
-namespace UBB_SE_2026_923_2.Repositories
+namespace Hospital.Shared.Repositories
 {
     using System;
     using System.Net.Http;

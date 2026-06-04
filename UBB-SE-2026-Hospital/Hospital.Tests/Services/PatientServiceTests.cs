@@ -1,6 +1,7 @@
 using Hospital.Services.PatientEr;
-using Hospital.Shared.Models.PatientEr;
-using Hospital.Shared.Repositories;
+using Hospital.Data.Repositories;
+using SharedPatient = Hospital.Shared.Models.PatientEr.Patient;
+using DbPatient = Hospital.Data.Models.Patient;
 
 namespace Hospital.Tests.Services;
 
@@ -21,10 +22,10 @@ public class PatientServiceTests
 
     private sealed class FakePatientRepository : IPatientRepository
     {
-        public Task<IReadOnlyList<Patient>> GetAllAsync(CancellationToken cancellationToken = default)
-            => Task.FromResult<IReadOnlyList<Patient>>(
+        public Task<List<DbPatient>> GetAllAsync()
+            => Task.FromResult<List<DbPatient>>(
             [
-                new Patient
+                new DbPatient
                 {
                     PatientId = 1,
                     FirstName = "Ana",
@@ -32,7 +33,19 @@ public class PatientServiceTests
                 },
             ]);
 
-        public Task<Patient?> GetByIdAsync(int patientId, CancellationToken cancellationToken = default)
-            => Task.FromResult<Patient?>(null);
+        public Task<DbPatient?> GetByIdAsync(int patientId)
+            => Task.FromResult<DbPatient?>(null);
+
+        public Task<List<DbPatient>> GetFilteredAsync(Hospital.Data.Models.DTOs.PatientFilter filter)
+            => throw new NotImplementedException();
+
+        public Task<DbPatient> CreateAsync(DbPatient patient)
+            => throw new NotImplementedException();
+
+        public Task<DbPatient> UpdateAsync(DbPatient patient)
+            => throw new NotImplementedException();
+
+        public Task DeleteAsync(int patientId)
+            => throw new NotImplementedException();
     }
 }

@@ -7,11 +7,16 @@
     mc:Ignorable="d"
     Title="Hospital Desktop">
 
-    <Grid Padding="24" RowDefinitions="Auto,Auto,*">
+    <Grid Padding="24" RowDefinitions="Auto,Auto,*" ColumnDefinitions="*,Auto">
         <TextBlock
             FontSize="28"
             FontWeight="SemiBold"
             Text="UBB-SE-2026-Hospital" />
+        <Button
+            Grid.Column="1"
+            VerticalAlignment="Top"
+            Content="Logout"
+            Click="OnLogoutClick" />
         <TextBlock
             Grid.Row="1"
             Margin="0,8,0,0"

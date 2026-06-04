@@ -9,18 +9,36 @@ namespace Hospital.Data.Repositories;
 public class ShiftSwapRepository(HospitalDbContext context) : IShiftSwapRepository
 {
     public async Task<ShiftSwapRequest?> GetByIdAsync(int requestId)
-        => await context.ShiftSwapRequests.FindAsync(requestId);
+        => await context.ShiftSwapRequests
+            .Include(r => r.Shift)
+                .ThenInclude(s => s!.Staff)
+            .Include(r => r.Requester)
+            .Include(r => r.Colleague)
+            .FirstOrDefaultAsync(r => r.SwapId == requestId);
 
     public async Task<List<ShiftSwapRequest>> GetAllAsync()
-        => await context.ShiftSwapRequests.ToListAsync();
+        => await context.ShiftSwapRequests
+            .Include(r => r.Shift)
+                .ThenInclude(s => s!.Staff)
+            .Include(r => r.Requester)
+            .Include(r => r.Colleague)
+            .ToListAsync();
 
     public async Task<List<ShiftSwapRequest>> GetByStaffIdAsync(int staffId)
         => await context.ShiftSwapRequests
+            .Include(r => r.Shift)
+                .ThenInclude(s => s!.Staff)
+            .Include(r => r.Requester)
+            .Include(r => r.Colleague)
             .Where(r => r.Requester!.StaffId == staffId || r.Colleague!.StaffId == staffId)
             .ToListAsync();
 
     public async Task<List<ShiftSwapRequest>> GetPendingAsync()
         => await context.ShiftSwapRequests
+            .Include(r => r.Shift)
+                .ThenInclude(s => s!.Staff)
+            .Include(r => r.Requester)
+            .Include(r => r.Colleague)
             .Where(r => r.Status == ShiftSwapRequestStatus.PENDING)
             .ToListAsync();
 

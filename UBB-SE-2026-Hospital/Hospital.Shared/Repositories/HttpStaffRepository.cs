@@ -1,4 +1,4 @@
-namespace UBB_SE_2026_923_2.Repositories
+namespace Hospital.Shared.Repositories
 {
     using System;
     using System.Collections.Generic;
@@ -8,7 +8,7 @@ namespace UBB_SE_2026_923_2.Repositories
     using System.Net.Http.Json;
     using System.Text.Json;
     using System.Threading.Tasks;
-    using UBB_SE_2026_923_2.Models;
+    using Hospital.Shared.Models;
 
     /// <summary>
     /// HTTP-backed implementation of all three staff-repository interfaces.

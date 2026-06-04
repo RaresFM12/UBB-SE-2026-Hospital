@@ -9,16 +9,24 @@ namespace Hospital.Data.Repositories;
 public class NotificationRepository(HospitalDbContext context) : INotificationRepository
 {
     public async Task<Notification?> GetByIdAsync(int notificationId)
-        => await context.Notifications.FindAsync(notificationId);
+        => await context.Notifications
+            .Include(n => n.Recipient)
+            .FirstOrDefaultAsync(n => n.Id == notificationId);
 
     public async Task<List<Notification>> GetAllAsync()
-        => await context.Notifications.ToListAsync();
+        => await context.Notifications
+            .Include(n => n.Recipient)
+            .ToListAsync();
 
     public async Task<List<Notification>> GetByStaffIdAsync(int staffId)
-        => await context.Notifications.Where(n => n.Recipient!.StaffId == staffId).ToListAsync();
+        => await context.Notifications
+            .Include(n => n.Recipient)
+            .Where(n => n.Recipient!.StaffId == staffId)
+            .ToListAsync();
 
     public async Task<List<Notification>> GetUnreadByStaffIdAsync(int staffId)
         => await context.Notifications
+            .Include(n => n.Recipient)
             .Where(n => n.Recipient!.StaffId == staffId && !n.IsRead)
             .ToListAsync();
 

@@ -1,4 +1,5 @@
 using Hospital.Data.Models;
+using Hospital.Data.Models.Auth;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hospital.Data;
@@ -27,6 +28,11 @@ public class HospitalDbContext : DbContext
     public DbSet<UserNotification> UserNotifications => Set<UserNotification>();
     public DbSet<PeriodNote> PeriodNotes => Set<PeriodNote>();
     public DbSet<BasketEntry> BasketEntries => Set<BasketEntry>();
+
+    // Authorization (roles & modules)
+    public DbSet<Role> Roles => Set<Role>();
+    public DbSet<Module> Modules => Set<Module>();
+    public DbSet<RoleModulePermission> RoleModulePermissions => Set<RoleModulePermission>();
 
     // Staff
     public DbSet<Staff> Staff => Set<Staff>();
@@ -74,6 +80,8 @@ public class HospitalDbContext : DbContext
 
         modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
         modelBuilder.Entity<User>().HasIndex(u => u.Username).IsUnique();
+
+        ConfigureAuthorization(modelBuilder);
 
         // Non-standard primary keys
         modelBuilder.Entity<Staff>().HasKey(s => s.StaffId);
@@ -459,4 +467,84 @@ public class HospitalDbContext : DbContext
             .Ignore(u => u.UserDiscounts)
             .Ignore(u => u.Basket);
     }
+
+    private static void ConfigureAuthorization(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Role>().HasIndex(r => r.Name).IsUnique();
+        modelBuilder.Entity<Module>().HasIndex(m => m.Key).IsUnique();
+
+        modelBuilder.Entity<RoleModulePermission>()
+            .HasKey(rmp => new { rmp.RoleId, rmp.ModuleId });
+
+        modelBuilder.Entity<RoleModulePermission>()
+            .HasOne(rmp => rmp.Role)
+            .WithMany(r => r.ModulePermissions)
+            .HasForeignKey(rmp => rmp.RoleId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<RoleModulePermission>()
+            .HasOne(rmp => rmp.Module)
+            .WithMany(m => m.RolePermissions)
+            .HasForeignKey(rmp => rmp.ModuleId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Role>().HasData(
+            new Role { Id = 1, Name = "Admin",         Description = "Full system administrator" },
+            new Role { Id = 2, Name = "Doctor",        Description = "Attending physician" },
+            new Role { Id = 3, Name = "Pharmacist",    Description = "Pharmacy staff" },
+            new Role { Id = 4, Name = "Nurse",         Description = "Nursing staff" },
+            new Role { Id = 5, Name = "Client",        Description = "Pharmacy customer" },
+            new Role { Id = 6, Name = "Patient",       Description = "Registered patient" },
+            new Role { Id = 7, Name = "ERDoctor",      Description = "Emergency room physician" },
+            new Role { Id = 8, Name = "LabTechnician", Description = "Laboratory technician" }
+        );
+
+        modelBuilder.Entity<Module>().HasData(
+            new Module { Id = 1,  Key = "statistics",           Name = "Statistics",           Description = "Reporting and statistics dashboards" },
+            new Module { Id = 2,  Key = "pharmacy",             Name = "Pharmacy",             Description = "Pharmacy catalogue and inventory" },
+            new Module { Id = 3,  Key = "patient-registration", Name = "Patient Registration", Description = "Register and manage patients" },
+            new Module { Id = 4,  Key = "queue",                Name = "Queue",                Description = "ER patient queue" },
+            new Module { Id = 5,  Key = "triage",               Name = "Triage",               Description = "Triage assessment" },
+            new Module { Id = 6,  Key = "room-assignment",      Name = "Room Assignment",      Description = "Assign patients to ER rooms" },
+            new Module { Id = 7,  Key = "examination",          Name = "Examination",          Description = "Patient examinations" },
+            new Module { Id = 8,  Key = "transfer-log",         Name = "Transfer Log",         Description = "Patient transfer records" },
+            new Module { Id = 9,  Key = "room-management",      Name = "Room Management",      Description = "Manage ER rooms" },
+            new Module { Id = 10, Key = "users",                Name = "Users",                Description = "User administration" },
+            new Module { Id = 11, Key = "appointments",         Name = "Appointments",         Description = "Doctor appointments" },
+            new Module { Id = 12, Key = "orders",               Name = "Orders",               Description = "Pharmacy orders and basket" },
+            new Module { Id = 13, Key = "prescriptions",        Name = "Prescriptions",        Description = "Medical prescriptions" },
+            new Module { Id = 14, Key = "shifts",               Name = "Shifts",               Description = "Staff shifts and swaps" },
+            new Module { Id = 15, Key = "hangouts",             Name = "Hangouts",             Description = "Staff social hangouts" },
+            new Module { Id = 16, Key = "billing",              Name = "Billing",              Description = "Billing and invoicing" }
+        );
+
+        modelBuilder.Entity<RoleModulePermission>().HasData(
+            // Admin -> everything
+            Permission(1, 1), Permission(1, 2), Permission(1, 3), Permission(1, 4),
+            Permission(1, 5), Permission(1, 6), Permission(1, 7), Permission(1, 8),
+            Permission(1, 9), Permission(1, 10), Permission(1, 11), Permission(1, 12),
+            Permission(1, 13), Permission(1, 14), Permission(1, 15), Permission(1, 16),
+            // Doctor
+            Permission(2, 1), Permission(2, 3), Permission(2, 4), Permission(2, 5),
+            Permission(2, 6), Permission(2, 7), Permission(2, 8), Permission(2, 11),
+            Permission(2, 13),
+            // Pharmacist
+            Permission(3, 2), Permission(3, 12), Permission(3, 13), Permission(3, 16),
+            // Nurse
+            Permission(4, 3), Permission(4, 4), Permission(4, 5), Permission(4, 6),
+            Permission(4, 7), Permission(4, 8),
+            // Client
+            Permission(5, 2), Permission(5, 12),
+            // Patient
+            Permission(6, 11),
+            // ERDoctor
+            Permission(7, 3), Permission(7, 4), Permission(7, 5), Permission(7, 6),
+            Permission(7, 7), Permission(7, 8), Permission(7, 9),
+            // LabTechnician
+            Permission(8, 7)
+        );
+    }
+
+    private static RoleModulePermission Permission(int roleId, int moduleId)
+        => new() { RoleId = roleId, ModuleId = moduleId };
 }

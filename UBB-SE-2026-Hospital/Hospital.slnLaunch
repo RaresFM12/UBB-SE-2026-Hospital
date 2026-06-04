@@ -1,0 +1,56 @@
+[
+  {
+    "Name": "Dev Web",
+    "Projects": [
+      {
+        "Path": "Hospital.API\\Hospital.API.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "Hospital.Web\\Hospital.Web.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "Hospital.Desktop\\Hospital.Desktop.csproj",
+        "Action": "Start"
+      }
+    ]
+  },
+  {
+    "Name": "Dev Desktop",
+    "Projects": [
+      {
+        "Path": "Hospital.API\\Hospital.API.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "Hospital.Desktop\\Hospital.Desktop.csproj",
+        "Action": "Start",
+        "DebugTarget": "Hospital.Desktop"
+      }
+    ]
+  },
+  {
+    "Name": "Dev All",
+    "Projects": [
+      {
+        "Path": "Hospital.API\\Hospital.API.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "Hospital.Web\\Hospital.Web.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "Hospital.Desktop\\Hospital.Desktop.csproj",
+        "Action": "Start",
+        "DebugTarget": "Hospital.Desktop"
+      }
+    ]
+  }
+]
