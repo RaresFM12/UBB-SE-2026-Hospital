@@ -11,138 +11,183 @@
     <link rel="stylesheet" href="~/Hospital.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
-    @functions {
-        private static bool HasAnyRole(ClaimsPrincipal user, params string[] roles) => roles.Any(user.IsInRole);
-    }
-    <header class="border-bottom">
-        <nav class="navbar navbar-expand-sm navbar-light bg-white">
-            <div class="container-fluid">
-                <a class="navbar-brand fw-semibold" asp-area="" asp-controller="Home" asp-action="Index">UBB-SE-2026-Hospital</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        @if (User.Identity?.IsAuthenticated == true)
+@functions {
+    private static bool HasAnyRole(ClaimsPrincipal user, params string[] roles) => roles.Any(user.IsInRole);
+}
+<header class="border-bottom">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold text-primary" asp-area="" asp-controller="Home" asp-action="Index">UBB Hospital</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <ul class="navbar-nav flex-grow-1">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-semibold" asp-area="" asp-controller="Home" asp-action="Index">Dashboard</a>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Patient Care
+                            </a>
+                            <ul class="dropdown-menu shadow-sm">
+                                <li><a class="dropdown-item" asp-controller="Patients" asp-action="Index">Patients</a></li>
+                                <li><a class="dropdown-item" asp-controller="Registration" asp-action="Index">Registration</a></li>
+                                <li><a class="dropdown-item" asp-controller="Consultation" asp-action="Index">Consultations</a></li>
+                                <li><a class="dropdown-item" asp-controller="MedicalEvaluations" asp-action="Index">Medical Evaluations</a></li>
+                                <li><a class="dropdown-item" asp-controller="Queue" asp-action="Index">Queue</a></li>
+                                <li><a class="dropdown-item" asp-controller="Triage" asp-action="Index">Triage</a></li>
+                                <li><a class="dropdown-item" asp-controller="Examination" asp-action="Index">Examination</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Facilities & Depts
+                            </a>
+                            <ul class="dropdown-menu shadow-sm">
+                                <li><h6 class="dropdown-header">Rooms & Movement</h6></li>
+                                <li><a class="dropdown-item" asp-controller="RoomManagement" asp-action="Index">Room Management</a></li>
+                                <li><a class="dropdown-item" asp-controller="RoomAssignment" asp-action="Index">Room Assignment</a></li>
+                                <li><a class="dropdown-item" asp-controller="Transfer" asp-action="Index">Transfer</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">Specialized</h6></li>
+                                <li><a class="dropdown-item" asp-controller="BloodCompatibility" asp-action="Index">Blood Compatibility</a></li>
+                                <li><a class="dropdown-item" asp-controller="OrganDonor" asp-action="Index">Organ Donor</a></li>
+                                <li><a class="dropdown-item" asp-controller="Transplant" asp-action="Index">Transplant</a></li>
+                                <li><a class="dropdown-item" asp-controller="Ghost" asp-action="Index">Ghost</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Pharmacy
+                            </a>
+                            <ul class="dropdown-menu shadow-sm">
+                                <li><a class="dropdown-item" asp-controller="Pharmacy" asp-action="Index">Pharmacy Dashboard</a></li>
+                                <li><a class="dropdown-item" asp-controller="Pharmacist" asp-action="Index">Pharmacists</a></li>
+                                <li><a class="dropdown-item" asp-controller="Prescription" asp-action="Feed">Prescriptions</a></li>
+                                <li><a class="dropdown-item" asp-controller="ProductCatalogue" asp-action="Index">Product Catalogue</a></li>
+                                <li><a class="dropdown-item" asp-controller="Orders" asp-action="Index">Orders</a></li>
+
+                                @if (HasAnyRole(User, "Client", "Admin"))
+                                {
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><h6 class="dropdown-header">Client Tools</h6></li>
+                                    <li><a class="dropdown-item" asp-controller="Basket" asp-action="Index">My Basket</a></li>
+                                    <li><a class="dropdown-item" asp-controller="PeriodTracker" asp-action="Index">Period Tracker</a></li>
+                                }
+                            </ul>
+                        </li>
+
+                        @if (HasAnyRole(User, "Admin", "Doctor", "Manager", "Pharmacist"))
                         {
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Dashboard</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Index">Admin</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Modules" asp-action="Index">Modules</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="MedicalStaff" asp-action="Index">Medical Staff</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Patients" asp-action="Index">Patients</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Consultation" asp-action="Index">Consultations</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="BloodCompatibility" asp-action="Index">Blood Compatibility</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="OrganDonor" asp-action="Index">Organ Donor</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="MedicalEvaluations" asp-action="Index">Medical Evaluations</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Registration" asp-action="Index">Registration</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Queue" asp-action="Index">Queue</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="RoomManagement" asp-action="Index">Room Management</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="RoomAssignment" asp-action="Index">Room Assignment</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Transfer" asp-action="Index">Transfer</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Triage" asp-action="Index">Triage</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Examination" asp-action="Index">Examination</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Transplant" asp-action="Index">Transplant</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Ghost" asp-action="Index">Ghost</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Pharmacy" asp-action="Index">Pharmacy</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Pharmacist" asp-action="Index">Pharmacist</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Prescription" asp-action="Feed">Prescriptions</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Orders" asp-action="Index">Orders</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="ProductCatalogue" asp-action="Index">Product Catalogue</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Notifications" asp-action="Index">Notifications</a></li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Staff Portal
+                                </a>
+                                <ul class="dropdown-menu shadow-sm">
+                                    @if (HasAnyRole(User, "Admin", "Doctor"))
+                                    {
+                                        <li><h6 class="dropdown-header">Doctor Actions</h6></li>
+                                        <li><a class="dropdown-item" asp-controller="DoctorAppointments" asp-action="Index">My Appointments</a></li>
+                                        <li><a class="dropdown-item" asp-controller="DoctorSchedule" asp-action="Index">My Schedule</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Hangouts" asp-action="Index">Hangouts</a></li>
+                                        <li><a class="dropdown-item" asp-controller="ShiftSwap" asp-action="Index">Shift Swap Requests</a></li>
+                                        <li><a class="dropdown-item" asp-controller="ShiftSwap" asp-action="Incoming">Incoming Swaps</a></li>
+                                    }
 
-                            @if (HasAnyRole(User, "Admin", "Doctor"))
-                            {
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="DoctorAppointments" asp-action="Index">Doctor Appointments</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="DoctorSchedule" asp-action="Index">Doctor Schedule</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="MedicalEvaluations" asp-action="Index">Medical Evaluations</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Hangouts" asp-action="Index">Hangouts</a></li>
+                                    @if (HasAnyRole(User, "Admin", "Pharmacist"))
+                                    {
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><h6 class="dropdown-header">Pharmacy Actions</h6></li>
+                                        <li><a class="dropdown-item" asp-controller="PharmacySchedule" asp-action="Index">Schedule</a></li>
+                                        @if (HasAnyRole(User, "Pharmacist"))
+                                        {
+                                            <li><a class="dropdown-item" asp-controller="PharmacyVacation" asp-action="Index">Vacation Request</a></li>
+                                        }
+                                    }
 
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Shift Swaps
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" asp-controller="ShiftSwap" asp-action="Index">My Requests</a></li>
-                                        <li><a class="dropdown-item" asp-controller="ShiftSwap" asp-action="Incoming">Incoming Requests</a></li>
-                                    </ul>
-                                </li>
-                            }
-
-                            @if (HasAnyRole(User, "Admin", "Manager", "Doctor", "Pharmacist"))
-                            {
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="ShiftManagement" asp-action="Salary">Salary Info</a></li>
-                            }
-
-                            @if (HasAnyRole(User, "Admin", "Manager"))
-                            {
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="ShiftManagement" asp-action="Index">Shift Management</a></li>
-                            }
-
-                            @if (HasAnyRole(User, "Admin", "Pharmacist"))
-                            {
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="PharmacySchedule" asp-action="Index">Pharmacy Schedule</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="UserAccounts" asp-action="Index">User Accounts</a></li>
-                            }
-
-                            @if (HasAnyRole(User, "Pharmacist"))
-                            {
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="PharmacyVacation" asp-action="Index">Pharmacy Vacation</a></li>
-                            }
-
-                            @if (HasAnyRole(User, "Admin"))
-                            {
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Statistics" asp-action="Index">Statistics</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Items" asp-action="Index">Items</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Substances" asp-action="Index">Substances</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="ERDispatch" asp-action="Index">ER Dispatch</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="FatigueAudit" asp-action="Index">Fatigue Audit</a></li>
-                            }
-
-                            @if (HasAnyRole(User, "Client", "Admin"))
-                            {
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Basket" asp-action="Index">Basket</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="PeriodTracker" asp-action="Index">Period Tracker</a></li>
-                            }
-                        }
-                    </ul>
-                    <ul class="navbar-nav">
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item">
-                                <span class="nav-link text-dark">@User.Identity!.Name</span>
-                            </li>
-                            <li class="nav-item">
-                                <form asp-controller="Auth" asp-action="Logout" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-link nav-link text-dark">Logout</button>
-                                </form>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Auth" asp-action="Login">Login</a>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><h6 class="dropdown-header">Management & Pay</h6></li>
+                                    @if (HasAnyRole(User, "Admin", "Manager"))
+                                    {
+                                        <li><a class="dropdown-item" asp-controller="ShiftManagement" asp-action="Index">Shift Management</a></li>
+                                    }
+                                    <li><a class="dropdown-item" asp-controller="ShiftManagement" asp-action="Salary">Salary Info</a></li>
+                                </ul>
                             </li>
                         }
-                    </ul>
-                </div>
+
+                        @if (HasAnyRole(User, "Admin"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Admin
+                                </a>
+                                <ul class="dropdown-menu shadow-sm">
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Index">Admin Dashboard</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Modules" asp-action="Index">Modules</a></li>
+                                    <li><a class="dropdown-item" asp-controller="MedicalStaff" asp-action="Index">Medical Staff</a></li>
+                                    <li><a class="dropdown-item" asp-controller="UserAccounts" asp-action="Index">User Accounts</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Notifications" asp-action="Index">System Notifications</a></li>
+
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><h6 class="dropdown-header">Data & Logistics</h6></li>
+                                    <li><a class="dropdown-item" asp-controller="Statistics" asp-action="Index">Statistics</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Items" asp-action="Index">Inventory Items</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Substances" asp-action="Index">Substances</a></li>
+                                    <li><a class="dropdown-item" asp-controller="ERDispatch" asp-action="Index">ER Dispatch</a></li>
+                                    <li><a class="dropdown-item" asp-controller="FatigueAudit" asp-action="Index">Fatigue Audit</a></li>
+                                </ul>
+                            </li>
+                        }
+                    }
+                </ul>
+
+                <ul class="navbar-nav">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <li class="nav-item d-flex align-items-center">
+                            <span class="nav-link text-dark fw-bold me-2">@User.Identity!.Name</span>
+                        </li>
+                        <li class="nav-item">
+                            <form asp-controller="Auth" asp-action="Logout" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-outline-danger btn-sm mt-1">Logout</button>
+                            </form>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="btn btn-primary btn-sm mt-1" asp-controller="Auth" asp-action="Login">Login</a>
+                        </li>
+                    }
+                </ul>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - UBB-SE-2026-Hospital
         </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+    </nav>
+</header>
+
+<div class="container mt-3">
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+</div>
+
+<footer class="border-top footer text-muted mt-5">
+    <div class="container py-3">
+        &copy; 2026 - UBB-SE-2026-Hospital
+    </div>
+</footer>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
