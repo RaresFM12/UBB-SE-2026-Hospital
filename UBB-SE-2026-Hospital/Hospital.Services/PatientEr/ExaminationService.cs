@@ -18,8 +18,11 @@ public class ExaminationService(
     public Task<Examination?> GetByIdAsync(int id)
         => examinationRepository.GetByIdAsync(id);
 
-    public Task<List<Examination>> GetByVisitIdAsync(int visitId)
-        => examinationRepository.GetByVisitIdAsync(visitId);
+    public async Task<List<Examination>> GetByVisitIdAsync(int visitId)
+    {
+        var items = await examinationRepository.GetByVisitIdAsync(visitId);
+        return items.OrderByDescending(e => e.ExaminationDate).ToList();
+    }
 
     public Task<Examination> CreateAsync(Examination examination)
         => examinationRepository.CreateAsync(examination);

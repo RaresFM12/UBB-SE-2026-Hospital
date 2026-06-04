@@ -16,22 +16,22 @@ public class PatientServiceTests
 
         var patients = await service.GetPatientsAsync();
 
-        Assert.HasCount(1, patients);
+        Assert.AreEqual(1, patients.Count);
         Assert.AreEqual("Ana", patients[0].FirstName);
     }
 
     private sealed class FakePatientRepository : IPatientRepository
     {
         public Task<List<DbPatient>> GetAllAsync()
-            => Task.FromResult<List<DbPatient>>(
-            [
+            => Task.FromResult(new List<DbPatient>
+            {
                 new DbPatient
                 {
                     PatientId = 1,
                     FirstName = "Ana",
                     LastName = "Pop",
                 },
-            ]);
+            });
 
         public Task<DbPatient?> GetByIdAsync(int patientId)
             => Task.FromResult<DbPatient?>(null);
