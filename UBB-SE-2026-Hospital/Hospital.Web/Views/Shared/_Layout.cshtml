@@ -68,7 +68,6 @@
                                 Pharmacy
                             </a>
                             <ul class="dropdown-menu shadow-sm">
-                                <li><a class="dropdown-item" asp-controller="Pharmacy" asp-action="Index">Pharmacy Dashboard</a></li>
                                 <li><a class="dropdown-item" asp-controller="Pharmacist" asp-action="Index">Pharmacists</a></li>
                                 <li><a class="dropdown-item" asp-controller="Prescription" asp-action="Feed">Prescriptions</a></li>
                                 <li><a class="dropdown-item" asp-controller="ProductCatalogue" asp-action="Index">Product Catalogue</a></li>
@@ -149,22 +148,27 @@
                     }
                 </ul>
 
-                <ul class="navbar-nav">
+                <ul class="navbar-nav align-items-center">
                     @if (User.Identity?.IsAuthenticated == true)
                     {
+                        <li class="nav-item me-3">
+                            <a class="nav-link text-dark fw-semibold" asp-area="" asp-controller="Notifications" asp-action="Index">
+                                Notifications
+                            </a>
+                        </li>
                         <li class="nav-item d-flex align-items-center">
-                            <span class="nav-link text-dark fw-bold me-2">@User.Identity!.Name</span>
+                            <span class="nav-link text-dark fw-bold me-3 border-start ps-3">@User.Identity!.Name</span>
                         </li>
                         <li class="nav-item">
                             <form asp-controller="Auth" asp-action="Logout" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-outline-danger btn-sm mt-1">Logout</button>
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Logout</button>
                             </form>
                         </li>
                     }
                     else
                     {
                         <li class="nav-item">
-                            <a class="btn btn-primary btn-sm mt-1" asp-controller="Auth" asp-action="Login">Login</a>
+                            <a class="btn btn-primary btn-sm" asp-controller="Auth" asp-action="Login">Login</a>
                         </li>
                     }
                 </ul>
