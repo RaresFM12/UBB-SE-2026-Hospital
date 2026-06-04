@@ -1,5 +1,6 @@
 using Hospital.Services.PatientEr;
 using Hospital.Data.Repositories;
+using Moq;
 using SharedPatient = Hospital.Shared.Models.PatientEr.Patient;
 using DbPatient = Hospital.Data.Models.Patient;
 
@@ -12,7 +13,11 @@ public class PatientServiceTests
     public async Task GetPatientsAsync_ReturnsRepositoryResults()
     {
         var repository = new FakePatientRepository();
-        var service = new PatientService(repository);
+        var service = new PatientService(
+            repository,
+            Mock.Of<IMedicalHistoryRepository>(),
+            Mock.Of<IMedicalRecordRepository>(),
+            Mock.Of<IPrescriptionRepository>());
 
         var patients = await service.GetPatientsAsync();
 

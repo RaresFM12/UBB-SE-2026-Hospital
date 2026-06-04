@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Hospital.Shared.Services;
 
 namespace Hospital.Web.Controllers;
 
 [Authorize]
-public class PharmacyController : Controller
+public class PharmacyController(IAdminService adminService) : Controller
 {
     public IActionResult Index()
     {
