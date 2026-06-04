@@ -17,8 +17,6 @@ public class PharmacistController : Controller
     private const int AddictMinimumMedications = 2;
     private const int AddictPrescriptionFetchLimit = 1000;
 
-    // In-memory tracking of patients already reported to police.
-    // Keyed by prescription id (used as the candidate id in this mode).
     private static readonly HashSet<int> NotifiedCandidateIds = new();
 
     private readonly IPrescriptionApiClient prescriptionApiClient;
@@ -85,12 +83,9 @@ public class PharmacistController : Controller
     [HttpGet]
     public async Task<IActionResult> Addicts()
     {
-        // Pull straight from the DB via the repository — no API hop.
-        // GetTopNAsync eager-loads MedicationList AND the Patient navigation.
         List<Prescription> prescriptions = await prescriptionRepository
             .GetTopNAsync(AddictPrescriptionFetchLimit, 1);
 
-        // Addict = patient whose prescription contains 2+ medications.
         var candidates = prescriptions
             .Where(p => p.MedicationList != null && p.MedicationList.Count >= AddictMinimumMedications)
             .Where(p => !NotifiedCandidateIds.Contains(p.PrescriptionId))
@@ -113,8 +108,6 @@ public class PharmacistController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> BuildPoliceReport(int patientId)
     {
-        // `patientId` is the prescription id of the flagged candidate.
-        // Use GetFilteredAsync so the Patient navigation is loaded.
         var filter = new Hospital.Data.Models.DTOs.PrescriptionFilter { PrescriptionId = patientId };
         var matches = await prescriptionRepository.GetFilteredAsync(filter);
         Prescription? prescription = matches.FirstOrDefault();
@@ -184,6 +177,9 @@ public class PharmacistController : Controller
             ? $"Patient on Prescription #{prescription.PrescriptionId}"
             : prescription.PatientName;
 
+        string doctorName = prescription.MedicalRecord?.StaffMember?.FullName
+            ?? (string.IsNullOrWhiteSpace(prescription.DoctorName) ? "Unknown" : prescription.DoctorName);
+
         string medications = prescription.MedicationList is { Count: > 0 }
             ? string.Join(", ", prescription.MedicationList.Select(m => m.MedicationName))
             : "Unknown";
@@ -192,7 +188,7 @@ public class PharmacistController : Controller
         _ = builder.AppendLine(reportHeader)
             .AppendLine(CultureInfo.InvariantCulture, $"DATE GENERATED: {DateTime.Now:yyyy-MM-dd HH:mm}")
             .AppendLine(CultureInfo.InvariantCulture, $"SUBJECT: {patientLabel}")
-            .AppendLine(CultureInfo.InvariantCulture, $"DOCTOR: {prescription.DoctorName}")
+            .AppendLine(CultureInfo.InvariantCulture, $"DOCTOR: {doctorName}")
             .AppendLine(reportFooter)
             .AppendLine(CultureInfo.InvariantCulture, $"[1] Prescription ID: {prescription.PrescriptionId} | Date: {prescription.Date:yyyy-MM-dd}")
             .AppendLine(CultureInfo.InvariantCulture, $"    Dispensed Drugs ({prescription.MedicationList?.Count ?? 0}): {medications}")
