@@ -1,6 +1,7 @@
 using Hospital.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Hospital.Shared.Services;
 
 namespace Hospital.Web.Controllers;
 

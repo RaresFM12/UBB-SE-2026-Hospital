@@ -16,10 +16,7 @@ namespace Hospital.Tests.Services
         {
             var repo = new Mock<IPatientRepository>();
             repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Patient>());
-            var medicalHistory = new Mock<IMedicalHistoryRepository>();
-            var medicalRecord = new Mock<IMedicalRecordRepository>();
-            var prescription = new Mock<IPrescriptionRepository>();
-            var svc = new PatientService(repo.Object, medicalHistory.Object, medicalRecord.Object, prescription.Object);
+            var svc = CreateService(repo.Object);
             var res = await svc.GetPatientsAsync();
             Assert.AreEqual(0, res.Count);
         }
@@ -29,12 +26,16 @@ namespace Hospital.Tests.Services
         {
             var repo = new Mock<IPatientRepository>();
             repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Patient> { new Patient { PatientId = 1, FirstName = "Ana", LastName = "Pop" } });
-            var medicalHistory = new Mock<IMedicalHistoryRepository>();
-            var medicalRecord = new Mock<IMedicalRecordRepository>();
-            var prescription = new Mock<IPrescriptionRepository>();
-            var svc = new PatientService(repo.Object, medicalHistory.Object, medicalRecord.Object, prescription.Object);
+            var svc = CreateService(repo.Object);
             var res = await svc.GetPatientsAsync();
             Assert.AreEqual(1, res.Count);
         }
+
+        private static PatientService CreateService(IPatientRepository patientRepository)
+            => new(
+                patientRepository,
+                Mock.Of<IMedicalHistoryRepository>(),
+                Mock.Of<IMedicalRecordRepository>(),
+                Mock.Of<IPrescriptionRepository>());
     }
 }

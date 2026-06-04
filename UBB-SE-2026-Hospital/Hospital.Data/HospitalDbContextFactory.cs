@@ -5,7 +5,7 @@ namespace Hospital.Data;
 
 public class HospitalDbContextFactory : IDesignTimeDbContextFactory<HospitalDbContext>
 {
-    private const string LocalDbConnectionString = "Server=(localdb)\\mssqllocaldb;Database=HospitalDatabase;Trusted_Connection=True;TrustServerCertificate=True;";
+    private const string LocalDbConnectionString = "Server=(localdb)\\MSSQLLocalDB;Database=HospitalDatabase;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True;";
 
     public HospitalDbContext CreateDbContext(string[] args)
     {

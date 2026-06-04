@@ -15,7 +15,6 @@
             <TextBlock Text="Transfer Log" FontSize="28" FontWeight="SemiBold" Foreground="{StaticResource AppAccentBrush}" VerticalAlignment="Center"/>
             <Button Content="Refresh" Command="{Binding LoadDataCommand}"/>
             <Button Content="Send Patient Data" Command="{Binding SendPatientDataCommand}"/>
-            <Button Content="Retry Transfer" Command="{Binding RetryTransferCommand}"/>
             <Button Content="Close Visit" Command="{Binding CloseVisitCommand}"/>
         </StackPanel>
 

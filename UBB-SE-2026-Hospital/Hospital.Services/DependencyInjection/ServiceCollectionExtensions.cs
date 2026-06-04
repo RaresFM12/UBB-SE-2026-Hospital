@@ -1,8 +1,10 @@
 using Hospital.Services.Auth;
 using Hospital.Services.PatientEr;
+using Hospital.Services.PatientEr.Strategies;
 // using Hospital.Services.StaffPharmacy;
 using Hospital.Shared.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Hospital.Services.DependencyInjection;
 
@@ -18,8 +20,15 @@ public static class ServiceCollectionExtensions
         // Patient / ER domain (from 926-2)
         services.AddScoped<Hospital.Shared.Services.IAllergyService, AllergyService>();
         services.AddScoped<Hospital.Services.PatientEr.IAllergyService, AllergyService>();
-        services.AddScoped<Hospital.Shared.Services.IBillingService, BillingService>();
-        services.AddScoped<Hospital.Services.PatientEr.IBillingService, BillingService>();
+        services.AddScoped<BillingService>();
+        services.AddScoped<AuditingBillingServiceDecorator>(sp =>
+            new AuditingBillingServiceDecorator(
+                sp.GetRequiredService<BillingService>(),
+                sp.GetRequiredService<ILogger<AuditingBillingServiceDecorator>>()));
+        services.AddScoped<Hospital.Shared.Services.IBillingService>(sp =>
+            sp.GetRequiredService<AuditingBillingServiceDecorator>());
+        services.AddScoped<Hospital.Services.PatientEr.IBillingService>(sp =>
+            sp.GetRequiredService<AuditingBillingServiceDecorator>());
         services.AddScoped<Hospital.Shared.Services.IBloodCompatibilityService, BloodCompatibilityService>();
         services.AddScoped<Hospital.Services.PatientEr.IBloodCompatibilityService, BloodCompatibilityService>();
         services.AddScoped<Hospital.Services.PatientEr.IPrescriptionService, Hospital.Services.PatientEr.PrescriptionService>();
@@ -36,6 +45,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Hospital.Shared.Services.IERVisitService, ERVisitService>();
         services.AddScoped<Hospital.Shared.Services.ITriageService, TriageService>();
         services.AddScoped<Hospital.Shared.Services.ITriageParametersService, TriageParametersService>();
+        services.AddScoped<ITriageAlgorithm, StandardTriageAlgorithm>();
         services.AddScoped<Hospital.Shared.Services.ITriageDecisionService, TriageDecisionService>();
         services.AddScoped<Hospital.Shared.Services.IExaminationService, ExaminationService>();
 
