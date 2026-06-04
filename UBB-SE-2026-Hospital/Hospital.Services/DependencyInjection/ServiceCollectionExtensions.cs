@@ -14,11 +14,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IModuleAccessService, ModuleAccessService>();
         services.AddSingleton<IRolePermissionCache, RolePermissionCache>();
 
+        services.AddScoped<Hospital.Shared.Services.IStatisticsService, Hospital.Services.PatientEr.StatisticsService>();
         services.AddScoped<IAllergyService, AllergyService>();
         services.AddScoped<Hospital.Shared.Services.IBillingService, BillingService>();
         services.AddScoped<IBloodCompatibilityService, BloodCompatibilityService>();
         services.AddScoped<IPrescriptionService, PrescriptionService>();
-        services.AddScoped<IStatisticsService, StatisticsService>();
         services.AddScoped<ITransferLogService, TransferLogService>();
         services.AddScoped<ITransplantService, TransplantService>();
         services.AddScoped<IAddictDetectionService, AddictDetectionService>();

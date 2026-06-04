@@ -215,6 +215,8 @@ public class PatientsController : Controller
 
         var selectedRecord = selectedRecordId.HasValue ? records.FirstOrDefault(r => r.Id == selectedRecordId.Value) : records.FirstOrDefault();
 
+        var mh = patient.MedicalHistory;
+
         return new PatientProfileViewModel
         {
             Id = patient.PatientId,
@@ -226,6 +228,12 @@ public class PatientsController : Controller
             PhoneNo = patient.PhoneNo,
             EmergencyContact = patient.EmergencyContact,
             IsArchived = patient.IsArchived,
+            BloodType = mh?.BloodType?.ToString() ?? "N/A",
+            Rh = mh?.Rh?.ToString() ?? "N/A",
+            ChronicConditions = mh?.ChronicConditions?.Any() == true
+                ? string.Join(", ", mh.ChronicConditions)
+                : "None",
+            Allergies = mh?.Allergies?.Select(a => $"{a.Allergy?.AllergyName ?? "Unknown"} ({a.SeverityLevel})").ToList() ?? new(),
             MedicalRecords = records,
             SelectedRecordId = selectedRecord?.Id,
             SelectedRecord = selectedRecord

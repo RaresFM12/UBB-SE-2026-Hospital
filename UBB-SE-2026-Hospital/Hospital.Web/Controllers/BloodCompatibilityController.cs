@@ -35,9 +35,10 @@ public class BloodCompatibilityController : Controller
     }
 
     [HttpGet]
-    public IActionResult Index()
+    public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
     {
-        return View();
+        var patients = await _patientService.GetPatientsAsync(cancellationToken);
+        return View(patients);
     }
 
     [HttpGet]

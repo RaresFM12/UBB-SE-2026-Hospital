@@ -31,10 +31,12 @@ public class StatisticsViewModel
         return key switch
         {
             "consultation-source" => StatisticsType.ConsultationSource,
-            "top-diagnoses" => StatisticsType.TopDiagnoses,
-            "top-medications" => StatisticsType.TopMedications,
-            "demographics" => StatisticsType.Demographics,
-            _ => StatisticsType.PatientDistribution,
+            "top-diagnoses"       => StatisticsType.TopDiagnoses,
+            "top-medications"     => StatisticsType.TopMedications,
+            "demographics"        => StatisticsType.Demographics,
+            "top-items"           => StatisticsType.TopItems,
+            "top-substances"      => StatisticsType.TopSubstances,
+            _                     => StatisticsType.PatientDistribution,
         };
     }
 
@@ -43,10 +45,12 @@ public class StatisticsViewModel
         return type switch
         {
             StatisticsType.ConsultationSource => "consultation-source",
-            StatisticsType.TopDiagnoses => "top-diagnoses",
-            StatisticsType.TopMedications => "top-medications",
-            StatisticsType.Demographics => "demographics",
-            _ => "patient-distribution",
+            StatisticsType.TopDiagnoses       => "top-diagnoses",
+            StatisticsType.TopMedications     => "top-medications",
+            StatisticsType.Demographics       => "demographics",
+            StatisticsType.TopItems           => "top-items",
+            StatisticsType.TopSubstances      => "top-substances",
+            _                                 => "patient-distribution",
         };
     }
 
@@ -55,10 +59,12 @@ public class StatisticsViewModel
         return type switch
         {
             StatisticsType.ConsultationSource => "Consultation Source",
-            StatisticsType.TopDiagnoses => "Top Diagnoses",
-            StatisticsType.TopMedications => "Top Medications",
-            StatisticsType.Demographics => "Demographics",
-            _ => "Patient Distribution",
+            StatisticsType.TopDiagnoses       => "Top Diagnoses",
+            StatisticsType.TopMedications     => "Top Medications",
+            StatisticsType.Demographics       => "Demographics",
+            StatisticsType.TopItems           => "Top Items",
+            StatisticsType.TopSubstances      => "Top Substances",
+            _                                 => "Patient Distribution",
         };
     }
 
@@ -71,6 +77,8 @@ public class StatisticsViewModel
             "top-diagnoses",
             "top-medications",
             "demographics",
+            "top-items",
+            "top-substances",
         ];
 
         return keys
