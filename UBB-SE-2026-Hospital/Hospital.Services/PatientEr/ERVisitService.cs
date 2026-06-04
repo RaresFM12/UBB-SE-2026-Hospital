@@ -37,7 +37,7 @@ public class ERVisitService(
         ERVisit current = await erVisitRepository.GetByIdAsync(visit.VisitId)
             ?? throw new ArgumentException($"ER visit {visit.VisitId} was not found.");
 
-        if (visit.Patient is not null)
+        if (current.Patient is null && visit.Patient is not null)
         {
             current.Patient = visit.Patient;
         }

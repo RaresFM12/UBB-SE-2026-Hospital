@@ -6,6 +6,7 @@
     <Grid Background="{StaticResource AppBackgroundBrush}" Padding="24" RowSpacing="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -18,45 +19,106 @@
             <Button Content="Close Visit" Command="{Binding CloseVisitCommand}"/>
         </StackPanel>
 
-        <Grid Grid.Row="1" ColumnSpacing="16">
+        <Border Grid.Row="1" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+            <Grid ColumnSpacing="24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Selected Patient" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                    <TextBlock Text="{Binding SelectedVisit.PatientName, FallbackValue='No visit selected'}" Foreground="{StaticResource AppTextSecondaryBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Spacing="4">
+                    <TextBlock Text="Current Step" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                    <TextBlock Text="{Binding SelectedVisit.Status, FallbackValue='Select a visit ready for transfer'}" Foreground="{StaticResource AppTextSecondaryBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Spacing="4">
+                    <TextBlock Text="Chief Complaint" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                    <TextBlock Text="{Binding SelectedVisit.ChiefComplaint, FallbackValue='No complaint loaded'}" Foreground="{StaticResource AppTextSecondaryBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2" ColumnSpacing="16">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Border Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
-                <StackPanel>
-                    <TextBlock Text="Eligible Visits" FontWeight="SemiBold"/>
-                    <ListView ItemsSource="{Binding EligibleVisits}" SelectedItem="{Binding SelectedVisit, Mode=TwoWay}">
+
+            <Border Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="12" Padding="12">
+                <Grid RowSpacing="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Visits Ready For Transfer" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                    <ListView Grid.Row="1" ItemsSource="{Binding EligibleVisits}" SelectedItem="{Binding SelectedVisit, Mode=TwoWay}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Padding="8">
-                                    <TextBlock Text="{Binding VisitId}" FontWeight="SemiBold"/>
-                                    <TextBlock Text="{Binding PatientName}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
-                                    <TextBlock Text="{Binding Status}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
-                                </StackPanel>
+                                <Border Background="{StaticResource AppBackgroundBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,8">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Foreground="{StaticResource AppTextPrimaryBrush}" FontWeight="SemiBold">
+                                            <Run Text="Visit #"/>
+                                            <Run Text="{Binding VisitId}"/>
+                                            <Run Text="  "/>
+                                            <Run Text="{Binding PatientName}"/>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding ChiefComplaint}" Foreground="{StaticResource AppTextSecondaryBrush}" TextWrapping="Wrap"/>
+                                        <TextBlock Foreground="{StaticResource AppAccentBrush}" FontWeight="SemiBold">
+                                            <Run Text="Status: "/>
+                                            <Run Text="{Binding Status}"/>
+                                        </TextBlock>
+                                        <TextBlock Foreground="{StaticResource AppTextSecondaryBrush}">
+                                            <Run Text="Transferred flag: "/>
+                                            <Run Text="{Binding Transferred}"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Border>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                </StackPanel>
+                </Grid>
             </Border>
-            <Border Grid.Column="1" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
-                <StackPanel>
-                    <TextBlock Text="Transfer Attempts" FontWeight="SemiBold"/>
-                    <ListView ItemsSource="{Binding TransferLogs}">
+
+            <Border Grid.Column="1" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="12" Padding="12">
+                <Grid RowSpacing="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Transfer Attempts" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                    <ListView Grid.Row="1" ItemsSource="{Binding TransferLogs}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Padding="8">
-                                    <TextBlock Text="{Binding TransferLogId}" FontWeight="SemiBold"/>
-                                    <TextBlock Text="{Binding Status}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
-                                    <TextBlock Text="{Binding TransferDate}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
-                                </StackPanel>
+                                <Border Background="{StaticResource AppBackgroundBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,8">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Foreground="{StaticResource AppTextPrimaryBrush}" FontWeight="SemiBold">
+                                            <Run Text="Attempt #"/>
+                                            <Run Text="{Binding TransferLogId}"/>
+                                        </TextBlock>
+                                        <TextBlock Foreground="{StaticResource AppAccentBrush}" FontWeight="SemiBold">
+                                            <Run Text="Status: "/>
+                                            <Run Text="{Binding Status}"/>
+                                        </TextBlock>
+                                        <TextBlock Foreground="{StaticResource AppTextSecondaryBrush}">
+                                            <Run Text="Target: "/>
+                                            <Run Text="{Binding TargetSystem}"/>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding TransferTime}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                                    </StackPanel>
+                                </Border>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                </StackPanel>
+                </Grid>
             </Border>
         </Grid>
 
-        <TextBlock Grid.Row="2" Text="{Binding StatusMessage}" Foreground="{StaticResource AppErrorBrush}" TextWrapping="Wrap"/>
+        <TextBlock Grid.Row="3" Text="{Binding StatusMessage}" Foreground="{StaticResource AppErrorBrush}" TextWrapping="Wrap"/>
     </Grid>
 </Page>

@@ -540,7 +540,8 @@ public static class DesktopCompatibilityRoutes
     private static IQueryable<ERRequest> LoadRequests(HospitalDbContext db) =>
         db.ERRequests
             .Include(request => request.AssignedDoctor)
-            .Include(request => request.Visit);
+            .Include(request => request.Visit)
+            .ThenInclude(visit => visit.Patient);
 
     private static async Task<bool> HasShiftOverlap(
         HospitalDbContext db,
@@ -670,9 +671,22 @@ public static class DesktopCompatibilityRoutes
 
         if (doctor is null)
         {
-            request.Status = UnmatchedStatus;
-            await db.SaveChangesAsync();
-            return DispatchResult(request, null, false, "No available matching doctor found.");
+            var fallbackDoctor = await db.Staff
+                .OfType<Doctor>()
+                .ToListAsync();
+
+            doctor = fallbackDoctor
+                .Where(item => item.DoctorStatus == DoctorStatus.Available || item.Available)
+                .Where(item => IsSameSpecialization(item.Specialization, request.Specialization))
+                .OrderBy(item => item.FullName)
+                .FirstOrDefault();
+
+            if (doctor is null)
+            {
+                request.Status = UnmatchedStatus;
+                await db.SaveChangesAsync();
+                return DispatchResult(request, null, false, "No available matching doctor found.");
+            }
         }
 
         request.Status = AssignedStatus;
@@ -733,6 +747,8 @@ public static class DesktopCompatibilityRoutes
         {
             "surgeon" => "surgery",
             "general surgery" => "surgery",
+            "orthopedics" => "surgery",
+            "orthopedic" => "surgery",
             "cardiologist" => "cardiology",
             "cardio" => "cardiology",
             "pediatric" => "pediatrics",
@@ -740,6 +756,8 @@ public static class DesktopCompatibilityRoutes
             "general" => "diagnostician",
             "emergency medicine" => "diagnostician",
             "emergency" => "diagnostician",
+            "neurology" => "diagnostician",
+            "pulmonology" => "diagnostician",
             _ => Normalize(value).ToLowerInvariant(),
         };
 

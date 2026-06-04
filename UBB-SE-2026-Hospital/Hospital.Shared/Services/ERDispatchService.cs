@@ -397,6 +397,8 @@ namespace Hospital.Shared.Services
             {
                 "surgeon" => "surgery",
                 "general surgery" => "surgery",
+                "orthopedics" => "surgery",
+                "orthopedic" => "surgery",
                 "cardiologist" => "cardiology",
                 "cardio" => "cardiology",
                 "cariology" => "cardiology",
@@ -405,6 +407,8 @@ namespace Hospital.Shared.Services
                 "general" => "diagnostician",
                 "emergency medicine" => "diagnostician",
                 "emergency" => "diagnostician",
+                "neurology" => "diagnostician",
+                "pulmonology" => "diagnostician",
                 _ => normalizedSpecialization,
             };
         }

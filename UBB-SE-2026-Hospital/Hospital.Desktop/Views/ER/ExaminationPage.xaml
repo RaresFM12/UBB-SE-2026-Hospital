@@ -15,7 +15,6 @@
             <Button Content="Refresh" Command="{Binding LoadDataCommand}"/>
             <Button Content="Request Doctor" Command="{Binding RequestDoctorCommand}"/>
             <Button Content="Save Examination" Command="{Binding SaveExaminationCommand}"/>
-            <Button Content="View Summary" Command="{Binding ViewSummaryCommand}"/>
         </StackPanel>
 
         <Grid Grid.Row="1" ColumnSpacing="16">
@@ -29,7 +28,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="Eligible Visits" FontWeight="SemiBold"/>
+                    <TextBlock Text="Ready And Ongoing Visits" FontWeight="SemiBold"/>
                     <ListView Grid.Row="1" ItemsSource="{Binding EligibleVisits}" SelectedItem="{Binding SelectedVisit, Mode=TwoWay}">
                         <ListView.ItemTemplate>
                             <DataTemplate>

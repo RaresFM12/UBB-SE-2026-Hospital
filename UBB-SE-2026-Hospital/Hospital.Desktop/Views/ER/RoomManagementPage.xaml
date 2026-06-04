@@ -71,7 +71,7 @@
 
                 <StackPanel Grid.Column="1" Spacing="4">
                     <TextBlock Text="Current Visit" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
-                    <TextBlock Text="{Binding SelectedVisit.ChiefComplaint, FallbackValue='Select an occupied or cleaning room to inspect its visit'}" Foreground="{StaticResource AppTextSecondaryBrush}" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding SelectedVisit.ChiefComplaint, FallbackValue='Select an occupied room to inspect its visit'}" Foreground="{StaticResource AppTextSecondaryBrush}" TextWrapping="Wrap"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Spacing="4">

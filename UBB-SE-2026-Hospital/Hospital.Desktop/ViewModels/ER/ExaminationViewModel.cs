@@ -23,7 +23,6 @@ public partial class ExaminationViewModel : ObservableObject
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(RequestDoctorCommand))]
     [NotifyCanExecuteChangedFor(nameof(SaveExaminationCommand))]
-    [NotifyCanExecuteChangedFor(nameof(ViewSummaryCommand))]
     private ERVisit? selectedVisit;
 
     [ObservableProperty]
@@ -70,9 +69,6 @@ public partial class ExaminationViewModel : ObservableObject
                 SelectedVisit.Status == ERVisit.VisitStatus.IN_EXAMINATION);
     }
 
-    private bool CanViewSummary()
-        => SelectedVisit != null && SelectedVisit.Status == ERVisit.VisitStatus.IN_EXAMINATION;
-
     [RelayCommand]
     public async Task LoadData()
     {
@@ -92,8 +88,8 @@ public partial class ExaminationViewModel : ObservableObject
         }
 
         StatusMessage = EligibleVisits.Count == 0
-            ? "No visits are ready for examination yet. Visits must be in room or waiting for doctor."
-            : $"{EligibleVisits.Count} visit(s) are ready for examination.";
+            ? "No visits are available in the examination workspace yet. Visits appear here when they are in room, waiting for a doctor, or already in examination."
+            : $"{EligibleVisits.Count} visit(s) are available in the examination workspace, including ongoing examinations.";
     }
 
     partial void OnSelectedVisitChanged(ERVisit? value)
@@ -241,29 +237,6 @@ public partial class ExaminationViewModel : ObservableObject
         {
             await ShowDialog("Error", $"Failed to save examination: {ex.Message}");
         }
-    }
-
-    [RelayCommand(CanExecute = nameof(CanViewSummary))]
-    public async Task ViewSummary()
-    {
-        if (SelectedVisit == null || XamlRoot == null) return;
-        var existingExam = ExaminationHistory.FirstOrDefault(e => e.Visit?.VisitId == SelectedVisit.VisitId);
-        if (existingExam == null)
-        {
-            await ShowDialog("Notice", "No existing examination found for this visit.");
-            return;
-        }
-        var summary = await examinationService.GetSummaryByVisitIdAsync(SelectedVisit.VisitId);
-        if (summary == null)
-        {
-            await ShowDialog("Error", "Could not aggregate summary data.");
-            return;
-        }
-        await ShowDialog("Examination Summary",
-            $"Patient: {summary.FirstName} {summary.LastName}\n" +
-            $"Doctor: {DoctorName}\n" +
-            $"Triage: Level {summary.TriageLevel} ({summary.Specialization})\n" +
-            $"Notes: {existingExam.Findings}");
     }
 
     private async Task<int> ResolveAssignedRoomIdAsync(int visitId)

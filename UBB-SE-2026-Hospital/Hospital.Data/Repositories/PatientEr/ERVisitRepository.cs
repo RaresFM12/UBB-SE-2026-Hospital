@@ -32,6 +32,11 @@ public class ERVisitRepository(HospitalDbContext context) : IERVisitRepository
 
     public async Task<ERVisit> CreateAsync(ERVisit visit)
     {
+        if (visit.Patient is not null)
+        {
+            context.Attach(visit.Patient);
+        }
+
         context.ERVisits.Add(visit);
         await context.SaveChangesAsync();
         return visit;
@@ -39,6 +44,11 @@ public class ERVisitRepository(HospitalDbContext context) : IERVisitRepository
 
     public async Task<ERVisit> UpdateAsync(ERVisit visit)
     {
+        if (visit.Patient is not null)
+        {
+            context.Attach(visit.Patient);
+        }
+
         context.ERVisits.Update(visit);
         await context.SaveChangesAsync();
         return visit;

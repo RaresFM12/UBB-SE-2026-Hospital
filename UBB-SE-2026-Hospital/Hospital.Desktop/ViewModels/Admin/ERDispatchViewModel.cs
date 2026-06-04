@@ -93,6 +93,9 @@ namespace Hospital.Desktop.ViewModels.Admin
                         this.UnmatchedRequests.Add(new UnmatchedRequestRow
                         {
                             RequestId = request.Id,
+                            VisitId = request.VisitId,
+                            PatientName = request.Visit?.Patient?.FullName ?? "Unknown patient",
+                            ChiefComplaint = request.Visit?.ChiefComplaint ?? string.Empty,
                             RequestSpecialization = request.Specialization,
                             RequestLocation = request.Location,
                             NoMatchReason = "No available matching doctor found.",
@@ -103,6 +106,9 @@ namespace Hospital.Desktop.ViewModels.Admin
                         this.SuccessfulMatches.Add(new SuccessfulMatchRow
                         {
                             RequestId = request.Id,
+                            VisitId = request.VisitId,
+                            PatientName = request.Visit?.Patient?.FullName ?? "Unknown patient",
+                            ChiefComplaint = request.Visit?.ChiefComplaint ?? string.Empty,
                             AssignedDoctor = request.AssignedDoctor?.FullName ?? UnknownDoctorName,
                             Specialization = request.Specialization,
                             MatchReason = "Assigned through ER Dispatch.",
@@ -221,6 +227,9 @@ namespace Hospital.Desktop.ViewModels.Admin
             this.SuccessfulMatches.Add(new SuccessfulMatchRow
             {
                 RequestId = overrideResult.Request.Id,
+                VisitId = overrideResult.Request.VisitId,
+                PatientName = overrideResult.Request.Visit?.Patient?.FullName ?? "Unknown patient",
+                ChiefComplaint = overrideResult.Request.Visit?.ChiefComplaint ?? string.Empty,
                 AssignedDoctor = overrideResult.MatchedDoctorName ?? UnknownDoctorName,
                 Specialization = overrideResult.Request.Specialization,
                 MatchReason = overrideResult.MatchReason,
@@ -250,6 +259,9 @@ namespace Hospital.Desktop.ViewModels.Admin
                 this.SuccessfulMatches.Add(new SuccessfulMatchRow
                 {
                     RequestId = dispatchResult.Request.Id,
+                    VisitId = dispatchResult.Request.VisitId,
+                    PatientName = dispatchResult.Request.Visit?.Patient?.FullName ?? "Unknown patient",
+                    ChiefComplaint = dispatchResult.Request.Visit?.ChiefComplaint ?? string.Empty,
                     AssignedDoctor = dispatchResult.MatchedDoctorName ?? UnknownDoctorName,
                     Specialization = dispatchResult.Request.Specialization,
                     MatchReason = dispatchResult.MatchReason,
@@ -260,6 +272,9 @@ namespace Hospital.Desktop.ViewModels.Admin
                 this.UnmatchedRequests.Add(new UnmatchedRequestRow
                 {
                     RequestId = dispatchResult.Request.Id,
+                    VisitId = dispatchResult.Request.VisitId,
+                    PatientName = dispatchResult.Request.Visit?.Patient?.FullName ?? "Unknown patient",
+                    ChiefComplaint = dispatchResult.Request.Visit?.ChiefComplaint ?? string.Empty,
                     RequestSpecialization = dispatchResult.Request.Specialization,
                     RequestLocation = dispatchResult.Request.Location,
                     NoMatchReason = dispatchResult.Message,
@@ -271,18 +286,32 @@ namespace Hospital.Desktop.ViewModels.Admin
         {
             public int RequestId { get; set; }
 
+            public int? VisitId { get; set; }
+
+            public string PatientName { get; set; } = string.Empty;
+
+            public string ChiefComplaint { get; set; } = string.Empty;
+
             public string RequestSpecialization { get; set; } = string.Empty;
 
             public string RequestLocation { get; set; } = string.Empty;
 
             public string NoMatchReason { get; set; } = string.Empty;
 
-            public string RequestLabel => $"#{this.RequestId} - {this.RequestSpecialization} @ {this.RequestLocation}";
+            public string RequestLabel => this.VisitId.HasValue
+                ? $"Visit #{this.VisitId} - {this.PatientName}"
+                : $"Request #{this.RequestId} - {this.RequestSpecialization}";
         }
 
         public sealed class SuccessfulMatchRow
         {
             public int RequestId { get; set; }
+
+            public int? VisitId { get; set; }
+
+            public string PatientName { get; set; } = string.Empty;
+
+            public string ChiefComplaint { get; set; } = string.Empty;
 
             public string AssignedDoctor { get; set; } = string.Empty;
 
