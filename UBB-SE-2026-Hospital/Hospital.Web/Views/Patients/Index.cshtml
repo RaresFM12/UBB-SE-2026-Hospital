@@ -2,15 +2,110 @@
 
 @{
     ViewData["Title"] = "Patients";
+
+    int GetAge(DateTime dob)
+    {
+        var today = DateTime.Today;
+        int age = today.Year - dob.Year;
+        if (dob.Date > today.AddYears(-age)) age--;
+        return age;
+    }
 }
 
-<h1 class="mb-4">Patients</h1>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="mb-1">Patients</h1>
+        <p class="text-muted mb-0">Patient list with search and filters.</p>
+    </div>
+</div>
 
-<p class="text-secondary">Replace this starter list with the merged patient and ER screens from 926-2.</p>
-
-<ul class="list-group">
-@foreach (var patient in Model)
+@if (TempData["SuccessMessage"] is string successMessage)
 {
-    <li class="list-group-item">@patient.FirstName @patient.LastName</li>
+    <div class="alert alert-success" role="alert">@successMessage</div>
 }
-</ul>
+
+<form method="get" class="row g-3 mb-4">
+    <div class="col-lg-4">
+        <label class="form-label">Search by name or CNP</label>
+        <input name="search" value="@ViewBag.Search" class="form-control" placeholder="e.g. Popescu or 1850215..." />
+    </div>
+    <div class="col-sm-6 col-lg-2">
+        <label class="form-label">Min age</label>
+        <input name="minAge" value="@ViewBag.MinAge" class="form-control" type="number" min="0" />
+    </div>
+    <div class="col-sm-6 col-lg-2">
+        <label class="form-label">Max age</label>
+        <input name="maxAge" value="@ViewBag.MaxAge" class="form-control" type="number" min="0" />
+    </div>
+    <div class="col-sm-6 col-lg-2">
+        <label class="form-label">Sex</label>
+        <select name="sex" class="form-select">
+            <option value="">Any</option>
+            <option value="M" selected="@("M" == ViewBag.Sex ? "selected" : null)">Male</option>
+            <option value="F" selected="@("F" == ViewBag.Sex ? "selected" : null)">Female</option>
+        </select>
+    </div>
+    <div class="col-sm-6 col-lg-2 d-flex align-items-end gap-2">
+        <button type="submit" class="btn btn-outline-primary">Apply</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info" role="alert">No patients matched the current filter.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>First name</th>
+                    <th>Last name</th>
+                    <th>Sex</th>
+                    <th>Age</th>
+                    <th>DOB</th>
+                    <th>CNP</th>
+                    <th>Phone</th>
+                    <th>Emergency contact</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var patient in Model)
+                {
+                    bool isDeceased = patient.DateOfDeath.HasValue && patient.DateOfDeath.Value > DateTime.MinValue;
+                    <tr>
+                        <td>@patient.FirstName</td>
+                        <td>@patient.LastName</td>
+                        <td>@patient.Sex</td>
+                        <td>@GetAge(patient.DateOfBirth)</td>
+                        <td>@patient.DateOfBirth.ToString("yyyy-MM-dd")</td>
+                        <td>@patient.Cnp</td>
+                        <td>@patient.PhoneNo</td>
+                        <td>@patient.EmergencyContact</td>
+                        <td>
+                            @if (patient.IsArchived)
+                            {
+                                <span class="badge bg-secondary">Archived</span>
+                            }
+                            else if (isDeceased)
+                            {
+                                <span class="badge bg-dark">Deceased</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                        </td>
+                        <td>
+                            <a asp-action="PatientProfile" asp-route-id="@patient.PatientId" class="btn btn-sm btn-outline-primary">View</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

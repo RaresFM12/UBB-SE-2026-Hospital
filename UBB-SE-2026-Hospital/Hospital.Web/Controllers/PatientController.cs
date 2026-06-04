@@ -30,20 +30,40 @@ public class PatientsController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Index(string? search, int? minAge, int? maxAge, string? sex, CancellationToken cancellationToken = default)
     {
         var patients = await _patientService.GetPatientsAsync(cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(search))
+            patients = patients.Where(p =>
+                (p.FirstName + " " + p.LastName).Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                p.Cnp.Contains(search)).ToList();
+
+        if (minAge.HasValue)
+            patients = patients.Where(p => GetAge(p.DateOfBirth) >= minAge.Value).ToList();
+
+        if (maxAge.HasValue)
+            patients = patients.Where(p => GetAge(p.DateOfBirth) <= maxAge.Value).ToList();
+
+        if (!string.IsNullOrWhiteSpace(sex) && sex.Length == 1)
+            patients = patients.Where(p => p.Sex == sex[0]).ToList();
+
+        ViewBag.Search = search;
+        ViewBag.MinAge = minAge;
+        ViewBag.MaxAge = maxAge;
+        ViewBag.Sex = sex;
+
         return View(patients);
     }
 
     [HttpGet]
-    public async Task<IActionResult> Details(int id, int? selectedRecordId, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> PatientProfile(int id, int? selectedRecordId, CancellationToken cancellationToken = default)
     {
         try
         {
             PatientProfileViewModel model = await BuildProfileAsync(id, selectedRecordId, cancellationToken);
             ApplyTemporaryDiscount(model);
-            return View(model);
+            return View("~/Views/PatientProfile/Details.cshtml", model);
         }
         catch (UnauthorizedAccessException) { return RedirectToLogin(); }
         catch (Exception ex)
@@ -89,7 +109,7 @@ public class PatientsController : Controller
     {
         return new PatientRecordViewModel
         {
-            Id = record.RecordId,                   
+            Id = record.RecordId,
             ConsultationDate = record.ConsultationDate,
             SourceType = EmergencyRoomRecordSource,
             StaffId = record.StaffMember?.StaffId ?? MissingStaffId,
@@ -111,6 +131,14 @@ public class PatientsController : Controller
             model.TemporaryDiscountedPrice = discountedPrice;
             model.FinalPrice = discountedPrice;
         }
+    }
+
+    private static int GetAge(DateTime dob)
+    {
+        var today = DateTime.Today;
+        int age = today.Year - dob.Year;
+        if (dob.Date > today.AddYears(-age)) age--;
+        return age;
     }
 
     private IActionResult RedirectToLogin() => RedirectToAction("Login", "Auth");
