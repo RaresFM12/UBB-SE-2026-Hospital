@@ -12,9 +12,9 @@ namespace Hospital.Desktop.Converters
     /// </summary>
     public partial class CountToBarWidthConverter : IValueConverter
     {
-        private const double DefaultPixelsPerUnit = 12.0;
+        private const double DefaultPixelsPerUnit = 9.0;
         private const double MinWidth = 4.0;
-        private const double MaxWidth = 220.0;
+        private const double MaxWidth = 180.0;
 
         public object Convert(object value, Type targetType, object parameter, string language)
         {

@@ -38,6 +38,9 @@ public class PatientServiceTests
                 },
             });
 
+        public Task<List<DbPatient>> GetAllWithMedicalHistoryAsync()
+            => GetAllAsync();
+
         public Task<DbPatient?> GetByIdAsync(int patientId)
             => Task.FromResult<DbPatient?>(null);
 
