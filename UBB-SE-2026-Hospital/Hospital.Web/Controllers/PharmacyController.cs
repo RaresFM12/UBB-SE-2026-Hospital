@@ -8,8 +8,7 @@ public class PharmacyController : Controller
 {
     public IActionResult Index()
     {
-        // Use synchronous call to the shared service contract available in this solution.
-        var items = adminService.GetAllItems();
-        return View(items);
+        // TODO: inject and wire up admin service
+        return View();
     }
 }
