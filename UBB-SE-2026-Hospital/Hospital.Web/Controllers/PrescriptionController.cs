@@ -104,7 +104,6 @@ public class PrescriptionController : Controller
                 {
                     PrescriptionId = TryParseInt(searchIdText),
                     PatientName = searchName,
-                    DoctorName = searchName,
                     MedicationName = searchMedication,
                     DateFrom = dateFrom,
                     DateTo = dateTo
@@ -129,7 +128,10 @@ public class PrescriptionController : Controller
             {
                 Id = p.PrescriptionId,
                 PatientName = p.PatientName ?? string.Empty,
-                DoctorName = ResolveDoctorName(p.DoctorName),
+                DoctorName = ResolveDoctorName(
+                    p.MedicalRecord?.StaffMember is { } s
+                        ? $"{s.FirstName} {s.LastName}"
+                        : p.DoctorName),
                 DoctorNotes = p.DoctorNotes ?? string.Empty,
                 Date = p.Date,
                 Items = p.MedicationList?.Select(i => new PrescriptionItemViewModel
