@@ -9,21 +9,34 @@ namespace Hospital.Data.Repositories;
 public class ERVisitRepository(HospitalDbContext context) : IERVisitRepository
 {
     public async Task<ERVisit?> GetByIdAsync(int visitId)
-        => await context.ERVisits.FindAsync(visitId);
+        => await context.ERVisits
+            .Include(v => v.Patient)
+            .FirstOrDefaultAsync(v => v.VisitId == visitId);
 
     public async Task<List<ERVisit>> GetAllAsync()
-        => await context.ERVisits.ToListAsync();
+        => await context.ERVisits
+            .Include(v => v.Patient)
+            .ToListAsync();
 
     public async Task<List<ERVisit>> GetByPatientIdAsync(int patientId)
-        => await context.ERVisits.Where(v => v.Patient.PatientId == patientId).ToListAsync();
+        => await context.ERVisits
+            .Include(v => v.Patient)
+            .Where(v => v.Patient.PatientId == patientId)
+            .ToListAsync();
 
     public async Task<List<ERVisit>> GetActiveVisitsAsync()
         => await context.ERVisits
+            .Include(v => v.Patient)
             .Where(v => v.Status != ERVisit.VisitStatus.CLOSED && v.Status != ERVisit.VisitStatus.TRANSFERRED)
             .ToListAsync();
 
     public async Task<ERVisit> CreateAsync(ERVisit visit)
     {
+        if (visit.Patient is not null)
+        {
+            context.Attach(visit.Patient);
+        }
+
         context.ERVisits.Add(visit);
         await context.SaveChangesAsync();
         return visit;
@@ -31,6 +44,11 @@ public class ERVisitRepository(HospitalDbContext context) : IERVisitRepository
 
     public async Task<ERVisit> UpdateAsync(ERVisit visit)
     {
+        if (visit.Patient is not null)
+        {
+            context.Attach(visit.Patient);
+        }
+
         context.ERVisits.Update(visit);
         await context.SaveChangesAsync();
         return visit;

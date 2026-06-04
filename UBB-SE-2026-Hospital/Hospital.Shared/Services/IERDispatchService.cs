@@ -24,7 +24,9 @@ namespace Hospital.Shared.Services
 
         Task<ERRequest?> GetRequestByIdAsync(int requestId);
 
-        Task<int> CreateRequestAsync(string specialization, string location);
+        Task<ERRequest?> GetRequestByVisitIdAsync(int visitId);
+
+        Task<int> CreateRequestAsync(string specialization, string location, int? visitId = null);
 
         Task UpdateRequestStatusAsync(int requestId, string status);
 

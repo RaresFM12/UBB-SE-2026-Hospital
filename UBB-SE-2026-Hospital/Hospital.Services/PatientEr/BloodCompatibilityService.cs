@@ -6,7 +6,9 @@ namespace Hospital.Services.PatientEr;
 
 public class BloodCompatibilityService(
     IPatientRepository patientRepository,
-    IMedicalHistoryRepository historyRepository) : IBloodCompatibilityService
+    IMedicalHistoryRepository historyRepository) :
+    IBloodCompatibilityService,
+    Hospital.Shared.Services.IBloodCompatibilityService
 {
     public async Task<List<Patient>> GetTopCompatibleDonorsAsync(int recipientId)
     {

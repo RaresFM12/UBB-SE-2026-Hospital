@@ -1,4 +1,3 @@
-#if false
 using Hospital.Data.Models;
 using Hospital.Data.Models.DTOs;
 using Hospital.Services.PatientEr;
@@ -68,6 +67,27 @@ public class TransplantController(ITransplantService transplantService, ILogger<
         catch (Exception ex) { logger.LogError(ex, "Failed to fetch transplants for patient {PatientId}.", patientId); return Problem(statusCode: 500, title: "Could not fetch transplants."); }
     }
 
+    [HttpGet("receiver/{receiverId:int}")]
+    public async Task<ActionResult<List<Transplant>>> GetByReceiverId(int receiverId)
+    {
+        try { return Ok(await transplantService.GetByReceiverIdAsync(receiverId)); }
+        catch (Exception ex) { logger.LogError(ex, "Failed to fetch transplants for receiver {ReceiverId}.", receiverId); return Problem(statusCode: 500, title: "Could not fetch receiver transplants."); }
+    }
+
+    [HttpGet("donor/{donorId:int}")]
+    public async Task<ActionResult<List<Transplant>>> GetByDonorId(int donorId)
+    {
+        try { return Ok(await transplantService.GetByDonorIdAsync(donorId)); }
+        catch (Exception ex) { logger.LogError(ex, "Failed to fetch transplants for donor {DonorId}.", donorId); return Problem(statusCode: 500, title: "Could not fetch donor transplants."); }
+    }
+
+    [HttpGet("matches")]
+    public async Task<ActionResult<List<TransplantMatch>>> GetMatches()
+    {
+        try { return Ok(await transplantService.GetMatchesAsync()); }
+        catch (Exception ex) { logger.LogError(ex, "Failed to fetch transplant matches."); return Problem(statusCode: 500, title: "Could not fetch transplant matches."); }
+    }
+
     [HttpGet("matches/donor/{donorId:int}")]
     public async Task<ActionResult<List<TransplantMatch>>> GetTopMatchesForDonor(int donorId, [FromQuery] string organType)
     {
@@ -106,4 +126,3 @@ public class TransplantController(ITransplantService transplantService, ILogger<
         catch (Exception ex) { logger.LogError(ex, "Failed to assign donor for transplant {Id}.", id); return Problem(statusCode: 500, title: "Could not assign donor."); }
     }
 }
-#endif

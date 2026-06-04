@@ -1,16 +1,27 @@
-#if false
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Hospital.API.Auth;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace Hospital.API.Controllers;
 
 [ApiController]
 [AuthorizeRole("Admin","Doctor","Nurse","ERDoctor")]
 [Route("api/ervisits")]
-public class ERVisitsController(IERVisitService erVisitService, ILogger<ERVisitsController> logger) : ControllerBase
+public class ERVisitsController(
+    IERVisitService erVisitService,
+    ITriageService triageService,
+    ILogger<ERVisitsController> logger) : ControllerBase
 {
+    public sealed class SaveERVisitRequest
+    {
+        public int PatientId { get; set; }
+        public DateTime ArrivalDateTime { get; set; }
+        public string ChiefComplaint { get; set; } = string.Empty;
+        public string Status { get; set; } = ERVisit.VisitStatus.REGISTERED;
+    }
+
     [HttpGet]
     public async Task<ActionResult<List<ERVisit>>> GetAll()
     {
@@ -23,6 +34,20 @@ public class ERVisitsController(IERVisitService erVisitService, ILogger<ERVisits
     {
         try { return Ok(await erVisitService.GetActiveVisitsAsync()); }
         catch (Exception ex) { logger.LogError(ex, "Failed to fetch active ER visits."); return Problem(statusCode: 500, title: "Could not fetch active ER visits."); }
+    }
+
+    [HttpGet("status/{status}")]
+    public async Task<ActionResult<List<ERVisit>>> GetByStatus(string status)
+    {
+        try { return Ok(await erVisitService.GetByStatusAsync(status)); }
+        catch (Exception ex) { logger.LogError(ex, "Failed to fetch ER visits by status {Status}.", status); return Problem(statusCode: 500, title: "Could not fetch ER visits by status."); }
+    }
+
+    [HttpGet("for-triage")]
+    public async Task<ActionResult<List<ERVisit>>> GetForTriage()
+    {
+        try { return Ok(await triageService.GetVisitsForTriageAsync()); }
+        catch (Exception ex) { logger.LogError(ex, "Failed to fetch visits for triage."); return Problem(statusCode: 500, title: "Could not fetch visits for triage."); }
     }
 
     [HttpGet("patient/{patientId:int}")]
@@ -44,10 +69,19 @@ public class ERVisitsController(IERVisitService erVisitService, ILogger<ERVisits
     }
 
     [HttpPost]
-    public async Task<ActionResult<ERVisit>> Create([FromBody] ERVisit visit)
+    public async Task<ActionResult<ERVisit>> Create([FromBody] JsonElement payload)
     {
         try
         {
+            SaveERVisitRequest request = ParseVisitRequest(payload);
+            var visit = new ERVisit
+            {
+                Patient = new Patient { PatientId = request.PatientId },
+                ArrivalDateTime = request.ArrivalDateTime,
+                ChiefComplaint = request.ChiefComplaint,
+                Status = request.Status,
+            };
+
             ERVisit result = await erVisitService.CreateAsync(visit);
             return CreatedAtAction(nameof(GetById), new { id = result.VisitId }, result);
         }
@@ -55,10 +89,20 @@ public class ERVisitsController(IERVisitService erVisitService, ILogger<ERVisits
     }
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, [FromBody] ERVisit visit)
+    public async Task<IActionResult> Update(int id, [FromBody] JsonElement payload)
     {
         try
         {
+            SaveERVisitRequest request = ParseVisitRequest(payload);
+            var visit = new ERVisit
+            {
+                VisitId = id,
+                Patient = new Patient { PatientId = request.PatientId },
+                ArrivalDateTime = request.ArrivalDateTime,
+                ChiefComplaint = request.ChiefComplaint,
+                Status = request.Status,
+            };
+
             visit.VisitId = id;
             await erVisitService.UpdateAsync(visit);
             return NoContent();
@@ -119,5 +163,89 @@ public class ERVisitsController(IERVisitService erVisitService, ILogger<ERVisits
         catch (InvalidOperationException ex) { return BadRequest(ex.Message); }
         catch (Exception ex) { logger.LogError(ex, "Failed to close ER visit {VisitId}.", visitId); return Problem(statusCode: 500, title: "Could not close ER visit."); }
     }
+
+    [HttpPost("{visitId:int}/move-to-queue")]
+    public async Task<IActionResult> MoveToQueue(int visitId)
+    {
+        try { await triageService.MoveVisitToQueueAsync(visitId); return NoContent(); }
+        catch (ArgumentException ex) { return NotFound(ex.Message); }
+        catch (Exception ex) { logger.LogError(ex, "Failed to move ER visit {VisitId} to queue.", visitId); return Problem(statusCode: 500, title: "Could not move ER visit to queue."); }
+    }
+
+    private static SaveERVisitRequest ParseVisitRequest(JsonElement payload)
+    {
+        return new SaveERVisitRequest
+        {
+            PatientId = ReadNestedInt(payload, "patient", "patientId") ?? ReadInt(payload, "patientId")
+                ?? throw new ArgumentException("Patient id is required."),
+            ArrivalDateTime = ReadDateTime(payload, "arrivalDateTime") ?? DateTime.Now,
+            ChiefComplaint = ReadString(payload, "chiefComplaint") ?? string.Empty,
+            Status = ReadString(payload, "status") ?? ERVisit.VisitStatus.REGISTERED,
+        };
+    }
+
+    private static string? ReadString(JsonElement element, string propertyName)
+    {
+        foreach (var candidate in element.EnumerateObject())
+        {
+            if (string.Equals(candidate.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                return candidate.Value.ValueKind == JsonValueKind.String ? candidate.Value.GetString() : candidate.Value.GetRawText();
+            }
+        }
+
+        return null;
+    }
+
+    private static int? ReadInt(JsonElement element, string propertyName)
+    {
+        foreach (var candidate in element.EnumerateObject())
+        {
+            if (!string.Equals(candidate.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (candidate.Value.ValueKind == JsonValueKind.Number && candidate.Value.TryGetInt32(out int number))
+            {
+                return number;
+            }
+
+            return int.TryParse(candidate.Value.GetString(), out int parsed) ? parsed : null;
+        }
+
+        return null;
+    }
+
+    private static int? ReadNestedInt(JsonElement element, string objectName, string propertyName)
+    {
+        foreach (var candidate in element.EnumerateObject())
+        {
+            if (!string.Equals(candidate.Name, objectName, StringComparison.OrdinalIgnoreCase) || candidate.Value.ValueKind != JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            return ReadInt(candidate.Value, propertyName);
+        }
+
+        return null;
+    }
+
+    private static DateTime? ReadDateTime(JsonElement element, string propertyName)
+    {
+        foreach (var candidate in element.EnumerateObject())
+        {
+            if (!string.Equals(candidate.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            return candidate.Value.ValueKind == JsonValueKind.String && DateTime.TryParse(candidate.Value.GetString(), out DateTime parsed)
+                ? parsed
+                : null;
+        }
+
+        return null;
+    }
 }
-#endif

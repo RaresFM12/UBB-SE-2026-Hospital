@@ -24,6 +24,11 @@ public class ERVisitService(
     public Task<List<ERVisit>> GetActiveVisitsAsync()
         => erVisitRepository.GetActiveVisitsAsync();
 
+    public async Task<List<ERVisit>> GetByStatusAsync(string status)
+        => (await erVisitRepository.GetAllAsync())
+            .Where(visit => string.Equals(visit.Status, status, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
     public Task<ERVisit> CreateAsync(ERVisit visit)
         => erVisitRepository.CreateAsync(visit);
 
@@ -32,7 +37,7 @@ public class ERVisitService(
         ERVisit current = await erVisitRepository.GetByIdAsync(visit.VisitId)
             ?? throw new ArgumentException($"ER visit {visit.VisitId} was not found.");
 
-        if (visit.Patient is not null)
+        if (current.Patient is null && visit.Patient is not null)
         {
             current.Patient = visit.Patient;
         }

@@ -50,12 +50,24 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
     public async Task<List<Prescription>> GetPotentialDrugAddictsAsync()
     {
         var cutoff = DateTime.UtcNow.AddDays(-30);
-        return await context.Prescriptions
-            .Include(p => p.MedicationList)
+        var flaggedRecordIds = await context.Prescriptions
             .Where(p => p.Date >= cutoff)
             .GroupBy(p => p.MedicalRecord.RecordId)
             .Where(g => g.Count() >= 5)
-            .SelectMany(g => g)
+            .Select(g => g.Key)
+            .ToListAsync();
+
+        if (flaggedRecordIds.Count == 0)
+        {
+            return new List<Prescription>();
+        }
+
+        return await context.Prescriptions
+            .Include(p => p.MedicationList)
+            .Include(p => p.MedicalRecord)
+                .ThenInclude(r => r.MedicalHistory)
+                    .ThenInclude(h => h.Patient)
+            .Where(p => flaggedRecordIds.Contains(p.MedicalRecord.RecordId))
             .ToListAsync();
     }
 

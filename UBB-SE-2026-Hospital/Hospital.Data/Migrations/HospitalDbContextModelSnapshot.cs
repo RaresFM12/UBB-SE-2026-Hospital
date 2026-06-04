@@ -684,9 +684,14 @@ namespace Hospital.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("VisitId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AssignedDoctorId");
+
+                    b.HasIndex("VisitId");
 
                     b.ToTable("ERRequests");
                 });
@@ -2051,7 +2056,14 @@ namespace Hospital.Data.Migrations
                         .HasForeignKey("AssignedDoctorId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("Hospital.Data.Models.ERVisit", "Visit")
+                        .WithMany()
+                        .HasForeignKey("VisitId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("AssignedDoctor");
+
+                    b.Navigation("Visit");
                 });
 
             modelBuilder.Entity("Hospital.Data.Models.ERRoom", b =>

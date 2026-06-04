@@ -85,7 +85,7 @@
                                   x:Name="OverrideDoctorCombo"
                                   ItemsSource="{Binding OverrideCandidates}"
                                   DisplayMemberPath="DisplayLabel"
-                                  PlaceholderText="Select IN_EXAMINATION doctor ending within 3 days"
+                                  PlaceholderText="Select matching doctor for override"
                                   HorizontalAlignment="Stretch"/>
 
                         <Button Grid.Column="2"
@@ -122,8 +122,18 @@
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <Border BorderBrush="{StaticResource AppErrorBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,8" Background="{StaticResource AppBackgroundBrush}">
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding RequestSpecialization}" Foreground="{StaticResource AppTextPrimaryBrush}" FontSize="16" FontWeight="SemiBold"/>
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Foreground="{StaticResource AppTextPrimaryBrush}" FontSize="16" FontWeight="SemiBold">
+                                            <Run Text="Visit #"/>
+                                            <Run Text="{Binding VisitId}"/>
+                                            <Run Text="  "/>
+                                            <Run Text="{Binding PatientName}"/>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding ChiefComplaint}" Foreground="{StaticResource AppTextSecondaryBrush}" TextWrapping="Wrap"/>
+                                        <TextBlock Foreground="{StaticResource AppAccentBrush}" FontWeight="SemiBold">
+                                            <Run Text="Needed: "/>
+                                            <Run Text="{Binding RequestSpecialization}"/>
+                                        </TextBlock>
                                         <TextBlock Text="{Binding RequestLocation}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
                                         <TextBlock Text="{Binding NoMatchReason}" Foreground="{StaticResource AppErrorBrush}" TextWrapping="Wrap"/>
                                     </StackPanel>
@@ -157,9 +167,19 @@
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <Border BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,8" Background="{StaticResource AppBackgroundBrush}">
-                                    <StackPanel>
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Foreground="{StaticResource AppTextPrimaryBrush}" FontSize="16" FontWeight="SemiBold">
+                                            <Run Text="Visit #"/>
+                                            <Run Text="{Binding VisitId}"/>
+                                            <Run Text="  "/>
+                                            <Run Text="{Binding PatientName}"/>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding ChiefComplaint}" Foreground="{StaticResource AppTextSecondaryBrush}" TextWrapping="Wrap"/>
                                         <TextBlock Text="{Binding AssignedDoctor}" Foreground="{StaticResource AppTextPrimaryBrush}" FontSize="16" FontWeight="SemiBold"/>
-                                        <TextBlock Text="{Binding Specialization}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                                        <TextBlock Foreground="{StaticResource AppAccentBrush}">
+                                            <Run Text="Specialization: "/>
+                                            <Run Text="{Binding Specialization}"/>
+                                        </TextBlock>
                                         <TextBlock Text="{Binding MatchReason}" Foreground="{StaticResource AppTextSecondaryBrush}" TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </Border>

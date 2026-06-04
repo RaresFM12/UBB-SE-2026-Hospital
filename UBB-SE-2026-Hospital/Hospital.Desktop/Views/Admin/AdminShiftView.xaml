@@ -56,7 +56,7 @@
                           MaxHeight="120" BorderThickness="1" BorderBrush="{StaticResource AppAccentBrush}"
                           CornerRadius="8" Background="{StaticResource AppBackgroundBrush}" SelectionMode="None">
                     <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="models:IStaff">
+                        <DataTemplate x:DataType="models:Staff">
                             <StackPanel Orientation="Horizontal" Spacing="10" Padding="5">
                                 <SymbolIcon Symbol="ContactInfo" Foreground="{StaticResource AppAccentBrush}"/>
                                 <TextBlock Text="{x:Bind FirstName}" Foreground="{StaticResource AppTextPrimaryBrush}" VerticalAlignment="Center" FontWeight="SemiBold"/>
@@ -108,8 +108,8 @@
 
                             <StackPanel Grid.Row="0" Spacing="5">
                                 <StackPanel Orientation="Horizontal" Spacing="5">
-                                    <TextBlock Text="{x:Bind AppointedStaff.FirstName}" Foreground="{StaticResource AppTextPrimaryBrush}" FontWeight="Bold" FontSize="16"/>
-                                    <TextBlock Text="{x:Bind AppointedStaff.LastName}" Foreground="{StaticResource AppTextPrimaryBrush}" FontWeight="Bold" FontSize="16"/>
+                                    <TextBlock Text="{x:Bind ((models:Staff)AppointedStaff).FirstName}" Foreground="{StaticResource AppTextPrimaryBrush}" FontWeight="Bold" FontSize="16"/>
+                                    <TextBlock Text="{x:Bind ((models:Staff)AppointedStaff).LastName}" Foreground="{StaticResource AppTextPrimaryBrush}" FontWeight="Bold" FontSize="16"/>
                                 </StackPanel>
                                 <TextBlock Text="{x:Bind Location}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
                                 <StackPanel Orientation="Horizontal" Spacing="5">

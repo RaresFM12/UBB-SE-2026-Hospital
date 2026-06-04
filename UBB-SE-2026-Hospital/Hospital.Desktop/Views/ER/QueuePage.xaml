@@ -1,0 +1,54 @@
+<Page
+    x:Class="Hospital.Desktop.Views.ER.QueuePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid Background="{StaticResource AppBackgroundBrush}" Padding="24" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" Spacing="12">
+            <TextBlock Text="ER Queue" FontSize="28" FontWeight="SemiBold" Foreground="{StaticResource AppAccentBrush}" VerticalAlignment="Center"/>
+            <Button Content="Refresh Queue" Command="{Binding RefreshQueueCommand}"/>
+        </StackPanel>
+
+        <Border Grid.Row="1" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
+            <Grid RowSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource AppTextSecondaryBrush}" TextWrapping="Wrap"/>
+                <ListView Grid.Row="1" ItemsSource="{Binding ActiveVisits}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{StaticResource AppBackgroundBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,8">
+                                <StackPanel Spacing="4">
+                                    <TextBlock FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}">
+                                        <Run Text="Visit #"/>
+                                        <Run Text="{Binding VisitId}"/>
+                                        <Run Text="  "/>
+                                        <Run Text="{Binding PatientName}"/>
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding ChiefComplaint}" Foreground="{StaticResource AppTextSecondaryBrush}" TextWrapping="Wrap"/>
+                                    <TextBlock Foreground="{StaticResource AppAccentBrush}" FontWeight="SemiBold">
+                                        <Run Text="Triage Level "/>
+                                        <Run Text="{Binding TriageLevel}"/>
+                                        <Run Text="  "/>
+                                        <Run Text="{Binding Specialization}"/>
+                                    </TextBlock>
+                                    <TextBlock Foreground="{StaticResource AppTextSecondaryBrush}">
+                                        <Run Text="Arrived at "/>
+                                        <Run Text="{Binding ArrivalTime}"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
+        </Border>
+    </Grid>
+</Page>

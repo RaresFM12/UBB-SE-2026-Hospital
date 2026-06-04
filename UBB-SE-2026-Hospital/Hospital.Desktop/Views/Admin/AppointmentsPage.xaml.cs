@@ -23,13 +23,13 @@ namespace Hospital.Desktop.Views.Admin
 
         private async void AppointmentsPage_Loaded(object sender, RoutedEventArgs eventArgs)
         {
-            // await this.ViewModel.LoadDoctorsAsync();
+            await this.ViewModel.LoadDoctorsAsync();
 
-            // if (this.ViewModel.Doctors.Count > 0)
-            // {
-            //     DoctorComboBox.SelectedIndex = 0;
-            //     FilterDoctorComboBox.SelectedIndex = 0;
-            // }
+            if (this.ViewModel.Doctors.Count > 0)
+            {
+                DoctorComboBox.SelectedIndex = 0;
+                FilterDoctorComboBox.SelectedIndex = 0;
+            }
         }
 
         private async void BookAppointment_Click(object sender, RoutedEventArgs eventArgs)
@@ -50,17 +50,17 @@ namespace Hospital.Desktop.Views.Admin
                 System.DateTime date = AppointmentDatePicker.Date.Value.DateTime;
                 System.TimeSpan time = AppointmentTimePicker.SelectedTime.Value;
 
-                // await this.ViewModel.BookAppointmentAsync(patientId, selectedDoctorId, date, time);
+                await this.ViewModel.BookAppointmentAsync(patientId, selectedDoctorId, date, time);
 
                 this.ShowMessage($"Appointment booked successfully for {patientId}!", InfoBarSeverity.Success);
 
                 PatientIdTextBox.Text = string.Empty;
                 DoctorComboBox.SelectedIndex = -1;
 
-                // if (FilterDoctorComboBox.SelectedValue is int filterDocId && filterDocId == selectedDoctorId)
-                // {
-                //     await this.ViewModel.LoadAppointmentsForDoctorAsync(filterDocId);
-                // }
+                if (FilterDoctorComboBox.SelectedValue is int filterDocId && filterDocId == selectedDoctorId)
+                {
+                    await this.ViewModel.LoadAppointmentsForDoctorAsync(filterDocId);
+                }
             }
             catch (System.Exception exception)
             {
@@ -70,10 +70,10 @@ namespace Hospital.Desktop.Views.Admin
 
         private async void FilterDoctorComboBox_SelectionChanged(object sender, SelectionChangedEventArgs eventArgs)
         {
-            // if (FilterDoctorComboBox.SelectedValue is int doctorId)
-            // {
-            //     await this.ViewModel.LoadAppointmentsForDoctorAsync(doctorId);
-            // }
+            if (FilterDoctorComboBox.SelectedValue is int doctorId)
+            {
+                await this.ViewModel.LoadAppointmentsForDoctorAsync(doctorId);
+            }
         }
 
         private void ViewDetails_Click(object sender, RoutedEventArgs eventArgs)
@@ -90,13 +90,13 @@ namespace Hospital.Desktop.Views.Admin
             {
                 try
                 {
-                    // await this.ViewModel.CancelAppointmentAsync(appointment);
+                    await this.ViewModel.CancelAppointmentAsync(appointment);
                     this.ShowMessage("Appointment successfully canceled.", InfoBarSeverity.Informational);
 
-                    // if (FilterDoctorComboBox.SelectedValue is int doctorId)
-                    // {
-                    //     await this.ViewModel.LoadAppointmentsForDoctorAsync(doctorId);
-                    // }
+                    if (FilterDoctorComboBox.SelectedValue is int doctorId)
+                    {
+                        await this.ViewModel.LoadAppointmentsForDoctorAsync(doctorId);
+                    }
                 }
                 catch (System.InvalidOperationException exception)
                 {

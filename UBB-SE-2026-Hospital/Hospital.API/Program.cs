@@ -1,4 +1,5 @@
 using System.Text;
+using Hospital.API;
 using Hospital.Data.Configuration;
 using Hospital.Services.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -88,12 +89,56 @@ app.MapGet("api/users", async ([FromServices] Hospital.Data.Repositories.IUsersR
     return Results.Ok(users);
 });
 
+app.MapGet("api/users/search", async ([FromQuery] string? q, [FromServices] Hospital.Data.Repositories.IUsersRepository repo) =>
+{
+    var users = await repo.GetAllUsersAsync();
+    if (!string.IsNullOrWhiteSpace(q))
+    {
+        users = users
+            .Where(user =>
+                user.Email.Contains(q, StringComparison.OrdinalIgnoreCase)
+                || user.Username.Contains(q, StringComparison.OrdinalIgnoreCase)
+                || user.Role.Contains(q, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
+    return Results.Ok(users);
+});
+
+app.MapPost("api/users/{id:int}/promote", async (int id, [FromServices] Hospital.Data.Repositories.IUsersRepository repo) =>
+{
+    var user = await repo.GetUserByIdAsync(id);
+    if (user is null)
+    {
+        return Results.NotFound();
+    }
+
+    user.IsAdmin = true;
+    user.Role = "Admin";
+    await repo.UpdateUserAsync(user);
+    return Results.Ok();
+});
+
+app.MapPost("api/users/{id:int}/disable", async (int id, [FromServices] Hospital.Data.Repositories.IUsersRepository repo) =>
+{
+    var user = await repo.GetUserByIdAsync(id);
+    if (user is null)
+    {
+        return Results.NotFound();
+    }
+
+    user.IsDisabled = true;
+    await repo.UpdateUserAsync(user);
+    return Results.Ok();
+});
+
 app.MapGet("api/users/{id:int}/period-tracker", async (int userId, [FromServices] Hospital.Data.Repositories.IUsersRepository repo) =>
 {
     var notes = await repo.GetPeriodNotesAsync(userId);
     return Results.Ok(notes != null && notes.Count > 0);
 });
 
+app.MapDesktopCompatibilityRoutes();
 app.MapControllers();
 
 app.Run();

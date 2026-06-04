@@ -14,31 +14,31 @@ namespace Hospital.Desktop.ViewModels.Admin
     {
         private readonly IDoctorAppointmentService appointmentService;
 
-        // public ObservableCollection<DoctorOption> Doctors { get; } = new ObservableCollection<DoctorOption>();
+        public ObservableCollection<DoctorOption> Doctors { get; } = new ObservableCollection<DoctorOption>();
 
         public ObservableCollection<Appointment> AppointmentsList { get; } = new ObservableCollection<Appointment>();
 
-        // public AdminAppointmentsViewModel(IDoctorAppointmentService appointmentService)
-        // {
-        //     this.appointmentService = appointmentService;
-        // }
+        public AdminAppointmentsViewModel(IDoctorAppointmentService appointmentService)
+        {
+            this.appointmentService = appointmentService;
+        }
 
-        // public async Task LoadDoctorsAsync()
-        // {
-        //     var doctors = await this.appointmentService.GetAllDoctorsAsync();
-        //     this.Doctors.ReplaceWith(doctors.Select(DoctorOption.From));
-        // }
+        public async Task LoadDoctorsAsync()
+        {
+            var doctors = await this.appointmentService.GetAllDoctorsAsync();
+            this.Doctors.ReplaceWith(doctors.Select(DoctorOption.From));
+        }
 
-        // public async Task LoadAppointmentsForDoctorAsync(int doctorId)
-        // {
-        //     var appointments = await this.appointmentService.GetAppointmentsForAdminAsync(doctorId);
-        //     this.AppointmentsList.ReplaceWith(appointments);
-        // }
+        public async Task LoadAppointmentsForDoctorAsync(int doctorId)
+        {
+            var appointments = await this.appointmentService.GetAppointmentsForAdminAsync(doctorId);
+            this.AppointmentsList.ReplaceWith(appointments);
+        }
 
-        // public async Task BookAppointmentAsync(string patientId, int doctorId, DateTime date, TimeSpan time)
-        // {
-        //     await this.appointmentService.CreateAppointmentAsync(patientId, doctorId, date, time);
-        // }
+        public async Task BookAppointmentAsync(string patientId, int doctorId, DateTime date, TimeSpan time)
+        {
+            await this.appointmentService.CreateAppointmentAsync(patientId, doctorId, date, time);
+        }
 
         public async Task FinishAppointmentAsync(Appointment appointment)
         {
@@ -57,7 +57,6 @@ namespace Hospital.Desktop.ViewModels.Admin
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        /*
         public sealed class DoctorOption
         {
             public int DoctorId { get; set; }
@@ -71,6 +70,5 @@ namespace Hospital.Desktop.ViewModels.Admin
                     DoctorName = string.IsNullOrWhiteSpace(doctor.DoctorName) ? $"Doctor #{doctor.DoctorId}" : doctor.DoctorName,
                 };
         }
-        */
     }
 }

@@ -69,10 +69,12 @@ public class ExaminationService(
         return visits
             .Where(visit =>
                 string.Equals(visit.Status, ERVisit.VisitStatus.IN_ROOM, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(visit.Status, ERVisit.VisitStatus.WAITING_FOR_DOCTOR, StringComparison.OrdinalIgnoreCase))
+                || string.Equals(visit.Status, ERVisit.VisitStatus.WAITING_FOR_DOCTOR, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(visit.Status, ERVisit.VisitStatus.IN_EXAMINATION, StringComparison.OrdinalIgnoreCase))
             .Where(visit => !string.Equals(visit.Status, ERVisit.VisitStatus.IN_ROOM, StringComparison.OrdinalIgnoreCase)
                 || roomLinkedVisitIds.Contains(visit.VisitId))
-            .OrderBy(visit => visit.ArrivalDateTime)
+            .OrderBy(visit => GetExaminationPriority(visit.Status))
+            .ThenBy(visit => visit.ArrivalDateTime)
             .ToList();
     }
 
@@ -132,5 +134,25 @@ public class ExaminationService(
             Notes = examination.Findings,
             AssignedDoctorName = examination.Doctor?.FullName ?? string.Empty,
         };
+    }
+
+    private static int GetExaminationPriority(string? status)
+    {
+        if (string.Equals(status, ERVisit.VisitStatus.WAITING_FOR_DOCTOR, StringComparison.OrdinalIgnoreCase))
+        {
+            return 0;
+        }
+
+        if (string.Equals(status, ERVisit.VisitStatus.IN_ROOM, StringComparison.OrdinalIgnoreCase))
+        {
+            return 1;
+        }
+
+        if (string.Equals(status, ERVisit.VisitStatus.IN_EXAMINATION, StringComparison.OrdinalIgnoreCase))
+        {
+            return 2;
+        }
+
+        return 3;
     }
 }

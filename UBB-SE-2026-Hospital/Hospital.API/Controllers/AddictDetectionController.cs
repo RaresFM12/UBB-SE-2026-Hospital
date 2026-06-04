@@ -1,4 +1,3 @@
-#if false
 using Hospital.Data.Models;
 using Hospital.Data.Models.DTOs;
 using Hospital.Services.PatientEr;
@@ -43,4 +42,3 @@ public class AddictDetectionController(IAddictDetectionService addictDetectionSe
         catch (Exception ex) { return Problem(detail: ex.Message, statusCode: 500, title: "Could not get chronic conditions."); }
     }
 }
-#endif

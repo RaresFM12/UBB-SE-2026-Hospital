@@ -1,4 +1,3 @@
-#if false
 using Hospital.Data.Models;
 using Hospital.Services.PatientEr;
 using Hospital.API.Auth;
@@ -25,4 +24,3 @@ public class AllergyController(IAllergyService allergyService, ILogger<AllergyCo
         }
     }
 }
-#endif

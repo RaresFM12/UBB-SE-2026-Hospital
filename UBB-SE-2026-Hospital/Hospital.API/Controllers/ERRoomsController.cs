@@ -1,4 +1,3 @@
-#if false
 using Hospital.Data.Models;
 using Hospital.Data.Models.DTOs;
 using Hospital.Shared.Services;
@@ -105,4 +104,3 @@ public class ERRoomsController(IERRoomService erRoomService, ILogger<ERRoomsCont
         catch (Exception ex) { logger.LogError(ex, "Failed to mark ER room {Id} as available.", id); return Problem(statusCode: 500, title: "Could not mark ER room as available."); }
     }
 }
-#endif

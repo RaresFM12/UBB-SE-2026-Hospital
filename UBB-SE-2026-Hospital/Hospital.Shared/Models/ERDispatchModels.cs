@@ -8,6 +8,8 @@ namespace Hospital.Shared.Models
 
         public int Id { get; set; }
 
+        public int? VisitId { get; set; }
+
         public string Specialization { get; set; } = string.Empty;
 
         public string Location { get; set; } = string.Empty;
@@ -16,12 +18,33 @@ namespace Hospital.Shared.Models
 
         public string Status { get; set; } = PendingStatus;
 
-        // EF Core navigation property — persisted via shadow FK column "AssignedDoctorId".
-        // Nullable because an ER request may not yet have an assigned doctor.
+        public ERVisitSnapshot? Visit { get; set; }
+
+        // EF Core navigation property persisted through the assigned doctor FK.
         public Doctor? AssignedDoctor { get; set; }
     }
 
-    // ---- DTOs (not persisted, no FK scalars needed) ----
+    public sealed class ERVisitSnapshot
+    {
+        public int VisitId { get; set; }
+
+        public string ChiefComplaint { get; set; } = string.Empty;
+
+        public string Status { get; set; } = string.Empty;
+
+        public PatientSnapshot? Patient { get; set; }
+    }
+
+    public sealed class PatientSnapshot
+    {
+        public int PatientId { get; set; }
+
+        public string FirstName { get; set; } = string.Empty;
+
+        public string LastName { get; set; } = string.Empty;
+
+        public string FullName => $"{this.FirstName} {this.LastName}".Trim();
+    }
 
     public sealed class ERDispatchResult
     {

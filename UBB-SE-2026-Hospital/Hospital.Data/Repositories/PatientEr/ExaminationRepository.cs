@@ -9,16 +9,33 @@ namespace Hospital.Data.Repositories;
 public class ExaminationRepository(HospitalDbContext context) : IExaminationRepository
 {
     public async Task<Examination?> GetByIdAsync(int examinationId)
-        => await context.Examinations.FindAsync(examinationId);
+        => await context.Examinations
+            .Include(e => e.Visit)
+            .ThenInclude(v => v.Patient)
+            .Include(e => e.Doctor)
+            .Include(e => e.Room)
+            .FirstOrDefaultAsync(e => e.ExaminationId == examinationId);
 
     public async Task<List<Examination>> GetByVisitIdAsync(int visitId)
-        => await context.Examinations.Where(e => e.Visit.VisitId == visitId).ToListAsync();
+        => await context.Examinations
+            .Include(e => e.Visit)
+            .ThenInclude(v => v.Patient)
+            .Include(e => e.Doctor)
+            .Include(e => e.Room)
+            .Where(e => e.Visit.VisitId == visitId)
+            .ToListAsync();
 
     public async Task<List<Examination>> GetAllAsync()
-        => await context.Examinations.ToListAsync();
+        => await context.Examinations
+            .Include(e => e.Visit)
+            .ThenInclude(v => v.Patient)
+            .Include(e => e.Doctor)
+            .Include(e => e.Room)
+            .ToListAsync();
 
     public async Task<Examination> CreateAsync(Examination examination)
     {
+        AttachReferences(examination);
         context.Examinations.Add(examination);
         await context.SaveChangesAsync();
         return examination;
@@ -26,6 +43,7 @@ public class ExaminationRepository(HospitalDbContext context) : IExaminationRepo
 
     public async Task<Examination> UpdateAsync(Examination examination)
     {
+        AttachReferences(examination);
         context.Examinations.Update(examination);
         await context.SaveChangesAsync();
         return examination;
@@ -38,6 +56,24 @@ public class ExaminationRepository(HospitalDbContext context) : IExaminationRepo
         {
             context.Examinations.Remove(examination);
             await context.SaveChangesAsync();
+        }
+    }
+
+    private void AttachReferences(Examination examination)
+    {
+        if (examination.Visit is not null)
+        {
+            context.Attach(examination.Visit);
+        }
+
+        if (examination.Doctor is not null)
+        {
+            context.Attach(examination.Doctor);
+        }
+
+        if (examination.Room is not null)
+        {
+            context.Attach(examination.Room);
         }
     }
 }
