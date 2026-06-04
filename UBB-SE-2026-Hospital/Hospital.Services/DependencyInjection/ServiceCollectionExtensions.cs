@@ -36,6 +36,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IBasketService, BasketService>();
         services.AddScoped<IUserAccountService, UserAccountService>();
         services.AddScoped<IShiftManagementService, ShiftManagementService>();
+        services.AddScoped<ISalaryComputationService, SalaryComputationService>();
+        services.AddScoped<IPharmacyScheduleService, PharmacyScheduleService>();
+        services.AddScoped<IFatigueAuditService, FatigueAuditService>();
         services.AddScoped<IShiftSwapService, ShiftSwapService>();
         services.AddScoped<IDoctorAppointmentService, AppointmentService>();
         services.AddScoped<IMedicalEvaluationService, MedicalEvaluationService>();

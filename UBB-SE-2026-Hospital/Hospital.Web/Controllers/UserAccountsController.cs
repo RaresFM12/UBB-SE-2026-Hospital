@@ -109,7 +109,7 @@ namespace Hospital.Web.Controllers
                 return this.RedirectToAction(nameof(this.Index));
             }
 
-            return this.RedirectToAction("Index", "Login");
+            return this.RedirectToAction("Login", "Auth");
         }
 
         [HttpGet]

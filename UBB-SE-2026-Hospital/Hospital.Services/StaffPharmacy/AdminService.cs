@@ -194,13 +194,12 @@ public class AdminService(
 
     public async Task UpdateItemAsync(Item item, CancellationToken cancellationToken = default)
     {
-        var existing = await itemsRepository.GetByIdAsync(item.Id)
-            ?? throw new ArgumentException("Item with the specified ID does not exist.");
+        if (await itemsRepository.GetByIdNoTrackingAsync(item.Id) is null)
+        {
+            throw new ArgumentException("Item with the specified ID does not exist.");
+        }
 
-        HydrateItem(existing);
-        BuildItemEntries(item);
-        await SyncItemEntriesAsync(existing, item);
-        await itemsRepository.UpdateAsync(item);
+        await itemsRepository.UpdateWithEntriesAsync(item);
     }
 
     public void UpdateItemById(int itemId, Item item)
