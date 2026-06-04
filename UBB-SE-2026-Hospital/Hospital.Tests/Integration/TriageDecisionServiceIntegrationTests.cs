@@ -1,5 +1,6 @@
-﻿using Hospital.Data.Models;
+using Hospital.Data.Models;
 using Hospital.Services.PatientEr;
+using Hospital.Services.PatientEr.Strategies;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Hospital.Tests.Integration
@@ -9,6 +10,9 @@ namespace Hospital.Tests.Integration
     [TestClass]
     public sealed class TriageDecisionServiceIntegrationTests
     {
+        private static TriageDecisionService CreateService()
+            => new(new StandardTriageAlgorithm());
+
         private static TriageParameters Params(int consciousness, int breathing, int bleeding, int injury, int pain)
             => new TriageParameters
             {
@@ -23,7 +27,7 @@ namespace Hospital.Tests.Integration
         [TestMethod]
         public void CalculateTriageLevel_WhenCriticalParameter_ReturnsLevel1()
         {
-            var service = new TriageDecisionService();
+            var service = CreateService();
 
             int level = service.CalculateTriageLevel(Params(3, 1, 1, 1, 1));
 
@@ -33,7 +37,7 @@ namespace Hospital.Tests.Integration
         [TestMethod]
         public void CalculateTriageLevel_WhenAllMinimal_ReturnsLevel5()
         {
-            var service = new TriageDecisionService();
+            var service = CreateService();
 
             int level = service.CalculateTriageLevel(Params(1, 1, 1, 1, 1));
 
@@ -44,7 +48,7 @@ namespace Hospital.Tests.Integration
         [TestMethod]
         public void DetermineSpecialization_WhenSevereBleeding_ReturnsGeneralSurgery()
         {
-            var service = new TriageDecisionService();
+            var service = CreateService();
 
             string specialization = service.DetermineSpecialization(Params(1, 1, 3, 1, 1));
 
@@ -54,7 +58,7 @@ namespace Hospital.Tests.Integration
         [TestMethod]
         public void DetermineSpecialization_WhenNothingSpecial_ReturnsEmergencyMedicine()
         {
-            var service = new TriageDecisionService();
+            var service = CreateService();
 
             string specialization = service.DetermineSpecialization(Params(1, 1, 1, 1, 1));
 

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Hospital.Data.Models;
 using Hospital.Data.Repositories;
 using Hospital.Services.PatientEr;
+using Hospital.Services.PatientEr.Strategies;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Hospital.Tests.Integration
@@ -14,7 +15,11 @@ namespace Hospital.Tests.Integration
     public sealed class TriageServiceIntegrationTests
     {
         private static TriageService CreateService(Hospital.Data.HospitalDbContext context)
-            => new TriageService(new TriageRepository(context));
+            => new(
+                new TriageRepository(context),
+                new ERVisitRepository(context),
+                new TriageParametersRepository(context),
+                new TriageDecisionService(new StandardTriageAlgorithm()));
 
         private static Triage NewTriage(int level = 3)
             => new Triage { TriageLevel = level, Specialization = "Cardiology", NurseId = 7, TriageTime = DateTime.Now };

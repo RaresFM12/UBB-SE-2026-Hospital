@@ -5,7 +5,6 @@ using Hospital.Data.Models;
 using Hospital.Data.Repositories;
 using Hospital.Services.PatientEr;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SharedPatient = Hospital.Shared.Models.PatientEr.Patient;
 
 namespace Hospital.Tests.Integration
 {
@@ -15,7 +14,11 @@ namespace Hospital.Tests.Integration
     public sealed class PatientServiceIntegrationTests
     {
         private static PatientService CreateService(Hospital.Data.HospitalDbContext context)
-            => new PatientService(new PatientRepository(context));
+            => new(
+                new PatientRepository(context),
+                new MedicalHistoryRepository(context),
+                new MedicalRecordRepository(context),
+                new PrescriptionRepository(context));
 
         private static Patient NewPatient(string first = "Jane", bool archived = false)
             => new Patient
@@ -35,7 +38,7 @@ namespace Hospital.Tests.Integration
         public async Task GetPatientsAsync_WhenEmpty_ReturnsEmpty()
         {
             using var context = IntegrationTestContextFactory.CreateContext();
-            IReadOnlyList<SharedPatient> result = await CreateService(context).GetPatientsAsync();
+            IReadOnlyList<Patient> result = await CreateService(context).GetPatientsAsync();
             Assert.AreEqual(0, result.Count);
         }
 
@@ -47,7 +50,7 @@ namespace Hospital.Tests.Integration
             context.Patients.Add(NewPatient("Bob"));
             await context.SaveChangesAsync();
 
-            IReadOnlyList<SharedPatient> result = await CreateService(context).GetPatientsAsync();
+            IReadOnlyList<Patient> result = await CreateService(context).GetPatientsAsync();
 
             Assert.AreEqual(2, result.Count);
         }
