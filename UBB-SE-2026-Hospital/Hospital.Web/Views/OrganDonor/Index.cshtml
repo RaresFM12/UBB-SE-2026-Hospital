@@ -30,21 +30,6 @@
 
     <div class="card shadow-sm mb-4">
         <div class="card-body">
-            <form method="get" asp-action="Index" class="row g-3 mb-4">
-                <div class="col-md-8">
-                    <label for="recipientSearch" class="form-label">Search living patients</label>
-                    <input id="recipientSearch"
-                           name="recipientSearch"
-                           value="@Model.RecipientSearchQuery"
-                           class="form-control"
-                           placeholder="Name or exact CNP" />
-                </div>
-                <div class="col-md-4 d-flex align-items-end gap-2">
-                    <button type="submit" class="btn btn-outline-primary">Search</button>
-                    <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
-                </div>
-            </form>
-
             @if (Model.RecipientPatients.Count == 0)
             {
                 <div class="text-muted">No living patients were found.</div>
@@ -58,7 +43,7 @@
                         <input id="recipientPatientLookup"
                                class="form-control"
                                list="recipientPatients"
-                               placeholder="Start typing a name or exact CNP"
+                               placeholder="Type name or exact CNP"
                                autocomplete="off"
                                value="@(Model.PatientId > 0 ? $"{Model.PatientName} ({Model.RecipientSearchQuery})" : string.Empty)"
                                required />
@@ -80,8 +65,9 @@
                             }
                         </select>
                     </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary w-100">Find Donors</button>
+                    <div class="col-md-2 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-primary flex-fill">Find Donors</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
                     </div>
                 </form>
             }
