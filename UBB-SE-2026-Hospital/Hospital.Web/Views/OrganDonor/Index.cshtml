@@ -1,34 +1,141 @@
+@model Hospital.Web.Models.Transplant.OrganDonorViewModel
+
 @{
     ViewData["Title"] = "Organ Donor Assignment";
 }
 
-<div class="container mt-4" style="max-width: 720px;">
+<div class="container mt-4">
     <h1 class="mb-3">Organ Donor Assignment</h1>
-    <p class="text-muted">Pick a donor patient and organ to search for compatible recipients.</p>
+    <p class="text-muted">Create transplant requests for living patients, then match a deceased donor to the waiting list.</p>
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <form method="get" asp-action="Assign" class="row g-3">
-                <div class="col-md-6">
-                    <label for="patientId" class="form-label">Patient ID</label>
-                    <input id="patientId" name="patientId" type="number" class="form-control" min="1" required />
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="alert alert-success" role="alert">@successMessage</div>
+    }
+
+    @if (TempData["ErrorMessage"] is string errorMessage)
+    {
+        <div class="alert alert-danger" role="alert">@errorMessage</div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">1. Living Recipient</h2>
+                    <p class="text-muted">Search the existing active patients and add one to the transplant waitlist.</p>
+
+                    <form method="get" asp-action="Index" class="row g-3 mb-4">
+                        <div class="col-sm-8">
+                            <label for="recipientSearch" class="form-label">Search living patients</label>
+                            <input id="recipientSearch"
+                                   name="recipientSearch"
+                                   value="@Model.RecipientSearchQuery"
+                                   class="form-control"
+                                   placeholder="Name or exact CNP" />
+                        </div>
+                        <div class="col-sm-4 d-flex align-items-end gap-2">
+                            <button type="submit" class="btn btn-outline-primary">Search</button>
+                            <a asp-action="Index"
+                               asp-route-donorSearch="@Model.DonorSearchQuery"
+                               class="btn btn-outline-secondary">Reset</a>
+                        </div>
+                    </form>
+
+                    @if (Model.RecipientPatients.Count == 0)
+                    {
+                        <div class="text-muted">No living patients were found.</div>
+                    }
+                    else
+                    {
+                        <form method="post" asp-action="CreateRequest" class="row g-3">
+                            @Html.AntiForgeryToken()
+                            <div class="col-12">
+                                <label for="recipientPatientId" class="form-label">Recipient patient</label>
+                                <select id="recipientPatientId" name="patientId" class="form-select" required>
+                                    <option value="">Choose a patient...</option>
+                                    @foreach (var patient in Model.RecipientPatients)
+                                    {
+                                        <option value="@patient.Id">@patient.FirstName @patient.LastName (@patient.Cnp)</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label for="recipientOrgan" class="form-label">Needed organ</label>
+                                <select id="recipientOrgan" name="organ" class="form-select" required>
+                                    <option value="">Choose an organ...</option>
+                                    @foreach (var organ in Model.Organs)
+                                    {
+                                        <option value="@organ">@organ</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">Add to Waitlist</button>
+                            </div>
+                        </form>
+                    }
                 </div>
-                <div class="col-md-6">
-                    <label for="organ" class="form-label">Organ</label>
-                    <select id="organ" name="organ" class="form-select" required>
-                        <option value="">Choose an organ...</option>
-                        <option value="Kidney">Kidney</option>
-                        <option value="Heart">Heart</option>
-                        <option value="Liver">Liver</option>
-                        <option value="Lung">Lung</option>
-                        <option value="Pancreas">Pancreas</option>
-                        <option value="Cornea">Cornea</option>
-                    </select>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">2. Deceased Donor</h2>
+                    <p class="text-muted">Search deceased patients and find the best waiting recipients for an available organ.</p>
+
+                    <form method="get" asp-action="Index" class="row g-3 mb-4">
+                        <div class="col-sm-8">
+                            <label for="donorSearch" class="form-label">Search deceased patients</label>
+                            <input id="donorSearch"
+                                   name="donorSearch"
+                                   value="@Model.DonorSearchQuery"
+                                   class="form-control"
+                                   placeholder="Name or exact CNP" />
+                        </div>
+                        <div class="col-sm-4 d-flex align-items-end gap-2">
+                            <button type="submit" class="btn btn-outline-primary">Search</button>
+                            <a asp-action="Index"
+                               asp-route-recipientSearch="@Model.RecipientSearchQuery"
+                               class="btn btn-outline-secondary">Reset</a>
+                        </div>
+                    </form>
+
+                    @if (Model.DonorPatients.Count == 0)
+                    {
+                        <div class="text-muted">No deceased patients were found for organ donation.</div>
+                    }
+                    else
+                    {
+                        <form method="get" asp-action="Assign" class="row g-3">
+                            <div class="col-12">
+                                <label for="donorPatientId" class="form-label">Donor patient</label>
+                                <select id="donorPatientId" name="patientId" class="form-select" required>
+                                    <option value="">Choose a patient...</option>
+                                    @foreach (var patient in Model.DonorPatients)
+                                    {
+                                        <option value="@patient.Id">@patient.FirstName @patient.LastName (@patient.Cnp)</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label for="donorOrgan" class="form-label">Available organ</label>
+                                <select id="donorOrgan" name="organ" class="form-select" required>
+                                    <option value="">Choose an organ...</option>
+                                    @foreach (var organ in Model.Organs)
+                                    {
+                                        <option value="@organ">@organ</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">Search Matches</button>
+                            </div>
+                        </form>
+                    }
                 </div>
-                <div class="col-12">
-                    <button type="submit" class="btn btn-primary">Search matches</button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>

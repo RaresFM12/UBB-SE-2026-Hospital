@@ -12,4 +12,5 @@ public class PatientListItemViewModel
     public string EmergencyContact { get; set; } = string.Empty;
     public bool IsArchived { get; set; }
     public bool IsDeceased { get; set; }
+    public bool IsDonor { get; set; }
 }
