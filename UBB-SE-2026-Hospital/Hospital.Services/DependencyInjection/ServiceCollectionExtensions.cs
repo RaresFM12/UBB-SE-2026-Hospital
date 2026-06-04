@@ -46,6 +46,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPeriodTrackerService, PeriodTrackerService>();
         services.AddScoped<IWellnessItemsService, WellnessItemsService>();
         services.AddScoped<ISalaryComputationService, SalaryComputationService>();
+        services.AddScoped<IPharmacyScheduleService, PharmacyScheduleService>();
+        services.AddScoped<IPharmacyVacationService, PharmacyVacationService>();
 
 
         return services;
