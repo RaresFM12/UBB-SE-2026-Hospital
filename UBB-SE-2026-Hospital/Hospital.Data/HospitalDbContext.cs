@@ -65,7 +65,11 @@ public class HospitalDbContext(DbContextOptions<HospitalDbContext> options) : Db
         modelBuilder.Entity<User>().HasIndex(u => u.Username).IsUnique();
 
         ConfigureAuthorization(modelBuilder);
-
+        modelBuilder.Entity<Shift>(entity =>
+        {
+            entity.Property(e => e.StartTime).HasColumnName("StartTime");
+            entity.Property(e => e.EndTime).HasColumnName("EndTime");
+        });
         // Non-standard primary keys
         modelBuilder.Entity<Staff>().HasKey(s => s.StaffId);
         modelBuilder.Entity<ERRoom>().HasKey(r => r.RoomId);

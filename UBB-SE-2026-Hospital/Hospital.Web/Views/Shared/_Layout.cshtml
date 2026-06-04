@@ -57,7 +57,21 @@
                                 <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="DoctorSchedule" asp-action="Index">Doctor Schedule</a></li>
                                 <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="MedicalEvaluations" asp-action="Index">Medical Evaluations</a></li>
                                 <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Hangouts" asp-action="Index">Hangouts</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="ShiftSwap" asp-action="Index">Shift Swaps</a></li>
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Shift Swaps
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" asp-controller="ShiftSwap" asp-action="Index">My Requests</a></li>
+                                        <li><a class="dropdown-item" asp-controller="ShiftSwap" asp-action="Incoming">Incoming Requests</a></li>
+                                    </ul>
+                                </li>
+                            }
+
+                            @if (HasAnyRole(User, "Admin", "Manager", "Doctor", "Pharmacist"))
+                            {
+                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="ShiftManagement" asp-action="Salary">Salary Info</a></li>
                             }
 
                             @if (HasAnyRole(User, "Admin", "Manager"))
