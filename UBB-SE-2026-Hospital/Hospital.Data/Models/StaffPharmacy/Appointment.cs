@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using Hospital.Data.Models;
 
 namespace Hospital.Data.Models;
 
@@ -8,12 +9,25 @@ public class Appointment
     public int Id { get; set; }
     public string PatientName { get; set; } = string.Empty;
     public DateTime AppointmentDate { get; set; }
-    public TimeSpan StartTime { get; set; }
-    public TimeSpan EndTime { get; set; }
+
     public string Status { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
     public string Location { get; set; } = string.Empty;
     public string Notes { get; set; } = string.Empty;
+
+    [NotMapped]
+    public TimeSpan StartTime
+    {
+        get => AppointmentDate.TimeOfDay;
+        set => AppointmentDate = AppointmentDate.Date.Add(value);
+    }
+
+    [NotMapped]
+    public TimeSpan EndTime
+    {
+        get => AppointmentDate.AddHours(1).TimeOfDay; 
+        set {  }
+    }
 
     [NotMapped]
     public int? ExternalRefId { get; set; }

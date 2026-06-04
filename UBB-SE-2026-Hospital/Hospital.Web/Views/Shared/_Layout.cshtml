@@ -27,26 +27,88 @@
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Index">Admin</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Modules" asp-action="Index">Modules</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="MedicalStaff" asp-action="Index">Medical Staff</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Patients" asp-action="Index">Patients</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Consultation" asp-action="Index">Consultations</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="BloodCompatibility" asp-action="Index">Blood Compatibility</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="OrganDonor" asp-action="Index">Organ Donor</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="MedicalEvaluations" asp-action="Index">Medical Evaluations</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Registration" asp-action="Index">Registration</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Queue" asp-action="Index">Queue</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="RoomManagement" asp-action="Index">Room Management</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="RoomAssignment" asp-action="Index">Room Assignment</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Transfer" asp-action="Index">Transfer</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Triage" asp-action="Index">Triage</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Examination" asp-action="Index">Examination</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Transplant" asp-action="Index">Transplant</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Ghost" asp-action="Index">Ghost</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Pharmacy" asp-action="Index">Pharmacy</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Pharmacist" asp-action="Index">Pharmacist</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Prescription" asp-action="Feed">Prescriptions</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Orders" asp-action="Index">Orders</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="ProductCatalogue" asp-action="Index">Product Catalogue</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Notifications" asp-action="Index">Notifications</a></li>
+
+                            @if (HasAnyRole(User, "Admin", "Doctor"))
+                            {
+                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="DoctorAppointments" asp-action="Index">Doctor Appointments</a></li>
+                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="DoctorSchedule" asp-action="Index">Doctor Schedule</a></li>
+                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="MedicalEvaluations" asp-action="Index">Medical Evaluations</a></li>
+                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Hangouts" asp-action="Index">Hangouts</a></li>
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Shift Swaps
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" asp-controller="ShiftSwap" asp-action="Index">My Requests</a></li>
+                                        <li><a class="dropdown-item" asp-controller="ShiftSwap" asp-action="Incoming">Incoming Requests</a></li>
+                                    </ul>
+                                </li>
+                            }
+
+                            @if (HasAnyRole(User, "Admin", "Manager", "Doctor", "Pharmacist"))
+                            {
+                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="ShiftManagement" asp-action="Salary">Salary Info</a></li>
+                            }
+
+                            @if (HasAnyRole(User, "Admin", "Manager"))
+                            {
+                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="ShiftManagement" asp-action="Index">Shift Management</a></li>
+                            }
+
+                            @if (HasAnyRole(User, "Admin", "Pharmacist"))
+                            {
+                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="PharmacySchedule" asp-action="Index">Pharmacy Schedule</a></li>
+                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="UserAccounts" asp-action="Index">User Accounts</a></li>
+                            }
+
+                            @if (HasAnyRole(User, "Pharmacist"))
+                            {
+                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="PharmacyVacation" asp-action="Index">Pharmacy Vacation</a></li>
+                            }
 
                             @if (HasAnyRole(User, "Admin"))
                             {
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Items" asp-action="Index">Inventory</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="ShiftManagement" asp-action="Index">Shift Management</a></li>
+                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Statistics" asp-action="Index">Statistics</a></li>
+                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Items" asp-action="Index">Items</a></li>
+                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Substances" asp-action="Index">Substances</a></li>
                                 <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="ERDispatch" asp-action="Index">ER Dispatch</a></li>
                                 <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="FatigueAudit" asp-action="Index">Fatigue Audit</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="UserAccounts" asp-action="Index">Accounts Management</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="DoctorAppointments" asp-action="Index">Appointments</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="DoctorSchedule" asp-action="Index">Doctors Schedule</a></li>
-                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="PharmacySchedule" asp-action="Index">Pharmacy Schedule</a></li>
+                            }
+
+                            @if (HasAnyRole(User, "Client", "Admin"))
+                            {
+                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Basket" asp-action="Index">Basket</a></li>
+                                <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="PeriodTracker" asp-action="Index">Period Tracker</a></li>
                             }
                         }
                     </ul>
                     <ul class="navbar-nav">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="UserAccounts" asp-action="Edit">Profile</a>
-                            </li>
                             <li class="nav-item">
                                 <span class="nav-link text-dark">@User.Identity!.Name</span>
                             </li>
@@ -60,9 +122,6 @@
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Auth" asp-action="Login">Login</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="UserAccounts" asp-action="Create">Register</a>
                             </li>
                         }
                     </ul>
