@@ -1,21 +1,14 @@
-@model IReadOnlyList<Hospital.Shared.Models.PatientEr.Patient>
+@model Hospital.Web.Models.Patients.PatientsIndexViewModel
+@using Hospital.Data.Models
 
 @{
     ViewData["Title"] = "Patients";
-
-    int GetAge(DateTime dob)
-    {
-        var today = DateTime.Today;
-        int age = today.Year - dob.Year;
-        if (dob.Date > today.AddYears(-age)) age--;
-        return age;
-    }
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h1 class="mb-1">Patients</h1>
-        <p class="text-muted mb-0">Patient list with search and filters.</p>
+        <p class="text-muted mb-0">Select a patient to edit details, archive them, or mark them as deceased.</p>
     </div>
 </div>
 
@@ -24,88 +17,229 @@
     <div class="alert alert-success" role="alert">@successMessage</div>
 }
 
-<form method="get" class="row g-3 mb-4">
-    <div class="col-lg-4">
-        <label class="form-label">Search by name or CNP</label>
-        <input name="search" value="@ViewBag.Search" class="form-control" placeholder="e.g. Popescu or 1850215..." />
-    </div>
-    <div class="col-sm-6 col-lg-2">
-        <label class="form-label">Min age</label>
-        <input name="minAge" value="@ViewBag.MinAge" class="form-control" type="number" min="0" />
-    </div>
-    <div class="col-sm-6 col-lg-2">
-        <label class="form-label">Max age</label>
-        <input name="maxAge" value="@ViewBag.MaxAge" class="form-control" type="number" min="0" />
-    </div>
-    <div class="col-sm-6 col-lg-2">
-        <label class="form-label">Sex</label>
-        <select name="sex" class="form-select">
-            <option value="">Any</option>
-            <option value="M" selected="@("M" == ViewBag.Sex ? "selected" : null)">Male</option>
-            <option value="F" selected="@("F" == ViewBag.Sex ? "selected" : null)">Female</option>
-        </select>
-    </div>
-    <div class="col-sm-6 col-lg-2 d-flex align-items-end gap-2">
-        <button type="submit" class="btn btn-outline-primary">Apply</button>
-        <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
-    </div>
-</form>
-
-@if (!Model.Any())
+@if (TempData["ErrorMessage"] is string errorMessage)
 {
-    <div class="alert alert-info" role="alert">No patients matched the current filter.</div>
+    <div class="alert alert-danger" role="alert">@errorMessage</div>
 }
-else
-{
-    <div class="table-responsive">
-        <table class="table table-striped table-hover align-middle">
-            <thead>
-                <tr>
-                    <th>First name</th>
-                    <th>Last name</th>
-                    <th>Sex</th>
-                    <th>Age</th>
-                    <th>DOB</th>
-                    <th>CNP</th>
-                    <th>Phone</th>
-                    <th>Emergency contact</th>
-                    <th>Status</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var patient in Model)
-                {
-                    bool isDeceased = patient.DateOfDeath.HasValue && patient.DateOfDeath.Value > DateTime.MinValue;
-                    <tr>
-                        <td>@patient.FirstName</td>
-                        <td>@patient.LastName</td>
-                        <td>@patient.Sex</td>
-                        <td>@GetAge(patient.DateOfBirth)</td>
-                        <td>@patient.DateOfBirth.ToString("yyyy-MM-dd")</td>
-                        <td>@patient.Cnp</td>
-                        <td>@patient.PhoneNo</td>
-                        <td>@patient.EmergencyContact</td>
-                        <td>
-                            @if (patient.IsArchived)
-                            {
-                                <span class="badge bg-secondary">Archived</span>
-                            }
-                            else if (isDeceased)
-                            {
-                                <span class="badge bg-dark">Deceased</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-success">Active</span>
-                            }
-                        </td>
-                        <td>
-                            <a asp-action="PatientProfile" asp-route-id="@patient.PatientId" class="btn btn-sm btn-outline-primary">View</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <a asp-action="Index"
+               asp-route-search="@Model.SearchQuery"
+               asp-route-minAge="@Model.MinAge"
+               asp-route-maxAge="@Model.MaxAge"
+               asp-route-sex="@Model.Sex"
+               asp-route-archived="false"
+               class="btn @(Model.IsActiveMode ? "btn-dark" : "btn-outline-dark")">
+                Active Patients
+            </a>
+            <a asp-action="Index"
+               asp-route-search="@Model.SearchQuery"
+               asp-route-minAge="@Model.MinAge"
+               asp-route-maxAge="@Model.MaxAge"
+               asp-route-sex="@Model.Sex"
+               asp-route-archived="true"
+               class="btn @(Model.IsArchivedMode ? "btn-dark" : "btn-outline-dark")">
+                Archived / Deceased
+            </a>
+        </div>
+
+        <form method="get" class="row g-3">
+            <input type="hidden" name="archived" value="@Model.ShowArchived.ToString().ToLowerInvariant()" />
+            <div class="col-lg-4">
+                <label asp-for="SearchQuery" class="form-label">Search by name or CNP</label>
+                <input asp-for="SearchQuery" name="search" class="form-control" placeholder="e.g. Popescu or 1850215..." />
+            </div>
+            <div class="col-sm-6 col-lg-2">
+                <label asp-for="MinAge" class="form-label">Min age</label>
+                <input asp-for="MinAge" name="minAge" class="form-control" type="number" min="0" />
+            </div>
+            <div class="col-sm-6 col-lg-2">
+                <label asp-for="MaxAge" class="form-label">Max age</label>
+                <input asp-for="MaxAge" name="maxAge" class="form-control" type="number" min="0" />
+            </div>
+            <div class="col-sm-6 col-lg-2">
+                <label asp-for="Sex" class="form-label">Sex</label>
+                <select asp-for="Sex" name="sex" asp-items="Html.GetEnumSelectList<Sex>()" class="form-select">
+                    <option value="">Any</option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-lg-2 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-outline-primary">Apply</button>
+                <a asp-action="Index" asp-route-archived="@Model.ShowArchived" class="btn btn-outline-secondary">Reset</a>
+            </div>
+        </form>
     </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-xl-8">
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                @if (Model.Patients.Count == 0)
+                {
+                    <div class="p-4 text-muted">No patients matched the current mode and filters.</div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>First name</th>
+                                    <th>Last name</th>
+                                    <th>Sex</th>
+                                    <th>DOB</th>
+                                    <th>CNP</th>
+                                    <th>Phone</th>
+                                    <th>Emergency contact</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var patient in Model.Patients)
+                                {
+                                    bool isSelected = Model.SelectedPatientId == patient.Id;
+                                    <tr class="patient-row @(isSelected ? "table-active" : string.Empty)"
+                                        data-select-url="@Url.Action("Index", new { search = Model.SearchQuery, minAge = Model.MinAge, maxAge = Model.MaxAge, sex = Model.Sex, archived = Model.ShowArchived, selectedId = patient.Id })"
+                                        style="cursor: pointer;">
+                                        <td>@patient.FirstName</td>
+                                        <td>@patient.LastName</td>
+                                        <td>@patient.Sex</td>
+                                        <td>@patient.Dob.ToString("yyyy-MM-dd")</td>
+                                        <td>@patient.Cnp</td>
+                                        <td>@patient.PhoneNo</td>
+                                        <td>@patient.EmergencyContact</td>
+                                        <td>
+                                            @if (patient.IsDeceased)
+                                            {
+                                                <span class="badge bg-dark">Deceased</span>
+                                            }
+                                            else if (patient.IsArchived)
+                                            {
+                                                <span class="badge bg-secondary">Archived</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success">Active</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                @if (Model.SelectedPatient is null)
+                {
+                    <div class="text-muted">Select a patient to open the update panel.</div>
+                }
+                else
+                {
+                    <h2 class="h4 mb-3">Patient Details</h2>
+                    <a asp-action="PatientProfile"
+                       asp-route-id="@Model.SelectedPatient.Id"
+                       class="btn btn-outline-primary w-100 mb-3">
+                        View Profile
+                    </a>
+
+                    <form asp-action="UpdatePatient" method="post" class="mb-4" autocomplete="off">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="searchQuery" value="@Model.SearchQuery" />
+                        <input type="hidden" name="minAge" value="@Model.MinAge" />
+                        <input type="hidden" name="maxAge" value="@Model.MaxAge" />
+                        <input type="hidden" name="filterSex" value="@Model.Sex" />
+                        <input type="hidden" name="archived" value="@Model.ShowArchived.ToString().ToLowerInvariant()" />
+                        <input type="hidden" asp-for="SelectedPatient!.Id" name="Id" />
+                        <input type="hidden" asp-for="SelectedPatient!.Cnp" name="Cnp" />
+                        <input type="hidden" asp-for="SelectedPatient!.Dob" name="Dob" />
+                        <input type="hidden" asp-for="SelectedPatient!.Sex" name="Sex" />
+                        <input type="hidden" asp-for="SelectedPatient!.IsArchived" name="IsArchived" />
+                        <input type="hidden" asp-for="SelectedPatient!.IsDonor" name="IsDonor" />
+                        <input type="hidden" asp-for="SelectedPatient!.Transferred" name="Transferred" />
+                        <input type="hidden" asp-for="SelectedPatient!.Dod" name="Dod" />
+
+                        <div class="mb-3">
+                            <label class="form-label" for="FirstName">First name</label>
+                            <input id="FirstName" name="FirstName" value="@Model.SelectedPatient.FirstName" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="LastName">Last name</label>
+                            <input id="LastName" name="LastName" value="@Model.SelectedPatient.LastName" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="PhoneNo">Phone number</label>
+                            <input id="PhoneNo" name="PhoneNo" value="@Model.SelectedPatient.PhoneNo" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="EmergencyContact">Emergency contact</label>
+                            <input id="EmergencyContact" name="EmergencyContact" value="@Model.SelectedPatient.EmergencyContact" class="form-control" />
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Update Patient</button>
+                    </form>
+
+                    @if (Model.IsActiveMode)
+                    {
+                        <form asp-action="ArchivePatient" method="post" class="mb-3">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.SelectedPatient.Id" />
+                            <input type="hidden" name="searchQuery" value="@Model.SearchQuery" />
+                            <input type="hidden" name="minAge" value="@Model.MinAge" />
+                            <input type="hidden" name="maxAge" value="@Model.MaxAge" />
+                            <input type="hidden" name="filterSex" value="@Model.Sex" />
+                            <button type="submit" class="btn btn-outline-danger w-100">Archive Patient</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-action="DearchivePatient" method="post" class="mb-3">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.SelectedPatient.Id" />
+                            <input type="hidden" name="searchQuery" value="@Model.SearchQuery" />
+                            <input type="hidden" name="minAge" value="@Model.MinAge" />
+                            <input type="hidden" name="maxAge" value="@Model.MaxAge" />
+                            <input type="hidden" name="filterSex" value="@Model.Sex" />
+                            <button type="submit" class="btn btn-outline-success w-100" @(Model.SelectedPatient.IsDeceased ? "disabled" : null)>Restore to Active</button>
+                        </form>
+                    }
+
+                    <form asp-action="MarkAsDeceased" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.SelectedPatient.Id" />
+                        <input type="hidden" name="searchQuery" value="@Model.SearchQuery" />
+                        <input type="hidden" name="minAge" value="@Model.MinAge" />
+                        <input type="hidden" name="maxAge" value="@Model.MaxAge" />
+                        <input type="hidden" name="filterSex" value="@Model.Sex" />
+                        <div class="mb-2">
+                            <label class="form-label">Date of death</label>
+                            <input name="deathDate" type="date" class="form-control" value="@(Model.SelectedPatient.Dod?.ToString("yyyy-MM-dd") ?? string.Empty)" />
+                        </div>
+                        <button type="submit" class="btn btn-outline-dark w-100" @(Model.SelectedPatient.IsDeceased ? "disabled" : null)>Mark as Deceased</button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const rows = document.querySelectorAll(".patient-row");
+
+            for (const row of rows) {
+                row.addEventListener("click", () => {
+                    window.location.href = row.dataset.selectUrl;
+                });
+            }
+        })();
+    </script>
 }

@@ -1,4 +1,5 @@
 using Hospital.Data.Models.DTOs; 
+using DbPatient = Hospital.Data.Models.Patient;
 using Hospital.Shared.Models.PatientEr;
 
 namespace Hospital.Shared.Services;
@@ -13,6 +14,10 @@ public interface IPatientService
     Task<List<string>> GetPatientAllergiesAsync(int patientId, CancellationToken cancellationToken = default);
     Task<bool> IsHighRiskPatientAsync(int patientId, CancellationToken cancellationToken = default);
     Task<RecordExportDataDto> GetRecordExportDataAsync(int recordId, CancellationToken cancellationToken = default);
+    Task UpdatePatientAsync(DbPatient patient, CancellationToken cancellationToken = default);
+    Task ArchivePatientAsync(int patientId, CancellationToken cancellationToken = default);
+    Task DearchivePatientAsync(int patientId, CancellationToken cancellationToken = default);
+    Task ArchiveAsDeceasedAsync(int patientId, DateTime deathDate, CancellationToken cancellationToken = default);
     Task<int> CreateMedicalRecordAsync(int patientId, Data.Models.MedicalRecord record, CancellationToken cancellationToken = default);
     Task CreatePrescriptionAsync(int recordId, Prescription prescription);
 }

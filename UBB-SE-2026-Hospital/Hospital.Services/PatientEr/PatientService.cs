@@ -2,12 +2,13 @@ using Hospital.Data.Models.DTOs;
 using Hospital.Data.Repositories;
 using Hospital.Shared.Models.PatientEr;
 using Hospital.Shared.Services;
+using DbPatient = Hospital.Data.Models.Patient;
 
 namespace Hospital.Services.PatientEr;
 
 public class PatientService(
     IPatientRepository patientRepository,
-    IPrescriptionRepository prescriptionRepository) : IPatientService
+    IPrescriptionRepository? prescriptionRepository = null) : IPatientService
 {
     private const int HighRiskRecordThreshold = 3;
 
@@ -52,6 +53,9 @@ public class PatientService(
 
     public async Task<Prescription?> GetPrescriptionByRecordIdAsync(int recordId, CancellationToken cancellationToken)
     {
+        if (prescriptionRepository is null)
+            return null;
+
         var prescription = (await prescriptionRepository.GetByRecordIdAsync(recordId)).FirstOrDefault();
         return prescription is null ? null : MapPrescription(prescription);
     }
@@ -101,6 +105,71 @@ public class PatientService(
         throw new ArgumentException("Medical record not found.");
     }
 
+    public async Task UpdatePatientAsync(DbPatient patient, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(patient);
+
+        var existingPatient = await patientRepository.GetByIdAsync(patient.PatientId)
+            ?? throw new ArgumentException("Patient not found.");
+
+        existingPatient.FirstName = patient.FirstName;
+        existingPatient.LastName = patient.LastName;
+        existingPatient.Cnp = patient.Cnp;
+        existingPatient.DateOfBirth = patient.DateOfBirth;
+        existingPatient.DateOfDeath = patient.DateOfDeath;
+        existingPatient.Sex = patient.Sex;
+        existingPatient.PhoneNumber = patient.PhoneNumber;
+        existingPatient.EmergencyContact = patient.EmergencyContact;
+        existingPatient.IsArchived = patient.IsArchived;
+        existingPatient.IsDonor = patient.IsDonor;
+        existingPatient.Transferred = patient.Transferred;
+
+        if (!existingPatient.Validate(out List<string> errors))
+            throw new ArgumentException(string.Join(" ", errors));
+
+        if (existingPatient.DateOfDeath.HasValue && existingPatient.DateOfDeath.Value.Date > DateTime.Today)
+            throw new ArgumentException("Date of death cannot be in the future.");
+
+        await patientRepository.UpdateAsync(existingPatient);
+    }
+
+    public async Task ArchivePatientAsync(int patientId, CancellationToken cancellationToken = default)
+    {
+        var patient = await patientRepository.GetByIdAsync(patientId)
+            ?? throw new ArgumentException("Patient not found.");
+
+        patient.IsArchived = true;
+        await patientRepository.UpdateAsync(patient);
+    }
+
+    public async Task DearchivePatientAsync(int patientId, CancellationToken cancellationToken = default)
+    {
+        var patient = await patientRepository.GetByIdAsync(patientId)
+            ?? throw new ArgumentException("Patient not found.");
+
+        if (patient.IsDeceased)
+            throw new ArgumentException("Deceased patients cannot be restored to active status.");
+
+        patient.IsArchived = false;
+        await patientRepository.UpdateAsync(patient);
+    }
+
+    public async Task ArchiveAsDeceasedAsync(int patientId, DateTime deathDate, CancellationToken cancellationToken = default)
+    {
+        if (deathDate.Date > DateTime.Today)
+            throw new ArgumentException("Date of death cannot be in the future.");
+
+        var patient = await patientRepository.GetByIdAsync(patientId)
+            ?? throw new ArgumentException("Patient not found.");
+
+        if (deathDate.Date < patient.DateOfBirth.Date)
+            throw new ArgumentException("Date of death cannot be before date of birth.");
+
+        patient.IsArchived = true;
+        patient.DateOfDeath = deathDate.Date;
+        await patientRepository.UpdateAsync(patient);
+    }
+
     public async Task<int> CreateMedicalRecordAsync(int patientId, Data.Models.MedicalRecord record, CancellationToken cancellationToken)
     {
         var patient = await patientRepository.GetByIdAsync(patientId)
@@ -118,6 +187,9 @@ public class PatientService(
 
     public async Task CreatePrescriptionAsync(int recordId, Prescription prescription)
     {
+        if (prescriptionRepository is null)
+            throw new InvalidOperationException("Prescription repository is not available.");
+
         var exportData = await GetRecordExportDataAsync(recordId, CancellationToken.None);
         await prescriptionRepository.CreateAsync(new Data.Models.Prescription
         {
