@@ -9,6 +9,7 @@
     <DisableXbfGeneration>true</DisableXbfGeneration>
     <EnableMsixTooling>false</EnableMsixTooling>
     <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <RootNamespace>Hospital.Desktop</RootNamespace>
     <Platforms>x64;AnyCPU</Platforms>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
