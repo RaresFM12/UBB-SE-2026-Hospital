@@ -87,7 +87,7 @@ namespace Hospital.Data.Migrations
             // Use raw SQL to bypass EF column name mapping issue with StaffID PK
             migrationBuilder.Sql(@"
                 SET IDENTITY_INSERT [Staff] ON;
-                INSERT INTO [Staff] ([StaffID],[Email],[PasswordHash],[Role],[Department],[FirstName],[LastName],[ContactInfo],[Available],[LicenseNumber],[Specialization],[Status],[Certification],[YearsOfExperience],[HourlyRate],[DoctorStatus]) VALUES
+                INSERT INTO [Staff] ([StaffId],[Email],[PasswordHash],[Role],[Department],[FirstName],[LastName],[ContactInfo],[Available],[LicenseNumber],[Specialization],[Status],[Certification],[YearsOfExperience],[HourlyRate],[DoctorStatus]) VALUES
                 (1,'house@hospital.local', 'hash','Doctor',    'Diagnostics','Gregory','House', '555-0101',1,'LIC-1001','Diagnostician','Available','Board Certified',10,150.0,0),
                 (2,'wilson@hospital.local','hash','Doctor',    'Oncology',   'James',  'Wilson','555-0102',1,'LIC-1002','Diagnostician','Available','Board Certified', 8,140.0,0),
                 (3,'cuddy@hospital.local', 'hash','Doctor',    'Admin',      'Lisa',   'Cuddy', '555-0103',1,'LIC-1003','Surgery',      'Available','Board Certified',12,160.0,0),
@@ -642,7 +642,7 @@ namespace Hospital.Data.Migrations
             migrationBuilder.DeleteData(table: "ERRooms", keyColumn: "RoomId", keyValues: new object[] { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20 });
             migrationBuilder.DeleteData(table: "ERVisits", keyColumn: "VisitId", keyValues: new object[] { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20 });
             migrationBuilder.DeleteData(table: "Patients", keyColumn: "PatientId", keyValues: new object[] { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20 });
-            migrationBuilder.Sql("DELETE FROM [Staff] WHERE [StaffID] IN (1,2,3,4,5)");
+            migrationBuilder.Sql("DELETE FROM [Staff] WHERE [StaffId] IN (1,2,3,4,5)");
             migrationBuilder.DeleteData(table: "Users", keyColumn: "Id", keyValues: new object[] { 1,2,3,4,5,6,7 });
 
             // Reference data
