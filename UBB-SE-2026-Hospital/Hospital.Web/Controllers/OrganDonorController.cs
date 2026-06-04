@@ -1,46 +1,46 @@
 using Hospital.Data.Models.DTOs;
 using Hospital.Services.PatientEr;
 using Hospital.Shared.Services;
+using Hospital.Web.Models.BloodCompatibility;
 using Hospital.Web.Models.Patients;
 using Hospital.Web.Models.Transplant;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using DbPatient = Hospital.Data.Models.Patient;
-using TransplantMatch = Hospital.Data.Models.TransplantMatch;
+using SharedPatient = Hospital.Shared.Models.PatientEr.Patient;
 
 namespace Hospital.Web.Controllers;
 
 [Authorize]
 public class OrganDonorController : Controller
 {
-    private const int NoMatchesCount = 0;
-
+    private readonly IBloodCompatibilityService bloodCompatibilityService;
     private readonly ITransplantService transplantService;
     private readonly IPatientService patientService;
 
     public OrganDonorController(
+        IBloodCompatibilityService bloodCompatibilityService,
         ITransplantService transplantService,
         IPatientService patientService)
     {
+        this.bloodCompatibilityService = bloodCompatibilityService;
         this.transplantService = transplantService;
         this.patientService = patientService;
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index(string? recipientSearch, string? donorSearch, CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(string? recipientSearch, CancellationToken cancellationToken)
     {
         return View(new OrganDonorViewModel
         {
             RecipientSearchQuery = recipientSearch,
-            DonorSearchQuery = donorSearch,
-            RecipientPatients = await LoadCandidatePatientsAsync(recipientSearch, includeDeceased: false, cancellationToken),
-            DonorPatients = await LoadCandidatePatientsAsync(donorSearch, includeDeceased: true, cancellationToken)
+            RecipientPatients = await LoadRecipientPatientsAsync(recipientSearch, cancellationToken)
         });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CreateRequest(int patientId, string organ, CancellationToken cancellationToken)
+    public async Task<IActionResult> FindDonors(int patientId, string organ, CancellationToken cancellationToken)
     {
         DbPatient? patient = await patientService.GetByIdAsync(patientId, cancellationToken);
         if (patient is null)
@@ -51,112 +51,86 @@ public class OrganDonorController : Controller
 
         if (patient.IsDeceased)
         {
-            TempData["ErrorMessage"] = "Only living patients can receive a transplant request.";
-            return RedirectToAction(nameof(Index));
+            TempData["ErrorMessage"] = "Please select a living recipient patient.";
+            return RedirectToAction(nameof(Index), new { recipientSearch = patient.Cnp });
         }
 
         if (string.IsNullOrWhiteSpace(organ))
         {
-            TempData["ErrorMessage"] = "Please choose an organ for the transplant request.";
-            return RedirectToAction(nameof(Index));
+            TempData["ErrorMessage"] = "Please choose an organ first.";
+            return RedirectToAction(nameof(Index), new { recipientSearch = patient.Cnp });
         }
 
-        try
-        {
-            await transplantService.CreateWaitlistRequestAsync(patientId, organ);
-            TempData["SuccessMessage"] = "The patient was added to the transplant waitlist.";
-        }
-        catch (InvalidOperationException ex)
-        {
-            TempData["ErrorMessage"] = ex.Message;
-        }
-
-        return RedirectToAction(nameof(Index), new { recipientSearch = patient.Cnp });
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Assign(int patientId, string? organ, CancellationToken cancellationToken)
-    {
-        DbPatient? patient = await patientService.GetByIdAsync(patientId, cancellationToken);
-        if (patient is null)
-        {
-            TempData["ErrorMessage"] = "Patient not found.";
-            return RedirectToAction(nameof(Index));
-        }
-
-        if (!patient.IsDeceased)
-        {
-            TempData["ErrorMessage"] = "Patient must be marked as deceased before organ donor assignment.";
-            return RedirectToAction(nameof(Index));
-        }
-
-        string? autoRegistrationMessage = null;
-        if (!patient.IsDonor)
-        {
-            await patientService.UpdatePatientAsync(new DbPatient
-            {
-                PatientId = patient.PatientId,
-                FirstName = patient.FirstName,
-                LastName = patient.LastName,
-                Cnp = patient.Cnp,
-                DateOfBirth = patient.DateOfBirth,
-                DateOfDeath = patient.DateOfDeath,
-                Sex = patient.Sex,
-                PhoneNumber = patient.PhoneNumber,
-                EmergencyContact = patient.EmergencyContact,
-                IsArchived = patient.IsArchived,
-                IsDonor = true,
-                Transferred = patient.Transferred
-            }, cancellationToken);
-
-            patient.IsDonor = true;
-            autoRegistrationMessage = "Patient was registered as an organ donor.";
-        }
+        SharedPatient recipientDetails = await patientService.GetPatientDetailsAsync(patient.PatientId, cancellationToken);
 
         var model = new OrganDonorViewModel
         {
-            PatientId = patientId,
+            RecipientSearchQuery = patient.Cnp,
+            RecipientPatients = await LoadRecipientPatientsAsync(patient.Cnp, cancellationToken),
+            PatientId = patient.PatientId,
             PatientName = patient.FullName,
-            IsDeceased = patient.IsDeceased,
-            IsDonorRegistered = patient.IsDonor,
-            SelectedOrgan = organ,
-            StatusMessage = autoRegistrationMessage
+            SelectedOrgan = organ
         };
 
-        if (!string.IsNullOrWhiteSpace(organ))
+        try
         {
-            try
-            {
-                List<TransplantMatch> matches = await transplantService.GetTopMatchesAsDisplayModelsAsync(patientId, organ);
+            var pendingTransplant = (await transplantService.GetByPatientIdAsync(patient.PatientId))
+                .Where(transplant => transplant.Status == Hospital.Data.Models.TransplantStatus.Pending
+                    && string.Equals(transplant.OrganType, organ, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(transplant => transplant.RequestDate)
+                .FirstOrDefault();
 
-                model.TopMatches = matches.Select(match => new TransplantMatchViewModel
+            if (pendingTransplant is null)
+            {
+                await transplantService.CreateWaitlistRequestAsync(patient.PatientId, organ);
+
+                pendingTransplant = (await transplantService.GetByPatientIdAsync(patient.PatientId))
+                    .Where(transplant => transplant.Status == Hospital.Data.Models.TransplantStatus.Pending
+                        && string.Equals(transplant.OrganType, organ, StringComparison.OrdinalIgnoreCase))
+                    .OrderByDescending(transplant => transplant.RequestDate)
+                    .FirstOrDefault();
+
+                if (pendingTransplant is null)
                 {
-                    TransplantId = match.Transplant.TransplantId,
-                    ReceiverName = match.ReceiverName,
-                    BloodType = match.BloodType,
-                    CompatibilityScore = match.CompatibilityScore,
-                    WaitingDays = match.WaitingDays,
-                }).ToList();
-
-                if (model.TopMatches.Count == NoMatchesCount)
-                    model.StatusMessage = $"No compatible recipients found for {organ}.";
+                    model.ErrorMessage = "The transplant request could not be prepared.";
+                    return View("Index", model);
+                }
             }
-            catch (InvalidOperationException ex)
+
+            model.PendingTransplantId = pendingTransplant.TransplantId;
+
+            var topDonors = await bloodCompatibilityService.GetTopCompatibleDonorsAsync(patient.PatientId);
+            model.TopDonors = topDonors.Select(donor => new DonorMatchViewModel
             {
-                model.ErrorMessage = ex.Message;
+                PatientId = donor.PatientId,
+                FirstName = donor.FirstName,
+                LastName = donor.LastName,
+                Cnp = donor.Cnp,
+                BloodType = donor.MedicalHistory?.BloodType?.ToString() ?? "Unknown",
+                RhFactor = donor.MedicalHistory?.Rh?.ToString() ?? "Unknown",
+                Score = bloodCompatibilityService.CalculateScore(ToDbPatient(donor), ToDbPatient(recipientDetails))
+            }).ToList();
+
+            if (model.TopDonors.Count == 0)
+            {
+                model.StatusMessage = $"No compatible deceased donors were found for {organ}.";
             }
         }
+        catch (InvalidOperationException ex)
+        {
+            model.ErrorMessage = ex.Message;
+        }
 
-        return View(model);
+        return View("Index", model);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Confirm(int patientId, int transplantId, float compatibilityScore)
+    public async Task<IActionResult> Confirm(int patientId, int transplantId, int donorId, int compatibilityScore, CancellationToken cancellationToken)
     {
         try
         {
-            await transplantService.AssignDonorAsync(transplantId, patientId, compatibilityScore);
+            await transplantService.AssignDonorAsync(transplantId, donorId, compatibilityScore);
             TempData["SuccessMessage"] = "Organ donor assignment confirmed successfully.";
         }
         catch (Exception ex)
@@ -164,12 +138,16 @@ public class OrganDonorController : Controller
             TempData["ErrorMessage"] = ex.Message;
         }
 
-        return RedirectToAction("Index", "Patients", new { archived = true, selectedId = patientId });
+        DbPatient? patient = await patientService.GetByIdAsync(patientId, cancellationToken);
+        return RedirectToAction("Index", "Patients", new
+        {
+            archived = patient?.IsArchived ?? false,
+            selectedId = patientId
+        });
     }
 
-    private async Task<List<PatientListItemViewModel>> LoadCandidatePatientsAsync(
+    private async Task<List<PatientListItemViewModel>> LoadRecipientPatientsAsync(
         string? search,
-        bool includeDeceased,
         CancellationToken cancellationToken)
     {
         List<DbPatient> patients = await patientService.SearchPatientsAsync(new SearchPatientsRequest
@@ -179,10 +157,8 @@ public class OrganDonorController : Controller
         }, cancellationToken);
 
         return patients
-            .Where(patient => patient.IsDeceased == includeDeceased)
-            .OrderByDescending(patient => patient.IsDeceased)
-            .ThenByDescending(patient => patient.DateOfDeath)
-            .ThenBy(patient => patient.LastName)
+            .Where(patient => !patient.IsDeceased)
+            .OrderBy(patient => patient.LastName)
             .ThenBy(patient => patient.FirstName)
             .Select(patient => new PatientListItemViewModel
             {
@@ -199,5 +175,31 @@ public class OrganDonorController : Controller
                 IsDonor = patient.IsDonor
             })
             .ToList();
+    }
+
+    private static DbPatient ToDbPatient(SharedPatient patient)
+    {
+        return new DbPatient
+        {
+            PatientId = patient.PatientId,
+            FirstName = patient.FirstName,
+            LastName = patient.LastName,
+            Cnp = patient.Cnp,
+            DateOfBirth = patient.DateOfBirth,
+            DateOfDeath = patient.DateOfDeath,
+            Sex = Enum.Parse<Hospital.Data.Models.Sex>(patient.Sex.ToString()),
+            PhoneNumber = patient.PhoneNo,
+            EmergencyContact = patient.EmergencyContact,
+            IsArchived = patient.IsArchived,
+            IsDonor = patient.IsDonor,
+            Transferred = patient.Transferred,
+            MedicalHistory = patient.MedicalHistory is null
+                ? null
+                : new Hospital.Data.Models.MedicalHistory
+                {
+                    BloodType = patient.MedicalHistory.BloodType,
+                    Rh = patient.MedicalHistory.Rh
+                }
+        };
     }
 }

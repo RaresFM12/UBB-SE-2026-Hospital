@@ -32,7 +32,7 @@ public class BloodCompatibilityService(
 
         foreach (Patient donor in allPatients)
         {
-            if (donor.PatientId == recipientId || donor.IsDeceased)
+            if (donor.PatientId == recipientId || !donor.IsDeceased)
                 continue;
 
             donor.MedicalHistory = await historyRepository.GetByPatientIdAsync(donor.PatientId);
@@ -65,7 +65,14 @@ public class BloodCompatibilityService(
             Cnp = p.Cnp,
             DateOfBirth = p.DateOfBirth,
             Sex = (char)p.Sex,
-            IsArchived = p.IsArchived
+            IsArchived = p.IsArchived,
+            MedicalHistory = p.MedicalHistory is null
+                ? null
+                : new Hospital.Shared.Models.PatientEr.MedicalHistory
+                {
+                    BloodType = p.MedicalHistory.BloodType,
+                    Rh = p.MedicalHistory.Rh
+                }
         })
         .ToList();
     }

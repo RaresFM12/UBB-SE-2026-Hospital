@@ -1,18 +1,16 @@
 using Hospital.Web.Models.Patients;
+using Hospital.Web.Models.BloodCompatibility;
 
 namespace Hospital.Web.Models.Transplant;
 
 public class OrganDonorViewModel
 {
     public string? RecipientSearchQuery { get; set; }
-    public string? DonorSearchQuery { get; set; }
     public List<PatientListItemViewModel> RecipientPatients { get; set; } = new();
-    public List<PatientListItemViewModel> DonorPatients { get; set; } = new();
 
     public int PatientId { get; set; }
     public string PatientName { get; set; } = string.Empty;
-    public bool IsDonorRegistered { get; set; }
-    public bool IsDeceased { get; set; }
+    public int PendingTransplantId { get; set; }
 
     public string? SelectedOrgan { get; set; }
     public string? StatusMessage { get; set; }
@@ -23,5 +21,5 @@ public class OrganDonorViewModel
         "Kidney", "Heart", "Liver", "Lung", "Pancreas", "Cornea"
     };
 
-    public List<TransplantMatchViewModel> TopMatches { get; set; } = new();
+    public List<DonorMatchViewModel> TopDonors { get; set; } = new();
 }
