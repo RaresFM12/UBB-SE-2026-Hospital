@@ -14,6 +14,14 @@ namespace Hospital.Web.Controllers;
 [Authorize]
 public class OrganDonorController : Controller
 {
+    private const int NoCompatibilityScore = 0;
+    private const int ExactBloodRhMatchScore = 50;
+    private const int PartialBloodRhMatchScore = 25;
+    private const int MaxAgeScore = 30;
+    private const int AgeScoreStepYears = 5;
+    private const int SameSexScore = 20;
+    private const int DifferentSexScore = 10;
+
     private readonly IBloodCompatibilityService bloodCompatibilityService;
     private readonly ITransplantService transplantService;
     private readonly IPatientService patientService;
@@ -108,7 +116,7 @@ public class OrganDonorController : Controller
                 Cnp = donor.Cnp,
                 BloodType = donor.MedicalHistory?.BloodType?.ToString() ?? "Unknown",
                 RhFactor = donor.MedicalHistory?.Rh?.ToString() ?? "Unknown",
-                Score = bloodCompatibilityService.CalculateScore(ToDbPatient(donor), ToDbPatient(recipientDetails))
+                Score = CalculateDisplayScore(donor, recipientDetails)
             }).ToList();
 
             if (model.TopDonors.Count == 0)
@@ -177,29 +185,27 @@ public class OrganDonorController : Controller
             .ToList();
     }
 
-    private static DbPatient ToDbPatient(SharedPatient patient)
+    private static int CalculateDisplayScore(SharedPatient donor, SharedPatient recipient)
     {
-        return new DbPatient
+        if (donor.MedicalHistory is null || recipient.MedicalHistory is null)
         {
-            PatientId = patient.PatientId,
-            FirstName = patient.FirstName,
-            LastName = patient.LastName,
-            Cnp = patient.Cnp,
-            DateOfBirth = patient.DateOfBirth,
-            DateOfDeath = patient.DateOfDeath,
-            Sex = Enum.Parse<Hospital.Data.Models.Sex>(patient.Sex.ToString()),
-            PhoneNumber = patient.PhoneNo,
-            EmergencyContact = patient.EmergencyContact,
-            IsArchived = patient.IsArchived,
-            IsDonor = patient.IsDonor,
-            Transferred = patient.Transferred,
-            MedicalHistory = patient.MedicalHistory is null
-                ? null
-                : new Hospital.Data.Models.MedicalHistory
-                {
-                    BloodType = patient.MedicalHistory.BloodType,
-                    Rh = patient.MedicalHistory.Rh
-                }
-        };
+            return NoCompatibilityScore;
+        }
+
+        int total = donor.MedicalHistory.BloodType == recipient.MedicalHistory.BloodType
+            && donor.MedicalHistory.Rh == recipient.MedicalHistory.Rh
+            ? ExactBloodRhMatchScore
+            : PartialBloodRhMatchScore;
+
+        int ageGap = Math.Abs(donor.DateOfBirth.Year - recipient.DateOfBirth.Year);
+        total += Math.Max(NoCompatibilityScore, MaxAgeScore - (ageGap / AgeScoreStepYears * AgeScoreStepYears));
+
+        char donorSex = char.ToUpperInvariant(donor.Sex);
+        char recipientSex = char.ToUpperInvariant(recipient.Sex);
+        total += donorSex != '\0' && recipientSex != '\0' && donorSex == recipientSex
+            ? SameSexScore
+            : DifferentSexScore;
+
+        return total;
     }
 }
