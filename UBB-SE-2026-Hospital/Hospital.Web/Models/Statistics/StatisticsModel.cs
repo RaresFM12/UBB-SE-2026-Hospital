@@ -7,6 +7,8 @@ public enum StatisticsType
     TopDiagnoses,
     TopMedications,
     Demographics,
+    TopItems,
+    TopSubstances,
 }
 
 public class StatisticsModel

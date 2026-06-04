@@ -1,90 +1,68 @@
-namespace Hospital.Web.Controllers
+using Hospital.Shared.Services;
+using Hospital.Web.Models.Statistics;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Hospital.Web.Controllers;
+
+[Authorize(Roles = "Admin")]
+public class StatisticsController : Controller
 {
-    using System;
-    using System.Collections.Generic;
-    using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Mvc;
-    using Hospital.Shared.Services;
-    using Hospital.Web.Models;
+    private readonly IStatisticsService statisticsService;
+    private readonly IAdminService adminService;
 
-    [Authorize(Roles = "Admin")]
-    public class StatisticsController : Controller
+    public StatisticsController(IStatisticsService statisticsService, IAdminService adminService)
     {
-        private readonly IAdminService adminService;
+        this.statisticsService = statisticsService;
+        this.adminService = adminService;
+    }
 
-        public StatisticsController(IAdminService adminService)
+    [HttpGet]
+    public async Task<IActionResult> Index(string? type, CancellationToken cancellationToken = default)
+    {
+        StatisticsType selectedType = StatisticsViewModel.FromKey(type);
+        StatisticsModel model = await BuildModelAsync(selectedType, cancellationToken);
+        return View(StatisticsViewModel.FromModel(model));
+    }
+
+    private async Task<StatisticsModel> BuildModelAsync(StatisticsType type, CancellationToken cancellationToken)
+    {
+        var model = new StatisticsModel { SelectedType = type };
+
+        try
         {
-            this.adminService = adminService;
-        }
-
-        [HttpGet]
-        public IActionResult Index()
-        {
-            List<Tuple<int, string, int>> rawTopItems = this.adminService.GetTop30Items();
-            Dictionary<string, int> topSubstances = this.adminService.GetTop30Substances();
-
-            TopItemViewModel MapTupleToTopItemViewModel(Tuple<int, string, int> tuple) =>
-                new TopItemViewModel
-                {
-                    ItemId = tuple.Item1,
-                    ItemName = tuple.Item2,
-                    OrderCount = tuple.Item3,
-                };
-
-            var viewModel = new AdminStatisticsViewModel
+            switch (type)
             {
-                TopItems = rawTopItems.ConvertAll(MapTupleToTopItemViewModel),
-                TopSubstances = topSubstances,
-            };
-
-            return this.View(viewModel);
+                case StatisticsType.ConsultationSource:
+                    model.PrimaryData = await statisticsService.GetConsultationDistributionAsync();
+                    break;
+                case StatisticsType.TopDiagnoses:
+                    model.PrimaryData = await statisticsService.GetTopDiagnosesAsync();
+                    break;
+                case StatisticsType.TopMedications:
+                    model.PrimaryData = await statisticsService.GetMostPrescribedMedsAsync();
+                    break;
+                case StatisticsType.Demographics:
+                    model.PrimaryData = await statisticsService.GetPatientGenderDistributionAsync();
+                    model.SecondaryData = await statisticsService.GetAgeDistributionAsync();
+                    break;
+                case StatisticsType.TopItems:
+                    model.PrimaryData = adminService.GetTop30Items()
+                        .ToDictionary(t => t.Item2, t => t.Item3);
+                    break;
+                case StatisticsType.TopSubstances:
+                    model.PrimaryData = adminService.GetTop30Substances();
+                    break;
+                default:
+                    model.PrimaryData = await statisticsService.GetActiveVsArchivedRatioAsync();
+                    break;
+            }
         }
-
-        [HttpGet]
-        public IActionResult Details(int id)
+        catch (Exception ex)
         {
-            return this.View();
+            model.ErrorMessage = $"Could not load statistics: {ex.Message}";
         }
 
-        [HttpGet]
-        public IActionResult Create()
-        {
-            return this.View();
-        }
-
-        [HttpPost]
-        [ActionName("Create")]
-        [ValidateAntiForgeryToken]
-        public IActionResult CreatePost()
-        {
-            return this.RedirectToAction(nameof(this.Index));
-        }
-
-        [HttpGet]
-        public IActionResult Edit(int id)
-        {
-            return this.View();
-        }
-
-        [HttpPost]
-        [ActionName("Edit")]
-        [ValidateAntiForgeryToken]
-        public IActionResult EditPost(int id)
-        {
-            return this.RedirectToAction(nameof(this.Index));
-        }
-
-        [HttpGet]
-        public IActionResult Delete(int id)
-        {
-            return this.View();
-        }
-
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
-        {
-            return this.RedirectToAction(nameof(this.Index));
-        }
+        return model;
     }
 }

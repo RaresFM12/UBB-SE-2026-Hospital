@@ -7,7 +7,7 @@ namespace Hospital.Services.PatientEr;
 public class StatisticsService(
     IPatientRepository patientRepository,
     IMedicalRecordRepository recordRepository,
-    IPrescriptionRepository prescriptionRepository) : IStatisticsService
+    IPrescriptionRepository prescriptionRepository) : Hospital.Shared.Services.IStatisticsService
 {
     public async Task<Dictionary<string, int>> GetPatientsByBloodTypeAsync()
     {
