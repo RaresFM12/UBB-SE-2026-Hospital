@@ -13,6 +13,9 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
     public async Task<Prescription?> GetByIdAsync(int prescriptionId)
         => await context.Prescriptions
             .Include(p => p.MedicationList)
+            .Include(p => p.MedicalRecord)
+                .ThenInclude(r => r.MedicalHistory)
+                    .ThenInclude(h => h.Patient)
             .FirstOrDefaultAsync(p => p.PrescriptionId == prescriptionId);
 
     public async Task<List<Prescription>> GetAllAsync()
@@ -24,6 +27,9 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
     {
         var query = context.Prescriptions
             .Include(p => p.MedicationList)
+            .Include(p => p.MedicalRecord)
+                .ThenInclude(r => r.MedicalHistory)
+                    .ThenInclude(h => h.Patient)
             .AsQueryable();
 
         if (filter.PrescriptionId.HasValue)
@@ -35,8 +41,19 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
         if (filter.DateTo.HasValue)
             query = query.Where(p => p.Date <= filter.DateTo.Value);
 
-        if (!string.IsNullOrWhiteSpace(filter.DoctorName))
-            query = query.Where(p => p.DoctorName.Contains(filter.DoctorName));
+        if (!string.IsNullOrWhiteSpace(filter.PatientName))
+        {
+            var name = filter.PatientName;
+            query = query.Where(p =>
+                (p.MedicalRecord.MedicalHistory.Patient.FirstName + " " + p.MedicalRecord.MedicalHistory.Patient.LastName)
+                    .Contains(name));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.MedicationName))
+        {
+            var medication = filter.MedicationName;
+            query = query.Where(p => p.MedicationList.Any(m => m.MedicationName.Contains(medication)));
+        }
 
         return await query.ToListAsync();
     }
@@ -74,6 +91,9 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
     public async Task<List<Prescription>> GetTopNAsync(int n, int page)
         => await context.Prescriptions
             .Include(p => p.MedicationList)
+            .Include(p => p.MedicalRecord)
+                .ThenInclude(r => r.MedicalHistory)
+                    .ThenInclude(h => h.Patient)
             .OrderByDescending(p => p.Date)
             .Skip((page - 1) * n)
             .Take(n)

@@ -12,7 +12,7 @@ public class PatientServiceTests
     public async Task GetPatientsAsync_ReturnsRepositoryResults()
     {
         var repository = new FakePatientRepository();
-        var service = new PatientService(repository);
+        var service = new PatientService(repository, null!, null!, null!);
 
         var patients = await service.GetPatientsAsync();
 

@@ -16,7 +16,7 @@ namespace Hospital.Tests.Services
         {
             var repo = new Mock<IPatientRepository>();
             repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Patient>());
-            var svc = new PatientService(repo.Object);
+            var svc = new PatientService(repo.Object, null!, null!, null!);
             var res = await svc.GetPatientsAsync();
             Assert.AreEqual(0, res.Count);
         }
@@ -26,7 +26,7 @@ namespace Hospital.Tests.Services
         {
             var repo = new Mock<IPatientRepository>();
             repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Patient> { new Patient { PatientId = 1, FirstName = "Ana", LastName = "Pop" } });
-            var svc = new PatientService(repo.Object);
+            var svc = new PatientService(repo.Object, null!, null!, null!);
             var res = await svc.GetPatientsAsync();
             Assert.AreEqual(1, res.Count);
         }
