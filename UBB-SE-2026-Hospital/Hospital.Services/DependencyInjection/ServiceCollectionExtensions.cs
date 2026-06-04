@@ -43,6 +43,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IHangoutService, HangoutService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IPharmacyHandoverService, PharmacyHandoverService>();
+        services.AddScoped<IPeriodTrackerService, PeriodTrackerService>();
+        
 
         return services;
     }

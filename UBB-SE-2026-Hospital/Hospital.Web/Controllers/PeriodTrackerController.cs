@@ -1,11 +1,14 @@
+using Hospital.Data.Models;
+using Hospital.Services.StaffPharmacy;
+using Hospital.Shared.Models;
+using Hospital.Shared.Services;
+using Hospital.Web.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Hospital.Data.Models;
-using Hospital.Shared.Services;
-using Hospital.Web.Models;
+using System.Threading.Tasks;
 
 namespace Hospital.Web.Controllers
 {
@@ -31,28 +34,37 @@ namespace Hospital.Web.Controllers
             _basketService = basketService;
         }
 
+        private int GetCurrentUserId()
+        {
+            string? idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return int.TryParse(idClaim, out int userId) ? userId : 0;
+        }
+
         [HttpGet]
         public IActionResult Index(int monthOffset = 0)
         {
-            return View(ToViewModel(_periodTrackerService.GetDashboardSnapshot(monthOffset)));
+            int userId = GetCurrentUserId();
+            return View(ToViewModel(_periodTrackerService.GetDashboardSnapshot(userId, monthOffset)));
         }
 
         [HttpGet]
         public IActionResult Details(int id = 0)
         {
-            var state = _periodTrackerService.GetTrackerState();
+            int userId = GetCurrentUserId();
+            var state = _periodTrackerService.GetTrackerState(userId);
             if (!state.HasPeriodTracker)
             {
                 return RedirectToAction(nameof(Create));
             }
 
-            return View(ToViewModel(_periodTrackerService.GetDashboardSnapshot(0)));
+            return View(ToViewModel(_periodTrackerService.GetDashboardSnapshot(userId, 0)));
         }
 
         [HttpGet]
         public IActionResult Create()
         {
-            var state = _periodTrackerService.GetTrackerState();
+            int userId = GetCurrentUserId();
+            var state = _periodTrackerService.GetTrackerState(userId);
             if (state.HasPeriodTracker) return RedirectToAction(nameof(Index));
 
             return View(new PeriodTrackerViewModel());
@@ -62,7 +74,6 @@ namespace Hospital.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(PeriodTrackerInputModel inputModel)
         {
-
             if (IsInvalidTrackerInput(inputModel))
             {
                 return View(new PeriodTrackerViewModel
@@ -74,15 +85,17 @@ namespace Hospital.Web.Controllers
                 });
             }
 
-            _periodTrackerService.UpdatePeriodTracker(inputModel.StartPeriodDate, inputModel.CycleDays, inputModel.PeriodLasts, inputModel.PMSOption);
-            _periodTrackerService.SaveCurrentUser();
+            int userId = GetCurrentUserId();
+            _periodTrackerService.UpdatePeriodTracker(userId, inputModel.StartPeriodDate, inputModel.CycleDays, inputModel.PeriodLasts, inputModel.PMSOption);
+
             return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
         public IActionResult Edit(int id = 0)
         {
-            var state = _periodTrackerService.GetTrackerState();
+            int userId = GetCurrentUserId();
+            var state = _periodTrackerService.GetTrackerState(userId);
             if (!state.HasPeriodTracker)
             {
                 return RedirectToAction(nameof(Create));
@@ -106,15 +119,17 @@ namespace Hospital.Web.Controllers
                 });
             }
 
-            _periodTrackerService.UpdatePeriodTracker(inputModel.StartPeriodDate, inputModel.CycleDays, inputModel.PeriodLasts, inputModel.PMSOption);
-            _periodTrackerService.SaveCurrentUser();
+            int userId = GetCurrentUserId();
+            _periodTrackerService.UpdatePeriodTracker(userId, inputModel.StartPeriodDate, inputModel.CycleDays, inputModel.PeriodLasts, inputModel.PMSOption);
+
             return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
         public IActionResult Delete(int id = 0)
         {
-            var state = _periodTrackerService.GetTrackerState();
+            int userId = GetCurrentUserId();
+            var state = _periodTrackerService.GetTrackerState(userId);
             if (!state.HasPeriodTracker)
             {
                 return RedirectToAction(nameof(Index));
@@ -128,15 +143,15 @@ namespace Hospital.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id = 0)
         {
-            _periodTrackerService.UpdatePeriodTracker(DateTimeOffset.MinValue, 0, 0, 0);
+            int userId = GetCurrentUserId();
+            _periodTrackerService.UpdatePeriodTracker(userId, DateTimeOffset.MinValue, 0, 0, 0);
 
-            var existingNotes = _periodTrackerService.GetNotes();
+            var existingNotes = _periodTrackerService.GetNotes(userId);
             foreach (var noteId in existingNotes.Keys.ToList())
             {
-                _periodTrackerService.DeleteNote(noteId);
+                _periodTrackerService.DeleteNote(userId, noteId);
             }
 
-            _periodTrackerService.SaveCurrentUser();
             return RedirectToAction(nameof(Index));
         }
 
@@ -144,8 +159,8 @@ namespace Hospital.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult CreateNote([FromForm] string noteBody)
         {
-            _periodTrackerService.AddNote(noteBody ?? "New Entry");
-            _periodTrackerService.SaveCurrentUser();
+            int userId = GetCurrentUserId();
+            _periodTrackerService.AddNote(userId, noteBody ?? "New Entry");
             return RedirectToAction(nameof(Index));
         }
 
@@ -153,8 +168,8 @@ namespace Hospital.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult EditNote([FromForm] int noteId, [FromForm] string noteBody, [FromForm] bool isDone = false)
         {
-            _periodTrackerService.UpdateNote(noteId, noteBody ?? string.Empty, isDone);
-            _periodTrackerService.SaveCurrentUser();
+            int userId = GetCurrentUserId();
+            _periodTrackerService.UpdateNote(userId, noteId, noteBody ?? string.Empty, isDone);
             return RedirectToAction(nameof(Index));
         }
 
@@ -162,8 +177,8 @@ namespace Hospital.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult RemoveNote([FromForm] int noteId)
         {
-            _periodTrackerService.DeleteNote(noteId);
-            _periodTrackerService.SaveCurrentUser();
+            int userId = GetCurrentUserId();
+            _periodTrackerService.DeleteNote(userId, noteId);
             return RedirectToAction(nameof(Index));
         }
 
@@ -171,8 +186,8 @@ namespace Hospital.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddProductToBasket(int itemId, float discountPercentage)
         {
-            string? idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (!int.TryParse(idClaim, out int userId))
+            int userId = GetCurrentUserId();
+            if (userId == 0)
             {
                 return Forbid();
             }
