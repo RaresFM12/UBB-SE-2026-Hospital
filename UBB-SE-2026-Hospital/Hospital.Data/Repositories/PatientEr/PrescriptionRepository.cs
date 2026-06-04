@@ -24,6 +24,11 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
     {
         var query = context.Prescriptions
             .Include(p => p.MedicationList)
+            .Include(p => p.MedicalRecord)
+                .ThenInclude(r => r.MedicalHistory)
+                    .ThenInclude(mh => mh.Patient)
+            .Include(p => p.MedicalRecord)
+                .ThenInclude(r => r.StaffMember)
             .AsQueryable();
 
         if (filter.PrescriptionId.HasValue)
@@ -36,7 +41,18 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
             query = query.Where(p => p.Date <= filter.DateTo.Value);
 
         if (!string.IsNullOrWhiteSpace(filter.DoctorName))
-            query = query.Where(p => p.DoctorName.Contains(filter.DoctorName));
+            query = query.Where(p =>
+                p.MedicalRecord.StaffMember.FirstName.Contains(filter.DoctorName) ||
+                p.MedicalRecord.StaffMember.LastName.Contains(filter.DoctorName));
+
+        if (!string.IsNullOrWhiteSpace(filter.PatientName))
+            query = query.Where(p =>
+                p.MedicalRecord.MedicalHistory.Patient.FirstName.Contains(filter.PatientName) ||
+                p.MedicalRecord.MedicalHistory.Patient.LastName.Contains(filter.PatientName));
+
+        if (!string.IsNullOrWhiteSpace(filter.MedicationName))
+            query = query.Where(p =>
+                p.MedicationList.Any(i => i.MedicationName.Contains(filter.MedicationName)));
 
         return await query.ToListAsync();
     }
@@ -62,6 +78,11 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
     public async Task<List<Prescription>> GetTopNAsync(int n, int page)
         => await context.Prescriptions
             .Include(p => p.MedicationList)
+            .Include(p => p.MedicalRecord)
+                .ThenInclude(r => r.MedicalHistory)
+                    .ThenInclude(mh => mh.Patient)
+            .Include(p => p.MedicalRecord)
+                .ThenInclude(r => r.StaffMember)
             .OrderByDescending(p => p.Date)
             .Skip((page - 1) * n)
             .Take(n)

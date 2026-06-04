@@ -1,4 +1,7 @@
+using System.Globalization;
+using System.Text;
 using Hospital.Data.Models;
+using Hospital.Data.Repositories;
 using Hospital.Web.Models.Pharmacist;
 using Hospital.Web.Models.Prescription;
 using Hospital.Web.Services;
@@ -11,16 +14,25 @@ namespace Hospital.Web.Controllers;
 public class PharmacistController : Controller
 {
     private const int MissingPatientId = 0;
+    private const int AddictMinimumMedications = 2;
+    private const int AddictPrescriptionFetchLimit = 1000;
+
+    // In-memory tracking of patients already reported to police.
+    // Keyed by prescription id (used as the candidate id in this mode).
+    private static readonly HashSet<int> NotifiedCandidateIds = new();
 
     private readonly IPrescriptionApiClient prescriptionApiClient;
     private readonly IAddictDetectionApiClient addictDetectionApiClient;
+    private readonly IPrescriptionRepository prescriptionRepository;
 
     public PharmacistController(
         IPrescriptionApiClient prescriptionApiClient,
-        IAddictDetectionApiClient addictDetectionApiClient)
+        IAddictDetectionApiClient addictDetectionApiClient,
+        IPrescriptionRepository prescriptionRepository)
     {
         this.prescriptionApiClient = prescriptionApiClient;
         this.addictDetectionApiClient = addictDetectionApiClient;
+        this.prescriptionRepository = prescriptionRepository;
     }
 
     [HttpGet]
@@ -73,31 +85,27 @@ public class PharmacistController : Controller
     [HttpGet]
     public async Task<IActionResult> Addicts()
     {
-        List<Patient> candidates;
-        try
-        {
-            candidates = await addictDetectionApiClient.GetCandidatesAsync(HttpContext.RequestAborted);
-        }
-        catch (InvalidOperationException ex)
-        {
-            TempData["ErrorMessage"] = ex.Message;
-            candidates = new List<Patient>();
-        }
+        // Pull straight from the DB via the repository — no API hop.
+        // GetTopNAsync eager-loads MedicationList AND the Patient navigation.
+        List<Prescription> prescriptions = await prescriptionRepository
+            .GetTopNAsync(AddictPrescriptionFetchLimit, 1);
 
-        var model = new AddictListViewModel
-        {
-            Candidates = candidates
-                .Where(patient => !patient.IsPoliceNotified)
-                .Select(patient => new AddictCandidateViewModel
-                {
-                    Id = patient.PatientId,
-                    FirstName = patient.FirstName,
-                    LastName = patient.LastName,
-                    IsPoliceNotified = patient.IsPoliceNotified
-                })
-                .ToList()
-        };
+        // Addict = patient whose prescription contains 2+ medications.
+        var candidates = prescriptions
+            .Where(p => p.MedicationList != null && p.MedicationList.Count >= AddictMinimumMedications)
+            .Where(p => !NotifiedCandidateIds.Contains(p.PrescriptionId))
+            .Select(p => new AddictCandidateViewModel
+            {
+                Id = p.PrescriptionId,
+                FirstName = string.IsNullOrWhiteSpace(p.PatientName)
+                    ? $"Patient on Prescription #{p.PrescriptionId}"
+                    : p.PatientName,
+                LastName = string.Empty,
+                IsPoliceNotified = false
+            })
+            .ToList();
 
+        var model = new AddictListViewModel { Candidates = candidates };
         return View(model);
     }
 
@@ -105,23 +113,22 @@ public class PharmacistController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> BuildPoliceReport(int patientId)
     {
-        try
+        // `patientId` is the prescription id of the flagged candidate.
+        // Use GetFilteredAsync so the Patient navigation is loaded.
+        var filter = new Hospital.Data.Models.DTOs.PrescriptionFilter { PrescriptionId = patientId };
+        var matches = await prescriptionRepository.GetFilteredAsync(filter);
+        Prescription? prescription = matches.FirstOrDefault();
+
+        if (prescription is null)
         {
-            string report = await addictDetectionApiClient.BuildPoliceReportAsync(patientId, HttpContext.RequestAborted);
-            TempData["PoliceReportText"] = report;
-            TempData["PoliceReportPatientId"] = patientId;
-            return RedirectToAction(nameof(PoliceAlert));
-        }
-        catch (ArgumentException ex)
-        {
-            TempData["ErrorMessage"] = ex.Message;
+            TempData["ErrorMessage"] = $"Prescription #{patientId} not found.";
             return RedirectToAction(nameof(Addicts));
         }
-        catch (InvalidOperationException ex)
-        {
-            TempData["ErrorMessage"] = ex.Message;
-            return RedirectToAction(nameof(Addicts));
-        }
+
+        string report = BuildPoliceReportText(prescription);
+        TempData["PoliceReportText"] = report;
+        TempData["PoliceReportPatientId"] = patientId;
+        return RedirectToAction(nameof(PoliceAlert));
     }
 
     [HttpGet]
@@ -148,23 +155,50 @@ public class PharmacistController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ConfirmPoliceReport(int patientId, string reportText)
+    public IActionResult ConfirmPoliceReport(int patientId, string reportText)
     {
-        try
-        {
-            await addictDetectionApiClient.MarkPoliceNotifiedAsync(patientId, HttpContext.RequestAborted);
-        }
-        catch (InvalidOperationException ex)
-        {
-            TempData["ErrorMessage"] = ex.Message;
-            TempData["PoliceReportText"] = reportText;
-            TempData["PoliceReportPatientId"] = patientId;
-            return RedirectToAction(nameof(PoliceAlert));
-        }
+        NotifiedCandidateIds.Add(patientId);
 
         TempData["PoliceReportText"] = reportText;
         TempData["PoliceReportPatientId"] = patientId;
         TempData["PoliceReportSent"] = true;
         return RedirectToAction(nameof(PoliceAlert));
+    }
+
+    private static string BuildPoliceReportText(Prescription prescription)
+    {
+        const string reportHeader =
+            "==================================================\n" +
+            "           LAW ENFORCEMENT ALERT REPORT           \n" +
+            "==================================================";
+        const string reportFooter =
+            "--------------------------------------------------\n" +
+            "SUSPICIOUS ACTIVITY: SUSPECTED DRUG SHOPPING BEHAVIOR\n" +
+            "CRITERIA MET: PRESCRIPTION CONTAINS 2 OR MORE MEDICATIONS\n" +
+            "--- SUPPORTING EVIDENCE (PRESCRIPTION) ---";
+        const string reportPharmacistFooter =
+            "==================================================\n" +
+            "ACTION REQUIRED: AWAITING PHARMACIST CONFIRMATION.";
+
+        string patientLabel = string.IsNullOrWhiteSpace(prescription.PatientName)
+            ? $"Patient on Prescription #{prescription.PrescriptionId}"
+            : prescription.PatientName;
+
+        string medications = prescription.MedicationList is { Count: > 0 }
+            ? string.Join(", ", prescription.MedicationList.Select(m => m.MedicationName))
+            : "Unknown";
+
+        var builder = new StringBuilder();
+        _ = builder.AppendLine(reportHeader)
+            .AppendLine(CultureInfo.InvariantCulture, $"DATE GENERATED: {DateTime.Now:yyyy-MM-dd HH:mm}")
+            .AppendLine(CultureInfo.InvariantCulture, $"SUBJECT: {patientLabel}")
+            .AppendLine(CultureInfo.InvariantCulture, $"DOCTOR: {prescription.DoctorName}")
+            .AppendLine(reportFooter)
+            .AppendLine(CultureInfo.InvariantCulture, $"[1] Prescription ID: {prescription.PrescriptionId} | Date: {prescription.Date:yyyy-MM-dd}")
+            .AppendLine(CultureInfo.InvariantCulture, $"    Dispensed Drugs ({prescription.MedicationList?.Count ?? 0}): {medications}")
+            .AppendLine(string.Empty)
+            .AppendLine(reportPharmacistFooter);
+
+        return builder.ToString();
     }
 }
