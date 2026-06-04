@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Hospital.Data.Models;
+using Hospital.Data.Models.DTOs;
 using Hospital.Web.Models.Admin;
 using Hospital.Web.Models.Patients;
 using Hospital.Shared.Services;
@@ -13,6 +14,7 @@ using Patient = Hospital.Shared.Models.PatientEr.Patient;
 using MedicalRecord = Hospital.Shared.Models.PatientEr.MedicalRecord;
 using PatientProfileViewModel = Hospital.Web.Models.Patient.PatientProfileViewModel;
 using DbPatient = Hospital.Data.Models.Patient;
+using Hospital.Services.PatientEr;
 
 namespace Hospital.Web.Controllers;
 
@@ -25,37 +27,18 @@ public class PatientsController : Controller
     private const int NoDiscountApplied = 0;
 
     private readonly IPatientService _patientService;
+    private readonly IAllergyService _allergyService;
 
-    public PatientsController(IPatientService patientService)
+    public PatientsController(IPatientService patientService, IAllergyService allergyService)
     {
         _patientService = patientService;
+        _allergyService = allergyService;
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index(string? search, int? minAge, int? maxAge, Sex? sex, bool archived = false, int? selectedId = null, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Index(string? search, int? minAge, int? maxAge, Sex? sex, bool archived = false, int? selectedId = null, bool create = false, CancellationToken cancellationToken = default)
     {
-        var searchResults = await SearchPatientsAsync(search, minAge, maxAge, sex, cancellationToken);
-        var visiblePatients = searchResults
-            .Where(p => p.IsArchived == archived)
-            .OrderBy(p => p.LastName)
-            .ThenBy(p => p.FirstName)
-            .ToList();
-
-        DbPatient? selectedPatient = selectedId.HasValue
-            ? visiblePatients.FirstOrDefault(p => p.PatientId == selectedId.Value) ?? await _patientService.GetByIdAsync(selectedId.Value, cancellationToken)
-            : null;
-
-        return View(new PatientsIndexViewModel
-        {
-            SearchQuery = search,
-            MinAge = minAge,
-            MaxAge = maxAge,
-            Sex = sex,
-            ShowArchived = archived,
-            SelectedPatientId = selectedPatient?.PatientId,
-            Patients = visiblePatients.Select(MapPatientListItem).ToList(),
-            SelectedPatient = selectedPatient is null ? null : MapEditPatient(selectedPatient)
-        });
+        return View(await BuildIndexViewModelAsync(search, minAge, maxAge, sex, archived, selectedId, create, null, cancellationToken));
     }
 
     [HttpGet]
@@ -111,6 +94,53 @@ public class PatientsController : Controller
         }
 
         return RedirectToAction(nameof(Index), BuildIndexRouteValues(searchQuery, minAge, maxAge, filterSex, archived, model.Id));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreatePatient([Bind(Prefix = "NewPatient")] CreatePatientViewModel model, string? searchQuery, int? minAge, int? maxAge, Sex? filterSex, bool archived, CancellationToken cancellationToken = default)
+    {
+        if (!ModelState.IsValid)
+            return View("Index", await BuildIndexViewModelAsync(searchQuery, minAge, maxAge, filterSex, archived, null, true, model, cancellationToken));
+
+        try
+        {
+            var patient = await _patientService.CreatePatientAsync(new CreatePatientRequest
+            {
+                FirstName = model.FirstName.Trim(),
+                LastName = model.LastName.Trim(),
+                Cnp = model.Cnp.Trim(),
+                DateOfBirth = model.Dob,
+                Sex = model.Sex,
+                PhoneNumber = model.PhoneNo.Trim(),
+                EmergencyContact = model.EmergencyContact.Trim(),
+                IsDonor = false
+            }, cancellationToken);
+
+            bool hasMedicalHistoryData = model.BloodType.HasValue ||
+                model.Rh.HasValue ||
+                !string.IsNullOrWhiteSpace(model.ChronicConditionsText) ||
+                model.AllergyIds.Count > 0;
+
+            if (hasMedicalHistoryData)
+            {
+                await _patientService.CreateMedicalHistoryAsync(patient.PatientId, new CreateMedicalHistoryRequest
+                {
+                    BloodType = model.BloodType,
+                    Rh = model.Rh,
+                    ChronicConditions = SplitConditions(model.ChronicConditionsText),
+                    AllergyIds = model.AllergyIds
+                }, cancellationToken);
+            }
+
+            TempData["SuccessMessage"] = $"Patient {patient.FullName} was created successfully.";
+            return RedirectToAction(nameof(Index), BuildIndexRouteValues(searchQuery, minAge, maxAge, filterSex, archived, patient.PatientId, false));
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            return View("Index", await BuildIndexViewModelAsync(searchQuery, minAge, maxAge, filterSex, archived, null, true, model, cancellationToken));
+        }
     }
 
     [HttpPost]
@@ -238,6 +268,46 @@ public class PatientsController : Controller
         return age;
     }
 
+    private async Task<PatientsIndexViewModel> BuildIndexViewModelAsync(
+        string? search,
+        int? minAge,
+        int? maxAge,
+        Sex? sex,
+        bool archived,
+        int? selectedId,
+        bool create,
+        CreatePatientViewModel? createPatient,
+        CancellationToken cancellationToken)
+    {
+        var searchResults = await SearchPatientsAsync(search, minAge, maxAge, sex, cancellationToken);
+        var visiblePatients = searchResults
+            .Where(p => p.IsArchived == archived)
+            .OrderBy(p => p.LastName)
+            .ThenBy(p => p.FirstName)
+            .ToList();
+
+        DbPatient? selectedPatient = selectedId.HasValue && !create
+            ? visiblePatients.FirstOrDefault(p => p.PatientId == selectedId.Value) ?? await _patientService.GetByIdAsync(selectedId.Value, cancellationToken)
+            : null;
+
+        var newPatient = createPatient ?? new CreatePatientViewModel();
+        await PopulateAvailableAllergiesAsync(newPatient);
+
+        return new PatientsIndexViewModel
+        {
+            SearchQuery = search,
+            MinAge = minAge,
+            MaxAge = maxAge,
+            Sex = sex,
+            ShowArchived = archived,
+            SelectedPatientId = selectedPatient?.PatientId,
+            ShowCreateForm = create,
+            Patients = visiblePatients.Select(MapPatientListItem).ToList(),
+            SelectedPatient = selectedPatient is null ? null : MapEditPatient(selectedPatient),
+            NewPatient = newPatient
+        };
+    }
+
     private async Task<List<DbPatient>> SearchPatientsAsync(string? q, int? min, int? max, Sex? s, CancellationToken ct) =>
         await _patientService.SearchPatientsAsync(new Hospital.Data.Models.DTOs.SearchPatientsRequest
         {
@@ -247,6 +317,19 @@ public class PatientsController : Controller
             Cnp = q?.All(char.IsDigit) == true && q.Length == 13 ? q : null,
             NamePart = q?.All(char.IsDigit) == false ? q : null
         }, ct);
+
+    private async Task PopulateAvailableAllergiesAsync(CreatePatientViewModel model)
+    {
+        var allergies = await _allergyService.GetAllergiesAsync();
+        model.AvailableAllergies = allergies
+            .OrderBy(allergy => allergy.AllergyName)
+            .Select(allergy => new AllergyOptionViewModel
+            {
+                Id = allergy.AllergyId,
+                Name = allergy.AllergyName
+            })
+            .ToList();
+    }
 
     private static PatientListItemViewModel MapPatientListItem(DbPatient patient) => new()
     {
@@ -278,7 +361,15 @@ public class PatientsController : Controller
         Transferred = patient.Transferred
     };
 
-    private static object BuildIndexRouteValues(string? searchQuery, int? minAge, int? maxAge, Sex? filterSex, bool archived, int? selectedId) =>
+    private static List<string> SplitConditions(string? text) =>
+        string.IsNullOrWhiteSpace(text)
+            ? new List<string>()
+            : text.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(condition => condition.Trim())
+                .Where(condition => !string.IsNullOrWhiteSpace(condition))
+                .ToList();
+
+    private static object BuildIndexRouteValues(string? searchQuery, int? minAge, int? maxAge, Sex? filterSex, bool archived, int? selectedId, bool create = false) =>
         new
         {
             search = searchQuery,
@@ -286,7 +377,8 @@ public class PatientsController : Controller
             maxAge,
             sex = filterSex,
             archived,
-            selectedId
+            selectedId,
+            create
         };
 
     private static string FormatPhoneNumber(string phone)

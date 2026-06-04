@@ -11,8 +11,10 @@ public class PatientsIndexViewModel
     public Sex? Sex { get; set; }
     public bool ShowArchived { get; set; }
     public int? SelectedPatientId { get; set; }
+    public bool ShowCreateForm { get; set; }
     public List<PatientListItemViewModel> Patients { get; set; } = new ();
     public EditPatientViewModel? SelectedPatient { get; set; }
+    public CreatePatientViewModel NewPatient { get; set; } = new();
 
     public bool IsActiveMode => !ShowArchived;
     public bool IsArchivedMode => ShowArchived;

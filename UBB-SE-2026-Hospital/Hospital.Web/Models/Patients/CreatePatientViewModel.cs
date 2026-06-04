@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Hospital.Data.Models;
+using Hospital.Web.Models.Admin;
 
 namespace Hospital.Web.Models.Patients;
 
@@ -36,6 +37,19 @@ public class CreatePatientViewModel : IValidatableObject
     [Display(Name = "Emergency contact")]
     public string EmergencyContact { get; set; } = string.Empty;
 
+    [Display(Name = "Blood type")]
+    public BloodType? BloodType { get; set; }
+
+    [Display(Name = "RH factor")]
+    public Rh? Rh { get; set; }
+
+    [Display(Name = "Chronic conditions")]
+    public string ChronicConditionsText { get; set; } = string.Empty;
+
+    public List<int> AllergyIds { get; set; } = new();
+
+    public List<AllergyOptionViewModel> AvailableAllergies { get; set; } = new();
+
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         if (string.IsNullOrWhiteSpace(FirstName))
@@ -53,9 +67,9 @@ public class CreatePatientViewModel : IValidatableObject
             yield return new ValidationResult("Phone must be 10 digits", new[] { nameof(PhoneNo) });
         }
 
-        if (!IsTenDigitPhone(EmergencyContact))
+        if (string.IsNullOrWhiteSpace(EmergencyContact))
         {
-            yield return new ValidationResult("Emergency contact must be 10 digits", new[] { nameof(EmergencyContact) });
+            yield return new ValidationResult("Emergency contact is required", new[] { nameof(EmergencyContact) });
         }
     }
 

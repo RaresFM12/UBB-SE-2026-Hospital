@@ -43,6 +43,19 @@
                class="btn @(Model.IsArchivedMode ? "btn-dark" : "btn-outline-dark")">
                 Archived / Deceased
             </a>
+            @if (Model.IsActiveMode)
+            {
+                <a asp-action="Index"
+                   asp-route-search="@Model.SearchQuery"
+                   asp-route-minAge="@Model.MinAge"
+                   asp-route-maxAge="@Model.MaxAge"
+                   asp-route-sex="@Model.Sex"
+                   asp-route-archived="false"
+                   asp-route-create="true"
+                   class="btn @(Model.ShowCreateForm ? "btn-primary" : "btn-outline-primary")">
+                    Add Patient
+                </a>
+            }
         </div>
 
         <form method="get" class="row g-3">
@@ -140,9 +153,124 @@
             <div class="card-body">
                 @if (Model.SelectedPatient is null)
                 {
-                    <div class="text-muted">Select a patient to open the update panel.</div>
+                    @if (!Model.ShowCreateForm)
+                    {
+                        <div class="text-muted">Select a patient to open the update panel.</div>
+                    }
                 }
-                else
+
+                @if (Model.ShowCreateForm && Model.IsActiveMode)
+                {
+                    <h2 class="h4 mb-3">Add Patient</h2>
+                    <form asp-action="CreatePatient" method="post" autocomplete="off">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="searchQuery" value="@Model.SearchQuery" />
+                        <input type="hidden" name="minAge" value="@Model.MinAge" />
+                        <input type="hidden" name="maxAge" value="@Model.MaxAge" />
+                        <input type="hidden" name="filterSex" value="@Model.Sex" />
+                        <input type="hidden" name="archived" value="@Model.ShowArchived.ToString().ToLowerInvariant()" />
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="NewPatient.FirstName" class="form-label"></label>
+                            <input asp-for="NewPatient.FirstName" class="form-control" />
+                            <span asp-validation-for="NewPatient.FirstName" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="NewPatient.LastName" class="form-label"></label>
+                            <input asp-for="NewPatient.LastName" class="form-control" />
+                            <span asp-validation-for="NewPatient.LastName" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="NewPatient.Dob" class="form-label"></label>
+                            <input asp-for="NewPatient.Dob" class="form-control" type="date" />
+                            <span asp-validation-for="NewPatient.Dob" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="NewPatient.Sex" class="form-label"></label>
+                            <select asp-for="NewPatient.Sex" asp-items="Html.GetEnumSelectList<Sex>()" class="form-select"></select>
+                            <span asp-validation-for="NewPatient.Sex" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="NewPatient.Cnp" class="form-label"></label>
+                            <input asp-for="NewPatient.Cnp" class="form-control" maxlength="13" />
+                            <span asp-validation-for="NewPatient.Cnp" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="NewPatient.PhoneNo" class="form-label"></label>
+                            <input asp-for="NewPatient.PhoneNo" class="form-control" maxlength="10" />
+                            <span asp-validation-for="NewPatient.PhoneNo" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="NewPatient.EmergencyContact" class="form-label"></label>
+                            <input asp-for="NewPatient.EmergencyContact" class="form-control" placeholder="e.g. Jane Doe 0712345678" />
+                            <span asp-validation-for="NewPatient.EmergencyContact" class="text-danger"></span>
+                        </div>
+
+                        <hr class="my-4" />
+                        <h3 class="h6 text-uppercase text-muted mb-3">Medical History</h3>
+
+                        <div class="mb-3">
+                            <label asp-for="NewPatient.BloodType" class="form-label"></label>
+                            <select asp-for="NewPatient.BloodType" asp-items="Html.GetEnumSelectList<BloodType>()" class="form-select">
+                                <option value="">Not set</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="NewPatient.Rh" class="form-label"></label>
+                            <select asp-for="NewPatient.Rh" asp-items="Html.GetEnumSelectList<Rh>()" class="form-select">
+                                <option value="">Not set</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="NewPatient.ChronicConditionsText" class="form-label"></label>
+                            <textarea asp-for="NewPatient.ChronicConditionsText" class="form-control" rows="3" placeholder="e.g. diabetes, asthma, hypertension"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Allergies</label>
+                            <div class="border rounded p-3 bg-light-subtle">
+                                @if (Model.NewPatient.AvailableAllergies.Count == 0)
+                                {
+                                    <div class="text-muted">No allergies available.</div>
+                                }
+                                else
+                                {
+                                    <div class="row g-2">
+                                        @foreach (var allergy in Model.NewPatient.AvailableAllergies)
+                                        {
+                                            <div class="col-12">
+                                                <div class="form-check">
+                                                    <input class="form-check-input"
+                                                           type="checkbox"
+                                                           name="NewPatient.AllergyIds"
+                                                           value="@allergy.Id"
+                                                           id="new-allergy-@allergy.Id"
+                                                           @(Model.NewPatient.AllergyIds.Contains(allergy.Id) ? "checked" : null) />
+                                                    <label class="form-check-label" for="new-allergy-@allergy.Id">@allergy.Name</label>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary flex-fill">Create Patient</button>
+                            <a asp-action="Index"
+                               asp-route-search="@Model.SearchQuery"
+                               asp-route-minAge="@Model.MinAge"
+                               asp-route-maxAge="@Model.MaxAge"
+                               asp-route-sex="@Model.Sex"
+                               asp-route-archived="@Model.ShowArchived"
+                               class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                }
+                else if (Model.SelectedPatient is not null)
                 {
                     <h2 class="h4 mb-3">Patient Details</h2>
                     <a asp-action="PatientProfile"
@@ -231,6 +359,7 @@
 </div>
 
 @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
     <script>
         (() => {
             const rows = document.querySelectorAll(".patient-row");

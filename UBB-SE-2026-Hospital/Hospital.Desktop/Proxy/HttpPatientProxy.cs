@@ -21,6 +21,18 @@ public class HttpPatientProxy(HttpClient httpClient) : IPatientService
     public async Task<IReadOnlyList<Patient>> GetPatientsAsync(CancellationToken cancellationToken = default)
         => await httpClient.GetFromJsonAsync<List<Patient>>("api/patients", cancellationToken) ?? [];
 
+    public async Task<DbPatient> CreatePatientAsync(CreatePatientRequest request, CancellationToken cancellationToken = default)
+    {
+        var response = await httpClient.PostAsJsonAsync("api/patients", request, cancellationToken);
+        return await response.Content.ReadFromJsonAsync<DbPatient>(cancellationToken: cancellationToken)
+            ?? throw new Exception("Patient was not created.");
+    }
+
+    public async Task CreateMedicalHistoryAsync(int patientId, CreateMedicalHistoryRequest request, CancellationToken cancellationToken = default)
+    {
+        _ = await httpClient.PostAsJsonAsync($"api/patients/{patientId}/medical-history", request, cancellationToken);
+    }
+
     public async Task<Patient> GetPatientDetailsAsync(int patientId, CancellationToken cancellationToken = default)
         => await httpClient.GetFromJsonAsync<Patient>($"api/patients/{patientId}", cancellationToken) ?? throw new Exception("Patient not found");
 
