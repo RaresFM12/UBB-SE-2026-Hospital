@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Hospital.Web.Controllers
 {
-    [Authorize(Roles = "Client")]
+    [Authorize(Roles = "Client, Admin")]
     public class PeriodTrackerController : Controller
     {
         private const int MinimumCycleDays = 20;
