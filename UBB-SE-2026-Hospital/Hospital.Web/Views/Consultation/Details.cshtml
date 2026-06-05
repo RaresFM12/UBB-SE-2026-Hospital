@@ -19,10 +19,10 @@
                asp-route-returnRecordId="@Model.RecordId"
                class="btn btn-primary">📋 View Prescription</a>
         }
-        <a asp-controller="Admin"
-           asp-action="Details"
-           asp-route-id="@Model.PatientId"
-           class="btn btn-outline-secondary">Back to Patient</a>
+        <a asp-controller="Consultation"
+           asp-action="Index"
+           asp-route-patientId="@Model.PatientId"
+           class="btn btn-outline-secondary">Back to Consultations</a>
     </div>
 </div>
 
