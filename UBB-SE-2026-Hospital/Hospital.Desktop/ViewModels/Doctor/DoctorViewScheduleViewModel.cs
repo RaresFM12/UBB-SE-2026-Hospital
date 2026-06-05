@@ -1,18 +1,18 @@
 namespace Hospital.Desktop.ViewModels.Doctor
 {
+    using CommunityToolkit.Mvvm.Input;
+using Hospital.Data.Models;
+    
+    using Hospital.Desktop.Services;
+    using Hospital.Desktop.ViewModels.Base;
+    using Hospital.Desktop.Views.Shell;
+using Hospital.Shared.Services;
+using Hospital.Shared.Services;
     using System;
     using System.Collections.ObjectModel;
     using System.Globalization;
     using System.Linq;
     using System.Threading.Tasks;
-    using Hospital.Desktop.Command;
-    
-    using Hospital.Desktop.Services;
-using Hospital.Shared.Services;
-using Hospital.Data.Models;
-using Hospital.Shared.Services;
-    using Hospital.Desktop.ViewModels.Base;
-    using Hospital.Desktop.Views.Shell;
 
     public class DoctorScheduleViewModel : ObservableObject
     {
@@ -34,7 +34,6 @@ using Hospital.Shared.Services;
 
         private int loadVersion;
         private bool isInitializing;
-
         public ObservableCollection<AppointmentItemViewModel> Appointments { get; } = new ObservableCollection<AppointmentItemViewModel>();
 
         public ObservableCollection<DoctorShiftItemViewModel> Shifts { get; } = new ObservableCollection<DoctorShiftItemViewModel>();
@@ -142,6 +141,7 @@ using Hospital.Shared.Services;
 
         public bool IsEmpty => !this.IsLoading && string.IsNullOrWhiteSpace(this.ErrorMessage) && this.Appointments.Count == 0 && this.Shifts.Count == 0;
 
+        public RelayCommand<AppointmentItemViewModel> DetailsCommand { get; }
         public AsyncRelayCommand RefreshCommand { get; }
 
         public RelayCommand TodayCommand { get; }
@@ -180,6 +180,8 @@ using Hospital.Shared.Services;
 
             void SetWeeklyMode() => this.ViewMode = ScheduleViewMode.Weekly;
             this.WeeklyModeCommand = new RelayCommand(SetWeeklyMode, CanExecuteAsDoctor);
+
+            this.DetailsCommand = new RelayCommand<AppointmentItemViewModel>(this.OpenDetails);
         }
 
         public async Task InitializeAsync()
@@ -298,40 +300,40 @@ using Hospital.Shared.Services;
 
         public async void OpenDetails(AppointmentItemViewModel? item)
         {
-            if (item is null)
-            {
-                return;
-            }
+            if (item is null) return;
+
+            System.Diagnostics.Debug.WriteLine($"\n--- DEBUG: 1. Starting API Call for ID {item.AppointmentItemId} ---");
 
             try
             {
                 var appointmentDetails = await this.appointmentService.GetAppointmentDetailsAsync(item.AppointmentItemId);
+
+                System.Diagnostics.Debug.WriteLine($"--- DEBUG: 2. API Call Finished! Data received? {appointmentDetails != null} ---");
+
                 if (appointmentDetails is null)
                 {
+                    System.Diagnostics.Debug.WriteLine("--- DEBUG: 3. Showing 'Not Found' ---");
                     await this.dialogPresenter.ShowMessageAsync("Details", "Appointment not found.");
                     return;
                 }
 
-                var patientLine = string.IsNullOrWhiteSpace(item.PatientName) ? "Patient hidden/unknown" : item.PatientName;
-                var typeLine = string.IsNullOrWhiteSpace(appointmentDetails.Type) ? "N/A" : appointmentDetails.Type;
-                var locationLine = string.IsNullOrWhiteSpace(appointmentDetails.Location) ? "Location TBD" : appointmentDetails.Location;
-                var statusLine = string.IsNullOrWhiteSpace(appointmentDetails.Status) ? "Unknown" : appointmentDetails.Status;
-                var formattedDate = appointmentDetails.AppointmentDate.ToString(AppointmentDateFormat);
-                var formattedStartTime = appointmentDetails.StartTime.ToString(AppointmentTimeFormat);
-                var formattedEndTime = appointmentDetails.EndTime.ToString(AppointmentTimeFormat);
+                
+                var patientName = string.IsNullOrWhiteSpace(item.PatientName) ? "Unknown Patient" : item.PatientName;
+                var text = $"Patient: {patientName}\n" +
+                           $"Date: {appointmentDetails.AppointmentDate:yyyy-MM-dd}\n" +
+                           $"Status: {appointmentDetails.Status}";
 
-                var text =
-                    $"Patient: {patientLine}\n" +
-                    $"Type: {typeLine}\n" +
-                    $"Location: {locationLine}\n" +
-                    $"Time: {formattedDate} {formattedStartTime}-{formattedEndTime}\n" +
-                    $"Status: {statusLine}";
+                System.Diagnostics.Debug.WriteLine("--- DEBUG: 4. Attempting to draw dialog UI ---");
 
+               
                 await this.dialogPresenter.ShowMessageAsync("Appointment Details", text);
+
+                System.Diagnostics.Debug.WriteLine("--- DEBUG: 5. Dialog successfully rendered! ---");
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                await this.dialogPresenter.ShowMessageAsync("Details", $"Failed to load details: {exception.Message}");
+                System.Diagnostics.Debug.WriteLine($"\n!!! CRITICAL ERROR IN DETAILS: {ex.Message} !!!");
+                System.Diagnostics.Debug.WriteLine($"!!! STACK TRACE: {ex.StackTrace} !!!\n");
             }
         }
 
