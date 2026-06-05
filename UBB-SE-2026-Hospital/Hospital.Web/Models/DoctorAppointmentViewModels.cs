@@ -36,10 +36,10 @@ namespace Hospital.Web.Models
 
     public sealed class DoctorAppointmentCreateViewModel
     {
-        [Required(ErrorMessage = "Patient id is required.")]
-        [RegularExpression(@"^(PAT\s*-\s*)?\d+$", ErrorMessage = "Patient id must be numeric, for example 123 or PAT-123.")]
-        [Display(Name = "Patient id")]
-        public string PatientName { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Patient is required.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a patient.")]
+        [Display(Name = "Patient")]
+        public int PatientId { get; set; }
 
         [Required(ErrorMessage = "Doctor is required.")]
         [Display(Name = "Doctor")]
@@ -55,6 +55,15 @@ namespace Hospital.Web.Models
         public TimeSpan StartTime { get; set; } = TimeSpan.FromHours(9);
 
         public List<DoctorOptionViewModel> Doctors { get; set; } = new();
+
+        public List<PatientOptionViewModel> Patients { get; set; } = new();
+    }
+
+    public sealed class PatientOptionViewModel
+    {
+        public int PatientId { get; set; }
+
+        public string FullName { get; set; } = string.Empty;
     }
 
     public sealed class DoctorAppointmentEditViewModel

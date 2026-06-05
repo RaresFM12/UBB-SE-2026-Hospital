@@ -32,7 +32,7 @@ public class BloodCompatibilityService(
 
         foreach (Patient donor in allPatients)
         {
-            if (donor.PatientId == recipientId || !donor.IsDeceased)
+            if (donor.PatientId == recipientId || donor.IsDeceased || donor.IsArchived)
                 continue;
 
             donor.MedicalHistory = await historyRepository.GetByPatientIdAsync(donor.PatientId);
