@@ -45,3 +45,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Exposed so the integration test project can bootstrap the API host via
+// WebApplicationFactory<Program>.
+public partial class Program { }
