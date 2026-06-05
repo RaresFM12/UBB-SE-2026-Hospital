@@ -23,13 +23,13 @@ public class AddictDetectionService(
         List<Prescription> flaggedPrescriptions = await prescriptionRepository.GetPotentialDrugAddictsAsync();
 
         List<Patient> flaggedPatients = flaggedPrescriptions
-            .Where(p => p.MedicalRecord?.MedicalHistory?.Patient is not null)
-            .Select(p => p.MedicalRecord.MedicalHistory.Patient)
-            .DistinctBy(p => p.PatientId)
+            .Where(patient => patient.MedicalRecord?.MedicalHistory?.Patient is not null)
+            .Select(patient => patient.MedicalRecord.MedicalHistory.Patient)
+            .DistinctBy(patient => patient.PatientId)
             .ToList();
 
         List<int> notifiedIds = await prescriptionRepository.GetPoliceNotifiedPatientIdsAsync(
-            flaggedPatients.Select(p => p.PatientId));
+            flaggedPatients.Select(patient => patient.PatientId));
 
         foreach (Patient patient in flaggedPatients)
         {
@@ -111,14 +111,14 @@ public class AddictDetectionService(
         else
         {
             int evidenceCount = 1;
-            foreach (Prescription rx in recentPrescriptions)
+            foreach (Prescription prescription in recentPrescriptions)
             {
-                string meds = rx.MedicationList?.Count > 0
-                    ? string.Join(ReportMedicationSeparator, rx.MedicationList.Select(m => m.MedicationName))
+                string meds = prescription.MedicationList?.Count > 0
+                    ? string.Join(ReportMedicationSeparator, prescription.MedicationList.Select(medication => medication.MedicationName))
                     : UnknownMedicationText;
 
                 reportBuilder
-                    .AppendLine(CultureInfo.InvariantCulture, $"[{evidenceCount}] Prescription ID: {rx.PrescriptionId} | Date: {rx.Date:yyyy-MM-dd}")
+                    .AppendLine(CultureInfo.InvariantCulture, $"[{evidenceCount}] Prescription ID: {prescription.PrescriptionId} | Date: {prescription.Date:yyyy-MM-dd}")
                     .AppendLine(CultureInfo.InvariantCulture, $"    Dispensed Drugs: {meds}")
                     .AppendLine();
 

@@ -91,7 +91,7 @@ public class ConsultationController : Controller
         }
 
         PatientErMedicalRecord? record = patient.MedicalHistory?.MedicalRecords?
-            .FirstOrDefault(r => r.RecordId == recordId);
+            .FirstOrDefault(record => record.RecordId == recordId);
 
         if (record is null)
         {

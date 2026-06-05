@@ -61,22 +61,22 @@ public class HospitalDbContext(DbContextOptions<HospitalDbContext> options) : Db
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
-        modelBuilder.Entity<User>().HasIndex(u => u.Username).IsUnique();
+        modelBuilder.Entity<User>().HasIndex(user => user.Email).IsUnique();
+        modelBuilder.Entity<User>().HasIndex(user => user.Username).IsUnique();
 
         ConfigureAuthorization(modelBuilder);
         modelBuilder.Entity<Shift>(entity =>
         {
-            entity.Property(e => e.StartTime).HasColumnName("StartTime");
-            entity.Property(e => e.EndTime).HasColumnName("EndTime");
+            entity.Property(shift => shift.StartTime).HasColumnName("StartTime");
+            entity.Property(shift => shift.EndTime).HasColumnName("EndTime");
         });
         // Non-standard primary keys
-        modelBuilder.Entity<Staff>().HasKey(s => s.StaffId);
-        modelBuilder.Entity<ERRoom>().HasKey(r => r.RoomId);
-        modelBuilder.Entity<ERVisit>().HasKey(v => v.VisitId);
-        modelBuilder.Entity<ShiftSwapRequest>().HasKey(s => s.SwapId);
-        modelBuilder.Entity<MedicalEvaluation>().HasKey(e => e.EvaluationID);
-        modelBuilder.Entity<Hangout>().HasKey(h => h.HangoutID);
+        modelBuilder.Entity<Staff>().HasKey(staff => staff.StaffId);
+        modelBuilder.Entity<ERRoom>().HasKey(room => room.RoomId);
+        modelBuilder.Entity<ERVisit>().HasKey(visit => visit.VisitId);
+        modelBuilder.Entity<ShiftSwapRequest>().HasKey(swapRequest => swapRequest.SwapId);
+        modelBuilder.Entity<MedicalEvaluation>().HasKey(evaluation => evaluation.EvaluationID);
+        modelBuilder.Entity<Hangout>().HasKey(hangout => hangout.HangoutID);
 
         // TPH for Staff hierarchy
         modelBuilder.Entity<Staff>().HasDiscriminator<string>("Role")
@@ -85,312 +85,312 @@ public class HospitalDbContext(DbContextOptions<HospitalDbContext> options) : Db
             .HasValue<Pharmacyst>("Pharmacist");
 
         modelBuilder.Entity<PatientAllergy>()
-            .HasKey(pa => new { pa.MedicalHistoryId, pa.AllergyId });
+            .HasKey(patientAllergy => new { patientAllergy.MedicalHistoryId, patientAllergy.AllergyId });
 
         // ShiftSwapRequest → Staff (Requester / Colleague)
         modelBuilder.Entity<ShiftSwapRequest>()
-            .HasOne(s => s.Requester)
-            .WithMany(st => st.ShiftSwapRequestsAsRequester)
+            .HasOne(swapRequest => swapRequest.Requester)
+            .WithMany(staff => staff.ShiftSwapRequestsAsRequester)
             .HasForeignKey("RequestingStaffId")
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ShiftSwapRequest>()
-            .HasOne(s => s.Colleague)
-            .WithMany(st => st.ShiftSwapRequestsAsColleague)
+            .HasOne(swapRequest => swapRequest.Colleague)
+            .WithMany(staff => staff.ShiftSwapRequestsAsColleague)
             .HasForeignKey("TargetStaffId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // ShiftSwapRequest → Shift
         modelBuilder.Entity<ShiftSwapRequest>()
-            .HasOne(s => s.Shift)
+            .HasOne(swapRequest => swapRequest.Shift)
             .WithMany()
             .HasForeignKey("ShiftId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // Shift → Staff
         modelBuilder.Entity<Shift>()
-            .HasOne(s => s.Staff)
-            .WithMany(st => st.Shifts)
+            .HasOne(shift => shift.Staff)
+            .WithMany(staff => staff.Shifts)
             .HasForeignKey("StaffId")
             .OnDelete(DeleteBehavior.Cascade);
 
         // Notification → Staff
         modelBuilder.Entity<Notification>()
-            .HasOne(n => n.Recipient)
-            .WithMany(st => st.Notifications)
+            .HasOne(notification => notification.Recipient)
+            .WithMany(staff => staff.Notifications)
             .HasForeignKey("StaffId")
             .OnDelete(DeleteBehavior.Cascade);
 
         // HangoutParticipant → Hangout / Staff
         modelBuilder.Entity<HangoutParticipant>()
-            .HasOne(hp => hp.Hangout)
-            .WithMany(h => h.HangoutParticipantEntries)
+            .HasOne(participant => participant.Hangout)
+            .WithMany(hangout => hangout.HangoutParticipantEntries)
             .HasForeignKey("HangoutId")
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<HangoutParticipant>()
-            .HasOne(hp => hp.Staff)
-            .WithMany(st => st.HangoutParticipantEntries)
+            .HasOne(participant => participant.Staff)
+            .WithMany(staff => staff.HangoutParticipantEntries)
             .HasForeignKey("StaffId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // Hangout → Staff (Organizer)
         modelBuilder.Entity<Hangout>()
-            .HasOne(h => h.Organizer)
+            .HasOne(hangout => hangout.Organizer)
             .WithMany()
             .HasForeignKey("OrganizerId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // Appointment → Doctor
         modelBuilder.Entity<Appointment>()
-            .HasOne(a => a.Doctor)
+            .HasOne(appointment => appointment.Doctor)
             .WithMany()
             .HasForeignKey("DoctorId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // ERRequest → AssignedDoctor
         modelBuilder.Entity<ERRequest>()
-            .HasOne(r => r.AssignedDoctor)
+            .HasOne(request => request.AssignedDoctor)
             .WithMany()
             .HasForeignKey("AssignedDoctorId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // PharmacyHandover → Staff
         modelBuilder.Entity<PharmacyHandover>()
-            .HasOne(h => h.Pharmacist)
+            .HasOne(handover => handover.Pharmacist)
             .WithMany()
             .HasForeignKey("PharmacistId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // MedicalEvaluation → Doctor (Evaluator)
         modelBuilder.Entity<MedicalEvaluation>()
-            .HasOne(e => e.Evaluator)
+            .HasOne(evaluation => evaluation.Evaluator)
             .WithMany()
             .HasForeignKey("EvaluatorId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // Prescription → MedicalRecord (one-to-one, dependent side)
         modelBuilder.Entity<Prescription>()
-            .HasOne(p => p.MedicalRecord)
-            .WithOne(r => r.Prescription)
+            .HasOne(prescription => prescription.MedicalRecord)
+            .WithOne(medicalRecord => medicalRecord.Prescription)
             .HasForeignKey<Prescription>("RecordId")
             .OnDelete(DeleteBehavior.Cascade);
 
         // PrescriptionItem → Prescription
         modelBuilder.Entity<PrescriptionItem>()
-            .HasOne(pi => pi.Prescription)
-            .WithMany(p => p.MedicationList)
+            .HasOne(prescriptionItem => prescriptionItem.Prescription)
+            .WithMany(prescription => prescription.MedicationList)
             .HasForeignKey("PrescriptionId")
             .OnDelete(DeleteBehavior.Cascade);
 
         // MedicalHistory stores ChronicConditions as JSON
         modelBuilder.Entity<MedicalHistory>()
-            .Property(m => m.ChronicConditions)
+            .Property(medicalHistory => medicalHistory.ChronicConditions)
             .HasConversion(
-                v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
-                v => System.Text.Json.JsonSerializer.Deserialize<List<string>>(v, (System.Text.Json.JsonSerializerOptions?)null)!);
+                chronicConditions => System.Text.Json.JsonSerializer.Serialize(chronicConditions, (System.Text.Json.JsonSerializerOptions?)null),
+                chronicConditionsJson => System.Text.Json.JsonSerializer.Deserialize<List<string>>(chronicConditionsJson, (System.Text.Json.JsonSerializerOptions?)null)!);
 
         // MedicalHistory → Patient
         modelBuilder.Entity<MedicalHistory>()
-            .HasOne(m => m.Patient)
-            .WithOne(p => p.MedicalHistory)
+            .HasOne(medicalHistory => medicalHistory.Patient)
+            .WithOne(patient => patient.MedicalHistory)
             .HasForeignKey<MedicalHistory>("PatientId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // PatientAllergy → MedicalHistory / Allergy
         modelBuilder.Entity<PatientAllergy>()
-            .HasOne(pa => pa.MedicalHistory)
-            .WithMany(h => h.PatientAllergies)
-            .HasForeignKey(pa => pa.MedicalHistoryId);
+            .HasOne(patientAllergy => patientAllergy.MedicalHistory)
+            .WithMany(medicalHistory => medicalHistory.PatientAllergies)
+            .HasForeignKey(patientAllergy => patientAllergy.MedicalHistoryId);
 
         modelBuilder.Entity<PatientAllergy>()
-            .HasOne(pa => pa.Allergy)
+            .HasOne(patientAllergy => patientAllergy.Allergy)
             .WithMany()
-            .HasForeignKey(pa => pa.AllergyId);
+            .HasForeignKey(patientAllergy => patientAllergy.AllergyId);
 
         // MedicalRecord → MedicalHistory
         modelBuilder.Entity<MedicalRecord>()
-            .HasOne(r => r.MedicalHistory)
-            .WithMany(h => h.MedicalRecords)
+            .HasOne(medicalRecord => medicalRecord.MedicalHistory)
+            .WithMany(medicalHistory => medicalHistory.MedicalRecords)
             .HasForeignKey("MedicalHistoryId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // MedicalRecord → Staff / Transplant
         modelBuilder.Entity<MedicalRecord>()
-            .HasOne(r => r.StaffMember)
+            .HasOne(medicalRecord => medicalRecord.StaffMember)
             .WithMany()
             .HasForeignKey("StaffId")
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<MedicalRecord>()
-            .HasOne(r => r.Transplant)
+            .HasOne(medicalRecord => medicalRecord.Transplant)
             .WithMany()
             .HasForeignKey("TransplantId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // Transplant → Patient (Receiver / Donor)
         modelBuilder.Entity<Transplant>()
-            .HasOne(t => t.Receiver)
+            .HasOne(transplant => transplant.Receiver)
             .WithMany()
             .HasForeignKey("ReceiverId")
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Transplant>()
-            .HasOne(t => t.Donor)
+            .HasOne(transplant => transplant.Donor)
             .WithMany()
             .HasForeignKey("DonorId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // TransplantMatch → Transplant / Patient
         modelBuilder.Entity<TransplantMatch>()
-            .HasOne(tm => tm.Transplant)
+            .HasOne(transplantMatch => transplantMatch.Transplant)
             .WithMany()
             .HasForeignKey("TransplantId")
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<TransplantMatch>()
-            .HasOne(tm => tm.Receiver)
+            .HasOne(transplantMatch => transplantMatch.Receiver)
             .WithMany()
             .HasForeignKey("ReceiverId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // ERVisit → Patient
         modelBuilder.Entity<ERVisit>()
-            .HasOne(v => v.Patient)
+            .HasOne(visit => visit.Patient)
             .WithMany()
             .HasForeignKey("PatientId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // ERRoom → ERVisit (current visit, nullable)
         modelBuilder.Entity<ERRoom>()
-            .HasOne(r => r.CurrentVisit)
+            .HasOne(room => room.CurrentVisit)
             .WithMany()
             .HasForeignKey("CurrentVisitId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // Triage → ERVisit
         modelBuilder.Entity<Triage>()
-            .HasOne(t => t.Visit)
+            .HasOne(triage => triage.Visit)
             .WithMany()
             .HasForeignKey("VisitId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // TriageParameters → Triage (one-to-one, cascade delete)
         modelBuilder.Entity<TriageParameters>()
-            .HasOne(tp => tp.Triage)
+            .HasOne(triageParameters => triageParameters.Triage)
             .WithOne()
             .HasForeignKey<TriageParameters>("TriageId")
             .OnDelete(DeleteBehavior.Cascade);
 
         // Examination → ERVisit / Staff / ERRoom
         modelBuilder.Entity<Examination>()
-            .HasOne(e => e.Visit)
+            .HasOne(examination => examination.Visit)
             .WithMany()
             .HasForeignKey("VisitId")
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Examination>()
-            .HasOne(e => e.Doctor)
+            .HasOne(examination => examination.Doctor)
             .WithMany()
             .HasForeignKey("DoctorId")
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Examination>()
-            .HasOne(e => e.Room)
+            .HasOne(examination => examination.Room)
             .WithMany()
             .HasForeignKey("RoomId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // TransferLog → ERVisit
         modelBuilder.Entity<TransferLog>()
-            .HasOne(tl => tl.Visit)
+            .HasOne(transferLog => transferLog.Visit)
             .WithMany()
             .HasForeignKey("VisitId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // Order → User (Client)
         modelBuilder.Entity<Order>()
-            .HasOne(o => o.Client)
-            .WithMany(u => u.Orders)
+            .HasOne(order => order.Client)
+            .WithMany(user => user.Orders)
             .HasForeignKey("ClientId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // OrderItem → Order / Item
         modelBuilder.Entity<OrderItem>()
-            .HasOne(oi => oi.Order)
-            .WithMany(o => o.OrderItemEntries)
+            .HasOne(orderItem => orderItem.Order)
+            .WithMany(order => order.OrderItemEntries)
             .HasForeignKey("OrderId")
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<OrderItem>()
-            .HasOne(oi => oi.Item)
+            .HasOne(orderItem => orderItem.Item)
             .WithMany()
             .HasForeignKey("ItemId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // ItemBatch → Item
         modelBuilder.Entity<ItemBatch>()
-            .HasOne(b => b.Item)
-            .WithMany(i => i.ItemBatchEntries)
+            .HasOne(itemBatch => itemBatch.Item)
+            .WithMany(item => item.ItemBatchEntries)
             .HasForeignKey("ItemId")
             .OnDelete(DeleteBehavior.Cascade);
 
         // ItemSubstance → Item / Substance
         modelBuilder.Entity<ItemSubstance>()
-            .HasOne(s => s.Item)
-            .WithMany(i => i.ItemSubstanceEntries)
+            .HasOne(itemSubstance => itemSubstance.Item)
+            .WithMany(item => item.ItemSubstanceEntries)
             .HasForeignKey("ItemId")
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<ItemSubstance>()
-            .HasOne(s => s.Substance)
-            .WithMany(s => s.ItemSubstanceEntries)
+            .HasOne(itemSubstance => itemSubstance.Substance)
+            .WithMany(substance => substance.ItemSubstanceEntries)
             .HasForeignKey("SubstanceId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // BasketEntry → User / Item
         modelBuilder.Entity<BasketEntry>()
-            .HasOne(b => b.User)
+            .HasOne(basketEntry => basketEntry.User)
             .WithMany()
             .HasForeignKey("UserId")
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<BasketEntry>()
-            .HasOne(b => b.Item)
+            .HasOne(basketEntry => basketEntry.Item)
             .WithMany()
             .HasForeignKey("ItemId")
             .OnDelete(DeleteBehavior.Cascade);
 
         // UserDiscount → User / Item
         modelBuilder.Entity<UserDiscount>()
-            .HasOne(d => d.User)
-            .WithMany(u => u.UserDiscountEntries)
+            .HasOne(userDiscount => userDiscount.User)
+            .WithMany(user => user.UserDiscountEntries)
             .HasForeignKey("UserId")
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<UserDiscount>()
-            .HasOne(d => d.Item)
+            .HasOne(userDiscount => userDiscount.Item)
             .WithMany()
             .HasForeignKey("ItemId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // UserNotification → User / Item
         modelBuilder.Entity<UserNotification>()
-            .HasOne(n => n.User)
-            .WithMany(u => u.UserNotificationEntries)
+            .HasOne(userNotification => userNotification.User)
+            .WithMany(user => user.UserNotificationEntries)
             .HasForeignKey("UserId")
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<UserNotification>()
-            .HasOne(n => n.Item)
+            .HasOne(userNotification => userNotification.Item)
             .WithMany()
             .HasForeignKey("ItemId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // PeriodNote → User
         modelBuilder.Entity<PeriodNote>()
-            .HasOne(n => n.User)
-            .WithMany(u => u.PeriodNoteEntries)
+            .HasOne(periodNote => periodNote.User)
+            .WithMany(user => user.PeriodNoteEntries)
             .HasForeignKey("UserId")
             .OnDelete(DeleteBehavior.Cascade);
 
@@ -439,40 +439,40 @@ public class HospitalDbContext(DbContextOptions<HospitalDbContext> options) : Db
 
         // Item dictionaries are not mapped to DB columns
         modelBuilder.Entity<Item>()
-            .Ignore(i => i.ActiveSubstances)
-            .Ignore(i => i.Batches);
+            .Ignore(item => item.ActiveSubstances)
+            .Ignore(item => item.Batches);
 
         // Order dictionary is not mapped
         modelBuilder.Entity<Order>()
-            .Ignore(o => o.ItemQuantitiesWithFinalPrice);
+            .Ignore(order => order.ItemQuantitiesWithFinalPrice);
 
         // User computed/notmapped collections
         modelBuilder.Entity<User>()
-            .Ignore(u => u.PeriodNotes)
-            .Ignore(u => u.StockAlerts)
-            .Ignore(u => u.FavoriteItems)
-            .Ignore(u => u.UserDiscounts)
-            .Ignore(u => u.Basket);
+            .Ignore(user => user.PeriodNotes)
+            .Ignore(user => user.StockAlerts)
+            .Ignore(user => user.FavoriteItems)
+            .Ignore(user => user.UserDiscounts)
+            .Ignore(user => user.Basket);
     }
 
     private static void ConfigureAuthorization(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Role>().HasIndex(r => r.Name).IsUnique();
-        modelBuilder.Entity<Module>().HasIndex(m => m.Key).IsUnique();
+        modelBuilder.Entity<Role>().HasIndex(role => role.Name).IsUnique();
+        modelBuilder.Entity<Module>().HasIndex(module => module.Key).IsUnique();
 
         modelBuilder.Entity<RoleModulePermission>()
-            .HasKey(rmp => new { rmp.RoleId, rmp.ModuleId });
+            .HasKey(permission => new { permission.RoleId, permission.ModuleId });
 
         modelBuilder.Entity<RoleModulePermission>()
-            .HasOne(rmp => rmp.Role)
-            .WithMany(r => r.ModulePermissions)
-            .HasForeignKey(rmp => rmp.RoleId)
+            .HasOne(permission => permission.Role)
+            .WithMany(role => role.ModulePermissions)
+            .HasForeignKey(permission => permission.RoleId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<RoleModulePermission>()
-            .HasOne(rmp => rmp.Module)
-            .WithMany(m => m.RolePermissions)
-            .HasForeignKey(rmp => rmp.ModuleId)
+            .HasOne(permission => permission.Module)
+            .WithMany(module => module.RolePermissions)
+            .HasForeignKey(permission => permission.ModuleId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Role>().HasData(

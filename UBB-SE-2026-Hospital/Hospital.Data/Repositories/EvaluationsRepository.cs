@@ -10,18 +10,18 @@ public class EvaluationsRepository(HospitalDbContext context) : IEvaluationsRepo
 {
     public async Task<MedicalEvaluation?> GetByIdAsync(int evaluationId)
         => await context.MedicalEvaluations
-            .Include(e => e.Evaluator)
-            .FirstOrDefaultAsync(e => e.EvaluationID == evaluationId);
+            .Include(evaluation => evaluation.Evaluator)
+            .FirstOrDefaultAsync(evaluation => evaluation.EvaluationID == evaluationId);
 
     public async Task<List<MedicalEvaluation>> GetAllAsync()
         => await context.MedicalEvaluations
-            .Include(e => e.Evaluator)
+            .Include(evaluation => evaluation.Evaluator)
             .ToListAsync();
 
     public async Task<List<MedicalEvaluation>> GetByDoctorIdAsync(int doctorId)
         => await context.MedicalEvaluations
-            .Include(e => e.Evaluator)
-            .Where(e => e.Evaluator!.StaffId == doctorId)
+            .Include(evaluation => evaluation.Evaluator)
+            .Where(evaluation => evaluation.Evaluator!.StaffId == doctorId)
             .ToListAsync();
 
     public async Task<MedicalEvaluation> CreateAsync(MedicalEvaluation evaluation)
