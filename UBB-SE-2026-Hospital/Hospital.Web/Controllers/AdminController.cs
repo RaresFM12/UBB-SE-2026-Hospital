@@ -54,24 +54,8 @@ public class AdminController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Items(string searchQuery = "", bool showExpiredOnly = false, CancellationToken cancellationToken = default)
-    {
-        var searchResults = await SearchPatientsAsync(searchQuery, minAge, maxAge, sex, cancellationToken);
-        var visiblePatients = searchResults.Where(p => p.IsArchived == archived).OrderBy(p => p.LastName).ToList();
-        Patient? selectedPatient = selectedId.HasValue ? (visiblePatients.FirstOrDefault(p => p.PatientId == selectedId.Value) ?? await patientService.GetByIdAsync(selectedId.Value, cancellationToken)) : null;
-
-        return View(new AdminPatientsIndexViewModel
-        {
-            Patients = visiblePatients.Select(MapPatientListItem).ToList(),
-            SelectedPatient = selectedPatient != null ? MapEditPatient(selectedPatient, null) : null,
-            SelectedPatientId = selectedId,
-            SearchQuery = searchQuery,
-            MinAge = minAge,
-            MaxAge = maxAge,
-            Sex = sex,
-            ShowArchived = archived
-        });
-    }
+    public IActionResult Items(string searchQuery = "", bool showExpiredOnly = false)
+        => RedirectToAction("Index", "Items", new { searchQuery, showExpiredOnly });
 
     [HttpGet]
     public async Task<IActionResult> ItemDetails(int id, CancellationToken cancellationToken = default)
