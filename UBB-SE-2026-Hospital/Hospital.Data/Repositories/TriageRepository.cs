@@ -14,7 +14,7 @@ public class TriageRepository(HospitalDbContext context) : ITriageRepository
         => await context.Triages.FirstOrDefaultAsync(t => t.Visit.VisitId == visitId);
 
     public async Task<List<Triage>> GetAllAsync()
-        => await context.Triages.ToListAsync();
+        => await context.Triages.Include(t => t.Visit).ThenInclude(v => v.Patient).ToListAsync();
 
     public async Task<Triage> CreateAsync(Triage triage)
     {

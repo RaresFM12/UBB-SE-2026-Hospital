@@ -14,11 +14,11 @@ public class MedicalStaffController : Controller
     private const int NoSearchResultsCount = 0;
     private const int CnpLength = 13;
 
-    private readonly IPatientApiClient patientApiClient;
+    private readonly IPatientService patientService;
 
-    public MedicalStaffController(IPatientApiClient patientApiClient)
+    public MedicalStaffController(IPatientService patientService)
     {
-        this.patientApiClient = patientApiClient;
+        this.patientService = patientService;
     }
 
     [HttpGet]
@@ -46,7 +46,7 @@ public class MedicalStaffController : Controller
         try
         {
             SearchPatientsDto dto = BuildSearchDto(searchQuery);
-            List<Patient> results = await patientApiClient.SearchPatientsAsync(dto, cancellationToken);
+            List<Patient> results = await patientService.SearchPatientsAsync(dto, cancellationToken);
 
             if (results.Count == NoSearchResultsCount)
             {
