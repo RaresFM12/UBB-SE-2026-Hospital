@@ -11,6 +11,7 @@ public class Staff : IStaff
 {
     public int StaffId { get; set; }
     [NotMapped]
+    [JsonIgnore]
     public int StaffID
     {
         get => StaffId;

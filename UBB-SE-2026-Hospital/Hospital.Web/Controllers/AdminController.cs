@@ -39,15 +39,23 @@ public class AdminController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index(string searchQuery = "", bool showExpiredOnly = false, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Index(string? searchQuery, int? minAge, int? maxAge, Sex? sex, bool archived = false, int? selectedId = null, CancellationToken cancellationToken = default)
     {
-        var items = await this.adminService.GetItemsAsync(searchQuery, cancellationToken);
-        if (showExpiredOnly)
+        var searchResults = await SearchPatientsAsync(searchQuery, minAge, maxAge, sex, cancellationToken);
+        var visiblePatients = searchResults.Where(p => p.IsArchived == archived).OrderBy(p => p.LastName).ToList();
+        Patient? selectedPatient = selectedId.HasValue ? (visiblePatients.FirstOrDefault(p => p.PatientId == selectedId.Value) ?? await patientService.GetByIdAsync(selectedId.Value, cancellationToken)) : null;
+
+        return View(new AdminPatientsIndexViewModel
         {
-            var today = DateOnly.FromDateTime(DateTime.Today);
-            items = items.Where(i => i.Batches.Keys.Any(expiryDate => expiryDate < today)).ToList();
-        }
-        return View(new ItemIndexViewModel { Items = items.ToList(), SearchQuery = searchQuery, ShowExpiredOnly = showExpiredOnly });
+            Patients = visiblePatients.Select(MapPatientListItem).ToList(),
+            SelectedPatient = selectedPatient != null ? MapEditPatient(selectedPatient, null) : null,
+            SelectedPatientId = selectedId,
+            SearchQuery = searchQuery,
+            MinAge = minAge,
+            MaxAge = maxAge,
+            Sex = sex,
+            ShowArchived = archived
+        });
     }
 
     [HttpGet]
@@ -95,23 +103,7 @@ public class AdminController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    [HttpGet]
-    public async Task<IActionResult> Patients(string? searchQuery, int? minAge, int? maxAge, Sex? sex, bool archived = false, int? selectedId = null, CancellationToken cancellationToken = default)
-    {
-        var searchResults = await SearchPatientsAsync(searchQuery, minAge, maxAge, sex, cancellationToken);
-        var visiblePatients = searchResults.Where(p => p.IsArchived == archived).OrderBy(p => p.LastName).ToList();
-        Patient? selectedPatient = selectedId.HasValue ? (visiblePatients.FirstOrDefault(p => p.PatientId == selectedId.Value) ?? await patientService.GetByIdAsync(selectedId.Value, cancellationToken)) : null;
-
-        return View(new AdminPatientsIndexViewModel
-        {
-            Patients = visiblePatients.Select(MapPatientListItem).ToList(),
-            SelectedPatient = selectedPatient != null ? MapEditPatient(selectedPatient, null) : null,
-            SearchQuery = searchQuery,
-            ShowArchived = archived
-        });
-    }
-
-    private static ItemViewModel MapItemToViewModel(Item item) => new() 
+    private static ItemViewModel MapItemToViewModel(Item item) => new()
     { 
         Id = item.Id, 
         Name = item.Name, 
