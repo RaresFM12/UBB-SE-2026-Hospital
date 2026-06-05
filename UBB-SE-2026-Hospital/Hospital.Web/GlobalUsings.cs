@@ -1,6 +1,7 @@
 global using Hospital.Data.Models;
 global using Hospital.Data.Models;
 global using Hospital.Shared.Services;
+global using Hospital.Shared.Proxies;
 global using Hospital.Web.Models;
 global using Hospital.Web.Models.Patient;
 global using Hospital.Web.Services;

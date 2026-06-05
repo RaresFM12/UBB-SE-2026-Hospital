@@ -1,4 +1,4 @@
-
+﻿
 using Hospital.Web.Models.Registration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,10 +8,10 @@ namespace Hospital.Web.Controllers;
 [Authorize]
 public class RegistrationController : Controller
 {
-    private readonly IPatientService patientService;
-    private readonly IERVisitService erVisitService;
+    private readonly IPatientApiClient patientService;
+    private readonly IERVisitApiClient erVisitService;
 
-    public RegistrationController(IPatientService patientService, IERVisitService erVisitService)
+    public RegistrationController(IPatientApiClient patientService, IERVisitApiClient erVisitService)
     {
         this.patientService = patientService;
         this.erVisitService = erVisitService;

@@ -13,10 +13,10 @@ namespace Hospital.Web.Controllers;
 [Authorize]
 public class ConsultationController : Controller
 {
-    private readonly IPatientService patientService;
-    private readonly IBillingService billingService;
+    private readonly IPatientApiClient patientService;
+    private readonly IBillingApiClient billingService;
 
-    public ConsultationController(IPatientService patientService, IBillingService billingService)
+    public ConsultationController(IPatientApiClient patientService, IBillingApiClient billingService)
     {
         this.patientService = patientService;
         this.billingService = billingService;
@@ -25,7 +25,7 @@ public class ConsultationController : Controller
     [HttpGet]
     public async Task<IActionResult> Index(int? patientId)
     {
-        IReadOnlyList<PatientErPatient> allPatients = await patientService.GetPatientsAsync();
+        IReadOnlyList<PatientErPatient> allPatients = await patientService.GetAllPatients();
 
         var model = new ConsultationsIndexViewModel
         {
@@ -91,7 +91,7 @@ public class ConsultationController : Controller
         }
 
         PatientErMedicalRecord? record = patient.MedicalHistory?.MedicalRecords?
-            .FirstOrDefault(r => r.RecordId == recordId);
+            .FirstOrDefault(record => record.RecordId == recordId);
 
         if (record is null)
         {

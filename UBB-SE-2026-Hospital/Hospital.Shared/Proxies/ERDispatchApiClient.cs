@@ -4,7 +4,7 @@ using Hospital.Shared.Services;
 
 namespace Hospital.Shared.Proxies;
 
-public class ERDispatchApiClient(HttpClient httpClient) : ApiClientBase(httpClient), IERDispatchService
+public class ERDispatchApiClient(HttpClient httpClient) : ApiClientBase(httpClient), IERDispatchApiClient
 {
     private const string BaseUri = "api/er-requests";
 

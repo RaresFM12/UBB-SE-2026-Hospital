@@ -29,9 +29,9 @@ public class ERDispatchController : Controller
     private const string UnknownDoctorName = "Unknown";
     private const string ManualOverrideHintText = "Manual override accepts IN_EXAMINATION doctors whose active shift ends within 3 days.";
 
-    private readonly IERDispatchService dispatchService;
+    private readonly IERDispatchApiClient dispatchService;
 
-    public ERDispatchController(IERDispatchService dispatchService)
+    public ERDispatchController(IERDispatchApiClient dispatchService)
     {
         this.dispatchService = dispatchService;
     }

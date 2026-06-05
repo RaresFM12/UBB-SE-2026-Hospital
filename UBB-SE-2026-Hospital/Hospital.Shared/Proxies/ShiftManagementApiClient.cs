@@ -3,7 +3,7 @@ using Hospital.Shared.Services;
 
 namespace Hospital.Shared.Proxies;
 
-public class ShiftManagementApiClient(HttpClient httpClient) : ApiClientBase(httpClient), IShiftManagementService
+public class ShiftManagementApiClient(HttpClient httpClient) : ApiClientBase(httpClient), IShiftManagementApiClient
 {
     private const string BaseUri = "api/shifts";
 

@@ -1,4 +1,4 @@
-using Hospital.Shared.Proxies;
+﻿using Hospital.Shared.Proxies;
 using System.Security.Cryptography;
 using Hospital.Data.Models;
 using Hospital.Data.Models;
@@ -8,7 +8,6 @@ using Hospital.Shared.Services;
 using Hospital.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using IPrescriptionService = Hospital.Services.IPrescriptionService;
 
 namespace Hospital.Web.Controllers;
 
@@ -20,17 +19,17 @@ public class PrescriptionController : Controller
     private const int EmptyTextLength = 0;
     private const int PageIndexAdjustment = 1;
 
-    private readonly IPrescriptionService prescriptionService;
-    private readonly IAdminService adminService;
-    private readonly IMedicalEvaluationService evaluationService;
+    private readonly IPrescriptionApiClient prescriptionService;
+    private readonly IAdminApiClient adminService;
+    private readonly IMedicalEvaluationApiClient evaluationService;
 
     private const int PageSize = 9;
     private static readonly char[] MedicineSeparators = new[] { ',', ';', '\n', '\r' };
 
     public PrescriptionController(
-        IPrescriptionService prescriptionService,
-        IAdminService adminService,
-        IMedicalEvaluationService evaluationService)
+        IPrescriptionApiClient prescriptionService,
+        IAdminApiClient adminService,
+        IMedicalEvaluationApiClient evaluationService)
     {
         this.prescriptionService = prescriptionService;
         this.adminService = adminService;

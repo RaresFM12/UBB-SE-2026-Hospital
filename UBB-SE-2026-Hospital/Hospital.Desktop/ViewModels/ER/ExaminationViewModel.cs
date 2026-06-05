@@ -119,7 +119,7 @@ public partial class ExaminationViewModel : ObservableObject
 
         if (value.Status == ERVisit.VisitStatus.WAITING_FOR_DOCTOR || value.Status == ERVisit.VisitStatus.IN_EXAMINATION)
         {
-            var existingExam = history.FirstOrDefault(e => e.Visit?.VisitId == value.VisitId);
+            var existingExam = history.FirstOrDefault(exam => exam.Visit?.VisitId == value.VisitId);
             if (existingExam != null)
             {
                 DoctorId = existingExam.Doctor?.StaffId ?? 0;
@@ -148,7 +148,7 @@ public partial class ExaminationViewModel : ObservableObject
             }
         }
 
-        if (!history.Any(e => e.Visit?.VisitId == value.VisitId))
+        if (!history.Any(examination => examination.Visit?.VisitId == value.VisitId))
         {
             Notes = string.Empty;
         }
@@ -242,14 +242,14 @@ public partial class ExaminationViewModel : ObservableObject
     private async Task<int> ResolveAssignedRoomIdAsync(int visitId)
     {
         var rooms = await erRoomService.GetAllAsync();
-        var currentRoom = rooms.FirstOrDefault(r => r.CurrentVisit?.VisitId == visitId);
+        var currentRoom = rooms.FirstOrDefault(room => room.CurrentVisit?.VisitId == visitId);
         if (currentRoom != null) return currentRoom.RoomId;
 
         var exams = await examinationService.GetByVisitIdAsync(visitId);
-        var latestExam = exams.OrderByDescending(e => e.ExaminationDate).FirstOrDefault();
+        var latestExam = exams.OrderByDescending(exam => exam.ExaminationDate).FirstOrDefault();
         if (latestExam?.Room != null) return latestExam.Room.RoomId;
 
-        var fallbackRoom = rooms.OrderBy(r => r.RoomId).FirstOrDefault();
+        var fallbackRoom = rooms.OrderBy(room => room.RoomId).FirstOrDefault();
         return fallbackRoom?.RoomId ?? throw new InvalidOperationException("No ER rooms available.");
     }
 

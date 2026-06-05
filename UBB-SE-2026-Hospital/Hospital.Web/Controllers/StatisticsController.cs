@@ -1,4 +1,4 @@
-using Hospital.Shared.Proxies;
+﻿using Hospital.Shared.Proxies;
 using Hospital.Shared.Services;
 using Hospital.Web.Models.Statistics;
 using Microsoft.AspNetCore.Authorization;
@@ -9,10 +9,10 @@ namespace Hospital.Web.Controllers;
 [Authorize(Roles = "Admin")]
 public class StatisticsController : Controller
 {
-    private readonly IStatisticsService statisticsService;
-    private readonly IAdminService adminService;
+    private readonly IStatisticsApiClient statisticsService;
+    private readonly IAdminApiClient adminService;
 
-    public StatisticsController(IStatisticsService statisticsService, IAdminService adminService)
+    public StatisticsController(IStatisticsApiClient statisticsService, IAdminApiClient adminService)
     {
         this.statisticsService = statisticsService;
         this.adminService = adminService;

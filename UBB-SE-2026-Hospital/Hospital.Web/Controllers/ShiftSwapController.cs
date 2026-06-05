@@ -1,4 +1,4 @@
-using Hospital.Shared.Proxies;
+﻿using Hospital.Shared.Proxies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -11,9 +11,9 @@ namespace Hospital.Web.Controllers
     [Authorize(Roles = "Doctor,Admin")]
     public class ShiftSwapController : Controller
     {
-        private readonly IShiftSwapService _shiftSwapService;
+        private readonly IShiftSwapApiClient _shiftSwapService;
 
-        public ShiftSwapController(IShiftSwapService shiftSwapService)
+        public ShiftSwapController(IShiftSwapApiClient shiftSwapService)
         {
             _shiftSwapService = shiftSwapService;
         }

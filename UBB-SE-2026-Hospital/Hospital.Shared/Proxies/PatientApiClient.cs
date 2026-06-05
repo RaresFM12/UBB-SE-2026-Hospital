@@ -4,7 +4,7 @@ using Hospital.Shared.Services;
 
 namespace Hospital.Shared.Proxies;
 
-public class PatientApiClient : ApiClientBase, IPatientApiClient, IPatientService
+public class PatientApiClient : ApiClientBase, IPatientApiClient
 {
     private const string BaseUri = "api/patients";
 
@@ -119,20 +119,6 @@ public class PatientApiClient : ApiClientBase, IPatientApiClient, IPatientServic
     }
 
     // IPatientService implementation
-    public async Task<IReadOnlyList<Patient>> GetPatientsAsync(CancellationToken cancellationToken = default)
-        => await GetAsync<List<Patient>>(BaseUri, cancellationToken) ?? [];
-
-    public async Task UpdatePatientAsync(Patient patient, CancellationToken cancellationToken = default)
-        => await PutAsync($"{BaseUri}/{patient.PatientId}", patient, cancellationToken);
-
-    public async Task ArchiveAsDeceasedAsync(int patientId, DateTime deathDate, CancellationToken cancellationToken = default)
-        => await PutAsync<object>($"{BaseUri}/{patientId}/archive-deceased", new { deathDate }, cancellationToken);
-
-    public async Task<int> CreateMedicalRecordAsync(int patientId, MedicalRecord record, CancellationToken cancellationToken = default)
-        => await PostAsync<MedicalRecord, int>($"{BaseUri}/{patientId}/medical-records", record, cancellationToken);
-
-    public async Task CreatePrescriptionAsync(int recordId, Prescription prescription)
-        => await PostAsync<Prescription, object>($"{BaseUri}/records/{recordId}/prescription", prescription);
 
     // Some extra getters
     public async Task<MedicalHistory?> GetMedicalHistoryAsync(int id)
@@ -146,5 +132,8 @@ public class PatientApiClient : ApiClientBase, IPatientApiClient, IPatientServic
 
     public async Task<List<MedicalRecord>> GetMedicalRecordsAsync(int historyId)
         => await GetAsync<List<MedicalRecord>>($"api/patients/{historyId}/medical-records") ?? [];
+
+    public async Task<List<Patient>> GetAllPatients(CancellationToken cancellationToken = default)
+        => await GetAsync<List<Patient>>(BaseUri, cancellationToken) ?? [];
 }
 

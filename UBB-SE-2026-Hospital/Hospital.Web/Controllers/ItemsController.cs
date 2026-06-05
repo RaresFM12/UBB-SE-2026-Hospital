@@ -1,4 +1,4 @@
-using Hospital.Shared.Proxies;
+﻿using Hospital.Shared.Proxies;
 namespace Hospital.Web.Controllers
 {
     using System;
@@ -18,9 +18,9 @@ namespace Hospital.Web.Controllers
         private const string SubstanceLineDelimiter = ":";
         private static readonly string[] LineDelimiters = { "\r\n", "\n" };
 
-        private readonly IAdminService adminService;
+        private readonly IAdminApiClient adminService;
 
-        public ItemsController(IAdminService adminService)
+        public ItemsController(IAdminApiClient adminService)
         {
             this.adminService = adminService;
         }

@@ -1,4 +1,4 @@
-using Hospital.Shared.Proxies;
+﻿using Hospital.Shared.Proxies;
 namespace Hospital.Web.Controllers
 {
     using System;
@@ -15,11 +15,11 @@ namespace Hospital.Web.Controllers
     [Authorize(Roles = "Doctor,Admin")]
     public class HangoutsController : Controller
     {
-        private readonly IHangoutService hangoutService;
-        private readonly IDoctorAppointmentService doctorAppointmentService;
+        private readonly IHangoutApiClient hangoutService;
+        private readonly IDoctorAppointmentApiClient doctorAppointmentService;
         private readonly IStaffRepository staffRepository;
 
-        public HangoutsController(IHangoutService hangoutService, IDoctorAppointmentService doctorAppointmentService, IStaffRepository staffRepository)
+        public HangoutsController(IHangoutApiClient hangoutService, IDoctorAppointmentApiClient doctorAppointmentService, IStaffRepository staffRepository)
         {
             this.hangoutService = hangoutService;
             this.doctorAppointmentService = doctorAppointmentService;
@@ -33,7 +33,7 @@ namespace Hospital.Web.Controllers
                 return null;
 
             var allStaff = await this.staffRepository.GetAllAsync();
-            var existing = allStaff.Find(s => string.Equals(s.Email, email, StringComparison.OrdinalIgnoreCase));
+            var existing = allStaff.Find(staff => string.Equals(staff.Email, email, StringComparison.OrdinalIgnoreCase));
             if (existing is not null)
             {
                 return existing.StaffId;
@@ -70,8 +70,8 @@ namespace Hospital.Web.Controllers
                     MaxParticipants = hangout.MaxParticipants,
                     IsFull = hangout.ParticipantList.Count >= hangout.MaxParticipants,
                     IsAlreadyJoined = currentStaffId.HasValue &&
-                        hangout.ParticipantList.Any(p => p.StaffId == currentStaffId.Value),
-                    ParticipantStaffIds = hangout.ParticipantList.Select(p => p.StaffId).ToHashSet(),
+                        hangout.ParticipantList.Any(participant => participant.StaffId == currentStaffId.Value),
+                    ParticipantStaffIds = hangout.ParticipantList.Select(participant => participant.StaffId).ToHashSet(),
                 };
 
             var viewModel = new HangoutsIndexViewModel

@@ -1,4 +1,4 @@
-using Hospital.Shared.Proxies;
+﻿using Hospital.Shared.Proxies;
 namespace Hospital.Web.Controllers
 {
     using System;
@@ -16,15 +16,18 @@ namespace Hospital.Web.Controllers
         private const string ErrorMessageKey = "ErrorMessage";
         private const string WarningMessageKey = "WarningMessage";
 
-        private readonly IMedicalEvaluationService medicalEvaluationService;
-        private readonly IWellnessItemsService wellnessItemsService;
+        private readonly IMedicalEvaluationApiClient medicalEvaluationService;
+        private readonly IWellnessItemsApiClient wellnessItemsService;
+        private readonly IPatientApiClient patientService;
 
         public MedicalEvaluationsController(
-            IMedicalEvaluationService medicalEvaluationService,
-            IWellnessItemsService wellnessItemsService)
+            IMedicalEvaluationApiClient medicalEvaluationService,
+            IWellnessItemsApiClient wellnessItemsService,
+            IPatientApiClient patientService)
         {
             this.medicalEvaluationService = medicalEvaluationService;
             this.wellnessItemsService = wellnessItemsService;
+            this.patientService = patientService;
         }
 
         [HttpGet]
@@ -62,19 +65,21 @@ namespace Hospital.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             this.ViewBag.DoctorList = this.medicalEvaluationService.GetAllDoctors();
             this.ViewBag.WellnessItems = this.wellnessItemsService.GetWellnessItems();
+            this.ViewBag.PatientList = await this.patientService.GetAllPatients();
             return this.View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(MedicalEvaluation newEvaluation)
+        public async Task<IActionResult> Create(MedicalEvaluation newEvaluation)
         {
             this.ViewBag.DoctorList = this.medicalEvaluationService.GetAllDoctors();
             this.ViewBag.WellnessItems = this.wellnessItemsService.GetWellnessItems();
+            this.ViewBag.PatientList = await this.patientService.GetAllPatients();
 
             if (!this.ModelState.IsValid)
             {
