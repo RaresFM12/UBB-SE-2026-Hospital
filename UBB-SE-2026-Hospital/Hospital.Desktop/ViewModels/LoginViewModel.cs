@@ -10,11 +10,11 @@ public partial class LoginViewModel(AuthClient authClient) : ObservableObject
 {
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(LoginCommand))]
-    public partial string Email { get; set; } = string.Empty;
+    public partial string? Email { get; set; }
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(LoginCommand))]
-    public partial string Password { get; set; } = string.Empty;
+    public partial string? Password { get; set; }
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(LoginCommand))]
