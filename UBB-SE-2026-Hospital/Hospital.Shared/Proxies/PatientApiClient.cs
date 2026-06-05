@@ -4,7 +4,7 @@ using Hospital.Shared.Services;
 
 namespace Hospital.Shared.Proxies;
 
-public class PatientApiClient : ApiClientBase, IPatientApiClient
+public class PatientApiClient : ApiClientBase, IPatientApiClient, IPatientService
 {
     private const string BaseUri = "api/patients";
 
@@ -118,9 +118,7 @@ public class PatientApiClient : ApiClientBase, IPatientApiClient
         }
     }
 
-    // IPatientService implementation
-
-    // Some extra getters
+    // IPatientApiClient extra overloads (without CancellationToken)
     public async Task<MedicalHistory?> GetMedicalHistoryAsync(int id)
         => await GetAsync<MedicalHistory>($"{BaseUri}/{id}/medical-history");
 
@@ -135,5 +133,34 @@ public class PatientApiClient : ApiClientBase, IPatientApiClient
 
     public async Task<List<Patient>> GetAllPatients(CancellationToken cancellationToken = default)
         => await GetAsync<List<Patient>>(BaseUri, cancellationToken) ?? [];
-}
 
+    // IPatientService bridge methods (members not already covered above)
+    public async Task<IReadOnlyList<Patient>> GetPatientsAsync(CancellationToken cancellationToken = default)
+        => await GetAsync<List<Patient>>(BaseUri, cancellationToken) ?? [];
+
+    public async Task UpdatePatientAsync(Patient patient, CancellationToken cancellationToken = default)
+        => await PutAsync($"{BaseUri}/{patient.PatientId}", new UpdatePatientRequest
+        {
+            FirstName = patient.FirstName,
+            LastName = patient.LastName,
+            DateOfBirth = patient.DateOfBirth,
+            Cnp = patient.Cnp,
+            Sex = patient.Sex,
+            PhoneNumber = patient.PhoneNumber,
+            EmergencyContact = patient.EmergencyContact,
+            IsDonor = patient.IsDonor,
+            Transferred = patient.Transferred,
+            DateOfDeath = patient.DateOfDeath,
+            IsArchived = patient.IsArchived,
+        }, cancellationToken);
+
+    // IPatientService.ArchiveAsDeceasedAsync(int, DateTime, CancellationToken) bridge
+    public Task ArchiveAsDeceasedAsync(int patientId, DateTime deathDate, CancellationToken cancellationToken = default)
+        => ArchiveAsDeceasedAsync(patientId, new ArchiveAsDeceasedRequest { DeathDate = deathDate }, cancellationToken);
+
+    public async Task<int> CreateMedicalRecordAsync(int patientId, MedicalRecord record, CancellationToken cancellationToken = default)
+        => await PostAsync<MedicalRecord, int>($"{BaseUri}/{patientId}/medical-records", record, cancellationToken);
+
+    public Task CreatePrescriptionAsync(int recordId, Prescription prescription)
+        => PostAsync($"{BaseUri}/records/{recordId}/prescription", prescription);
+}
