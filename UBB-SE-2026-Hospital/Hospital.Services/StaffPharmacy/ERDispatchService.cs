@@ -21,6 +21,12 @@ public class ERDispatchService(
     public async Task<ERRequest?> GetRequestByIdAsync(int requestId, CancellationToken cancellationToken = default)
         => await dispatchRepository.GetByIdAsync(requestId);
 
+    public Task<ERRequest?> GetRequestByVisitIdAsync(int visitId)
+    {
+        // ERRequest currently has no visit relationship in the data model.
+        return Task.FromResult<ERRequest?>(null);
+    }
+
     public async Task<int> CreateRequestAsync(string specialization, string location, string status, CancellationToken cancellationToken = default)
     {
         var request = await dispatchRepository.CreateAsync(new ERRequest

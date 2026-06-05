@@ -15,13 +15,13 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IRolePermissionCache, RolePermissionCache>();
 
         services.AddScoped<Hospital.Shared.Services.IStatisticsService, Hospital.Services.PatientEr.StatisticsService>();
-        services.AddScoped<IAllergyService, AllergyService>();
+        services.AddScoped<Hospital.Services.PatientEr.IAllergyService, AllergyService>();
         services.AddScoped<Hospital.Shared.Services.IBillingService, BillingService>();
-        services.AddScoped<IBloodCompatibilityService, BloodCompatibilityService>();
-        services.AddScoped<IPrescriptionService, PrescriptionService>();
-        services.AddScoped<ITransferLogService, TransferLogService>();
-        services.AddScoped<ITransplantService, TransplantService>();
-        services.AddScoped<IAddictDetectionService, AddictDetectionService>();
+        services.AddScoped<Hospital.Services.PatientEr.IBloodCompatibilityService, BloodCompatibilityService>();
+        services.AddScoped<Hospital.Services.PatientEr.IPrescriptionService, PrescriptionService>();
+        services.AddScoped<Hospital.Services.PatientEr.ITransferLogService, TransferLogService>();
+        services.AddScoped<Hospital.Services.PatientEr.ITransplantService, TransplantService>();
+        services.AddScoped<Hospital.Services.PatientEr.IAddictDetectionService, AddictDetectionService>();
         services.AddScoped<IPatientService, PatientService>();
         services.AddScoped<IERRoomService, ERRoomService>();
         services.AddScoped<IERVisitService, ERVisitService>();

@@ -1,6 +1,6 @@
+using Hospital.Data.Models;
 using Hospital.Data.Models.DTOs;
 using Hospital.Data.Repositories;
-using Hospital.Shared.Models.PatientEr;
 using Hospital.Shared.Services;
 using DbPatient = Hospital.Data.Models.Patient;
 
@@ -39,11 +39,8 @@ public class PatientService(
 
     public Task<Data.Models.Patient?> GetByIdAsync(int id, CancellationToken cancellationToken) => patientRepository.GetByIdAsync(id);
 
-    public async Task<IReadOnlyList<Patient>> GetPatientsAsync(CancellationToken cancellationToken = default)
-    {
-        var dbPatients = await patientRepository.GetAllAsync();
-        return dbPatients.Select(MapPatient).ToList();
-    }
+    public async Task<IReadOnlyList<DbPatient>> GetPatientsAsync(CancellationToken cancellationToken = default)
+        => await patientRepository.GetAllAsync();
 
     public async Task<DbPatient> CreatePatientAsync(CreatePatientRequest request, CancellationToken cancellationToken = default)
     {
@@ -119,20 +116,16 @@ public class PatientService(
         await patientRepository.UpdateAsync(patient);
     }
 
-    public async Task<Patient> GetPatientDetailsAsync(int patientId, CancellationToken cancellationToken)
-    {
-        var patient = await patientRepository.GetByIdAsync(patientId)
+    public async Task<DbPatient> GetPatientDetailsAsync(int patientId, CancellationToken cancellationToken)
+        => await patientRepository.GetByIdAsync(patientId)
             ?? throw new ArgumentException("Patient not found.");
-        return MapPatient(patient);
-    }
 
-    public async Task<Prescription?> GetPrescriptionByRecordIdAsync(int recordId, CancellationToken cancellationToken)
+    public async Task<Hospital.Data.Models.Prescription?> GetPrescriptionByRecordIdAsync(int recordId, CancellationToken cancellationToken)
     {
         if (prescriptionRepository is null)
             return null;
 
-        var prescription = (await prescriptionRepository.GetByRecordIdAsync(recordId)).FirstOrDefault();
-        return prescription is null ? null : MapPrescription(prescription);
+        return (await prescriptionRepository.GetByRecordIdAsync(recordId)).FirstOrDefault();
     }
 
     public async Task<List<string>> GetPatientAllergiesAsync(int patientId, CancellationToken cancellationToken)
@@ -260,82 +253,49 @@ public class PatientService(
         return record.RecordId;
     }
 
-    public async Task CreatePrescriptionAsync(int recordId, Prescription prescription)
+    public async Task CreatePrescriptionAsync(int recordId, Hospital.Data.Models.Prescription prescription)
     {
         if (prescriptionRepository is null)
             throw new InvalidOperationException("Prescription repository is not available.");
 
         var exportData = await GetRecordExportDataAsync(recordId, CancellationToken.None);
-        await prescriptionRepository.CreateAsync(new Data.Models.Prescription
-        {
-            MedicalRecord = exportData.Record,
-            Date = prescription.DateIssued == default ? DateTime.UtcNow : prescription.DateIssued,
-            DoctorNotes = prescription.Notes,
-        });
+        prescription.MedicalRecord = exportData.Record;
+        prescription.Date = prescription.Date == default ? DateTime.UtcNow : prescription.Date;
+        await prescriptionRepository.CreateAsync(prescription);
     }
 
-    private static Patient MapPatient(Data.Models.Patient patient)
+    public async Task UpdatePatientAsync(int patientId, UpdatePatientRequest request, CancellationToken cancellationToken = default)
     {
-        return new Patient
-        {
-            PatientId = patient.PatientId,
-            FirstName = patient.FirstName,
-            LastName = patient.LastName,
-            Cnp = patient.Cnp,
-            DateOfBirth = patient.DateOfBirth,
-            DateOfDeath = patient.DateOfDeath,
-            Sex = patient.Sex.ToString()[0],
-            PhoneNo = patient.PhoneNumber,
-            EmergencyContact = patient.EmergencyContact,
-            IsArchived = patient.IsArchived,
-            IsDonor = patient.IsDonor,
-            Transferred = patient.Transferred,
-            MedicalHistory = patient.MedicalHistory is null ? null : MapMedicalHistory(patient.MedicalHistory),
-        };
+        ArgumentNullException.ThrowIfNull(request);
+        var patient = await patientRepository.GetByIdAsync(patientId)
+            ?? throw new ArgumentException("Patient not found.");
+
+        patient.FirstName = request.FirstName;
+        patient.LastName = request.LastName;
+        patient.Cnp = request.Cnp;
+        patient.DateOfBirth = request.DateOfBirth;
+        patient.DateOfDeath = request.DateOfDeath;
+        patient.Sex = request.Sex;
+        patient.PhoneNumber = request.PhoneNumber;
+        patient.EmergencyContact = request.EmergencyContact;
+        patient.IsArchived = request.IsArchived;
+        patient.IsDonor = request.IsDonor;
+        patient.Transferred = request.Transferred;
+
+        await UpdatePatientAsync(patient, cancellationToken);
     }
 
-    private static MedicalHistory MapMedicalHistory(Data.Models.MedicalHistory medicalHistory)
-    {
-        return new MedicalHistory
-        {
-            MedicalHistoryId = medicalHistory.MedicalHistoryId,
-            BloodType = medicalHistory.BloodType,
-            Rh = medicalHistory.Rh,
-            ChronicConditions = medicalHistory.ChronicConditions,
-            MedicalRecords = medicalHistory.MedicalRecords.Select(MapMedicalRecord).ToList(),
-            PatientAllergies = medicalHistory.PatientAllergies,
-        };
-    }
+    public async Task<Hospital.Data.Models.MedicalHistory?> GetMedicalHistoryAsync(int patientId)
+        => (await patientRepository.GetByIdAsync(patientId))?.MedicalHistory;
 
-    private static MedicalRecord MapMedicalRecord(Data.Models.MedicalRecord record)
-    {
-        return new MedicalRecord
-        {
-            RecordId = record.RecordId,
-            SourceType = record.SourceType,
-            SourceId = record.SourceId,
-            StaffMember = record.StaffMember,
-            Symptoms = record.Symptoms,
-            Diagnosis = record.Diagnosis,
-            ConsultationDate = record.ConsultationDate,
-            Prescription = record.Prescription is null ? null : MapPrescription(record.Prescription),
-            BasePrice = record.BasePrice,
-            FinalPrice = record.FinalPrice,
-            DiscountApplied = record.DiscountApplied,
-            PoliceNotified = record.PoliceNotified,
-            Transplant = record.Transplant,
-        };
-    }
+    public async Task<List<Hospital.Data.Models.MedicalRecord>> GetMedicalRecordsAsync(int historyId)
+        => (await patientRepository.GetAllAsync())
+            .Select(patient => patient.MedicalHistory)
+            .Where(history => history?.MedicalHistoryId == historyId)
+            .SelectMany(history => history!.MedicalRecords)
+            .ToList();
 
-    private static Prescription MapPrescription(Data.Models.Prescription prescription)
-    {
-        return new Prescription
-        {
-            PrescriptionId = prescription.PrescriptionId,
-            PatientId = prescription.MedicalRecord?.MedicalHistory?.Patient?.PatientId ?? 0,
-            DoctorId = prescription.MedicalRecord?.StaffMember?.StaffId ?? 0,
-            DateIssued = prescription.Date,
-            Notes = prescription.DoctorNotes ?? string.Empty,
-        };
-    }
+    public async Task<bool> ExistsAsync(string cnp)
+        => (await patientRepository.GetAllAsync())
+            .Any(patient => string.Equals(patient.Cnp, cnp, StringComparison.Ordinal));
 }
