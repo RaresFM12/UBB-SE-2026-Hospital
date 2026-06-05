@@ -87,6 +87,13 @@ public partial class App : Application
         services.AddSingleton<IShiftManagementService, ShiftManagementApiClient>();
         services.AddSingleton<IFatigueAuditService, FatigueAuditApiClient>();
 
+        // Newly ported web features (desktop parity)
+        services.AddSingleton<IGhostApiClient, GhostApiClient>();
+        services.AddSingleton<IMedicalEvaluationService, MedicalEvaluationApiClient>();
+        services.AddSingleton<IHangoutService, HangoutApiClient>();
+        services.AddSingleton<IShiftSwapService, ShiftSwapApiClient>();
+        services.AddSingleton<INotificationService, NotificationApiClient>();
+
         // ViewModels
         // Removed incorrect ViewModel registration; EditPageViewModel is registered later
         services.AddTransient<Hospital.Desktop.ViewModels.LoginViewModel>();

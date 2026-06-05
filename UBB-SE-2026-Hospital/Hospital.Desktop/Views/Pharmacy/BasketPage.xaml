@@ -1,0 +1,75 @@
+<Page
+    x:Class="Hospital.Desktop.Views.Pharmacy.BasketPage"
+    x:Name="Root"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid Background="{StaticResource AppBackgroundBrush}" Padding="24" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" Spacing="12">
+            <TextBlock Text="Basket" FontSize="28" FontWeight="SemiBold" Foreground="{StaticResource AppAccentBrush}" VerticalAlignment="Center"/>
+            <Button Content="Refresh" Command="{Binding LoadCommand}" VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <Border Grid.Row="1" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
+            <ListView ItemsSource="{Binding Items}">
+                <ListView.HeaderTemplate>
+                    <DataTemplate>
+                        <Grid Padding="8" ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="120"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Medicine" Foreground="{StaticResource AppTextSecondaryBrush}" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="1" Text="Producer" Foreground="{StaticResource AppTextSecondaryBrush}" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="2" Text="Quantity" Foreground="{StaticResource AppTextSecondaryBrush}" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="3" Text="Price" Foreground="{StaticResource AppTextSecondaryBrush}" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="4" Text="Actions" Foreground="{StaticResource AppTextSecondaryBrush}" FontWeight="SemiBold"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.HeaderTemplate>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="8" ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="120"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding ItemName}" Foreground="{StaticResource AppTextPrimaryBrush}" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="1" Text="{Binding ItemProducer}" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                            <TextBlock Grid.Column="2" Text="{Binding ItemQuantityInBasket}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                            <TextBlock Grid.Column="3" Text="{Binding ItemFinalDiscountedPriceString}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                            <Button Grid.Column="4" Content="Remove" Command="{Binding DataContext.RemoveCommand, ElementName=Root}" CommandParameter="{Binding}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Border>
+
+        <Border Grid.Row="2" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
+            <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                <TextBlock Text="Total before discount:" Foreground="{StaticResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding TotalBeforeDiscount}" Foreground="{StaticResource AppTextPrimaryBrush}" VerticalAlignment="Center"/>
+                <TextBlock Text="Total after discount:" Foreground="{StaticResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding TotalAfterDiscount}" Foreground="{StaticResource AppTextPrimaryBrush}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                <TextBlock Text="Pickup date:" Foreground="{StaticResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
+                <DatePicker Date="{Binding PickUpDate, Mode=TwoWay}" VerticalAlignment="Center"/>
+                <Button Content="Place Order" Command="{Binding PlaceOrderCommand}" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <TextBlock Grid.Row="3" Text="{Binding StatusMessage}" Foreground="{StaticResource AppTextPrimaryBrush}" TextWrapping="Wrap"/>
+    </Grid>
+</Page>
