@@ -19,6 +19,13 @@ public sealed partial class LoginWindow : Window
             {
                 BusyRing.Visibility = ViewModel.IsBusy ? Visibility.Visible : Visibility.Collapsed;
             }
+            else if (e.PropertyName is nameof(ViewModel.ErrorMessage))
+            {
+                ErrorText.Text = ViewModel.ErrorMessage ?? string.Empty;
+                ErrorText.Visibility = string.IsNullOrEmpty(ViewModel.ErrorMessage)
+                    ? Visibility.Collapsed
+                    : Visibility.Visible;
+            }
         };
     }
 
