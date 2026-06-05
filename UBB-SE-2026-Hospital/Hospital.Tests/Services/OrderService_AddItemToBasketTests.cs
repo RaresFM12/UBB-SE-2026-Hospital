@@ -23,7 +23,7 @@ namespace Hospital.Tests.Services
 
             var service = new OrderService(mockOrdersRepo.Object, mockItemsRepo.Object, mockUsersRepo.Object, mockBasketRepo.Object, mockPresRepo.Object);
 
-            await Assert.ThrowsExceptionAsync(typeof(ArgumentException), async () => await service.AddItemToBasketAsync(1, 2, 0));
+            await Assert.ThrowsExceptionAsync<ArgumentException>(async () => await service.AddItemToBasketAsync(1, 2, 0));
         }
 
         [TestMethod]
@@ -38,7 +38,7 @@ namespace Hospital.Tests.Services
             mockUsersRepo.Setup(r => r.GetUserByIdAsync(It.IsAny<int>())).ReturnsAsync((User?) null);
             var service = new OrderService(mockOrdersRepo.Object, mockItemsRepo.Object, mockUsersRepo.Object, mockBasketRepo.Object, mockPresRepo.Object);
 
-            await Assert.ThrowsExceptionAsync(typeof(ArgumentException), async () => await service.AddItemToBasketAsync(99, 2, 1));
+            await Assert.ThrowsExceptionAsync<ArgumentException>(async () => await service.AddItemToBasketAsync(99, 2, 1));
         }
 
         [TestMethod]
@@ -55,7 +55,7 @@ namespace Hospital.Tests.Services
 
             var service = new OrderService(mockOrdersRepo.Object, mockItemsRepo.Object, mockUsersRepo.Object, mockBasketRepo.Object, mockPresRepo.Object);
 
-            await Assert.ThrowsExceptionAsync(typeof(ArgumentException), async () => await service.AddItemToBasketAsync(1, 123, 1));
+            await Assert.ThrowsExceptionAsync<ArgumentException>(async () => await service.AddItemToBasketAsync(1, 123, 1));
         }
     }
 }

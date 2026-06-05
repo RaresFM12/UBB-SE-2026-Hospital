@@ -43,7 +43,7 @@ namespace Hospital.Tests.Services
 
             var service = new AuthService(mockUsersRepo.Object, inMemoryConfig.Object);
 
-            await Assert.ThrowsExceptionAsync(typeof(UnauthorizedAccessException), async () => await service.LoginAsync(new LoginRequest { Email = "d@d.com", Password = "p" }));
+            await Assert.ThrowsExceptionAsync<UnauthorizedAccessException>(async () => await service.LoginAsync(new LoginRequest { Email = "d@d.com", Password = "p" }));
         }
 
         [TestMethod]
@@ -58,7 +58,7 @@ namespace Hospital.Tests.Services
 
             var service = new AuthService(mockUsersRepo.Object, inMemoryConfig.Object);
 
-            await Assert.ThrowsExceptionAsync(typeof(UnauthorizedAccessException), async () => await service.LoginAsync(new LoginRequest { Email = "x@x.com", Password = "wrong" }));
+            await Assert.ThrowsExceptionAsync<UnauthorizedAccessException>(async () => await service.LoginAsync(new LoginRequest { Email = "x@x.com", Password = "wrong" }));
         }
     }
 }

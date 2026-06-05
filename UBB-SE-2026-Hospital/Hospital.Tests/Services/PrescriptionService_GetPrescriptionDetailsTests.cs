@@ -31,7 +31,7 @@ namespace Hospital.Tests.Services
             mockPresRepo.Setup(r => r.GetFilteredAsync(It.IsAny<PrescriptionFilter>())).ReturnsAsync(new List<Prescription>());
             var service = new PrescriptionService(mockPresRepo.Object);
 
-            await Assert.ThrowsExceptionAsync(typeof(ArgumentException), async () => await service.GetPrescriptionDetailsAsync(77));
+            await Assert.ThrowsExceptionAsync<ArgumentException>(async () => await service.GetPrescriptionDetailsAsync(77));
         }
     }
 }

@@ -26,7 +26,7 @@ namespace Hospital.Tests.Services
 
             var service = new ExaminationService(mockExamRepo.Object, mockVisitRepo.Object, mockRoomRepo.Object, mockTriageRepo.Object, mockParamsRepo.Object);
 
-            await Assert.ThrowsExceptionAsync(typeof(ArgumentException), async () => await service.UpdateAsync(new Examination { ExaminationId = 999 }));
+            await Assert.ThrowsExceptionAsync<ArgumentException>(async () => await service.UpdateAsync(new Examination { ExaminationId = 999 }));
         }
 
         [TestMethod]
