@@ -10,7 +10,11 @@
       {
         "Path": "Hospital.Web\\Hospital.Web.csproj",
         "Action": "Start",
-        "DebugTarget": "http"
+        "DebugTarget": "https"
+      },
+      {
+        "Path": "Hospital.Desktop\\Hospital.Desktop.csproj",
+        "Action": "Start"
       }
     ]
   },
