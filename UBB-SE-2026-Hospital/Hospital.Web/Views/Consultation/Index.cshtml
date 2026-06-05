@@ -1,26 +1,83 @@
+@model Hospital.Web.Models.Consultations.ConsultationsIndexViewModel
+
 @{
     ViewData["Title"] = "Consultations";
 }
 
-<div class="container mt-4" style="max-width: 720px;">
+<div class="container mt-4" style="max-width: 960px;">
     <h1 class="mb-3">Consultations</h1>
-    <p class="text-muted">Open a consultation by entering the patient and record identifiers.</p>
+    <p class="text-muted">Choose a patient to view their consultation records.</p>
 
-    <div class="card shadow-sm">
+    @if (TempData["ErrorMessage"] is string errorMessage)
+    {
+        <div class="alert alert-danger" role="alert">@errorMessage</div>
+    }
+
+    <div class="card shadow-sm mb-4">
         <div class="card-body">
-            <form method="get" asp-action="Details" class="row g-3">
-                <div class="col-md-6">
-                    <label for="patientId" class="form-label">Patient ID</label>
-                    <input id="patientId" name="patientId" type="number" class="form-control" min="1" required />
-                </div>
-                <div class="col-md-6">
-                    <label for="recordId" class="form-label">Record ID</label>
-                    <input id="recordId" name="recordId" type="number" class="form-control" min="1" required />
-                </div>
-                <div class="col-12">
-                    <button type="submit" class="btn btn-primary">Open consultation</button>
-                </div>
-            </form>
+            <label for="patientId" class="form-label">Patient</label>
+            <select id="patientId"
+                    class="form-select"
+                    data-base-url="@Url.Action("Index")"
+                    onchange="if (this.value) { window.location.href = this.dataset.baseUrl + '?patientId=' + this.value; } else { window.location.href = this.dataset.baseUrl; }">
+                <option value="">-- Select a patient --</option>
+                @foreach (var option in Model.Patients)
+                {
+                    <option value="@option.Id" selected="@(Model.SelectedPatientId == option.Id)">
+                        @option.Display
+                    </option>
+                }
+            </select>
         </div>
     </div>
+
+    @if (Model.SelectedPatientId.HasValue)
+    {
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <strong>Records for @Model.SelectedPatientName</strong>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.Records.Count == 0)
+                {
+                    <div class="p-3 text-muted">This patient has no consultation records.</div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Record ID</th>
+                                    <th>Date</th>
+                                    <th>Source</th>
+                                    <th>Diagnosis</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var record in Model.Records)
+                                {
+                                    <tr>
+                                        <td>#@record.RecordId</td>
+                                        <td>@record.ConsultationDate.ToString("yyyy-MM-dd HH:mm")</td>
+                                        <td><span class="badge bg-secondary">@record.SourceType</span></td>
+                                        <td>@record.Diagnosis</td>
+                                        <td class="text-end">
+                                            <a asp-action="Details"
+                                               asp-route-patientId="@Model.SelectedPatientId"
+                                               asp-route-recordId="@record.RecordId"
+                                               class="btn btn-sm btn-outline-primary">
+                                                Open
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    }
 </div>

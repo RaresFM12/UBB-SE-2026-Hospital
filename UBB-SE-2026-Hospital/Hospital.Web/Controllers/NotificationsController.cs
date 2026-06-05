@@ -8,7 +8,7 @@ namespace Hospital.Web.Controllers
     using Hospital.Shared.Services;
     using Hospital.Web.Models;
 
-    [Authorize(Roles = "Client")]
+    [Authorize(Roles = "Client , Admin")]
     public class NotificationsController : Controller
     {
         private readonly IAdminService adminService;

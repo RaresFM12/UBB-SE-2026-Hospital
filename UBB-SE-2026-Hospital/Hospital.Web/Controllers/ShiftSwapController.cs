@@ -8,7 +8,7 @@ using Hospital.Web.Models;
 
 namespace Hospital.Web.Controllers
 {
-    [Authorize(Roles = "Doctor")]
+    [Authorize(Roles = "Doctor,Admin")]
     public class ShiftSwapController : Controller
     {
         private readonly IShiftSwapService _shiftSwapService;

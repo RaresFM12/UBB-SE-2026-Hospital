@@ -3,30 +3,61 @@ namespace Hospital.Web.Controllers
 {
     using System;
     using System.Collections.Generic;
+    using System.Security.Claims;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Hospital.Data.Models;
+    using Hospital.Data.Repositories;
     using Hospital.Shared.Services;
     using Hospital.Web.Models;
 
-    [Authorize(Roles = "Doctor")]
+    [Authorize(Roles = "Doctor,Admin")]
     public class HangoutsController : Controller
     {
         private readonly IHangoutService hangoutService;
         private readonly IDoctorAppointmentService doctorAppointmentService;
+        private readonly IStaffRepository staffRepository;
 
-        public HangoutsController(IHangoutService hangoutService, IDoctorAppointmentService doctorAppointmentService)
+        public HangoutsController(IHangoutService hangoutService, IDoctorAppointmentService doctorAppointmentService, IStaffRepository staffRepository)
         {
             this.hangoutService = hangoutService;
             this.doctorAppointmentService = doctorAppointmentService;
+            this.staffRepository = staffRepository;
+        }
+
+        private async Task<int?> GetCurrentStaffIdAsync()
+        {
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            if (string.IsNullOrEmpty(email))
+                return null;
+
+            var allStaff = await this.staffRepository.GetAllAsync();
+            var existing = allStaff.Find(s => string.Equals(s.Email, email, StringComparison.OrdinalIgnoreCase));
+            if (existing is not null)
+            {
+                return existing.StaffId;
+            }
+
+           
+            var displayName = User.FindFirstValue(ClaimTypes.Name) ?? email;
+            var created = await this.staffRepository.CreateAsync(new Staff
+            {
+                Email = email,
+                FirstName = displayName,
+                LastName = string.Empty,
+
+                Role = "Staff",
+            });
+
+            return created.StaffId;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             List<Hangout> hangouts = this.hangoutService.GetAllHangouts();
-            List<DoctorOptionViewModel> doctors = await this.LoadDoctorOptionsAsync();
+            int? currentStaffId = await this.GetCurrentStaffIdAsync();
 
             HangoutViewModel MapHangoutToViewModel(Hangout hangout) =>
                 new HangoutViewModel
@@ -38,12 +69,16 @@ namespace Hospital.Web.Controllers
                     ParticipantCount = hangout.ParticipantList.Count,
                     MaxParticipants = hangout.MaxParticipants,
                     IsFull = hangout.ParticipantList.Count >= hangout.MaxParticipants,
+                    IsAlreadyJoined = currentStaffId.HasValue &&
+                        hangout.ParticipantList.Any(p => p.StaffId == currentStaffId.Value),
+                    ParticipantStaffIds = hangout.ParticipantList.Select(p => p.StaffId).ToHashSet(),
                 };
 
             var viewModel = new HangoutsIndexViewModel
             {
                 Hangouts = hangouts.ConvertAll(MapHangoutToViewModel),
-                Doctors = doctors,
+                CurrentStaffId = currentStaffId,
+                Doctors = await this.LoadDoctorOptionsAsync(),
             };
 
             return this.View(viewModel);
