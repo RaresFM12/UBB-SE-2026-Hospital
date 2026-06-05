@@ -25,6 +25,7 @@ namespace Hospital.Web.Controllers
         {
             this.medicalEvaluationService = medicalEvaluationService;
             this.wellnessItemsService = wellnessItemsService;
+            this.patientService = patientService;
         }
 
         [HttpGet]
@@ -62,19 +63,21 @@ namespace Hospital.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             this.ViewBag.DoctorList = this.medicalEvaluationService.GetAllDoctors();
             this.ViewBag.WellnessItems = this.wellnessItemsService.GetWellnessItems();
+            this.ViewBag.PatientList = await this.patientService.GetPatientsAsync();
             return this.View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(MedicalEvaluation newEvaluation)
+        public async Task<IActionResult> Create(MedicalEvaluation newEvaluation)
         {
             this.ViewBag.DoctorList = this.medicalEvaluationService.GetAllDoctors();
             this.ViewBag.WellnessItems = this.wellnessItemsService.GetWellnessItems();
+            this.ViewBag.PatientList = await this.patientService.GetPatientsAsync();
 
             if (!this.ModelState.IsValid)
             {

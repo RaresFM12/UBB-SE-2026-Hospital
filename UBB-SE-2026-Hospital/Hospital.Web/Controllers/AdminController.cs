@@ -41,8 +41,8 @@ public class AdminController : Controller
     public async Task<IActionResult> Index(string? searchQuery, int? minAge, int? maxAge, Sex? sex, bool archived = false, int? selectedId = null, CancellationToken cancellationToken = default)
     {
         var searchResults = await SearchPatientsAsync(searchQuery, minAge, maxAge, sex, cancellationToken);
-        var visiblePatients = searchResults.Where(p => p.IsArchived == archived).OrderBy(p => p.LastName).ToList();
-        Patient? selectedPatient = selectedId.HasValue ? (visiblePatients.FirstOrDefault(p => p.PatientId == selectedId.Value) ?? await patientService.GetByIdAsync(selectedId.Value, cancellationToken)) : null;
+        var visiblePatients = searchResults.Where(patient => patient.IsArchived == archived).OrderBy(patient => patient.LastName).ToList();
+        Patient? selectedPatient = selectedId.HasValue ? (visiblePatients.FirstOrDefault(patient => patient.PatientId == selectedId.Value) ?? await patientService.GetByIdAsync(selectedId.Value, cancellationToken)) : null;
 
         return View(new AdminPatientsIndexViewModel
         {
@@ -115,18 +115,18 @@ public class AdminController : Controller
         Label = item.Label, 
         Description = item.Description, 
         DiscountPercentage = item.DiscountPercentage, 
-        SubstancesText = string.Join(Environment.NewLine, item.ActiveSubstances.Select(e => $"{e.Key}:{e.Value}")), 
-        BatchesText = string.Join(Environment.NewLine, item.Batches.Select(e => $"{e.Key:yyyy-MM-dd}:{e.Value}")) 
+        SubstancesText = string.Join(Environment.NewLine, item.ActiveSubstances.Select(env => $"{env.Key}:{env.Value}")), 
+        BatchesText = string.Join(Environment.NewLine, item.Batches.Select(env => $"{env.Key:yyyy-MM-dd}:{env.Value}")) 
     };
-    private static Dictionary<string, float> ParseSubstancesText(string text) => string.IsNullOrWhiteSpace(text) ? new() : text.Split(LineDelimiters, StringSplitOptions.RemoveEmptyEntries).Select(l => l.Split(':')).ToDictionary(p => p[0].Trim(), p => float.Parse(p[1]));
-    private static Dictionary<DateOnly, int> ParseBatchesText(string text) => string.IsNullOrWhiteSpace(text) ? new() : text.Split(LineDelimiters, StringSplitOptions.RemoveEmptyEntries).Select(l => l.Split(':')).ToDictionary(p => DateOnly.Parse(p[0]), p => int.Parse(p[1]));
-    private static PatientListItemViewModel MapPatientListItem(Patient p) => new() { Id = p.PatientId, FirstName = p.FirstName, LastName = p.LastName, Cnp = p.Cnp, Dob = p.DateOfBirth, Sex = p.Sex.ToString(), PhoneNo = FormatPhoneNumber(p.PhoneNumber), EmergencyContact = FormatPhoneNumber(p.EmergencyContact), IsArchived = p.IsArchived, IsDeceased = p.DateOfDeath.HasValue };
-    private static EditPatientViewModel MapEditPatient(Patient p, PatientListItemViewModel? _) => new() { Id = p.PatientId, FirstName = p.FirstName, LastName = p.LastName, Cnp = p.Cnp, Dob = p.DateOfBirth, Dod = p.DateOfDeath, Sex = p.Sex, PhoneNo = CompactPhoneNumber(p.PhoneNumber), EmergencyContact = CompactEmergencyContact(p.EmergencyContact), IsArchived = p.IsArchived, IsDonor = p.IsDonor, Transferred = p.Transferred };
+    private static Dictionary<string, float> ParseSubstancesText(string text) => string.IsNullOrWhiteSpace(text) ? new() : text.Split(LineDelimiters, StringSplitOptions.RemoveEmptyEntries).Select(line => line.Split(':')).ToDictionary(patient => patient[0].Trim(), patient => float.Parse(patient[1]));
+    private static Dictionary<DateOnly, int> ParseBatchesText(string text) => string.IsNullOrWhiteSpace(text) ? new() : text.Split(LineDelimiters, StringSplitOptions.RemoveEmptyEntries).Select(line => line.Split(':')).ToDictionary(patient => DateOnly.Parse(patient[0]), patient => int.Parse(patient[1]));
+    private static PatientListItemViewModel MapPatientListItem(Patient patient) => new() { Id = patient.PatientId, FirstName = patient.FirstName, LastName = patient.LastName, Cnp = patient.Cnp, Dob = patient.DateOfBirth, Sex = patient.Sex.ToString(), PhoneNo = FormatPhoneNumber(patient.PhoneNumber), EmergencyContact = FormatPhoneNumber(patient.EmergencyContact), IsArchived = patient.IsArchived, IsDeceased = patient.DateOfDeath.HasValue };
+    private static EditPatientViewModel MapEditPatient(Patient patient, PatientListItemViewModel? _) => new() { Id = patient.PatientId, FirstName = patient.FirstName, LastName = patient.LastName, Cnp = patient.Cnp, Dob = patient.DateOfBirth, Dod = patient.DateOfDeath, Sex = patient.Sex, PhoneNo = CompactPhoneNumber(patient.PhoneNumber), EmergencyContact = CompactEmergencyContact(patient.EmergencyContact), IsArchived = patient.IsArchived, IsDonor = patient.IsDonor, Transferred = patient.Transferred };
     private static string NormalizePhone(string phone) => string.IsNullOrWhiteSpace(phone) ? phone : phone.Replace(" ", "").Replace("-", "");
     private static string FormatPhoneNumber(string phone) => string.IsNullOrWhiteSpace(phone) || phone.Length != 10 ? phone : $"+40 {phone.Substring(1, 3)} {phone.Substring(4, 3)} {phone.Substring(7, 3)}";
     private static string CompactPhoneNumber(string phone) => string.IsNullOrWhiteSpace(phone) ? phone : (phone.StartsWith("0") && phone.Length == 10 ? $"+40{phone[1..]}" : phone);
-    private static string CompactEmergencyContact(string contact) => string.IsNullOrWhiteSpace(contact) ? contact : string.Join(",", contact.Split(',').Select(p => p.Trim()).Select(p => p.Any(char.IsDigit) ? CompactPhoneNumber(p) : p));
-    private static List<string> SplitConditions(string? text) => string.IsNullOrWhiteSpace(text) ? new() : text.Split(',').Select(c => c.Trim()).Where(c => !string.IsNullOrWhiteSpace(c)).ToList();
-    private async Task<List<Patient>> SearchPatientsAsync(string? q, int? min, int? max, Sex? s, CancellationToken ct) => await patientService.SearchPatientsAsync(new SearchPatientsRequest { MinAge = min, MaxAge = max, Sex = s, Cnp = (q?.All(char.IsDigit) == true && q.Length == 13) ? q : null, NamePart = (q?.All(char.IsDigit) == false) ? q : null }, ct);
+    private static string CompactEmergencyContact(string contact) => string.IsNullOrWhiteSpace(contact) ? contact : string.Join(",", contact.Split(',').Select(patient => patient.Trim()).Select(patient => patient.Any(char.IsDigit) ? CompactPhoneNumber(patient) : patient));
+    private static List<string> SplitConditions(string? text) => string.IsNullOrWhiteSpace(text) ? new() : text.Split(',').Select(condition => condition.Trim()).Where(condition => !string.IsNullOrWhiteSpace(condition)).ToList();
+    private async Task<List<Patient>> SearchPatientsAsync(string? queue, int? min, int? max, Sex? sex, CancellationToken cancel) => await patientService.SearchPatientsAsync(new SearchPatientsRequest { MinAge = min, MaxAge = max, Sex = sex, Cnp = (queue?.All(char.IsDigit) == true && queue.Length == 13) ? queue : null, NamePart = (queue?.All(char.IsDigit) == false) ? queue : null }, cancel);
     private IActionResult RedirectToLogin() => RedirectToAction("Login", "Auth");
 }
