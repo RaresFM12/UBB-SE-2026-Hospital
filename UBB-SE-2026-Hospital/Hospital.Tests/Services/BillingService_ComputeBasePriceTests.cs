@@ -65,7 +65,7 @@ namespace Hospital.Tests.Services
             var mockPresRepo = new Mock<IPrescriptionRepository>();
             var mockTransRepo = new Mock<ITransplantRepository>();
 
-            var record = new MedicalRecord { RecordId = 20, SourceType = SourceType.Appointment };
+            var record = new MedicalRecord { RecordId = 20, SourceType = SourceType.App };
             mockRecordRepo.Setup(r => r.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(record);
 
             mockPresRepo.Setup(r => r.GetItemsAsync(It.IsAny<int>())).ReturnsAsync(new List<PrescriptionItem>());
