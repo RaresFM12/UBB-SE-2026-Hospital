@@ -24,10 +24,13 @@ public class RegistrationViewModel : IValidatableObject
     public Sex Sex { get; set; } = Sex.M;
 
     [Required]
-    [RegularExpression(@"^07\d{8}$", ErrorMessage = "Phone must be in format 07XXXXXXXX.")]
+    [RegularExpression(@"^07\d{8}$", ErrorMessage = "Phone must be in format 07XXXXXXXX, containing 10 digits")]
     public string Phone { get; set; } = string.Empty;
 
     [Required]
+    [RegularExpression(
+        @"^[A-Za-zĂÂÎȘȚăâîșț\-']+ [A-Za-zĂÂÎȘȚăâîșț\-']+ 07\d{8}$",
+        ErrorMessage = "Emergency contact must be in format: FirstName LastName 07XXXXXXXX (10 digits phone number).")]
     public string EmergencyContact { get; set; } = string.Empty;
 
     [Required]

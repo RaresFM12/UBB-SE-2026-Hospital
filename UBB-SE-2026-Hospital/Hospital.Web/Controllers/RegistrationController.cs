@@ -1,8 +1,6 @@
 using Hospital.Data.Models;
-using Hospital.Data.Models;
+using Hospital.Shared.Services;
 using Hospital.Web.Models.Registration;
-using Hospital.Web.Services;
-using Hospital.Shared.Proxies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,13 +9,13 @@ namespace Hospital.Web.Controllers;
 [Authorize]
 public class RegistrationController : Controller
 {
-    private readonly IPatientApiClient patientApiClient;
-    private readonly IErWorkflowApiClient erApiClient;
+    private readonly IPatientService patientService;
+    private readonly IERVisitService erVisitService;
 
-    public RegistrationController(IPatientApiClient patientApiClient, IErWorkflowApiClient erApiClient)
+    public RegistrationController(IPatientService patientService, IERVisitService erVisitService)
     {
-        this.patientApiClient = patientApiClient;
-        this.erApiClient = erApiClient;
+        this.patientService = patientService;
+        this.erVisitService = erVisitService;
     }
 
     [HttpGet]
@@ -37,16 +35,16 @@ public class RegistrationController : Controller
 
         try
         {
-            string patientId = model.PatientId.Trim();
-            bool patientExists = await patientApiClient.ExistsAsync(patientId, cancellationToken);
+            string cnp = model.PatientId.Trim();
+            bool patientExists = await patientService.ExistsAsync(cnp);
 
             if (!patientExists)
             {
-                Patient created = await patientApiClient.CreatePatientAsync(new CreatePatientRequest
+                Patient created = await patientService.CreatePatientAsync(new CreatePatientRequest
                 {
                     FirstName = model.FirstName.Trim(),
                     LastName = model.LastName.Trim(),
-                    Cnp = patientId,
+                    Cnp = cnp,
                     DateOfBirth = model.DateOfBirth,
                     Sex = model.Sex,
                     PhoneNumber = model.Phone.Trim(),
@@ -57,15 +55,17 @@ public class RegistrationController : Controller
                 TempData["SuccessMessage"] = $"Patient {created.FullName} was created.";
             }
 
-            ERVisit visit = await erApiClient.CreateVisitAsync(new ERVisit
+            Patient patient = (await patientService.SearchPatientsAsync(
+                new SearchPatientsRequest { Cnp = cnp },
+                cancellationToken)).First();
+
+            ERVisit visit = await erVisitService.CreateAsync(new ERVisit
             {
-                Patient = (await patientApiClient.SearchPatientsAsync(
-                    new SearchPatientsRequest { Cnp = patientId },
-                    cancellationToken)).First(),
+                Patient = patient,
                 ChiefComplaint = model.ChiefComplaint.Trim(),
                 ArrivalDateTime = DateTime.Now,
                 Status = ERVisit.VisitStatus.REGISTERED
-            }, cancellationToken);
+            });
 
             TempData["SuccessMessage"] = $"Registration complete. Visit {visit.VisitId} is ready for triage.";
             return RedirectToAction(nameof(Index));
