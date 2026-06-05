@@ -5,7 +5,7 @@
       {
         "Path": "Hospital.API\\Hospital.API.csproj",
         "Action": "Start",
-        "DebugTarget": "http"
+        "DebugTarget": "https"
       },
       {
         "Path": "Hospital.Web\\Hospital.Web.csproj",
