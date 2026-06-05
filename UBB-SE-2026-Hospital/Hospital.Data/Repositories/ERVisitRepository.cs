@@ -12,7 +12,7 @@ public class ERVisitRepository(HospitalDbContext context) : IERVisitRepository
         => await context.ERVisits.FindAsync(visitId);
 
     public async Task<List<ERVisit>> GetAllAsync()
-        => await context.ERVisits.ToListAsync();
+        => await context.ERVisits.Include(v => v.Patient).ToListAsync();
 
     public async Task<List<ERVisit>> GetByPatientIdAsync(int patientId)
         => await context.ERVisits.Where(v => v.Patient.PatientId == patientId).ToListAsync();
