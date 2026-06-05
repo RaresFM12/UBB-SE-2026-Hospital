@@ -44,6 +44,27 @@ public class UsersController(IUserAccountService userAccountService) : Controlle
         return Ok(await userAccountService.UserExistsByEmailAsync(email, cancellationToken));
     }
 
+    [HttpGet("search")]
+    public async Task<ActionResult<IReadOnlyList<User>>> Search([FromQuery] string q, CancellationToken cancellationToken = default)
+    {
+        var results = await userAccountService.SearchUsersAsync(q, cancellationToken);
+        return Ok(results);
+    }
+
+    [HttpPost("{userId:int}/promote")]
+    public async Task<IActionResult> Promote(int userId, CancellationToken cancellationToken = default)
+    {
+        await userAccountService.PromoteToAdminAsync(userId, cancellationToken);
+        return NoContent();
+    }
+
+    [HttpPost("{userId:int}/disable")]
+    public async Task<IActionResult> Disable(int userId, CancellationToken cancellationToken = default)
+    {
+        await userAccountService.DisableAccountAsync(userId, cancellationToken);
+        return NoContent();
+    }
+
     [HttpGet("{userId:int}/period-tracker")]
     public async Task<ActionResult<bool>> HasPeriodTracker(int userId, CancellationToken cancellationToken = default)
         => Ok(await userAccountService.UserHasPeriodTrackerAsync(userId, cancellationToken));

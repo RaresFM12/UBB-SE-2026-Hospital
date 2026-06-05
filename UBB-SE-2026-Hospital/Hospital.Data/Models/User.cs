@@ -45,14 +45,23 @@ public class User
     public int LoyaltyPoints { get; set; }
 
     [NotMapped]
+    [JsonIgnore]
     public Dictionary<int, Tuple<string, bool>> PeriodNotes { get; set; } = new();
+
     [NotMapped]
+    [JsonIgnore]
     public List<int> StockAlerts { get; set; } = new();
+
     [NotMapped]
+    [JsonIgnore]
     public List<int> FavoriteItems { get; set; } = new();
+
     [NotMapped]
+    [JsonIgnore]
     public Dictionary<int, float> UserDiscounts { get; set; } = new();
+
     [NotMapped]
+    [JsonIgnore]
     public Dictionary<int, BasketEntry> Basket { get; set; } = new();
 
     [JsonIgnore]
@@ -64,6 +73,7 @@ public class User
     [JsonIgnore]
     public ICollection<Order> Orders { get; set; } = new List<Order>();
 
+    [JsonConstructor]
     public User()
     {
         StartPeriodDate = DateOnly.FromDateTime(DateTime.Now);
