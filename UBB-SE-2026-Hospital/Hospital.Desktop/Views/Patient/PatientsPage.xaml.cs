@@ -28,6 +28,19 @@ public sealed partial class PatientsPage : Page
     private async void ArchivePatient_Click(object sender, RoutedEventArgs e)
         => await ViewModel.ArchiveSelectedPatientAsync();
 
+    private async void MarkAsDeceased_Click(object sender, RoutedEventArgs e)
+        => await ViewModel.MarkSelectedPatientAsDeceasedAsync();
+
+    private void ShowActivePatients_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.ShowDeceasedArchive = false;
+    }
+
+    private void ShowDeceasedArchive_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.ShowDeceasedArchive = true;
+    }
+
     private async void PatientListView_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
     {
         if (ViewModel.SelectedPatient is null || isOpeningPatientProfile)
