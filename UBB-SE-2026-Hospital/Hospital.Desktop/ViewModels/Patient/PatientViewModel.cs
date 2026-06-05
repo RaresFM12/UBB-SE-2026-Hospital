@@ -177,7 +177,13 @@ public partial class PatientViewModel : ObservableObject
         BillingStatusMessage = string.Empty;
 
         PatientModel details = await patientService.GetPatientDetailsAsync(patientId);
+
+        // Set the patient without triggering OnSelectedPatientChanged's auto-load,
+        // otherwise the records load twice concurrently and the list shows duplicates.
+        isRefreshingSelectedPatient = true;
         SelectedPatient = details;
+        isRefreshingSelectedPatient = false;
+
         await LoadSelectedPatientDetailsAsync(patientId);
     }
 

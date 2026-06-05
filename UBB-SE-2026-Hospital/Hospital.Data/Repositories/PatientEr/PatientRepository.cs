@@ -16,6 +16,11 @@ public class PatientRepository(HospitalDbContext context) : IPatientRepository
     public async Task<List<Patient>> GetAllAsync()
         => await context.Patients.ToListAsync();
 
+    public async Task<List<Patient>> GetAllWithMedicalHistoryAsync()
+        => await context.Patients
+            .Include(p => p.MedicalHistory)
+            .ToListAsync();
+
     public async Task<List<Patient>> GetFilteredAsync(PatientFilter filter)
     {
         var all = await context.Patients.ToListAsync();

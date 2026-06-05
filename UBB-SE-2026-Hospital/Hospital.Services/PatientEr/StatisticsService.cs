@@ -13,7 +13,7 @@ public class StatisticsService(
 {
     public async Task<Dictionary<string, int>> GetPatientsByBloodTypeAsync()
     {
-        var patients = await patientRepository.GetAllAsync();
+        var patients = await patientRepository.GetAllWithMedicalHistoryAsync();
         return patients
             .Where(p => p.MedicalHistory?.BloodType.HasValue == true)
             .GroupBy(p => p.MedicalHistory!.BloodType!.Value.ToString())
@@ -22,7 +22,7 @@ public class StatisticsService(
 
     public async Task<Dictionary<string, int>> GetPatientsByRhAsync()
     {
-        var patients = await patientRepository.GetAllAsync();
+        var patients = await patientRepository.GetAllWithMedicalHistoryAsync();
         return patients
             .Where(p => p.MedicalHistory?.Rh.HasValue == true)
             .GroupBy(p => p.MedicalHistory!.Rh!.Value.ToString())

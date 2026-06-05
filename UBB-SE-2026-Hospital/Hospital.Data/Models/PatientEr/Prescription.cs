@@ -23,15 +23,14 @@ public class Prescription
     [Required]
     public DateTime Date { get; set; }
 
+    private string? patientName;
+
     [NotMapped]
     public string PatientName
     {
-        get
-        {
-            return MedicalRecord?.MedicalHistory?.Patient == null
-                ? string.Empty
-                : MedicalRecord.MedicalHistory.Patient.FullName;
-        }
+        get => patientName
+            ?? (MedicalRecord?.MedicalHistory?.Patient?.FullName ?? string.Empty);
+        set => patientName = value;
     }
 
     [NotMapped]
