@@ -30,6 +30,8 @@ public class CreatePatientViewModel : IValidatableObject
     public Sex Sex { get; set; }
 
     [Required]
+    [StringLength(10, MinimumLength = 10)]
+    [RegularExpression(@"^\d{10}$", ErrorMessage = "Phone number must contain exactly 10 digits.")]
     [Display(Name = "Phone number")]
     public string PhoneNo { get; set; } = string.Empty;
 
