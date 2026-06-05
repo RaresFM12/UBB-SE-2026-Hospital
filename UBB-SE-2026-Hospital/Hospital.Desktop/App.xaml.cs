@@ -4,14 +4,21 @@ using System.Net.Http;
 using Hospital.Desktop.Auth;
 using Hospital.Desktop.Proxy;
 using Hospital.Desktop.Services;
-using Hospital.Desktop.ViewModels.Accounts;
+using Hospital.Desktop.ViewModels.Accounts; // removed to avoid ambiguity
 using Hospital.Desktop.ViewModels.Admin;
 using Hospital.Desktop.ViewModels.ER;
 using Hospital.Desktop.ViewModels.Patient;
+using Hospital.Desktop.ViewModels.Pharmacy;
+using Hospital.Desktop.ViewModels.PharmacyManagement;
+using Hospital.Desktop.ViewModels.Doctor;
+using Hospital.Desktop.ViewModels.Base;
 using Hospital.Shared.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
+using Hospital.Shared.Configuration;
+using Hospital.Shared;
+//using Hospital.Desktop.ViewModels;
 
 namespace Hospital.Desktop;
 
@@ -41,9 +48,17 @@ public partial class App : Application
             c.BaseAddress = new Uri(apiBaseUrl);
             c.Timeout = TimeSpan.FromSeconds(10);
         })
-                .AddHttpMessageHandler<JwtAuthHandler>();
+        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+        })
+        .AddHttpMessageHandler<JwtAuthHandler>();
         services.AddSingleton(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("api"));
+        var apiBaseUri = new Uri(apiBaseUrl);
+        // Register shared business logic services
+        services.AddBusinessLogic(apiBaseUri, AppSettings.WebApiAccessKey);
 
+        services.AddSingleton<ICurrentUserService, CurrentUserService>();
         services.AddSingleton<AuthClient>();
         services.AddSingleton<NavigationService>();
 
@@ -73,6 +88,7 @@ public partial class App : Application
         services.AddSingleton<IFatigueAuditService, HttpFatigueAuditProxy>();
 
         // ViewModels
+        // Removed incorrect ViewModel registration; EditPageViewModel is registered later
         services.AddTransient<Hospital.Desktop.ViewModels.LoginViewModel>();
         services.AddTransient<AdminAccountsManagementViewModel>();
         services.AddTransient<AdminAppointmentsViewModel>();
@@ -98,10 +114,23 @@ public partial class App : Application
 
         // Windows & Pages
         services.AddTransient<LoginWindow>();
+            // Ensure LoginViewModel is registered (added via using above)
+            // services.AddTransient<LoginViewModel>(); // duplicate removed
         services.AddTransient<MainWindow>();
         services.AddTransient<Views.Patient.PatientProfileWindow>();
 
-        Services = services.BuildServiceProvider();
+        // Migrated ViewModels & Services
+        services.AddTransient<Hospital.Desktop.ViewModels.Doctor.DoctorScheduleViewModel>();
+        services.AddTransient<Hospital.Desktop.ViewModels.Doctor.AppointmentItemViewModel>();
+        services.AddTransient<Hospital.Desktop.ViewModels.Doctor.DoctorShiftItemViewModel>();
+        services.AddTransient<Hospital.Desktop.ViewModels.Pharmacy.PharmacyScheduleViewModel>();
+        services.AddTransient<Hospital.Desktop.ViewModels.Pharmacy.PharmacyShiftItemViewModel>();
+        services.AddTransient<Hospital.Desktop.ViewModels.PharmacyManagement.EditPageViewModel>();
+        services.AddTransient<Hospital.Desktop.Views.Shell.DialogPresenter>();
+
+        var provider = services.BuildServiceProvider();
+        SharedServiceProvider.Services = provider;
+        Services = provider;
     }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)

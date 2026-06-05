@@ -23,13 +23,12 @@ namespace Hospital.Shared.Services
         private readonly IItemsRepository itemRepository;
         private readonly ISubstancesRepository substanceRepository;
 
-        public AdminService()
+        internal AdminService()
         {
-            // Parameterless overload kept for legacy call sites that don't go
-            // through DI yet. Repositories are resolved from the application
-            // service provider so the EF Core implementations are used.
-            this.itemRepository = Hospital.Shared.SharedServiceProvider.Services.GetRequiredService<IItemsRepository>();
-            this.substanceRepository = Hospital.Shared.SharedServiceProvider.Services.GetRequiredService<ISubstancesRepository>();
+            if (SharedServiceProvider.Services == null)
+                throw new InvalidOperationException("SharedServiceProvider not initialized.");
+            this.itemRepository = SharedServiceProvider.Services.GetRequiredService<IItemsRepository>();
+            this.substanceRepository = SharedServiceProvider.Services.GetRequiredService<ISubstancesRepository>();
         }
 
         public List<Item> GetAllItems()

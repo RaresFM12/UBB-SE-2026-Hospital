@@ -15,6 +15,9 @@ public static class DesktopCompatibilityRoutes
     public static IEndpointRouteBuilder MapDesktopCompatibilityRoutes(this IEndpointRouteBuilder app)
     {
         MapStaffRoutes(app);
+        MapPharmacistRoutes(app);
+        MapItemRoutes(app);
+        MapSubstanceRoutes(app);
         MapShiftRoutes(app);
         MapAppointmentRoutes(app);
         MapFatigueAuditRoutes(app);
@@ -857,5 +860,220 @@ public static class DesktopCompatibilityRoutes
 
         property = default;
         return false;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // Pharmacist / Doctor sub-routes under api/staff
+    // ─────────────────────────────────────────────────────────────
+    private static void MapPharmacistRoutes(IEndpointRouteBuilder app)
+    {
+        app.MapGet("api/staff/pharmacists", async (HospitalDbContext db) =>
+            Results.Ok(await db.Staff.OfType<Pharmacyst>().ToListAsync()));
+
+        app.MapGet("api/staff/doctors", async (HospitalDbContext db) =>
+        {
+            var doctors = await db.Staff.OfType<Doctor>().ToListAsync();
+            var summaries = doctors.Select(d => new { DoctorId = d.StaffId, d.FirstName, d.LastName }).ToList();
+            return Results.Ok(summaries);
+        });
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // Items (Inventory) CRUD
+    // ─────────────────────────────────────────────────────────────
+    private static void MapItemRoutes(IEndpointRouteBuilder app)
+    {
+        app.MapGet("api/items", async (string? name, HospitalDbContext db) =>
+        {
+            var query = db.Items
+                .Include(i => i.ItemSubstanceEntries).ThenInclude(s => s.Substance)
+                .Include(i => i.ItemBatchEntries)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                query = query.Where(i => i.Name.Contains(name));
+            }
+
+            var items = await query.ToListAsync();
+            foreach (var item in items) HydrateItem(item);
+            return Results.Ok(items);
+        });
+
+        app.MapGet("api/items/{itemId:int}", async (int itemId, HospitalDbContext db) =>
+        {
+            var item = await db.Items
+                .Include(i => i.ItemSubstanceEntries).ThenInclude(s => s.Substance)
+                .Include(i => i.ItemBatchEntries)
+                .FirstOrDefaultAsync(i => i.Id == itemId);
+
+            if (item is null) return Results.NotFound();
+            HydrateItem(item);
+            return Results.Ok(item);
+        });
+
+        app.MapGet("api/items/expired", async (HospitalDbContext db) =>
+        {
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            var items = await db.Items
+                .Include(i => i.ItemSubstanceEntries).ThenInclude(s => s.Substance)
+                .Include(i => i.ItemBatchEntries)
+                .Where(i => i.ItemBatchEntries.Any(b => b.ExpirationDate < today))
+                .ToListAsync();
+            foreach (var item in items) HydrateItem(item);
+            return Results.Ok(items);
+        });
+
+        app.MapGet("api/items/top", async (HospitalDbContext db) =>
+        {
+            var orderItems = await db.OrderItems.Include(oi => oi.Item).ToListAsync();
+            var counts = new Dictionary<int, (string Name, int Count)>();
+            foreach (var oi in orderItems)
+            {
+                if (oi.Item is null) continue;
+                if (!counts.ContainsKey(oi.Item.Id))
+                    counts[oi.Item.Id] = (oi.Item.Name, 0);
+                var cur = counts[oi.Item.Id];
+                counts[oi.Item.Id] = (cur.Name, cur.Count + oi.OrderQuantity);
+            }
+
+            var top = counts
+                .OrderByDescending(p => p.Value.Count)
+                .Take(30)
+                .Select(p => Tuple.Create(p.Key, p.Value.Name, p.Value.Count))
+                .ToList();
+            return Results.Ok(top);
+        });
+
+        app.MapPost("api/items", async (Item newItem, HospitalDbContext db) =>
+        {
+            db.Items.Add(newItem);
+            await db.SaveChangesAsync();
+            return Results.Ok(newItem);
+        });
+
+        app.MapPost("api/items/with-quantity", async (Item newItem, HospitalDbContext db) =>
+        {
+            db.Items.Add(newItem);
+            await db.SaveChangesAsync();
+            return Results.Ok(newItem);
+        });
+
+        app.MapPut("api/items/{itemId:int}", async (int itemId, Item updatedItem, HospitalDbContext db) =>
+        {
+            var existing = await db.Items.FindAsync(itemId);
+            if (existing is null) return Results.NotFound();
+
+            existing.Name = updatedItem.Name;
+            existing.Producer = updatedItem.Producer;
+            existing.Category = updatedItem.Category;
+            existing.Price = updatedItem.Price;
+            existing.NumberOfPills = updatedItem.NumberOfPills;
+            existing.Quantity = updatedItem.Quantity;
+            existing.Label = updatedItem.Label;
+            existing.Description = updatedItem.Description;
+            existing.ImagePath = updatedItem.ImagePath;
+            existing.DiscountPercentage = updatedItem.DiscountPercentage;
+
+            await db.SaveChangesAsync();
+            return Results.NoContent();
+        });
+
+        app.MapDelete("api/items/{itemId:int}", async (int itemId, HospitalDbContext db) =>
+        {
+            var item = await db.Items.FindAsync(itemId);
+            if (item is null) return Results.NotFound();
+            db.Items.Remove(item);
+            await db.SaveChangesAsync();
+            return Results.NoContent();
+        });
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // Substances CRUD
+    // ─────────────────────────────────────────────────────────────
+    private static void MapSubstanceRoutes(IEndpointRouteBuilder app)
+    {
+        app.MapGet("api/substances", async (HospitalDbContext db) =>
+            Results.Ok(await db.Substances.ToListAsync()));
+
+        app.MapGet("api/substances/top", async (HospitalDbContext db) =>
+        {
+            var items = await db.Items
+                .Include(i => i.ItemSubstanceEntries).ThenInclude(s => s.Substance)
+                .ToListAsync();
+
+            var counts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            foreach (var item in items)
+            {
+                foreach (var entry in item.ItemSubstanceEntries)
+                {
+                    var substanceName = entry.Substance?.Name ?? "Unknown";
+                    counts.TryGetValue(substanceName, out int count);
+                    counts[substanceName] = count + 1;
+                }
+            }
+
+            var top = counts
+                .OrderByDescending(p => p.Value)
+                .Take(30)
+                .ToDictionary(p => p.Key, p => p.Value);
+            return Results.Ok(top);
+        });
+
+        app.MapGet("api/substances/{name}", async (string name, HospitalDbContext db) =>
+        {
+            var substance = await db.Substances
+                .FirstOrDefaultAsync(s => s.Name == name);
+            return substance is null ? Results.NotFound() : Results.Ok(substance);
+        });
+
+        app.MapGet("api/substances/{name}/exists", async (string name, HospitalDbContext db) =>
+        {
+            var exists = await db.Substances.AnyAsync(s => s.Name == name);
+            return Results.Ok(exists);
+        });
+
+        app.MapPost("api/substances", async (Substance newSubstance, HospitalDbContext db) =>
+        {
+            db.Substances.Add(newSubstance);
+            await db.SaveChangesAsync();
+            return Results.Ok(newSubstance);
+        });
+
+        app.MapPut("api/substances/{name}", async (string name, Substance substance, HospitalDbContext db) =>
+        {
+            var existing = await db.Substances.FirstOrDefaultAsync(s => s.Name == name);
+            if (existing is null) return Results.NotFound();
+
+            existing.LethalDose = substance.LethalDose;
+            existing.Description = substance.Description;
+            if (!string.IsNullOrWhiteSpace(substance.Name) && substance.Name != name)
+            {
+                existing.Name = substance.Name;
+            }
+
+            await db.SaveChangesAsync();
+            return Results.NoContent();
+        });
+
+        app.MapDelete("api/substances/{name}", async (string name, HospitalDbContext db) =>
+        {
+            var substance = await db.Substances.FirstOrDefaultAsync(s => s.Name == name);
+            if (substance is null) return Results.NotFound();
+            db.Substances.Remove(substance);
+            await db.SaveChangesAsync();
+            return Results.NoContent();
+        });
+    }
+
+    private static void HydrateItem(Item item)
+    {
+        item.ActiveSubstances = item.ItemSubstanceEntries
+            .Where(entry => entry.Substance is not null)
+            .ToDictionary(entry => entry.Substance.Name, entry => entry.Concentration, StringComparer.OrdinalIgnoreCase);
+
+        item.Batches = item.ItemBatchEntries
+            .ToDictionary(entry => entry.ExpirationDate, entry => entry.NumberOfPacks);
     }
 }
