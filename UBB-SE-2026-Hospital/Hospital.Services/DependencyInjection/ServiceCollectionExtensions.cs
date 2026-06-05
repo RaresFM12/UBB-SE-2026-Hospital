@@ -36,6 +36,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IBasketService, BasketService>();
         services.AddScoped<IUserAccountService, UserAccountService>();
         services.AddScoped<IShiftManagementService, ShiftManagementService>();
+        services.AddScoped<ISalaryComputationService, SalaryComputationService>();
+        services.AddScoped<IPharmacyScheduleService, PharmacyScheduleService>();
+        services.AddScoped<IFatigueAuditService, FatigueAuditService>();
         services.AddScoped<IShiftSwapService, ShiftSwapService>();
         services.AddScoped<IDoctorAppointmentService, AppointmentService>();
         services.AddScoped<IMedicalEvaluationService, MedicalEvaluationService>();
@@ -43,6 +46,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IHangoutService, HangoutService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IPharmacyHandoverService, PharmacyHandoverService>();
+        services.AddScoped<IPeriodTrackerService, PeriodTrackerService>();
+        services.AddScoped<IWellnessItemsService, WellnessItemsService>();
+        services.AddScoped<IPharmacyVacationService, PharmacyVacationService>();
         services.AddScoped<IPeriodTrackerService, PeriodTrackerService>();
         services.AddScoped<IWellnessItemsService, WellnessItemsService>();
         services.AddScoped<ISalaryComputationService, SalaryComputationService>();

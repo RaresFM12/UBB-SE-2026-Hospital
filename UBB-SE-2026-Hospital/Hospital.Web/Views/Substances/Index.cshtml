@@ -360,6 +360,7 @@
         </div>
 
         <form id="addSubstanceForm">
+            @Html.AntiForgeryToken()
             <div class="form-group">
                 <label>Name *</label>
                 <input type="text" id="addName" name="Name" required>
@@ -392,6 +393,7 @@
         </div>
 
         <form id="updateSubstanceForm">
+            @Html.AntiForgeryToken()
             <div class="form-group">
                 <label>Name *</label>
                 <input type="text" id="updateName" name="Name" required>
@@ -487,6 +489,8 @@
             });
             if (response.ok) {
                 location.reload();
+            } else {
+                alert('Error adding substance: ' + response.status);
             }
         } catch (error) {
             alert('Error adding substance: ' + error);
@@ -504,6 +508,8 @@
             });
             if (response.ok) {
                 location.reload();
+            } else {
+                alert('Error updating substance: ' + response.status);
             }
         } catch (error) {
             alert('Error updating substance: ' + error);

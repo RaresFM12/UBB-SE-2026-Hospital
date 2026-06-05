@@ -261,7 +261,9 @@
     }
 
     .table tbody tr.selected {
-        background-color: #e8f5e9;
+        background-color: #a8d5c2;
+        outline: 2px solid var(--app-accent);
+        outline-offset: -2px;
     }
 
     .table tbody td {
@@ -840,7 +842,7 @@
 <script>
     let selectedRow = null;
     let updateItemLoaded = false;
-    const allItems = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Items, new Newtonsoft.Json.JsonSerializerSettings { NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore }));
+    const allItems = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Items, new Newtonsoft.Json.JsonSerializerSettings { NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore, ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore }));
     const itemFormState = {
         add: { substances: {}, batches: {}, selectedBatch: null },
         update: { substances: {}, batches: {}, selectedBatch: null },

@@ -121,16 +121,48 @@ public class UserAccountService(IUsersRepository usersRepository) : IUserAccount
 
     public void Register(string email, string password, string confirmPassword, string username, string phoneNumber, string role)
     {
+        if (!IsValidEmailFormat(email))
+        {
+            throw new ArgumentException("Not a valid email format. Must be <text>@<text>.<text>");
+        }
+
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            throw new ArgumentException("Password cannot be empty.");
+        }
+
         if (!string.Equals(password, confirmPassword, StringComparison.Ordinal))
         {
             throw new ArgumentException("Passwords do not match.");
+        }
+
+        if (!IsValidPasswordFormat(password))
+        {
+            throw new ArgumentException("Password must be 8+ characters and include uppercase, lowercase, a digit, and a special character (!@#%^*).");
+        }
+
+        if (!string.IsNullOrWhiteSpace(username) && !IsValidUsernameFormat(username))
+        {
+            throw new ArgumentException("Username must contain only letters and underscores.");
+        }
+
+        phoneNumber = string.IsNullOrWhiteSpace(phoneNumber) ? string.Empty : phoneNumber;
+        if (!string.IsNullOrEmpty(phoneNumber) && !IsValidPhoneNumberFormat(phoneNumber))
+        {
+            throw new ArgumentException("Phone number must contain only digits.");
+        }
+
+        var existingUser = usersRepository.GetUserByEmailAsync(email).GetAwaiter().GetResult();
+        if (existingUser is not null)
+        {
+            throw new ArgumentException("Email is already linked to an account.");
         }
 
         CreateUserAsync(
             email,
             phoneNumber,
             password,
-            username,
+            username ?? string.Empty,
             false,
             false,
             string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase),
@@ -152,6 +184,11 @@ public class UserAccountService(IUsersRepository usersRepository) : IUserAccount
 
     public void ChangePassword(string oldPassword, string newPassword, string confirmPassword)
     {
+        if (!IsValidPasswordFormat(newPassword))
+        {
+            throw new ArgumentException("Password must be 8+ characters and include uppercase, lowercase, a digit, and a special character (!@#%^*).");
+        }
+
         if (!string.Equals(newPassword, confirmPassword, StringComparison.Ordinal))
         {
             throw new ArgumentException("Passwords do not match.");
@@ -164,5 +201,47 @@ public class UserAccountService(IUsersRepository usersRepository) : IUserAccount
 
         CurrentUser.PasswordHash = newPassword;
         UpdateUserAsync(CurrentUser).GetAwaiter().GetResult();
+    }
+
+    private static bool IsValidEmailFormat(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return false;
+        }
+
+        return System.Text.RegularExpressions.Regex.IsMatch(email.Trim(), @"^.+@.+\..+");
+    }
+
+    private static bool IsValidPasswordFormat(string password)
+    {
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            return false;
+        }
+
+        return System.Text.RegularExpressions.Regex.IsMatch(
+            password,
+            @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#%^*])[A-Za-z\d!@#%^*]{8,}$");
+    }
+
+    private static bool IsValidUsernameFormat(string username)
+    {
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            return false;
+        }
+
+        return System.Text.RegularExpressions.Regex.IsMatch(username.Trim(), @"^[A-Za-z_]+$");
+    }
+
+    private static bool IsValidPhoneNumberFormat(string phoneNumber)
+    {
+        if (string.IsNullOrWhiteSpace(phoneNumber))
+        {
+            return false;
+        }
+
+        return System.Text.RegularExpressions.Regex.IsMatch(phoneNumber.Trim(), @"^[0-9]+$");
     }
 }
