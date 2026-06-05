@@ -39,7 +39,23 @@ public class AdminController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index(string searchQuery = "", bool showExpiredOnly = false, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Index(string? searchQuery, int? minAge, int? maxAge, Sex? sex, bool archived = false, int? selectedId = null, CancellationToken cancellationToken = default)
+    {
+        var searchResults = await SearchPatientsAsync(searchQuery, minAge, maxAge, sex, cancellationToken);
+        var visiblePatients = searchResults.Where(p => p.IsArchived == archived).OrderBy(p => p.LastName).ToList();
+        Patient? selectedPatient = selectedId.HasValue ? (visiblePatients.FirstOrDefault(p => p.PatientId == selectedId.Value) ?? await patientService.GetByIdAsync(selectedId.Value, cancellationToken)) : null;
+
+        return View(new AdminPatientsIndexViewModel
+        {
+            Patients = visiblePatients.Select(MapPatientListItem).ToList(),
+            SelectedPatient = selectedPatient != null ? MapEditPatient(selectedPatient, null) : null,
+            SearchQuery = searchQuery,
+            ShowArchived = archived
+        });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Items(string searchQuery = "", bool showExpiredOnly = false, CancellationToken cancellationToken = default)
     {
         var items = await this.adminService.GetItemsAsync(searchQuery, cancellationToken);
         if (showExpiredOnly)
@@ -102,7 +118,7 @@ public class AdminController : Controller
         var visiblePatients = searchResults.Where(p => p.IsArchived == archived).OrderBy(p => p.LastName).ToList();
         Patient? selectedPatient = selectedId.HasValue ? (visiblePatients.FirstOrDefault(p => p.PatientId == selectedId.Value) ?? await patientService.GetByIdAsync(selectedId.Value, cancellationToken)) : null;
 
-        return View(new AdminPatientsIndexViewModel
+        return View("Index", new AdminPatientsIndexViewModel
         {
             Patients = visiblePatients.Select(MapPatientListItem).ToList(),
             SelectedPatient = selectedPatient != null ? MapEditPatient(selectedPatient, null) : null,
