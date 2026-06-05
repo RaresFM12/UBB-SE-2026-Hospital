@@ -1,0 +1,33 @@
+<Page
+    x:Class="Hospital.Desktop.Views.Patient.BillingPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid Background="{StaticResource AppBackgroundBrush}" Padding="24" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Billing" FontSize="28" FontWeight="SemiBold" Foreground="{StaticResource AppAccentBrush}"/>
+
+        <Border Grid.Row="1" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="16" MaxWidth="520" HorizontalAlignment="Left">
+            <StackPanel Spacing="12">
+                <NumberBox Header="Patient ID" Value="{Binding PatientId, Mode=TwoWay}"/>
+                <NumberBox Header="Medical Record ID" Value="{Binding RecordId, Mode=TwoWay}"/>
+                <NumberBox Header="Discount Percent" Value="{Binding DiscountPercent, Mode=TwoWay}" Minimum="0" Maximum="100"/>
+                <Button Content="Compute Price" Command="{Binding ComputePriceCommand}" HorizontalAlignment="Stretch"/>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="2" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="16" MaxWidth="520" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <StackPanel Spacing="8">
+                <TextBlock Text="Result" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                <TextBlock Text="{Binding BasePrice}" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                <TextBlock Text="{Binding FinalPrice}" Foreground="{StaticResource AppAccentBrush}" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource AppErrorBrush}" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

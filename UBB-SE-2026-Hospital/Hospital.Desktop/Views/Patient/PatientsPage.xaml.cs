@@ -22,38 +22,18 @@ public sealed partial class PatientsPage : Page
         ViewModel.LoadPatientsCommand.Execute(null);
     }
 
-    // ── Tab switching ─────────────────────────────────────────
-    private void ShowActivePatients_Click(object sender, RoutedEventArgs e)
-        => ViewModel.ShowDeceasedArchive = false;
-
-    private void ShowArchive_Click(object sender, RoutedEventArgs e)
-        => ViewModel.ShowDeceasedArchive = true;
-
-    // ── Active patient actions ────────────────────────────────
     private async void UpdatePatient_Click(object sender, RoutedEventArgs e)
         => await ViewModel.UpdateSelectedPatientAsync();
 
     private async void ArchivePatient_Click(object sender, RoutedEventArgs e)
         => await ViewModel.ArchiveSelectedPatientAsync();
 
-    // ── Archive patient actions ───────────────────────────────
-    private async void Dearchive_Click(object sender, RoutedEventArgs e)
-        => await ViewModel.DearchiveSelectedPatientAsync();
-
-    private async void MarkAsDeceased_Click(object sender, RoutedEventArgs e)
-        => await ViewModel.MarkSelectedPatientAsDeceasedAsync();
-
-    private async void AddDonor_Click(object sender, RoutedEventArgs e)
-        => await ViewModel.SetDonorStatusAsync(true);
-
-    private async void RemoveDonor_Click(object sender, RoutedEventArgs e)
-        => await ViewModel.SetDonorStatusAsync(false);
-
-    // ── Double-tap opens patient profile ─────────────────────
     private async void PatientListView_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
     {
         if (ViewModel.SelectedPatient is null || isOpeningPatientProfile)
+        {
             return;
+        }
 
         try
         {
@@ -69,6 +49,7 @@ public sealed partial class PatientsPage : Page
             PatientProfileWindow window = App.Services.GetRequiredService<PatientProfileWindow>();
             window.Closed += (_, _) => patientProfileWindow = null;
             await window.InitializeAsync(ViewModel.SelectedPatient.PatientId);
+
             patientProfileWindow = window;
             window.Activate();
         }

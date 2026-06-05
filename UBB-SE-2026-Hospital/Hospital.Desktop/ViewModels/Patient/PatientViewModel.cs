@@ -19,8 +19,6 @@ public partial class PatientViewModel : ObservableObject
 
     [ObservableProperty] private ObservableCollection<PatientModel> patients = new ObservableCollection<PatientModel>();
     [ObservableProperty] private PatientModel? selectedPatient;
-    [ObservableProperty] private bool showDeceasedArchive;
-    [ObservableProperty] private DateTimeOffset selectedDeathDate = DateTimeOffset.Now;
     [ObservableProperty] private MedicalHistory? medicalHistory;
     [ObservableProperty] private ObservableCollection<MedicalRecord> medicalRecords = new ObservableCollection<MedicalRecord>();
     [ObservableProperty] private ObservableCollection<string> allergies = new ObservableCollection<string>();
@@ -32,14 +30,6 @@ public partial class PatientViewModel : ObservableObject
     [ObservableProperty] private bool discountApplied;
     [ObservableProperty] private int discountPercentage;
     [ObservableProperty] private string billingStatusMessage = string.Empty;
-
-    public string ArchiveSectionTitle => ShowDeceasedArchive ? "Archive" : "Patients";
-
-    public Visibility ActivePatientActionsVisibility
-        => HasSelectedPatient && !ShowDeceasedArchive ? Visibility.Visible : Visibility.Collapsed;
-
-    public Visibility DeceasedArchiveActionsVisibility
-        => HasSelectedPatient && ShowDeceasedArchive ? Visibility.Visible : Visibility.Collapsed;
 
     public bool HasSelectedMedicalRecord => SelectedMedicalRecord is not null;
 
@@ -92,8 +82,6 @@ public partial class PatientViewModel : ObservableObject
         OnPropertyChanged(nameof(SelectedRecordVisibility));
         OnPropertyChanged(nameof(EmptySelectionVisibility));
         OnPropertyChanged(nameof(HasSelectedPatient));
-        OnPropertyChanged(nameof(ActivePatientActionsVisibility));
-        OnPropertyChanged(nameof(DeceasedArchiveActionsVisibility));
 
         if (isRefreshingSelectedPatient)
         {
@@ -152,14 +140,6 @@ public partial class PatientViewModel : ObservableObject
     partial void OnDiscountPercentageChanged(int value)
         => OnPropertyChanged(nameof(DiscountSummary));
 
-    partial void OnShowDeceasedArchiveChanged(bool value)
-    {
-        OnPropertyChanged(nameof(ArchiveSectionTitle));
-        OnPropertyChanged(nameof(ActivePatientActionsVisibility));
-        OnPropertyChanged(nameof(DeceasedArchiveActionsVisibility));
-        _ = LoadPatientsAsync();
-    }
-
     [RelayCommand]
     private async Task LoadPatientsAsync()
     {
@@ -171,7 +151,7 @@ public partial class PatientViewModel : ObservableObject
                 ? await patientService.GetPatientsAsync()
                 : await patientService.SearchPatientsAsync(new SearchPatientsRequest { NamePart = SearchQuery.Trim() });
 
-            foreach (var patient in result.Where(p => ShowDeceasedArchive ? p.IsArchived : !p.IsArchived))
+            foreach (var patient in result)
             {
                 Patients.Add(patient);
             }
@@ -260,91 +240,6 @@ public partial class PatientViewModel : ObservableObject
         catch (System.Exception ex)
         {
             StatusMessage = $"Error archiving patient: {ex.Message}";
-        }
-    }
-
-    public async Task DearchiveSelectedPatientAsync()
-    {
-        if (SelectedPatient is null)
-        {
-            return;
-        }
-
-        try
-        {
-            await patientService.DearchivePatientAsync(SelectedPatient.PatientId);
-            StatusMessage = "Patient returned to active list.";
-            await LoadPatientsAsync();
-            MedicalHistory = null;
-            MedicalRecords.Clear();
-            Allergies.Clear();
-            SelectedPatient = null;
-        }
-        catch (System.Exception ex)
-        {
-            StatusMessage = $"Error: {ex.Message}";
-        }
-    }
-
-    public async Task MarkSelectedPatientAsDeceasedAsync()
-    {
-        if (SelectedPatient is null)
-        {
-            return;
-        }
-
-        try
-        {
-            await patientService.ArchiveAsDeceasedAsync(SelectedPatient.PatientId, new ArchiveAsDeceasedRequest
-            {
-                DeathDate = SelectedDeathDate.DateTime,
-            });
-            StatusMessage = "Patient marked as deceased and moved to archive.";
-            await LoadPatientsAsync();
-            MedicalHistory = null;
-            MedicalRecords.Clear();
-            Allergies.Clear();
-            SelectedPatient = null;
-        }
-        catch (System.Exception ex)
-        {
-            StatusMessage = $"Error: {ex.Message}";
-        }
-    }
-
-    public async Task SetDonorStatusAsync(bool isDonor)
-    {
-        if (SelectedPatient is null)
-        {
-            return;
-        }
-
-        try
-        {
-            SelectedPatient.IsDonor = isDonor;
-            await patientService.UpdatePatientAsync(SelectedPatient.PatientId, new UpdatePatientRequest
-            {
-                FirstName = SelectedPatient.FirstName,
-                LastName = SelectedPatient.LastName,
-                Cnp = SelectedPatient.Cnp,
-                DateOfBirth = SelectedPatient.DateOfBirth,
-                Sex = SelectedPatient.Sex,
-                PhoneNumber = SelectedPatient.PhoneNumber,
-                EmergencyContact = SelectedPatient.EmergencyContact,
-                IsDonor = isDonor,
-                Transferred = SelectedPatient.Transferred,
-                DateOfDeath = SelectedPatient.DateOfDeath,
-                IsArchived = SelectedPatient.IsArchived,
-            });
-            StatusMessage = isDonor ? "Patient registered as organ donor." : "Organ donor status removed.";
-            // Force the details panel to re-read IsDonor from the updated patient
-            var refreshed = SelectedPatient;
-            SelectedPatient = null;
-            SelectedPatient = refreshed;
-        }
-        catch (System.Exception ex)
-        {
-            StatusMessage = $"Error updating donor status: {ex.Message}";
         }
     }
 

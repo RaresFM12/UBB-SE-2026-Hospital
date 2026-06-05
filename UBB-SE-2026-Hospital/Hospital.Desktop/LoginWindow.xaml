@@ -4,8 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    Title="Hospital Login">
+    mc:Ignorable="d">
 
     <Grid Padding="48" HorizontalAlignment="Center" VerticalAlignment="Center">
         <StackPanel Width="320" Spacing="12">
@@ -18,12 +17,14 @@
                 Text="UBB-SE-2026-Hospital" />
 
             <TextBox
+                x:Name="EmailBox"
                 Header="Email"
                 Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
             <PasswordBox
+                x:Name="PasswordInput"
                 Header="Password"
-                Password="{x:Bind ViewModel.Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                PasswordChanged="OnPasswordChanged" />
 
             <TextBlock
                 Foreground="#B00020"
@@ -32,13 +33,14 @@
 
             <Button
                 HorizontalAlignment="Stretch"
-                Style="{StaticResource AccentButtonStyle}"
                 Content="Sign in"
-                Command="{x:Bind ViewModel.LoginCommand}" />
+                Click="OnSignInClick" />
 
             <ProgressRing
+                x:Name="BusyRing"
                 IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}"
-                HorizontalAlignment="Center" />
+                HorizontalAlignment="Center"
+                Visibility="Collapsed" />
         </StackPanel>
     </Grid>
 </Window>
