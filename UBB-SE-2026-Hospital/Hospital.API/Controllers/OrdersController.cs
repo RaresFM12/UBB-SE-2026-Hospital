@@ -53,5 +53,22 @@ public class OrdersController(IOrderService orderService) : ControllerBase
         return NoContent();
     }
 
+    [HttpPost("place-from-basket")]
+    public async Task<IActionResult> PlaceFromBasket(
+        [FromBody] PlaceOrderFromBasketRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await orderService.PlaceOrderFromBasketAsync(request.UserId, request.ChosenPickUpDate, cancellationToken);
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
     public record CreateOrderRequest(int ClientId, DateOnly PickUpDate, bool IsCompleted, bool IsExpired);
+    public record PlaceOrderFromBasketRequest(int UserId, DateOnly ChosenPickUpDate);
 }

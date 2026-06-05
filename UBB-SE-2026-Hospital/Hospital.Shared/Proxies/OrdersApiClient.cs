@@ -1,4 +1,4 @@
-using Hospital.Data.Models;
+using System.Linq;
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 
@@ -73,10 +73,15 @@ public class OrdersApiClient(HttpClient httpClient) : ApiClientBase(httpClient),
         => Task.Run(async () => await PostAsync<object, object>($"{BaseUri}/{orderId}/resubmit", new { pickUpDate })).GetAwaiter().GetResult();
 
     public async Task<List<BasketItemViewModel>> GetBasketItemsAsync(int userId, CancellationToken cancellationToken = default)
-        => await GetAsync<List<BasketItemViewModel>>($"{BasketUri}?userId={userId}") ?? [];
+    {
+        List<BasketItemDto>? items = await GetAsync<List<BasketItemDto>>($"{BasketUri}?userId={userId}", cancellationToken);
+        return items?.Select(item => item.ToViewModel()).ToList() ?? [];
+    }
 
     public Tuple<float, float> CalculateBasketTotalSum(List<BasketItemViewModel> basketItems)
-        => new(0f, 0f);
+        => Tuple.Create(
+            basketItems.Sum(item => item.FinalPriceBeforeDiscount),
+            basketItems.Sum(item => item.FinalPriceAfterDiscount));
 
     public async Task AddItemToBasketAsync(int userId, int itemId, int quantity, float extraDiscountPercentage = 0f, CancellationToken cancellationToken = default)
         => await PostAsync<object, object>($"{BasketUri}/add", new { userId, itemId, quantity, extraDiscountPercentage });
