@@ -10,9 +10,9 @@ namespace Hospital.Web.Controllers
     [Authorize(Roles = "Admin")]
     public class FatigueAuditController : Controller
     {
-        private readonly IFatigueAuditService fatigueAuditService;
+        private readonly IFatigueAuditApiClient fatigueAuditService;
 
-        public FatigueAuditController(IFatigueAuditService fatigueAuditService)
+        public FatigueAuditController(IFatigueAuditApiClient fatigueAuditService)
         {
             this.fatigueAuditService = fatigueAuditService;
         }

@@ -3,7 +3,7 @@ using Hospital.Shared.Services;
 
 namespace Hospital.Shared.Proxies;
 
-public class DoctorAppointmentApiClient(HttpClient httpClient) : ApiClientBase(httpClient), IDoctorAppointmentService
+public class DoctorAppointmentApiClient(HttpClient httpClient) : ApiClientBase(httpClient), IDoctorAppointmentService, IDoctorAppointmentApiClient
 {
     private const string BaseUri = "api/appointments";
 

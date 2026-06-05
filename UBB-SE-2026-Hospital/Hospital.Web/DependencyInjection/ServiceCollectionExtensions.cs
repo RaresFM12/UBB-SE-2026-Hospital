@@ -31,6 +31,25 @@ public static class ServiceCollectionExtensions
         services.AddHospitalApiClient<IPrescriptionApiClient, PrescriptionApiClient>(apiBaseUrl);
         services.AddHospitalApiClient<IStatisticsApiClient, StatisticsApiClient>(apiBaseUrl);
         services.AddHospitalApiClient<ITransplantApiClient, TransplantApiClient>(apiBaseUrl);
+        services.AddHospitalApiClient<IAdminApiClient, AdminApiClient>(apiBaseUrl);
+        services.AddHospitalApiClient<IDoctorAppointmentApiClient, DoctorAppointmentApiClient>(apiBaseUrl);
+        services.AddHospitalApiClient<IUserAccountApiClient, UserAccountApiClient>(apiBaseUrl);
+        services.AddHospitalApiClient<IShiftManagementApiClient, ShiftManagementApiClient>(apiBaseUrl);
+        services.AddHospitalApiClient<IOrdersApiClient, OrdersApiClient>(apiBaseUrl);
+        services.AddHospitalApiClient<IFatigueAuditApiClient, FatigueAuditApiClient>(apiBaseUrl);
+        services.AddHospitalApiClient<IERDispatchApiClient, ERDispatchApiClient>(apiBaseUrl);
+        services.AddHospitalApiClient<IERVisitApiClient, ERVisitApiClient>(apiBaseUrl);
+        services.AddHospitalApiClient<IHangoutApiClient, HangoutApiClient>(apiBaseUrl);
+        services.AddHospitalApiClient<IBasketApiClient, BasketApiClient>(apiBaseUrl);
+        services.AddHospitalApiClient<IMedicalEvaluationApiClient, MedicalEvaluationApiClient>(apiBaseUrl);
+        services.AddHospitalApiClient<IShiftSwapApiClient, ShiftSwapApiClient>(apiBaseUrl);
+        services.AddHospitalApiClient<IPharmacyScheduleApiClient, PharmacyScheduleApiClient>(apiBaseUrl);
+        services.AddHospitalApiClient<IPharmacyVacationApiClient, PharmacyVacationApiClient>(apiBaseUrl);
+        services.AddHospitalApiClient<IProductCatalogueApiClient, ProductCatalogueApiClient>(apiBaseUrl);
+        services.AddHospitalApiClient<IWellnessItemsApiClient, WellnessItemsApiClient>(apiBaseUrl);
+        services.AddHospitalApiClient<IPeriodTrackerApiClient, PeriodTrackerApiClient>(apiBaseUrl);
+        services.AddHospitalApiClient<ISalaryComputationApiClient, SalaryComputationApiClient>(apiBaseUrl);
+        services.AddHospitalApiClient<ITriageDecisionApiClient, TriageDecisionApiClient>(apiBaseUrl);
 
         return services;
     }

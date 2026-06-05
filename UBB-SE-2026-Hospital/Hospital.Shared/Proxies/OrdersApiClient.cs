@@ -4,7 +4,7 @@ using Hospital.Shared.Services;
 
 namespace Hospital.Shared.Proxies;
 
-public class OrdersApiClient(HttpClient httpClient) : ApiClientBase(httpClient), IOrderService
+public class OrdersApiClient(HttpClient httpClient) : ApiClientBase(httpClient), IOrderService, IOrdersApiClient
 {
     private const string BaseUri = "api/orders";
     private const string BasketUri = "api/basket";

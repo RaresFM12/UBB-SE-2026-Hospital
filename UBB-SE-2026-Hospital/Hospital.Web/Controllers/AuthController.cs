@@ -13,9 +13,9 @@ namespace Hospital.Web.Controllers;
 
 public class AuthController : Controller
 {
-    private readonly IAuthService _authService;
+    private readonly IAuthenticationApiClient _authService;
 
-    public AuthController(IAuthService authService)
+    public AuthController(IAuthenticationApiClient authService)
     {
         _authService = authService;
     }
@@ -49,15 +49,15 @@ public class AuthController : Controller
 
         try
         {
-            var response = await _authService.LoginAsync(model, cancellationToken);
+            var response = await _authService.LoginAsync(model.Email, model.Password, cancellationToken);
 
             var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
             var jwtToken = handler.ReadJwtToken(response.Token);
 
             var userId = jwtToken.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Sub)?.Value;
-            var username = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.UniqueName)?.Value ?? model.Email;
-            var role = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value ?? "Client";
-            var email = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Email)?.Value ?? model.Email;
+            var username = jwtToken.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.UniqueName)?.Value ?? model.Email;
+            var role = jwtToken.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Role)?.Value ?? "Client";
+            var email = jwtToken.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value ?? model.Email;
 
             HttpContext.Session.SetString("AccessToken", response.Token);
             HttpContext.Session.SetString("Username", username);

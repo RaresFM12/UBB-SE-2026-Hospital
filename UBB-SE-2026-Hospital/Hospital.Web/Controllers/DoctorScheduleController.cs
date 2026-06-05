@@ -1,4 +1,4 @@
-using Hospital.Shared.Proxies;
+﻿using Hospital.Shared.Proxies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -15,10 +15,10 @@ public class DoctorScheduleController : Controller
     private const int NoDoctorsCount = 0;
     private const int WeeklyNavigationDays = 7;
 
-    private readonly IShiftSwapService _shiftSwapService;
-    private readonly IDoctorAppointmentService _appointmentService;
+    private readonly IShiftSwapApiClient _shiftSwapService;
+    private readonly IDoctorAppointmentApiClient _appointmentService;
 
-    public DoctorScheduleController(IShiftSwapService shiftSwapService, IDoctorAppointmentService appointmentService)
+    public DoctorScheduleController(IShiftSwapApiClient shiftSwapService, IDoctorAppointmentApiClient appointmentService)
     {
         _shiftSwapService = shiftSwapService;
         _appointmentService = appointmentService;

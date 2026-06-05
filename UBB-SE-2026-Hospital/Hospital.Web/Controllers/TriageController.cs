@@ -1,4 +1,4 @@
-using Hospital.Data.Models;
+﻿using Hospital.Data.Models;
 using Hospital.Data.Models;
 using Hospital.Web.Models.Triage;
 using Hospital.Shared.Services;
@@ -17,12 +17,12 @@ public class TriageController : Controller
 {
     private readonly IErWorkflowApiClient erApiClient;
     private readonly IErStaffService erStaffService;
-    private readonly ITriageDecisionService triageDecisionService;
+    private readonly ITriageDecisionApiClient triageDecisionService;
 
     public TriageController(
         IErWorkflowApiClient erApiClient,
         IErStaffService erStaffService,
-        ITriageDecisionService triageDecisionService)
+        ITriageDecisionApiClient triageDecisionService)
     {
         this.erApiClient = erApiClient;
         this.erStaffService = erStaffService;

@@ -25,6 +25,7 @@ public interface IPatientApiClient
     Task CreateMedicalHistoryAsync(int id, CreateMedicalHistoryRequest dto, CancellationToken cancellationToken = default);
     Task DeletePatientAsync(int id, CancellationToken cancellationToken = default);
     Task<bool> IsHighRiskAsync(int id, CancellationToken cancellationToken = default);
+    Task<List<Patient>> GetAllPatients(CancellationToken cancellationToken = default);
 }
 
 

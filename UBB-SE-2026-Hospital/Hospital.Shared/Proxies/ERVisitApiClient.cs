@@ -3,7 +3,7 @@ using Hospital.Shared.Services;
 
 namespace Hospital.Shared.Proxies;
 
-public class ERVisitApiClient(HttpClient httpClient) : ApiClientBase(httpClient), IERVisitService
+public class ERVisitApiClient(HttpClient httpClient) : ApiClientBase(httpClient), IERVisitService, IERVisitApiClient
 {
     private const string BaseUri = "api/ervisits";
 

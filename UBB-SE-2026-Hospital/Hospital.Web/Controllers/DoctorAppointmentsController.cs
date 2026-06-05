@@ -25,11 +25,13 @@ public class DoctorAppointmentsController : Controller
     private const string FinishedStatus = "Finished";
     private const string CanceledStatus = "Canceled";
 
-    private readonly IDoctorAppointmentService appointmentService;
+    private readonly IDoctorAppointmentApiClient appointmentService;
+    private readonly IPatientApiClient patientService;
 
-    public DoctorAppointmentsController(IDoctorAppointmentService appointmentService)
+    public DoctorAppointmentsController(IDoctorAppointmentApiClient appointmentService, IPatientApiClient patientService)
     {
         this.appointmentService = appointmentService;
+        this.patientService = patientService;
     }
 
     [Authorize(Roles = "Admin")]
@@ -184,6 +186,7 @@ public class DoctorAppointmentsController : Controller
         var model = new DoctorAppointmentCreateViewModel
         {
             Doctors = await this.LoadDoctorOptionsAsync(),
+            Patients = await this.LoadPatientOptionsAsync(),
         };
 
         if (model.Doctors.Count > NoDoctorsCount)
@@ -202,17 +205,17 @@ public class DoctorAppointmentsController : Controller
         if (!this.ModelState.IsValid)
         {
             model.Doctors = await this.LoadDoctorOptionsAsync();
+            model.Patients = await this.LoadPatientOptionsAsync();
             return this.View(model);
         }
 
         try
         {
-            int patientId = ParsePatientId(model.PatientName);
             DateTime startTime = model.Date.Date.Add(model.StartTime);
             DateTime endTime = startTime.AddHours(DefaultAppointmentDurationHours);
 
             await this.appointmentService.CreateAppointmentAsync(
-                patientId,
+                model.PatientId,
                 model.DoctorId,
                 startTime,
                 endTime,
@@ -222,10 +225,26 @@ public class DoctorAppointmentsController : Controller
         {
             this.ModelState.AddModelError(string.Empty, exception.Message);
             model.Doctors = await this.LoadDoctorOptionsAsync();
+            model.Patients = await this.LoadPatientOptionsAsync();
             return this.View(model);
         }
 
         return this.RedirectToAction(nameof(this.Index), new { doctorId = model.DoctorId });
+    }
+
+    private async Task<List<PatientOptionViewModel>> LoadPatientOptionsAsync()
+    {
+        IReadOnlyList<Patient> patients = await this.patientService.GetAllPatients();
+        return patients
+            .Where(patient => !patient.IsArchived && !patient.IsDeceased)
+            .OrderBy(patient => patient.LastName)
+            .ThenBy(patient => patient.FirstName)
+            .Select(patient => new PatientOptionViewModel
+            {
+                PatientId = patient.PatientId,
+                FullName = $"{patient.FirstName} {patient.LastName} (#{patient.PatientId})",
+            })
+            .ToList();
     }
 
     [Authorize(Roles = "Admin")]
@@ -425,14 +444,5 @@ public class DoctorAppointmentsController : Controller
         };
     }
 
-    private static int ParsePatientId(string patientName)
-    {
-        string normalized = patientName
-            .Replace("PAT", string.Empty, StringComparison.OrdinalIgnoreCase)
-            .Replace("-", string.Empty, StringComparison.OrdinalIgnoreCase)
-            .Trim();
-
-        return int.Parse(normalized);
-    }
 }
 

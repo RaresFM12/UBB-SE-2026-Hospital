@@ -3,7 +3,7 @@ using Hospital.Shared.Services;
 
 namespace Hospital.Shared.Proxies;
 
-public class FatigueAuditApiClient(HttpClient httpClient) : ApiClientBase(httpClient), IFatigueAuditService
+public class FatigueAuditApiClient(HttpClient httpClient) : ApiClientBase(httpClient), IFatigueAuditService, IFatigueAuditApiClient
 {
     public AutoAuditResult RunAutoAudit(DateTime weekStart)
         => Task.Run(async () => await GetAsync<AutoAuditResult>($"api/fatigueaudit/run?weekStart={weekStart:yyyy-MM-dd}")
