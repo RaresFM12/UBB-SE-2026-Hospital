@@ -250,7 +250,11 @@ namespace Hospital.Services.StaffPharmacy
             var wellnessItems = this.wellnessItemsService.GetWellnessItems();
             float discountModifier = snapshot.IsInMenstrualPhase ? 20.0f : 0.0f;
 
-            var editableShopItems = (List<PeriodTrackerShopItemSnapshot>)snapshot.ShopItems;
+            var editableShopItems = new List<PeriodTrackerShopItemSnapshot>();
+            if (snapshot.ShopItems != null)
+            {
+                editableShopItems.AddRange(snapshot.ShopItems);
+            }
 
             foreach (var item in wellnessItems)
             {
@@ -264,6 +268,8 @@ namespace Hospital.Services.StaffPharmacy
                     HasDiscountApplied = snapshot.IsInMenstrualPhase,
                 });
             }
+
+            snapshot.ShopItems = editableShopItems;
         }
 
         public void UpdatePeriodTracker(int userId, DateTimeOffset startPeriodDate, double cycleDays, double periodLasts, int premenstrualSyndromeOption)
