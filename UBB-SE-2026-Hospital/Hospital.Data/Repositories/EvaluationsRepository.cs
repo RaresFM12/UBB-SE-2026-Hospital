@@ -26,6 +26,19 @@ public class EvaluationsRepository(HospitalDbContext context) : IEvaluationsRepo
 
     public async Task<MedicalEvaluation> CreateAsync(MedicalEvaluation evaluation)
     {
+        if (evaluation.Evaluator != null)
+        {
+            var existingDoctor = await context.Set<Doctor>().FindAsync(evaluation.Evaluator.StaffId);
+            if (existingDoctor != null)
+            {
+                evaluation.Evaluator = existingDoctor;
+            }
+            else
+            {
+                context.Entry(evaluation.Evaluator).State = EntityState.Unchanged;
+            }
+        }
+
         context.MedicalEvaluations.Add(evaluation);
         await context.SaveChangesAsync();
         return evaluation;
