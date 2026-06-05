@@ -48,6 +48,22 @@ public class AdminController : Controller
         {
             Patients = visiblePatients.Select(MapPatientListItem).ToList(),
             SelectedPatient = selectedPatient != null ? MapEditPatient(selectedPatient, null) : null,
+            SearchQuery = searchQuery,
+            ShowArchived = archived
+        });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Items(string searchQuery = "", bool showExpiredOnly = false, CancellationToken cancellationToken = default)
+    {
+        var searchResults = await SearchPatientsAsync(searchQuery, minAge, maxAge, sex, cancellationToken);
+        var visiblePatients = searchResults.Where(p => p.IsArchived == archived).OrderBy(p => p.LastName).ToList();
+        Patient? selectedPatient = selectedId.HasValue ? (visiblePatients.FirstOrDefault(p => p.PatientId == selectedId.Value) ?? await patientService.GetByIdAsync(selectedId.Value, cancellationToken)) : null;
+
+        return View(new AdminPatientsIndexViewModel
+        {
+            Patients = visiblePatients.Select(MapPatientListItem).ToList(),
+            SelectedPatient = selectedPatient != null ? MapEditPatient(selectedPatient, null) : null,
             SelectedPatientId = selectedId,
             SearchQuery = searchQuery,
             MinAge = minAge,
@@ -102,7 +118,23 @@ public class AdminController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    private static ItemViewModel MapItemToViewModel(Item item) => new()
+    [HttpGet]
+    public async Task<IActionResult> Patients(string? searchQuery, int? minAge, int? maxAge, Sex? sex, bool archived = false, int? selectedId = null, CancellationToken cancellationToken = default)
+    {
+        var searchResults = await SearchPatientsAsync(searchQuery, minAge, maxAge, sex, cancellationToken);
+        var visiblePatients = searchResults.Where(p => p.IsArchived == archived).OrderBy(p => p.LastName).ToList();
+        Patient? selectedPatient = selectedId.HasValue ? (visiblePatients.FirstOrDefault(p => p.PatientId == selectedId.Value) ?? await patientService.GetByIdAsync(selectedId.Value, cancellationToken)) : null;
+
+        return View("Index", new AdminPatientsIndexViewModel
+        {
+            Patients = visiblePatients.Select(MapPatientListItem).ToList(),
+            SelectedPatient = selectedPatient != null ? MapEditPatient(selectedPatient, null) : null,
+            SearchQuery = searchQuery,
+            ShowArchived = archived
+        });
+    }
+
+    private static ItemViewModel MapItemToViewModel(Item item) => new() 
     { 
         Id = item.Id, 
         Name = item.Name, 

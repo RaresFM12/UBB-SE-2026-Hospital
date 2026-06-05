@@ -87,6 +87,13 @@ public partial class App : Application
         services.AddSingleton<IShiftManagementService, ShiftManagementApiClient>();
         services.AddSingleton<IFatigueAuditService, FatigueAuditApiClient>();
 
+        // Newly ported web features (desktop parity)
+        services.AddSingleton<IGhostApiClient, GhostApiClient>();
+        services.AddSingleton<IMedicalEvaluationService, MedicalEvaluationApiClient>();
+        services.AddSingleton<IHangoutService, HangoutApiClient>();
+        services.AddSingleton<IShiftSwapService, ShiftSwapApiClient>();
+        services.AddSingleton<INotificationService, NotificationApiClient>();
+
         // ViewModels
         // Removed incorrect ViewModel registration; EditPageViewModel is registered later
         services.AddTransient<Hospital.Desktop.ViewModels.LoginViewModel>();
@@ -143,7 +150,7 @@ public partial class App : Application
         var loginWindow = Services.GetRequiredService<LoginWindow>();
         loginWindow.ViewModel.LoginSucceeded += () =>
         {
-            loginWindow.DispatcherQueue.TryEnqueue(() =>
+            loginWindow.DispatcherQueue.TryEnqueue(async () =>
             {
                 try
                 {
@@ -155,7 +162,14 @@ public partial class App : Application
                 catch (Exception ex)
                 {
                     LogException(ex);
-                    throw;
+                    var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+                    {
+                        Title = "Launch Error",
+                        Content = ex.ToString(),
+                        CloseButtonText = "OK",
+                        XamlRoot = loginWindow.Content?.XamlRoot,
+                    };
+                    await dialog.ShowAsync();
                 }
             });
         };

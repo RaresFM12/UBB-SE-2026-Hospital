@@ -14,6 +14,10 @@ public class ItemsController(IAdminService adminService) : ControllerBase
     public async Task<ActionResult<IReadOnlyList<Item>>> GetAll([FromQuery] string? name = null, CancellationToken cancellationToken = default)
         => Ok(await adminService.GetItemsAsync(name, cancellationToken));
 
+    [HttpGet("expired")]
+    public ActionResult<IReadOnlyList<Item>> GetExpired()
+        => Ok(adminService.GetExpiredItems());
+
     [HttpGet("{itemId:int}")]
     public async Task<ActionResult<Item>> GetById(int itemId, CancellationToken cancellationToken = default)
     {
