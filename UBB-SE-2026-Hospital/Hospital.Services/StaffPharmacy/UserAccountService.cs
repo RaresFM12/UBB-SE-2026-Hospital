@@ -170,6 +170,19 @@ public class UserAccountService(IUsersRepository usersRepository) : IUserAccount
             role).GetAwaiter().GetResult();
     }
 
+    public void Login(string email, string password)
+    {
+        var user = usersRepository.GetUserByEmailAsync(email).GetAwaiter().GetResult()
+            ?? throw new ArgumentException("Invalid email or password.");
+
+        if (user.IsDisabled || !string.Equals(user.PasswordHash, password, StringComparison.Ordinal))
+        {
+            throw new ArgumentException("Invalid email or password.");
+        }
+
+        CurrentUser = user;
+    }
+
     public void UpdateProfile(string username, string phoneNumber)
     {
         if (CurrentUser is null)

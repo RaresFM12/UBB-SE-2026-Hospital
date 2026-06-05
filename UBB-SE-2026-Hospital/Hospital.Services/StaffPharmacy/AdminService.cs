@@ -230,6 +230,9 @@ public class AdminService(
     public async Task<bool> SubstanceExistsAsync(string name, CancellationToken cancellationToken = default)
         => await GetSubstanceByNameAsync(name, cancellationToken) is not null;
 
+    public bool SubstanceExists(string name) =>
+        SubstanceExistsAsync(name).GetAwaiter().GetResult();
+
     public async Task<Dictionary<string, int>> GetTopSubstancesAsync(CancellationToken cancellationToken = default)
     {
         var items = await itemsRepository.GetAllAsync();
@@ -301,6 +304,21 @@ public class AdminService(
 
     public IReadOnlyList<Notification> GetNotificationsForUser(User user) =>
         [];
+
+    public void AddItemWithQuantity(Item item) =>
+        CreateItemWithQuantityAsync(
+            item.Name,
+            item.Producer,
+            item.Category,
+            item.Price,
+            item.NumberOfPills,
+            item.Quantity,
+            item.ActiveSubstances,
+            item.Batches,
+            item.Label,
+            item.Description,
+            item.ImagePath,
+            item.DiscountPercentage).GetAwaiter().GetResult();
 
     private async Task ValidateItemForAddAsync(Item item)
     {

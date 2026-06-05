@@ -15,6 +15,7 @@ using Hospital.Services.PatientEr;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using IAllergyService = Hospital.Services.PatientEr.IAllergyService;
 
 namespace Hospital.Web.Controllers;
 

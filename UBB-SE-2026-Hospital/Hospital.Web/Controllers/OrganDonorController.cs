@@ -7,6 +7,8 @@ using Hospital.Web.Models.Transplant;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using DbPatient = Hospital.Data.Models.Patient;
+using IBloodCompatibilityService = Hospital.Services.PatientEr.IBloodCompatibilityService;
+using ITransplantService = Hospital.Services.PatientEr.ITransplantService;
 using SharedPatient = Hospital.Shared.Models.PatientEr.Patient;
 
 namespace Hospital.Web.Controllers;
@@ -22,7 +24,7 @@ public class OrganDonorController : Controller
     private const int SameSexScore = 20;
     private const int DifferentSexScore = 10;
 
-    private readonly IBloodCompatibilityService bloodCompatibilityService;
+    private readonly Hospital.Services.PatientEr.IBloodCompatibilityService bloodCompatibilityService;
     private readonly ITransplantService transplantService;
     private readonly IPatientService patientService;
 

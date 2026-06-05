@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Patient = Hospital.Shared.Models.PatientEr.Patient;
+using IBloodCompatibilityService = Hospital.Services.PatientEr.IBloodCompatibilityService;
 
 namespace Hospital.Web.Controllers;
 

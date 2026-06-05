@@ -46,6 +46,9 @@ public class AppointmentService(
     public async Task<Appointment?> GetAppointmentByIdAsync(int appointmentId, CancellationToken cancellationToken = default)
         => await appointmentRepository.GetByIdAsync(appointmentId);
 
+    public Task<Appointment?> GetAppointmentDetailsAsync(int appointmentId, CancellationToken cancellationToken = default)
+        => GetAppointmentByIdAsync(appointmentId, cancellationToken);
+
     public async Task<IReadOnlyList<(int DoctorId, string DoctorName)>> GetAllDoctorsAsync(CancellationToken cancellationToken = default)
         => (await staffRepository.GetAllDoctorsAsync())
             .Select(doctor => (doctor.StaffId, doctor.FullName))
