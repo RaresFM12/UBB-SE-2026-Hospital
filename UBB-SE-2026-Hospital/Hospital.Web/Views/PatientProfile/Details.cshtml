@@ -91,7 +91,32 @@
             }
             else
             {
-                <h5 class="fw-bold mb-4">Consultation Details</h5>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0">Consultation Details</h5>
+                    <div class="d-flex gap-2">
+                        @if (Model.SelectedPrescription is not null)
+                        {
+                            <a asp-controller="Pharmacist"
+                               asp-action="PrescriptionDetail"
+                               asp-route-id="@Model.SelectedPrescription.Id"
+                               asp-route-returnPatientId="@Model.Id"
+                               asp-route-returnRecordId="@Model.SelectedRecordId"
+                               class="btn btn-primary btn-sm">📋 View Prescription</a>
+                        }
+                        @if (Model.SelectedRecord.DiscountApplied.GetValueOrDefault() == 0)
+                        {
+                            <a asp-controller="Roulette"
+                               asp-action="Spin"
+                               asp-route-patientId="@Model.Id"
+                               asp-route-recordId="@Model.SelectedRecordId"
+                               class="btn btn-warning btn-sm">🎡 Apply Discount</a>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success align-self-center">✓ @Model.SelectedRecord.DiscountApplied% off</span>
+                        }
+                    </div>
+                </div>
                 <dl class="row">
                     <dt class="col-sm-4 text-muted">Patient Name</dt>
                     <dd class="col-sm-8 fw-semibold">@Model.FirstName @Model.LastName</dd>

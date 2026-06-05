@@ -217,7 +217,7 @@ public class PatientsController : Controller
 
         var mh = patient.MedicalHistory;
 
-        return new PatientProfileViewModel
+        var model = new PatientProfileViewModel
         {
             Id = patient.PatientId,
             FirstName = patient.FirstName,
@@ -238,6 +238,26 @@ public class PatientsController : Controller
             SelectedRecordId = selectedRecord?.Id,
             SelectedRecord = selectedRecord
         };
+
+        // Load the prescription for the selected record so the "View Prescription"
+        // button can link to it (the detail page loads the full prescription itself).
+        if (selectedRecord is not null)
+        {
+            try
+            {
+                var prescription = await _patientService.GetPrescriptionByRecordIdAsync(selectedRecord.Id, cancellationToken);
+                if (prescription is not null)
+                {
+                    model.SelectedPrescription = new PatientPrescriptionViewModel { Id = prescription.PrescriptionId };
+                }
+            }
+            catch
+            {
+                // Prescription is optional — leave it null if it can't be loaded.
+            }
+        }
+
+        return model;
     }
 
     private static PatientRecordViewModel MapRecord(MedicalRecord record)
