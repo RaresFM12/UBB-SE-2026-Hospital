@@ -6,6 +6,8 @@ namespace Hospital.Web.Models
     {
         public List<HangoutViewModel> Hangouts { get; set; } = new List<HangoutViewModel>();
 
+        public int? CurrentStaffId { get; set; }
+
         public List<DoctorOptionViewModel> Doctors { get; set; } = new List<DoctorOptionViewModel>();
     }
 }
