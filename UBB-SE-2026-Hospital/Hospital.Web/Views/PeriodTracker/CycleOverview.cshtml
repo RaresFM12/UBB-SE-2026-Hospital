@@ -2,6 +2,7 @@
 
 @{
     var today = DateTime.Today;
+    bool isCurrentCycle = Model.MonthOffset == 0;
     var ovulationDate = today.AddDays(Model.DaysUntilOvulation);
 }
 
@@ -17,10 +18,13 @@
                     <div class="card-body p-4 text-start">
                         <div class="d-flex align-items-center mb-4" style="color: #196f53;">
                             <i class="bi bi-calendar-event fs-5 me-2"></i>
-                            <span class="fw-bold fs-5">Today</span>
+                            <span class="fw-bold fs-5">@(isCurrentCycle ? "Today" : "Cycle Start")</span>
                         </div>
-                        <h3 class="fw-bold mb-2">@today.ToString("dd.MM.yyyy")</h3>
-                        <div style="color: #e84c6c;">@Model.CurrentPhaseString</div>
+                        <h3 class="fw-bold mb-2">@(isCurrentCycle ? today.ToString("dd.MM.yyyy") : Model.CurrentPhaseString)</h3>
+                        @if (isCurrentCycle)
+                        {
+                            <div style="color: #e84c6c;">@Model.CurrentPhaseString</div>
+                        }
                     </div>
                 </div>
             </div>
