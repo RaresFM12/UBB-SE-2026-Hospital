@@ -1,66 +1,81 @@
-using Hospital.Data.Models;
 using Hospital.Data.Models.DTOs;
+using Hospital.Shared.DTOs;
+using Hospital.Shared.Models.PatientEr;
 using Hospital.Shared.Services;
+using System.Net.Http.Json;
+using DbPatient = Hospital.Data.Models.Patient;
 
 namespace Hospital.Desktop.Proxy;
 
-public class HttpPatientProxy(HttpClient httpClient) : ProxyBase(httpClient), IPatientService
+public class HttpPatientProxy(HttpClient httpClient) : IPatientService
 {
-    private const string BaseUri = "api/patients";
+    public async Task<List<DbPatient>> SearchPatientsAsync(SearchPatientsRequest? searchCriteria, CancellationToken cancellationToken)
+    {
+        var response = await httpClient.PostAsJsonAsync("api/patients/search", searchCriteria, cancellationToken);
+        return await response.Content.ReadFromJsonAsync<List<DbPatient>>(cancellationToken: cancellationToken) ?? [];
+    }
+
+    public async Task<DbPatient?> GetByIdAsync(int id, CancellationToken cancellationToken)
+        => await httpClient.GetFromJsonAsync<DbPatient>($"api/patients/{id}", cancellationToken);
 
     public async Task<IReadOnlyList<Patient>> GetPatientsAsync(CancellationToken cancellationToken = default)
-        => await GetAsync<List<Patient>>(BaseUri) ?? [];
+        => await httpClient.GetFromJsonAsync<List<Patient>>("api/patients", cancellationToken) ?? [];
 
-    public async Task<Patient?> GetByIdAsync(int id)
-        => await GetAsync<Patient>($"{BaseUri}/{id}");
+    public async Task<DbPatient> CreatePatientAsync(CreatePatientRequest request, CancellationToken cancellationToken = default)
+    {
+        var response = await httpClient.PostAsJsonAsync("api/patients", request, cancellationToken);
+        return await response.Content.ReadFromJsonAsync<DbPatient>(cancellationToken: cancellationToken)
+            ?? throw new Exception("Patient was not created.");
+    }
 
-    public async Task<Patient> GetPatientDetailsAsync(int id)
-        => await GetAsync<Patient>($"{BaseUri}/{id}/details")
-           ?? throw new KeyNotFoundException($"Patient with ID {id} not found.");
+    public async Task CreateMedicalHistoryAsync(int patientId, CreateMedicalHistoryRequest request, CancellationToken cancellationToken = default)
+    {
+        _ = await httpClient.PostAsJsonAsync($"api/patients/{patientId}/medical-history", request, cancellationToken);
+    }
 
-    public async Task<MedicalHistory?> GetMedicalHistoryAsync(int id)
-        => await GetAsync<MedicalHistory>($"{BaseUri}/{id}/medical-history");
+    public async Task<Patient> GetPatientDetailsAsync(int patientId, CancellationToken cancellationToken = default)
+        => await httpClient.GetFromJsonAsync<Patient>($"api/patients/{patientId}", cancellationToken) ?? throw new Exception("Patient not found");
 
-    public async Task<List<MedicalRecord>> GetMedicalRecordsAsync(int historyId)
-        => await GetAsync<List<MedicalRecord>>($"{BaseUri}/{historyId}/medical-records") ?? [];
+    public async Task<Prescription?> GetPrescriptionByRecordIdAsync(int recordId, CancellationToken cancellationToken = default)
+        => await httpClient.GetFromJsonAsync<Prescription>($"api/records/{recordId}/prescription", cancellationToken);
 
-    public async Task<int> CreateMedicalRecordAsync(int patientId, CreateMedicalRecordRequest dto)
-        => await PostAsync<CreateMedicalRecordRequest, int>($"{BaseUri}/{patientId}/medical-records", dto);
+    public async Task<List<string>> GetPatientAllergiesAsync(int patientId, CancellationToken cancellationToken = default)
+        => await httpClient.GetFromJsonAsync<List<string>>($"api/patients/{patientId}/allergies", cancellationToken) ?? [];
 
-    public async Task<List<string>> GetPatientAllergiesAsync(int id)
-        => await GetAsync<List<string>>($"{BaseUri}/{id}/allergies") ?? [];
+    public async Task<bool> IsHighRiskPatientAsync(int patientId, CancellationToken cancellationToken = default)
+        => await httpClient.GetFromJsonAsync<bool>($"api/patients/{patientId}/high-risk", cancellationToken);
 
-    public async Task<Prescription?> GetPrescriptionByRecordIdAsync(int recordId)
-        => await GetAsync<Prescription>($"{BaseUri}/records/{recordId}/prescription");
+    public async Task<RecordExportDataDto> GetRecordExportDataAsync(int recordId, CancellationToken cancellationToken = default)
+        => await httpClient.GetFromJsonAsync<RecordExportDataDto>($"api/records/{recordId}/export", cancellationToken) ?? throw new Exception("Export data not found");
 
-    public async Task<bool> IsHighRiskPatientAsync(int id)
-        => await GetAsync<bool>($"{BaseUri}/{id}/high-risk");
+    public async Task UpdatePatientAsync(DbPatient patient, CancellationToken cancellationToken = default)
+    {
+        _ = await httpClient.PutAsJsonAsync($"api/patients/{patient.PatientId}", patient, cancellationToken);
+    }
 
-    public async Task<bool> ExistsAsync(string cnp)
-        => await GetAsync<bool>($"{BaseUri}/exists/{cnp}");
+    public async Task ArchivePatientAsync(int patientId, CancellationToken cancellationToken = default)
+    {
+        _ = await httpClient.PutAsJsonAsync($"api/patients/{patientId}/archive", new { }, cancellationToken);
+    }
 
-    public async Task<List<Patient>> SearchPatientsAsync(SearchPatientsRequest dto)
-        => await PostAsync<SearchPatientsRequest, List<Patient>>($"{BaseUri}/search", dto) ?? [];
+    public async Task DearchivePatientAsync(int patientId, CancellationToken cancellationToken = default)
+    {
+        _ = await httpClient.PutAsJsonAsync($"api/patients/{patientId}/dearchive", new { }, cancellationToken);
+    }
 
-    public async Task<Patient> CreatePatientAsync(CreatePatientRequest dto)
-        => await PostAsync<CreatePatientRequest, Patient>(BaseUri, dto)
-           ?? throw new InvalidOperationException("Failed to create patient: no response from server.");
+    public async Task ArchiveAsDeceasedAsync(int patientId, DateTime deathDate, CancellationToken cancellationToken = default)
+    {
+        _ = await httpClient.PutAsJsonAsync($"api/patients/{patientId}/archive-deceased", new { DeathDate = deathDate }, cancellationToken);
+    }
 
-    public async Task UpdatePatientAsync(int id, UpdatePatientRequest dto)
-        => await PutAsync($"{BaseUri}/{id}", dto);
+    public async Task<int> CreateMedicalRecordAsync(int patientId, Data.Models.MedicalRecord record, CancellationToken cancellationToken = default)
+    {
+        var response = await httpClient.PostAsJsonAsync($"api/patients/{patientId}/records", record, cancellationToken);
+        return await response.Content.ReadFromJsonAsync<int>(cancellationToken: cancellationToken);
+    }
 
-    public async Task ArchivePatientAsync(int id)
-        => await PutAsync<object>($"{BaseUri}/{id}/archive", new { });
-
-    public async Task DearchivePatientAsync(int id)
-        => await PutAsync<object>($"{BaseUri}/{id}/dearchive", new { });
-
-    public async Task ArchiveAsDeceasedAsync(int id, ArchiveAsDeceasedRequest dto)
-        => await PutAsync($"{BaseUri}/{id}/archive-deceased", dto);
-
-    public async Task CreateMedicalHistoryAsync(int id, CreateMedicalHistoryRequest dto)
-        => await PostAsync<CreateMedicalHistoryRequest, object>($"{BaseUri}/{id}/medical-history", dto);
-
-    public async Task DeletePatientAsync(int id)
-        => await DeleteAsync($"{BaseUri}/{id}");
+    public async Task CreatePrescriptionAsync(int recordId, Prescription prescription)
+    {
+        await httpClient.PostAsJsonAsync($"api/records/{recordId}/prescription", prescription);
+    }
 }

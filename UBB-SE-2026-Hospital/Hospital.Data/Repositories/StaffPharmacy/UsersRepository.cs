@@ -68,7 +68,10 @@ public class UsersRepository(HospitalDbContext context) : IUsersRepository
     }
 
     public async Task<List<UserDiscount>> GetUserDiscountsAsync(int userId)
-        => await context.UserDiscounts.Where(d => d.User.Id == userId).ToListAsync();
+        => await context.UserDiscounts
+            .Include(d => d.Item)
+            .Where(d => d.User.Id == userId)
+            .ToListAsync();
 
     public async Task AddUserDiscountAsync(int userId, UserDiscount discount)
     {

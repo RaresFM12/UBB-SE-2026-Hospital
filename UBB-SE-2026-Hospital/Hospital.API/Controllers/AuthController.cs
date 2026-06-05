@@ -1,4 +1,3 @@
-
 using Hospital.API.Auth;
 using Hospital.Shared.DTOs.Auth;
 using Hospital.Shared.Services;
@@ -19,9 +18,9 @@ public class AuthController(IAuthService authService, IModuleAccessService modul
         {
             return Ok(await authService.LoginAsync(request, cancellationToken));
         }
-        catch (UnauthorizedAccessException unauthorizedException)
+        catch (UnauthorizedAccessException ex)
         {
-            return Unauthorized(unauthorizedException.Message);
+            return Unauthorized(ex.Message);
         }
     }
 
@@ -35,5 +34,3 @@ public class AuthController(IAuthService authService, IModuleAccessService modul
     public async Task<ActionResult<bool>> CanAccessModule(string moduleKey, CancellationToken cancellationToken)
         => Ok(await moduleAccessService.CanAccessModuleAsync(this.GetCurrentUser().Id, moduleKey, cancellationToken));
 }
-
-

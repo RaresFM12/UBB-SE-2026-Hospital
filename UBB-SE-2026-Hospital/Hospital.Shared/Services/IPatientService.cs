@@ -1,26 +1,25 @@
-using Hospital.Data.Models;
-using Hospital.Data.Models.DTOs;
+using Hospital.Data.Models.DTOs; 
+using DbPatient = Hospital.Data.Models.Patient;
+using Hospital.Shared.Models.PatientEr;
 
 namespace Hospital.Shared.Services;
 
 public interface IPatientService
 {
+    Task<List<Data.Models.Patient>> SearchPatientsAsync(SearchPatientsRequest? searchCriteria, CancellationToken cancellationToken);
+    Task<Data.Models.Patient?> GetByIdAsync(int id, CancellationToken cancellationToken);
     Task<IReadOnlyList<Patient>> GetPatientsAsync(CancellationToken cancellationToken = default);
-    Task<Patient?> GetByIdAsync(int id);
-    Task<Patient> GetPatientDetailsAsync(int id);
-    Task<MedicalHistory?> GetMedicalHistoryAsync(int id);
-    Task<List<MedicalRecord>> GetMedicalRecordsAsync(int historyId);
-    Task<int> CreateMedicalRecordAsync(int patientId, CreateMedicalRecordRequest dto);
-    Task<List<string>> GetPatientAllergiesAsync(int id);
-    Task<Prescription?> GetPrescriptionByRecordIdAsync(int recordId);
-    Task<bool> IsHighRiskPatientAsync(int id);
-    Task<bool> ExistsAsync(string cnp);
-    Task<List<Patient>> SearchPatientsAsync(SearchPatientsRequest dto);
-    Task<Patient> CreatePatientAsync(CreatePatientRequest dto);
-    Task UpdatePatientAsync(int id, UpdatePatientRequest dto);
-    Task ArchivePatientAsync(int id);
-    Task DearchivePatientAsync(int id);
-    Task ArchiveAsDeceasedAsync(int id, ArchiveAsDeceasedRequest dto);
-    Task CreateMedicalHistoryAsync(int id, CreateMedicalHistoryRequest dto);
-    Task DeletePatientAsync(int id);
+    Task<DbPatient> CreatePatientAsync(CreatePatientRequest request, CancellationToken cancellationToken = default);
+    Task CreateMedicalHistoryAsync(int patientId, CreateMedicalHistoryRequest request, CancellationToken cancellationToken = default);
+    Task<Patient> GetPatientDetailsAsync(int patientId, CancellationToken cancellationToken = default);
+    Task<Prescription?> GetPrescriptionByRecordIdAsync(int recordId, CancellationToken cancellationToken = default);
+    Task<List<string>> GetPatientAllergiesAsync(int patientId, CancellationToken cancellationToken = default);
+    Task<bool> IsHighRiskPatientAsync(int patientId, CancellationToken cancellationToken = default);
+    Task<RecordExportDataDto> GetRecordExportDataAsync(int recordId, CancellationToken cancellationToken = default);
+    Task UpdatePatientAsync(DbPatient patient, CancellationToken cancellationToken = default);
+    Task ArchivePatientAsync(int patientId, CancellationToken cancellationToken = default);
+    Task DearchivePatientAsync(int patientId, CancellationToken cancellationToken = default);
+    Task ArchiveAsDeceasedAsync(int patientId, DateTime deathDate, CancellationToken cancellationToken = default);
+    Task<int> CreateMedicalRecordAsync(int patientId, Data.Models.MedicalRecord record, CancellationToken cancellationToken = default);
+    Task CreatePrescriptionAsync(int recordId, Prescription prescription);
 }

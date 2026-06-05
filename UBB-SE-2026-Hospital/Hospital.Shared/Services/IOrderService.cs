@@ -1,51 +1,75 @@
-namespace Hospital.Shared.Services
+using Hospital.Data.Models;
+using Hospital.Shared.Models.Orders;
+
+namespace Hospital.Shared.Services;
+
+public interface IOrderService
 {
-    using System;
-    using System.Collections.Generic;
-    using Hospital.Shared.Models;
-    using Hospital.Shared.Repositories;
-    using Hospital.Shared.ViewModels.Orders;
+    OrderRepositoryFacade OrdersRepository { get; }
+    OrderItemRepositoryFacade ItemsRepository { get; }
+    OrderUserRepositoryFacade UsersRepository { get; }
+    Task<IReadOnlyList<Order>> GetAllOrdersAsync(CancellationToken cancellationToken = default);
+    List<Order> GetAllOrders();
+    Task<IReadOnlyList<Order>> GetOrdersByClientAsync(int clientId, CancellationToken cancellationToken = default);
+    List<Order> GetOrdersOfClient(int clientId);
+    Task<Order?> GetOrderByIdAsync(int orderId, CancellationToken cancellationToken = default);
+    Order? GetOrder(int orderId);
+    Task<bool> OrderExistsAsync(int orderId, CancellationToken cancellationToken = default);
+    Task<int> CreateOrderAsync(int clientId, DateOnly pickUpDate, bool isCompleted, bool isExpired, CancellationToken cancellationToken = default);
+    Task UpdateOrderAsync(Order order, CancellationToken cancellationToken = default);
+    void ModifyIncompleteOrder(int orderId, Dictionary<int, Tuple<int, float>> updatedItems, DateOnly pickUpDate);
+    Task DeleteOrderAsync(int orderId, CancellationToken cancellationToken = default);
+    Task PlaceOrderFromBasketAsync(int userId, DateOnly chosenPickUpDate, CancellationToken cancellationToken = default);
+    Task CompleteOrderAsync(int orderId, Dictionary<int, (int Quantity, float Discount)> updatedQuantities, CancellationToken cancellationToken = default);
+    void CompleteOrder(int orderId, Dictionary<int, Tuple<int, float>> updatedItems);
+    Task CancelOrderAsync(int orderId, CancellationToken cancellationToken = default);
+    void CancelOrder(int orderId);
+    Task ExpireOverdueOrdersAsync(CancellationToken cancellationToken = default);
+    void ExpireOverdueOrders();
+    void ResubmitExpiredOrder(int orderId, DateOnly pickUpDate);
+    Task<List<BasketItemViewModel>> GetBasketItemsAsync(int userId, CancellationToken cancellationToken = default);
+    Tuple<float, float> CalculateBasketTotalSum(List<BasketItemViewModel> basketItems);
+    Task AddItemToBasketAsync(int userId, int itemId, int quantity, float extraDiscountPercentage = 0f, CancellationToken cancellationToken = default);
+    Task UpdateBasketItemQuantityAsync(int userId, int itemId, int quantity, CancellationToken cancellationToken = default);
+    Task RemoveFromBasketAsync(int userId, int itemId, CancellationToken cancellationToken = default);
+    Task ApplyPrescriptionToBasketAsync(int userId, string prescriptionId, CancellationToken cancellationToken = default);
+}
 
-    public interface IOrderService
+public sealed class OrderRepositoryFacade(IOrderService orderService)
+{
+    public List<Order> GetOrdersOfClient(int clientId)
     {
-        ISubstancesRepository SubstancesRepository { get; }
+        return orderService.GetOrdersOfClient(clientId);
+    }
 
-        IItemsRepository ItemsRepository { get; }
+    public List<Order> GetAllOrders()
+    {
+        return orderService.GetAllOrders();
+    }
 
-        IUsersRepository UsersRepository { get; }
+    public Order? GetOrder(int orderId)
+    {
+        return orderService.GetOrder(orderId);
+    }
+}
 
-        IOrdersRepository OrdersRepository { get; }
+public sealed class OrderItemRepositoryFacade(Func<int, Item?> getItemById)
+{
+    public Item? GetItemById(int itemId)
+    {
+        return getItemById(itemId);
+    }
+}
 
-        User ActiveUser { get; }
+public sealed class OrderUserRepositoryFacade(Func<List<User>> getAllUsers, Func<int, User?> getUserById)
+{
+    public List<User> GetAllUsers()
+    {
+        return getAllUsers();
+    }
 
-        void PlaceOrderFromBasket(DateOnly chosenPickUpDate);
-
-        void CompleteOrder(int orderId, Dictionary<int, Tuple<int, float>> updatedQuantities);
-
-        void ModifyIncompleteOrder(int orderIdToModify, Dictionary<int, Tuple<int, float>> updatedQuantities, DateOnly updatedPickUpDate);
-
-        void ResubmitExpiredOrder(int orderIdToResubmit, DateOnly chosenPickUpDate);
-
-        void CancelOrder(int orderId);
-
-        void ExpireOverdueOrders();
-
-        void AddToBasket(int itemId, int quantityToBuy);
-
-        void AddItemToBasket(int itemId, int quantityToBuy, float extraDiscountPercentage = 0f);
-
-        void UpdateBasketItemQuantity(int itemId, int newQuantityToBuy);
-
-        void RemoveFromBasket(int itemIdToRemove);
-
-        Dictionary<int, int> FillBasketFromPrescription(string prescriptionId);
-
-        List<BasketItemViewModel> GetBasketItems();
-
-        void ApplyPrescriptionToBasket(string prescriptionId);
-
-        void RecalculateBasketItemPrices(BasketItemViewModel basketItem);
-
-        Tuple<float, float> CalculateBasketTotalSum(IEnumerable<BasketItemViewModel> basketItems);
+    public User? GetUserById(int userId)
+    {
+        return getUserById(userId);
     }
 }

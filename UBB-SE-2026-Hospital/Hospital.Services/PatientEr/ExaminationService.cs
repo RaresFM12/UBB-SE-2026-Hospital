@@ -18,11 +18,8 @@ public class ExaminationService(
     public Task<Examination?> GetByIdAsync(int id)
         => examinationRepository.GetByIdAsync(id);
 
-    public async Task<List<Examination>> GetByVisitIdAsync(int visitId)
-    {
-        var items = await examinationRepository.GetByVisitIdAsync(visitId);
-        return items.OrderByDescending(e => e.ExaminationDate).ToList();
-    }
+    public Task<List<Examination>> GetByVisitIdAsync(int visitId)
+        => examinationRepository.GetByVisitIdAsync(visitId);
 
     public Task<Examination> CreateAsync(Examination examination)
         => examinationRepository.CreateAsync(examination);
@@ -69,12 +66,10 @@ public class ExaminationService(
         return visits
             .Where(visit =>
                 string.Equals(visit.Status, ERVisit.VisitStatus.IN_ROOM, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(visit.Status, ERVisit.VisitStatus.WAITING_FOR_DOCTOR, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(visit.Status, ERVisit.VisitStatus.IN_EXAMINATION, StringComparison.OrdinalIgnoreCase))
+                || string.Equals(visit.Status, ERVisit.VisitStatus.WAITING_FOR_DOCTOR, StringComparison.OrdinalIgnoreCase))
             .Where(visit => !string.Equals(visit.Status, ERVisit.VisitStatus.IN_ROOM, StringComparison.OrdinalIgnoreCase)
                 || roomLinkedVisitIds.Contains(visit.VisitId))
-            .OrderBy(visit => GetExaminationPriority(visit.Status))
-            .ThenBy(visit => visit.ArrivalDateTime)
+            .OrderBy(visit => visit.ArrivalDateTime)
             .ToList();
     }
 
@@ -134,25 +129,5 @@ public class ExaminationService(
             Notes = examination.Findings,
             AssignedDoctorName = examination.Doctor?.FullName ?? string.Empty,
         };
-    }
-
-    private static int GetExaminationPriority(string? status)
-    {
-        if (string.Equals(status, ERVisit.VisitStatus.WAITING_FOR_DOCTOR, StringComparison.OrdinalIgnoreCase))
-        {
-            return 0;
-        }
-
-        if (string.Equals(status, ERVisit.VisitStatus.IN_ROOM, StringComparison.OrdinalIgnoreCase))
-        {
-            return 1;
-        }
-
-        if (string.Equals(status, ERVisit.VisitStatus.IN_EXAMINATION, StringComparison.OrdinalIgnoreCase))
-        {
-            return 2;
-        }
-
-        return 3;
     }
 }

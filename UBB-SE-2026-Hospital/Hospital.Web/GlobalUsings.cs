@@ -1,0 +1,15 @@
+global using Hospital.Data.Models;
+global using Hospital.Data.Models.DTOs;
+global using Hospital.Shared.Services;
+global using Hospital.Web.Models;
+global using Hospital.Web.Models.Patient;
+global using Hospital.Web.Services;
+global using ER_Visit = Hospital.Data.Models.ERVisit;
+global using DoctorProfile = Hospital.Shared.Models.StaffPharmacy.DoctorProfile;
+global using ERDispatchResult = Hospital.Shared.Models.StaffPharmacy.ERDispatchResult;
+global using IErWorkflowService = Hospital.Web.Services.IErWorkflowApiClient;
+global using PeriodTrackerDashboardSnapshot = Hospital.Shared.Models.StaffPharmacy.PeriodTrackerDashboardSnapshot;
+global using PeriodTrackerState = Hospital.Shared.Models.StaffPharmacy.PeriodTrackerState;
+global using RecordDTO = Hospital.Data.Models.DTOs.MedicalRecordDetails;
+global using RecordExportDataDto = Hospital.Data.Models.DTOs.RecordExportDataDto;
+global using SearchPatientsDto = Hospital.Data.Models.DTOs.SearchPatientsRequest;

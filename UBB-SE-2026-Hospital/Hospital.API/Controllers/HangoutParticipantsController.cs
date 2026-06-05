@@ -1,4 +1,3 @@
-#if false
 using Hospital.Shared.Services;
 using Hospital.API.Auth;
 using Microsoft.AspNetCore.Mvc;
@@ -30,4 +29,3 @@ public class HangoutParticipantsController(IHangoutService hangoutService) : Con
     public record HangoutParticipantSummary(int HangoutId, int StaffId);
     public record CreateParticipantRequest(int HangoutId, int StaffId);
 }
-#endif

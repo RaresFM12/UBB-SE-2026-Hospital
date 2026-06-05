@@ -1,0 +1,22 @@
+@{
+    ViewData["Title"] = "Organ Transplant Waitlist";
+}
+
+<div class="container mt-4" style="max-width: 720px;">
+    <h1 class="mb-3">Organ Transplant Waitlist</h1>
+    <p class="text-muted">Open the waitlist request form for a patient and choose the required organ.</p>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form method="get" asp-action="Request" class="row g-3">
+                <div class="col-md-6">
+                    <label for="patientId" class="form-label">Patient ID</label>
+                    <input id="patientId" name="patientId" type="number" class="form-control" min="1" required />
+                </div>
+                <div class="col-md-6 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Open request form</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

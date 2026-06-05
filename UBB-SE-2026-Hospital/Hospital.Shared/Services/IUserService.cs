@@ -1,12 +1,6 @@
-namespace Hospital.Shared.Services
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
+namespace Hospital.Shared.Services;
 
-    public interface IUserService
-    {
-    }
+/// <summary>Marker interface — reserved for future cross-cutting user concerns.</summary>
+public interface IUserService
+{
 }

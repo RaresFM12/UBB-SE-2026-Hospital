@@ -1,4 +1,3 @@
-#if false
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Hospital.API.Auth;
@@ -15,4 +14,3 @@ public class PharmacyHandoversController(IPharmacyHandoverService pharmacyHandov
     public async Task<ActionResult<IReadOnlyList<PharmacyHandover>>> GetAll(CancellationToken cancellationToken = default)
         => Ok(await pharmacyHandoverService.GetAllPharmacyHandoversAsync(cancellationToken));
 }
-#endif

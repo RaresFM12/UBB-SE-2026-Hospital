@@ -1,4 +1,3 @@
-#if false
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Hospital.API.Auth;
@@ -31,4 +30,3 @@ public class HangoutsController(IHangoutService hangoutService) : ControllerBase
 
     public record CreateHangoutRequest(string Title, string Description, DateTime Date, int MaxParticipants);
 }
-#endif

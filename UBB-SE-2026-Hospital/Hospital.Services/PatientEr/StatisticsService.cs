@@ -7,13 +7,11 @@ namespace Hospital.Services.PatientEr;
 public class StatisticsService(
     IPatientRepository patientRepository,
     IMedicalRecordRepository recordRepository,
-    IPrescriptionRepository prescriptionRepository) :
-    IStatisticsService,
-    Hospital.Shared.Services.IStatisticsService
+    IPrescriptionRepository prescriptionRepository) : Hospital.Shared.Services.IStatisticsService
 {
     public async Task<Dictionary<string, int>> GetPatientsByBloodTypeAsync()
     {
-        var patients = await patientRepository.GetAllWithMedicalHistoryAsync();
+        var patients = await patientRepository.GetAllAsync();
         return patients
             .Where(p => p.MedicalHistory?.BloodType.HasValue == true)
             .GroupBy(p => p.MedicalHistory!.BloodType!.Value.ToString())
@@ -22,7 +20,7 @@ public class StatisticsService(
 
     public async Task<Dictionary<string, int>> GetPatientsByRhAsync()
     {
-        var patients = await patientRepository.GetAllWithMedicalHistoryAsync();
+        var patients = await patientRepository.GetAllAsync();
         return patients
             .Where(p => p.MedicalHistory?.Rh.HasValue == true)
             .GroupBy(p => p.MedicalHistory!.Rh!.Value.ToString())

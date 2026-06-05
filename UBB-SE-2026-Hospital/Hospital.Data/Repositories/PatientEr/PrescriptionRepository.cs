@@ -13,9 +13,6 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
     public async Task<Prescription?> GetByIdAsync(int prescriptionId)
         => await context.Prescriptions
             .Include(p => p.MedicationList)
-            .Include(p => p.MedicalRecord)
-                .ThenInclude(r => r.MedicalHistory)
-                    .ThenInclude(h => h.Patient)
             .FirstOrDefaultAsync(p => p.PrescriptionId == prescriptionId);
 
     public async Task<List<Prescription>> GetAllAsync()
@@ -29,7 +26,9 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
             .Include(p => p.MedicationList)
             .Include(p => p.MedicalRecord)
                 .ThenInclude(r => r.MedicalHistory)
-                    .ThenInclude(h => h.Patient)
+                    .ThenInclude(mh => mh.Patient)
+            .Include(p => p.MedicalRecord)
+                .ThenInclude(r => r.StaffMember)
             .AsQueryable();
 
         if (filter.PrescriptionId.HasValue)
@@ -41,19 +40,19 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
         if (filter.DateTo.HasValue)
             query = query.Where(p => p.Date <= filter.DateTo.Value);
 
-        if (!string.IsNullOrWhiteSpace(filter.PatientName))
-        {
-            var name = filter.PatientName;
+        if (!string.IsNullOrWhiteSpace(filter.DoctorName))
             query = query.Where(p =>
-                (p.MedicalRecord.MedicalHistory.Patient.FirstName + " " + p.MedicalRecord.MedicalHistory.Patient.LastName)
-                    .Contains(name));
-        }
+                p.MedicalRecord.StaffMember.FirstName.Contains(filter.DoctorName) ||
+                p.MedicalRecord.StaffMember.LastName.Contains(filter.DoctorName));
+
+        if (!string.IsNullOrWhiteSpace(filter.PatientName))
+            query = query.Where(p =>
+                p.MedicalRecord.MedicalHistory.Patient.FirstName.Contains(filter.PatientName) ||
+                p.MedicalRecord.MedicalHistory.Patient.LastName.Contains(filter.PatientName));
 
         if (!string.IsNullOrWhiteSpace(filter.MedicationName))
-        {
-            var medication = filter.MedicationName;
-            query = query.Where(p => p.MedicationList.Any(m => m.MedicationName.Contains(medication)));
-        }
+            query = query.Where(p =>
+                p.MedicationList.Any(i => i.MedicationName.Contains(filter.MedicationName)));
 
         return await query.ToListAsync();
     }
@@ -67,24 +66,12 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
     public async Task<List<Prescription>> GetPotentialDrugAddictsAsync()
     {
         var cutoff = DateTime.UtcNow.AddDays(-30);
-        var flaggedRecordIds = await context.Prescriptions
+        return await context.Prescriptions
+            .Include(p => p.MedicationList)
             .Where(p => p.Date >= cutoff)
             .GroupBy(p => p.MedicalRecord.RecordId)
             .Where(g => g.Count() >= 5)
-            .Select(g => g.Key)
-            .ToListAsync();
-
-        if (flaggedRecordIds.Count == 0)
-        {
-            return new List<Prescription>();
-        }
-
-        return await context.Prescriptions
-            .Include(p => p.MedicationList)
-            .Include(p => p.MedicalRecord)
-                .ThenInclude(r => r.MedicalHistory)
-                    .ThenInclude(h => h.Patient)
-            .Where(p => flaggedRecordIds.Contains(p.MedicalRecord.RecordId))
+            .SelectMany(g => g)
             .ToListAsync();
     }
 
@@ -93,7 +80,9 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
             .Include(p => p.MedicationList)
             .Include(p => p.MedicalRecord)
                 .ThenInclude(r => r.MedicalHistory)
-                    .ThenInclude(h => h.Patient)
+                    .ThenInclude(mh => mh.Patient)
+            .Include(p => p.MedicalRecord)
+                .ThenInclude(r => r.StaffMember)
             .OrderByDescending(p => p.Date)
             .Skip((page - 1) * n)
             .Take(n)

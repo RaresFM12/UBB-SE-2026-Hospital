@@ -1,10 +1,8 @@
-namespace Hospital.Shared.Services
-{
-    using System.Collections.Generic;
-    using Hospital.Shared.Models;
+using Hospital.Data.Models;
 
-    public interface IWellnessItemsService
-    {
-        List<Item> GetWellnessItems();
-    }
+namespace Hospital.Shared.Services;
+
+public interface IWellnessItemsService
+{
+    IReadOnlyList<Item> GetWellnessItems();
 }

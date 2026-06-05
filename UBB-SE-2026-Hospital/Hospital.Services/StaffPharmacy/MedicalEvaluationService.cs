@@ -1,4 +1,3 @@
-#if false
 using Hospital.Data.Models;
 using Hospital.Data.Repositories;
 using Hospital.Shared.Services;
@@ -8,7 +7,8 @@ namespace Hospital.Services.StaffPharmacy;
 public class MedicalEvaluationService(
     IEvaluationsRepository evaluationsRepository,
     IHighRiskMedicineRepository highRiskMedicineRepository,
-    IShiftRepository shiftRepository) : IMedicalEvaluationService
+    IShiftRepository shiftRepository,
+    IStaffRepository staffRepository) : IMedicalEvaluationService
 {
     private const double FatigueThresholdHours = 12.0;
     private const double FatigueLookbackHours = 24.0;
@@ -17,11 +17,22 @@ public class MedicalEvaluationService(
     public async Task<IReadOnlyList<MedicalEvaluation>> GetAllEvaluationsAsync(CancellationToken cancellationToken = default)
         => await evaluationsRepository.GetAllAsync();
 
+    public IReadOnlyList<MedicalEvaluation> GetAllEvaluations() =>
+        GetAllEvaluationsAsync().GetAwaiter().GetResult();
+
     public async Task<IReadOnlyList<MedicalEvaluation>> GetEvaluationsByDoctorAsync(int doctorId, CancellationToken cancellationToken = default)
         => await evaluationsRepository.GetByDoctorIdAsync(doctorId);
 
+    public IReadOnlyList<MedicalEvaluation> GetEvaluationsByDoctor(string doctorId) =>
+        int.TryParse(doctorId, out int id)
+            ? GetEvaluationsByDoctorAsync(id).GetAwaiter().GetResult()
+            : [];
+
     public async Task<MedicalEvaluation?> GetEvaluationByIdAsync(int evaluationId, CancellationToken cancellationToken = default)
         => await evaluationsRepository.GetByIdAsync(evaluationId);
+
+    public MedicalEvaluation? GetEvaluationById(int evaluationId) =>
+        GetEvaluationByIdAsync(evaluationId).GetAwaiter().GetResult();
 
     public async Task CreateEvaluationAsync(int doctorId, int patientId, string diagnosis, string notes, string medications, bool assumedRisk, CancellationToken cancellationToken = default)
     {
@@ -36,6 +47,14 @@ public class MedicalEvaluationService(
         });
     }
 
+    public void SaveEvaluation(MedicalEvaluation evaluation)
+    {
+        int doctorId = evaluation.Evaluator?.StaffId ?? 0;
+        int.TryParse(evaluation.PatientId, out int patientId);
+        CreateEvaluationAsync(doctorId, patientId, evaluation.Symptoms, evaluation.Notes, evaluation.MedicationsList, false)
+            .GetAwaiter().GetResult();
+    }
+
     public async Task UpdateEvaluationAsync(int evaluationId, string diagnosis, string notes, string medications, CancellationToken cancellationToken = default)
     {
         var evaluation = await evaluationsRepository.GetByIdAsync(evaluationId)
@@ -47,8 +66,15 @@ public class MedicalEvaluationService(
         await evaluationsRepository.UpdateAsync(evaluation);
     }
 
+    public void UpdateEvaluation(MedicalEvaluation evaluation) =>
+        UpdateEvaluationAsync(evaluation.EvaluationID, evaluation.Symptoms, evaluation.Notes, evaluation.MedicationsList)
+            .GetAwaiter().GetResult();
+
     public async Task DeleteEvaluationAsync(int evaluationId, CancellationToken cancellationToken = default)
         => await evaluationsRepository.DeleteAsync(evaluationId);
+
+    public void DeleteEvaluation(int evaluationId) =>
+        DeleteEvaluationAsync(evaluationId).GetAwaiter().GetResult();
 
     public async Task<bool> IsDoctorFatiguedAsync(int doctorId, CancellationToken cancellationToken = default)
     {
@@ -59,6 +85,9 @@ public class MedicalEvaluationService(
 
         return recentHours >= FatigueThresholdHours;
     }
+
+    public bool IsDoctorFatigued(string doctorId) =>
+        int.TryParse(doctorId, out int id) && IsDoctorFatiguedAsync(id).GetAwaiter().GetResult();
 
     public async Task<string?> CheckMedicineConflictAsync(int patientId, string medications, CancellationToken cancellationToken = default)
     {
@@ -103,6 +132,14 @@ public class MedicalEvaluationService(
         return null;
     }
 
+    public string? CheckMedicineConflict(string patientId, string medications) =>
+        int.TryParse(patientId, out int id)
+            ? CheckMedicineConflictAsync(id, medications).GetAwaiter().GetResult()
+            : null;
+
+    public IReadOnlyList<Doctor> GetAllDoctors() =>
+        staffRepository.GetAllDoctorsAsync().GetAwaiter().GetResult();
+
     private static List<string> SplitMedicines(string medications)
         => medications
             .Split(MedicationSeparators, StringSplitOptions.RemoveEmptyEntries)
@@ -112,33 +149,4 @@ public class MedicalEvaluationService(
 
     private static bool ContainsKeyword(string? text, string keyword)
         => !string.IsNullOrWhiteSpace(text) && text.Contains(keyword, StringComparison.OrdinalIgnoreCase);
-    public List<Doctor> GetAllDoctors() { throw new System.NotImplementedException(); }
-    public List<Appointment> GetAppointmentsByDoctor(int doctorId) { throw new System.NotImplementedException(); }
-    public List<MedicalEvaluation> GetEvaluationsByDoctor(string doctorId) { throw new System.NotImplementedException(); }
-    public void SaveEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
-    public void UpdateEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
-    public void DeleteEvaluation(int evaluationId) { throw new System.NotImplementedException(); }
-    public bool IsDoctorFatigued(string doctorId) { throw new System.NotImplementedException(); }
-    public void RaiseFatigueIntervention(int doctorId, string doctorName) { throw new System.NotImplementedException(); }
-    public string? CheckMedicineConflict(string patientId, string medications) { throw new System.NotImplementedException(); }
-    public MedicalEvaluation? GetEvaluationById(int evaluationId) { throw new System.NotImplementedException(); }
-    public void SaveEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
-    public void UpdateEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
-    public void SaveEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
-    public void UpdateEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
-    public void SaveEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
-    public void UpdateEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
-    public void SaveEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
-    public void UpdateEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
-    public void SaveEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
-    public void UpdateEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
-    public void SaveEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
-    public void UpdateEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
-    public void SaveEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
-    public void UpdateEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
-    public void SaveEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
-    public void UpdateEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
-    public void SaveEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
-    public void UpdateEvaluation(MedicalEvaluation record) { throw new System.NotImplementedException(); }
 }
-#endif
