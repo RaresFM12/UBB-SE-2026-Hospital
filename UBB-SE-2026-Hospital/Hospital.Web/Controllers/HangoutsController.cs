@@ -10,7 +10,7 @@ namespace Hospital.Web.Controllers
     using Hospital.Shared.Services;
     using Hospital.Web.Models;
 
-    [Authorize(Roles = "Doctor")]
+    [Authorize(Roles = "Doctor, Admin")]
     public class HangoutsController : Controller
     {
         private readonly IHangoutService hangoutService;
