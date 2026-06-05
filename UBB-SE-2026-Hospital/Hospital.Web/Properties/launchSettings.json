@@ -7,8 +7,7 @@
       "launchBrowser": true,
       "applicationUrl": "http://localhost:5045",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "DOTNET_ROLL_FORWARD": "Major"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
     "https": {
@@ -17,8 +16,7 @@
       "launchBrowser": true,
       "applicationUrl": "https://localhost:7195;http://localhost:5045",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "DOTNET_ROLL_FORWARD": "Major"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }
   }
