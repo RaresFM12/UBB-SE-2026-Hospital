@@ -18,10 +18,12 @@ namespace Hospital.Web.Controllers
 
         private readonly IMedicalEvaluationApiClient medicalEvaluationService;
         private readonly IWellnessItemsApiClient wellnessItemsService;
+        private readonly IPatientApiClient patientService;
 
         public MedicalEvaluationsController(
             IMedicalEvaluationApiClient medicalEvaluationService,
-            IWellnessItemsApiClient wellnessItemsService)
+            IWellnessItemsApiClient wellnessItemsService,
+            IPatientApiClient patientService)
         {
             this.medicalEvaluationService = medicalEvaluationService;
             this.wellnessItemsService = wellnessItemsService;
@@ -67,7 +69,7 @@ namespace Hospital.Web.Controllers
         {
             this.ViewBag.DoctorList = this.medicalEvaluationService.GetAllDoctors();
             this.ViewBag.WellnessItems = this.wellnessItemsService.GetWellnessItems();
-            this.ViewBag.PatientList = await this.patientService.GetPatientsAsync();
+            this.ViewBag.PatientList = await this.patientService.GetAllPatients();
             return this.View();
         }
 
@@ -77,7 +79,7 @@ namespace Hospital.Web.Controllers
         {
             this.ViewBag.DoctorList = this.medicalEvaluationService.GetAllDoctors();
             this.ViewBag.WellnessItems = this.wellnessItemsService.GetWellnessItems();
-            this.ViewBag.PatientList = await this.patientService.GetPatientsAsync();
+            this.ViewBag.PatientList = await this.patientService.GetAllPatients();
 
             if (!this.ModelState.IsValid)
             {

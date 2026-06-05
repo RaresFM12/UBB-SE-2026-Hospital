@@ -26,8 +26,9 @@ public class DoctorAppointmentsController : Controller
     private const string CanceledStatus = "Canceled";
 
     private readonly IDoctorAppointmentApiClient appointmentService;
+    private readonly IPatientApiClient patientService;
 
-    public DoctorAppointmentsController(IDoctorAppointmentApiClient appointmentService)
+    public DoctorAppointmentsController(IDoctorAppointmentApiClient appointmentService, IPatientApiClient patientService)
     {
         this.appointmentService = appointmentService;
         this.patientService = patientService;
@@ -233,7 +234,7 @@ public class DoctorAppointmentsController : Controller
 
     private async Task<List<PatientOptionViewModel>> LoadPatientOptionsAsync()
     {
-        IReadOnlyList<Patient> patients = await this.patientService.GetPatientsAsync();
+        IReadOnlyList<Patient> patients = await this.patientService.GetAllPatients();
         return patients
             .Where(patient => !patient.IsArchived && !patient.IsDeceased)
             .OrderBy(patient => patient.LastName)
