@@ -1,7 +1,4 @@
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using Hospital.Data.Models;
 using Hospital.Web.Models.Admin;
 
 namespace Hospital.Web.Models.Patients;
@@ -30,10 +27,15 @@ public class CreatePatientViewModel : IValidatableObject
     public Sex Sex { get; set; }
 
     [Required]
+    [StringLength(10, MinimumLength = 10)]
+    [RegularExpression(@"^\d{10}$", ErrorMessage = "Phone number must contain exactly 10 digits.")]
     [Display(Name = "Phone number")]
     public string PhoneNo { get; set; } = string.Empty;
 
     [Required]
+    [RegularExpression(
+        @"^[A-Za-zĂÂÎȘȚăâîșț\-']+ [A-Za-zĂÂÎȘȚăâîșț\-']+ 07\d{8}$",
+        ErrorMessage = "Emergency contact must be in format: FirstName LastName 07XXXXXXXX (10 digits phone number).")]
     [Display(Name = "Emergency contact")]
     public string EmergencyContact { get; set; } = string.Empty;
 
