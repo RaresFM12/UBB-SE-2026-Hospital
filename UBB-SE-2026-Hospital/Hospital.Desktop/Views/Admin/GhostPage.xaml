@@ -1,0 +1,34 @@
+<Page
+    x:Class="Hospital.Desktop.Views.Admin.GhostPage"
+    x:Name="Root"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid Background="{StaticResource AppBackgroundBrush}" Padding="24" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Ghost Sighting Monitor" FontSize="28" FontWeight="SemiBold" Foreground="{StaticResource AppAccentBrush}"/>
+
+        <Border Grid.Row="1" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="24" VerticalAlignment="Top">
+            <StackPanel Spacing="16">
+                <TextBlock Text="Sightings in the last 24 hours" Foreground="{StaticResource AppTextSecondaryBrush}" FontSize="16"/>
+                <TextBlock Text="{Binding SightingCount}" Foreground="{StaticResource AppAccentBrush}" FontSize="72" FontWeight="Bold"/>
+
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="Exorcism status:" Foreground="{StaticResource AppTextSecondaryBrush}" FontSize="16" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding ExorcismTriggered}" Foreground="{StaticResource AppTextPrimaryBrush}" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <Button Content="Report Sighting"
+                        Command="{Binding ReportSightingCommand}"
+                        IsEnabled="{Binding CanReportSighting}"/>
+            </StackPanel>
+        </Border>
+
+        <TextBlock Grid.Row="2" Text="{Binding StatusMessage}" Foreground="{StaticResource AppTextPrimaryBrush}" TextWrapping="Wrap"/>
+    </Grid>
+</Page>

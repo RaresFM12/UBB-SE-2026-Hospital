@@ -93,6 +93,8 @@ public partial class MainWindow : Window
             {
                 ("Patients", "Patients"),
                 ("Registration", "PatientRegistration"),
+                ("Consultations", "Consultations"),
+                ("Medical Evaluations", "MedicalEvaluations"),
                 ("Queue", "Queue"),
                 ("Triage", "Triage"),
                 ("Examination", "Examination"),
@@ -108,7 +110,9 @@ public partial class MainWindow : Window
             ("Specialized", new[]
             {
                 ("Blood Compatibility", "BloodDonors"),
+                ("Organ Donor", "OrganDonor"),
                 ("Transplant", "Transplants"),
+                ("Ghost", "Ghost"),
             }));
 
         AddCategory(panel, "Pharmacy",
@@ -116,10 +120,12 @@ public partial class MainWindow : Window
             {
                 ("Prescriptions", "Prescriptions"),
                 ("Product Catalogue", "Inventory"),
+                ("Orders", "Orders"),
                 ("Addict Detection", "AddictDetection"),
             }),
             ("Client Tools", new[]
             {
+                ("My Basket", "Basket"),
                 ("Billing", "Billing"),
             }));
 
@@ -128,6 +134,9 @@ public partial class MainWindow : Window
             {
                 ("My Appointments", "Appointments"),
                 ("My Schedule", "DoctorSchedule"),
+                ("Hangouts", "Hangouts"),
+                ("Shift Swap Requests", "ShiftSwapRequests"),
+                ("Incoming Swaps", "IncomingSwaps"),
             }),
             ("Pharmacy Actions", new[]
             {
@@ -142,11 +151,16 @@ public partial class MainWindow : Window
         AddCategory(panel, "Admin",
             ("", new[]
             {
+                ("Modules", "Modules"),
+                ("Medical Staff", "MedicalStaff"),
                 ("User Accounts", "AdminAccounts"),
+                ("System Notifications", "Notifications"),
             }),
             ("Data & Logistics", new[]
             {
                 ("Statistics", "Statistics"),
+                ("Inventory Items", "InventoryItems"),
+                ("Substances", "Substances"),
                 ("ER Dispatch", "ERDispatch"),
                 ("Fatigue Audit", "FatigueAudit"),
             }));
@@ -295,6 +309,20 @@ public partial class MainWindow : Window
             "Statistics" => typeof(Views.Patient.StatisticsPage),
             "Billing" => typeof(Views.Patient.BillingPage),
             "AddictDetection" => typeof(Views.Patient.AddictDetectionPage),
+            "Consultations" => typeof(Views.Patient.ConsultationsPage),
+            "MedicalEvaluations" => typeof(Views.Patient.MedicalEvaluationsPage),
+            "OrganDonor" => typeof(Views.Patient.OrganDonorPage),
+            "Ghost" => typeof(Views.Admin.GhostPage),
+            "Orders" => typeof(Views.Pharmacy.OrdersPage),
+            "Basket" => typeof(Views.Pharmacy.BasketPage),
+            "Hangouts" => typeof(Views.Doctor.HangoutsPage),
+            "ShiftSwapRequests" => typeof(Views.Doctor.ShiftSwapRequestsPage),
+            "IncomingSwaps" => typeof(Views.Doctor.IncomingSwapsPage),
+            "MedicalStaff" => typeof(Views.Admin.MedicalStaffPage),
+            "Modules" => typeof(Views.Admin.ModulesPage),
+            "Notifications" => typeof(Views.Admin.NotificationsPage),
+            "Substances" => typeof(Views.Admin.SubstancesPage),
+            "InventoryItems" => typeof(Views.Admin.InventoryItemsPage),
             _ => null,
         };
 
@@ -412,6 +440,8 @@ public partial class MainWindow : Window
             // Patient Care
             or "Patients"
             or "PatientRegistration"
+            or "Consultations"
+            or "MedicalEvaluations"
             or "Queue"
             or "Triage"
             or "Examination"
@@ -419,11 +449,14 @@ public partial class MainWindow : Window
             or "RoomManagement"
             or "RoomAssignment"
             or "TransferLog"
-            or "Transplants"
             or "BloodDonors"
+            or "OrganDonor"
+            or "Transplants"
+            or "Ghost"
             // Pharmacy
             or "Prescriptions"
             or "Inventory"
+            or "Orders"
             or "AddictDetection";
 
         return userRole switch
@@ -431,11 +464,13 @@ public partial class MainWindow : Window
             // Admin reaches every desktop page, mirroring the web Admin menu.
             UserRole.Admin => true,
             // Doctor: shared features + the web Staff Portal "Doctor Actions".
-            UserRole.Doctor => isSharedFeature || navigationTag is "Appointments" or "DoctorSchedule",
+            UserRole.Doctor => isSharedFeature
+                || navigationTag is "Appointments" or "DoctorSchedule"
+                or "Hangouts" or "ShiftSwapRequests" or "IncomingSwaps",
             // Pharmacist: shared features + the web Staff Portal "Pharmacy Actions".
             UserRole.Pharmacist => isSharedFeature || navigationTag is "PharmacySchedule",
             // Client: shared features + the web "Client Tools".
-            UserRole.Client => isSharedFeature || navigationTag is "Billing",
+            UserRole.Client => isSharedFeature || navigationTag is "Billing" or "Basket",
             _ => false,
         };
     }
