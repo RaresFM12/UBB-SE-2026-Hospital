@@ -33,7 +33,7 @@ public partial class PatientViewModel : ObservableObject
     [ObservableProperty] private int discountPercentage;
     [ObservableProperty] private string billingStatusMessage = string.Empty;
 
-    public string ArchiveSectionTitle => ShowDeceasedArchive ? "Deceased" : "Patients";
+    public string ArchiveSectionTitle => ShowDeceasedArchive ? "Archive" : "Patients";
 
     public Visibility ActivePatientActionsVisibility
         => HasSelectedPatient && !ShowDeceasedArchive ? Visibility.Visible : Visibility.Collapsed;
@@ -171,7 +171,7 @@ public partial class PatientViewModel : ObservableObject
                 ? await patientService.GetPatientsAsync()
                 : await patientService.SearchPatientsAsync(new SearchPatientsRequest { NamePart = SearchQuery.Trim() });
 
-            foreach (var patient in result.Where(p => ShowDeceasedArchive ? p.IsDeceased : !p.IsDeceased))
+            foreach (var patient in result.Where(p => ShowDeceasedArchive ? p.IsArchived : !p.IsArchived))
             {
                 Patients.Add(patient);
             }
@@ -263,6 +263,29 @@ public partial class PatientViewModel : ObservableObject
         }
     }
 
+    public async Task DearchiveSelectedPatientAsync()
+    {
+        if (SelectedPatient is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await patientService.DearchivePatientAsync(SelectedPatient.PatientId);
+            StatusMessage = "Patient returned to active list.";
+            await LoadPatientsAsync();
+            MedicalHistory = null;
+            MedicalRecords.Clear();
+            Allergies.Clear();
+            SelectedPatient = null;
+        }
+        catch (System.Exception ex)
+        {
+            StatusMessage = $"Error: {ex.Message}";
+        }
+    }
+
     public async Task MarkSelectedPatientAsDeceasedAsync()
     {
         if (SelectedPatient is null)
@@ -286,6 +309,42 @@ public partial class PatientViewModel : ObservableObject
         catch (System.Exception ex)
         {
             StatusMessage = $"Error: {ex.Message}";
+        }
+    }
+
+    public async Task SetDonorStatusAsync(bool isDonor)
+    {
+        if (SelectedPatient is null)
+        {
+            return;
+        }
+
+        try
+        {
+            SelectedPatient.IsDonor = isDonor;
+            await patientService.UpdatePatientAsync(SelectedPatient.PatientId, new UpdatePatientRequest
+            {
+                FirstName = SelectedPatient.FirstName,
+                LastName = SelectedPatient.LastName,
+                Cnp = SelectedPatient.Cnp,
+                DateOfBirth = SelectedPatient.DateOfBirth,
+                Sex = SelectedPatient.Sex,
+                PhoneNumber = SelectedPatient.PhoneNumber,
+                EmergencyContact = SelectedPatient.EmergencyContact,
+                IsDonor = isDonor,
+                Transferred = SelectedPatient.Transferred,
+                DateOfDeath = SelectedPatient.DateOfDeath,
+                IsArchived = SelectedPatient.IsArchived,
+            });
+            StatusMessage = isDonor ? "Patient registered as organ donor." : "Organ donor status removed.";
+            // Force the details panel to re-read IsDonor from the updated patient
+            var refreshed = SelectedPatient;
+            SelectedPatient = null;
+            SelectedPatient = refreshed;
+        }
+        catch (System.Exception ex)
+        {
+            StatusMessage = $"Error updating donor status: {ex.Message}";
         }
     }
 
