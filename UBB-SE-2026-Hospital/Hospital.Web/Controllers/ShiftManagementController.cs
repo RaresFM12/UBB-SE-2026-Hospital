@@ -1,4 +1,4 @@
-﻿using Hospital.Shared.Proxies;
+using Hospital.Shared.Proxies;
 namespace Hospital.Web.Controllers;
 
 using System;
@@ -132,7 +132,7 @@ public class ShiftManagementController : Controller
             return this.View(model);
         }
 
-        bool IsMatchingStaff(IStaff staffMember) => staffMember.StaffID == staffId;
+        bool IsMatchingStaff(IStaff staffMember) => staffMember.StaffId == staffId;
         var staff = model.QualifiedStaff.FirstOrDefault(IsMatchingStaff);
 
         if (staff == null)
@@ -266,7 +266,7 @@ public class ShiftManagementController : Controller
         var allStaff = await this.salaryComputationService.GetAllStaffAsync();
         this.ViewBag.StaffList = allStaff;
 
-        bool IsMatchingStaff(IStaff staffMember) => staffMember.StaffID == staffId;
+        bool IsMatchingStaff(IStaff staffMember) => staffMember.StaffId == staffId;
         var staff = allStaff.FirstOrDefault(IsMatchingStaff);
 
         if (staff == null)
@@ -276,7 +276,7 @@ public class ShiftManagementController : Controller
         }
 
         bool IsStaffShiftInTargetMonth(Shift shift) =>
-            shift.AppointedStaff.StaffID == staffId &&
+            shift.AppointedStaff.StaffId == staffId &&
             shift.StartTime.Month == month &&
             shift.StartTime.Year == year;
 

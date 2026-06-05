@@ -236,7 +236,7 @@ public class PharmacyScheduleViewModel : ObservableObject
         {
             this.Pharmacists.Add(new PharmacistOption
             {
-                StaffId = pharmacist.StaffID,
+                StaffId = pharmacist.StaffId,
                 PharmacistName = string.Join(" ", new[] { pharmacist.FirstName?.Trim(), pharmacist.LastName?.Trim() }
                     .Where(IsNonEmpty)),
             });

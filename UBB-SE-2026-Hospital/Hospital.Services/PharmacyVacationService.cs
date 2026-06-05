@@ -48,7 +48,7 @@ namespace Hospital.Services
             }
 
             var pharmacists = await this.staffRepository.GetAllPharmacistsAsync();
-            var pharmacist = pharmacists.FirstOrDefault(p => p.StaffID == pharmacistStaffId)
+            var pharmacist = pharmacists.FirstOrDefault(p => p.StaffId == pharmacistStaffId)
                 ?? throw new ArgumentException("Pharmacist not found.");
 
             var pharmacistShifts = await this.shiftRepository.GetByStaffIdAsync(pharmacistStaffId);

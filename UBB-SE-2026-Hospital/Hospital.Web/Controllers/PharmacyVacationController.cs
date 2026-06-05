@@ -1,4 +1,4 @@
-﻿using Hospital.Shared.Proxies;
+using Hospital.Shared.Proxies;
 namespace Hospital.Web.Controllers
 {
     using System;
@@ -74,9 +74,9 @@ namespace Hospital.Web.Controllers
                 .GetPharmacists()
                 .Select(pharmacist => new SelectListItem
                 {
-                    Value = pharmacist.StaffID.ToString(),
+                    Value = pharmacist.StaffId.ToString(),
                     Text = BuildDisplayName(pharmacist),
-                    Selected = pharmacist.StaffID == selectedStaffId,
+                    Selected = pharmacist.StaffId == selectedStaffId,
                 })
                 .ToList();
         }
@@ -89,7 +89,7 @@ namespace Hospital.Web.Controllers
                 new[] { pharmacist.FirstName?.Trim(), pharmacist.LastName?.Trim() }.Where(IsNonEmpty));
 
             return string.IsNullOrWhiteSpace(displayName)
-                ? $"Pharmacist #{pharmacist.StaffID}"
+                ? $"Pharmacist #{pharmacist.StaffId}"
                 : displayName;
         }
     }
