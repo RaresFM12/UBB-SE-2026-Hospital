@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Hospital.Data.Models;
 
 namespace Hospital.Web.Models.Registration;
 

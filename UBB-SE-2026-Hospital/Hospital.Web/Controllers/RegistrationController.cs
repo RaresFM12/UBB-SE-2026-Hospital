@@ -1,5 +1,4 @@
-using Hospital.Data.Models;
-using Hospital.Shared.Services;
+
 using Hospital.Web.Models.Registration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

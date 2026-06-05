@@ -1,7 +1,4 @@
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using Hospital.Data.Models;
 using Hospital.Web.Models.Admin;
 
 namespace Hospital.Web.Models.Patients;
