@@ -79,6 +79,8 @@ public partial class App : Application
         services.AddSingleton<IAddictDetectionService, AddictDetectionApiClient>();
         services.AddSingleton<PrescriptionApiClient>();
         services.AddSingleton<IPrescriptionService>(sp => sp.GetRequiredService<PrescriptionApiClient>());
+        services.AddSingleton<IPharmacyScheduleService, PharmacyScheduleApiClient>();
+        services.AddSingleton<IPharmacyVacationService, PharmacyVacationApiClient>();
 
         // Sync-blocking proxies (923-2 admin/client)
         services.AddSingleton<IAdminService, AdminApiClient>();

@@ -6,15 +6,16 @@ using Microsoft.AspNetCore.Mvc;
 namespace Hospital.API.Controllers;
 
 [ApiController]
-[AuthorizeRole("Admin")]
 [Route("api/staff")]
 public class StaffController(IShiftManagementService shiftManagementService) : ControllerBase
 {
     [HttpGet]
+    [AuthorizeRole("Admin")] 
     public async Task<ActionResult<IReadOnlyList<Staff>>> GetAll(CancellationToken cancellationToken = default)
         => Ok(await shiftManagementService.GetAllStaffAsync(cancellationToken));
 
     [HttpGet("{staffId:int}")]
+    [AuthorizeRole("Admin")] 
     public async Task<ActionResult<Staff>> GetById(int staffId, CancellationToken cancellationToken = default)
     {
         var staff = await shiftManagementService.GetStaffByIdAsync(staffId, cancellationToken);
@@ -22,6 +23,7 @@ public class StaffController(IShiftManagementService shiftManagementService) : C
     }
 
     [HttpGet("doctors")]
+    [AuthorizeRole("Admin", "Doctor")] 
     public async Task<ActionResult<IReadOnlyList<DoctorSummary>>> GetDoctors(CancellationToken cancellationToken = default)
     {
         var doctors = await shiftManagementService.GetDoctorsAsync(cancellationToken);
@@ -32,10 +34,12 @@ public class StaffController(IShiftManagementService shiftManagementService) : C
     }
 
     [HttpGet("pharmacists")]
+    [AuthorizeRole("Admin", "Pharmacist")] 
     public async Task<ActionResult<IReadOnlyList<Pharmacyst>>> GetPharmacists(CancellationToken cancellationToken = default)
         => Ok(await shiftManagementService.GetPharmacistsAsync(cancellationToken));
 
     [HttpPatch("{staffId:int}/status")]
+    [AuthorizeRole("Admin")] 
     public async Task<IActionResult> UpdateStatus(int staffId, [FromBody] UpdateStatusRequest request, CancellationToken cancellationToken = default)
     {
         await shiftManagementService.UpdateStaffStatusAsync(staffId, request.Status, cancellationToken);
@@ -43,6 +47,7 @@ public class StaffController(IShiftManagementService shiftManagementService) : C
     }
 
     [HttpPatch("{staffId:int}/availability")]
+    [AuthorizeRole("Admin")] 
     public async Task<IActionResult> UpdateAvailability(int staffId, [FromBody] UpdateAvailabilityRequest request, CancellationToken cancellationToken = default)
     {
         await shiftManagementService.UpdateStaffAvailabilityAsync(staffId, request.IsAvailable, request.Status, cancellationToken);
