@@ -15,5 +15,9 @@ namespace Hospital.Web.Models
         public int MaxParticipants { get; set; }
 
         public bool IsFull { get; set; }
+
+        public bool IsAlreadyJoined { get; set; }
+
+        public HashSet<int> ParticipantStaffIds { get; set; } = new HashSet<int>();
     }
 }

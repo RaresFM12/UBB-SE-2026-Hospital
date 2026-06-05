@@ -17,22 +17,19 @@
     </div>
 }
 
-<div class="mb-4 p-3 border rounded bg-light">
-    <label for="currentDoctor" class="form-label fw-bold mb-0">Select Doctor (Test Mode):</label>
-    @if (!Model.Doctors.Any())
-    {
-        <span class="text-muted">No doctors available.</span>
-    }
-    else
-    {
-        <select id="currentDoctor" class="form-select w-auto d-inline-block ms-2">
+@if (Model.Doctors.Any())
+{
+    <div class="mb-4 p-3 border rounded bg-light">
+        <label for="doctorFilter" class="form-label fw-bold mb-0">Filter by doctor:</label>
+        <select id="doctorFilter" class="form-select w-auto d-inline-block ms-2">
+            <option value="">All doctors</option>
             @foreach (DoctorOptionViewModel doctor in Model.Doctors)
             {
                 <option value="@doctor.DoctorId">@doctor.DoctorName</option>
             }
         </select>
-    }
-</div>
+    </div>
+}
 
 @if (!Model.Hangouts.Any())
 {
@@ -40,10 +37,10 @@
 }
 else
 {
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="hangoutList">
         @foreach (HangoutViewModel hangout in Model.Hangouts)
         {
-            <div class="col">
+            <div class="col hangout-card" data-participants="@string.Join(",", hangout.ParticipantStaffIds)">
                 <div class="card h-100 @(hangout.IsFull ? "border-secondary" : "border-primary")">
                     <div class="card-body">
                         <h5 class="card-title">@hangout.Title</h5>
@@ -59,17 +56,21 @@ else
                             }
                         </p>
                     </div>
-                    @if (!hangout.IsFull && Model.Doctors.Any())
-                    {
-                        <div class="card-footer">
+                    <div class="card-footer">
+                        @if (hangout.IsAlreadyJoined)
+                        {
+                            <span class="badge bg-success">Joined</span>
+                        }
+                        else if (!hangout.IsFull && Model.CurrentStaffId.HasValue)
+                        {
                             <form asp-action="Join" method="post">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="hangoutId" value="@hangout.HangoutId" />
-                                <input type="hidden" name="staffId" class="staff-id-input" value="" />
+                                <input type="hidden" name="staffId" value="@Model.CurrentStaffId" />
                                 <button type="submit" class="btn btn-sm btn-primary">Join</button>
                             </form>
-                        </div>
-                    }
+                        }
+                    </div>
                 </div>
             </div>
         }
@@ -78,12 +79,21 @@ else
 
 @section Scripts {
     <script>
-        (function ($) {
-            function syncDoctorId() {
-                $('.staff-id-input').val($('#currentDoctor').val());
+        (function () {
+            var filter = document.getElementById('doctorFilter');
+            if (!filter) return;
+
+            function applyFilter() {
+                var selected = filter.value;
+                document.querySelectorAll('.hangout-card').forEach(function (card) {
+                    var participants = (card.dataset.participants || '').split(',').filter(Boolean);
+                    var show = selected === '' || participants.includes(selected);
+                    card.style.display = show ? '' : 'none';
+                });
             }
-            syncDoctorId();
-            $('#currentDoctor').on('change', syncDoctorId);
-        }(jQuery));
+
+            filter.addEventListener('change', applyFilter);
+            applyFilter();
+        }());
     </script>
 }
