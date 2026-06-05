@@ -38,7 +38,7 @@ namespace Hospital.Desktop.ViewModels.Doctor
         {
             this.AppointmentItemId = item.Id;
             this.PatientName = item.PatientName ?? string.Empty;
-            this.Date = item.Date;
+            this.Date = item.AppointmentDate;
             this.Notes = item.Notes ?? string.Empty;
             this.DoctorId = item.Doctor?.StaffID ?? 0;
             this.DoctorName = item.Doctor?.FullName ?? string.Empty;
@@ -54,7 +54,7 @@ namespace Hospital.Desktop.ViewModels.Doctor
             Id = this.AppointmentItemId,
             PatientName = this.PatientName,
             Doctor = new Hospital.Data.Models.Doctor { StaffID = this.DoctorId },
-            Date = this.Date,
+            AppointmentDate = this.Date,
             StartTime = this.StartTime,
             EndTime = this.EndTime,
             Status = this.Status,

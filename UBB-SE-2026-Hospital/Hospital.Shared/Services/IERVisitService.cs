@@ -16,4 +16,5 @@ public interface IERVisitService
     Task TransferVisitAsync(int visitId);
     Task RetryTransferAsync(int visitId);
     Task CloseVisitAsync(int visitId);
+    Task<List<Hospital.Data.Models.ERVisit>> GetByStatusAsync(string status);
 }

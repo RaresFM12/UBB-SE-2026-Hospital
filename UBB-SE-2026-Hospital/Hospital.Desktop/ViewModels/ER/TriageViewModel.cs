@@ -132,7 +132,7 @@ public partial class TriageViewModel : ObservableObject
 
         try
         {
-            var parameters = new PerformTriageDto
+            var parameters = new PerformTriageRequest
             {
                 VisitId = SelectedVisit.VisitId,
                 Consciousness = Consciousness,

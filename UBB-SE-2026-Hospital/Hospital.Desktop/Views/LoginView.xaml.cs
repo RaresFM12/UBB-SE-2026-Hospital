@@ -6,6 +6,7 @@ namespace Hospital.Desktop.Views.Accounts
     using Microsoft.UI.Xaml.Controls;
     using Hospital.Shared.Services;
     using Hospital.Desktop.ViewModels.Accounts;
+    using Hospital.Desktop.Services;
     using Hospital.Desktop.Views;
 
     public sealed partial class LoginView : Page

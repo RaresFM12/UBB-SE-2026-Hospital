@@ -16,8 +16,8 @@ using Hospital.Shared.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
-using Hospital.Shared.Configuration;
-using Hospital.Shared;
+
+
 //using Hospital.Desktop.ViewModels;
 
 namespace Hospital.Desktop;
@@ -56,7 +56,7 @@ public partial class App : Application
         services.AddSingleton(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("api"));
         var apiBaseUri = new Uri(apiBaseUrl);
         // Register shared business logic services
-        services.AddBusinessLogic(apiBaseUri, AppSettings.WebApiAccessKey);
+
 
         services.AddSingleton<ICurrentUserService, CurrentUserService>();
         services.AddSingleton<AuthClient>();
@@ -129,7 +129,7 @@ public partial class App : Application
         services.AddTransient<Hospital.Desktop.Views.Shell.DialogPresenter>();
 
         var provider = services.BuildServiceProvider();
-        SharedServiceProvider.Services = provider;
+
         Services = provider;
     }
 

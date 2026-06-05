@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Media;
 using Hospital.Shared.Services;
 using Hospital.Data.Models;
+using Hospital.Shared.Enums;
 
 namespace Hospital.Desktop;
 

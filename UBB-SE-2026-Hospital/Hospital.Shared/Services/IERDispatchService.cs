@@ -17,4 +17,5 @@ public interface IERDispatchService
     Task<IReadOnlyList<ERDispatchResult>> DispatchAllPendingAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<int>> SimulateIncomingRequestsAsync(int count, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<DoctorProfile>> GetManualOverrideCandidatesAsync(int requestId, int nearEndMinutes, CancellationToken cancellationToken = default);
+    Task<Hospital.Data.Models.ERRequest?> GetRequestByVisitIdAsync(int visitId);
 }

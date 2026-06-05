@@ -54,4 +54,7 @@ public class HttpDoctorAppointmentProxy(HttpClient httpClient) : ProxyBase(httpC
         public int DoctorId { get; set; }
         public string DoctorName { get; set; } = string.Empty;
     }
+    public async Task<Hospital.Data.Models.Appointment?> GetAppointmentDetailsAsync(int appointmentId, CancellationToken cancellationToken = default)
+        => await GetAsync<Hospital.Data.Models.Appointment>($"{BaseUri}/{appointmentId}");
+
 }

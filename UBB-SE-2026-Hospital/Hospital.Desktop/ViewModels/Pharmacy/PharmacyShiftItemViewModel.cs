@@ -61,10 +61,10 @@ public sealed class PharmacyShiftItemViewModel
         {
             return this.Status switch
             {
-                ShiftStatus.SCHEDULED => "Scheduled",
-                ShiftStatus.ACTIVE => "Active",
-                ShiftStatus.COMPLETED => "Completed",
-                ShiftStatus.CANCELLED => "Cancelled",
+                ShiftStatus.Scheduled => "Scheduled",
+                ShiftStatus.Active => "Active",
+                ShiftStatus.Completed => "Completed",
+                ShiftStatus.Cancelled => "Cancelled",
                 _ => this.Status.ToString(),
             };
         }

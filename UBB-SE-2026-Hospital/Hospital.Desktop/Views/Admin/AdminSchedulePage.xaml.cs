@@ -4,7 +4,7 @@ namespace Hospital.Desktop.Views.Admin
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using Microsoft.UI.Xaml.Navigation;
-    using Hospital.Shared.Configuration;
+    
     using Hospital.Data.Models;
     using Hospital.Desktop.ViewModels.Admin;
 
@@ -48,7 +48,7 @@ namespace Hospital.Desktop.Views.Admin
 
             var picked = args.NewDate.Value.Date;
 
-            if (picked >= AppSettings.SqlMinimumDate)
+            if (picked >= new DateTime(1753, 1, 1))
             {
                 this.AdminShiftViewModel.SelectedDate = picked;
             }

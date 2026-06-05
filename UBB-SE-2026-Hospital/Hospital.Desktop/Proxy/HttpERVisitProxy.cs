@@ -51,4 +51,5 @@ public class HttpERVisitProxy(HttpClient httpClient) : ProxyBase(httpClient), IE
 
     public async Task CloseVisitAsync(int visitId)
         => await PostAsync<object, object>($"{BaseUri}/{visitId}/close", new { });
+
 }

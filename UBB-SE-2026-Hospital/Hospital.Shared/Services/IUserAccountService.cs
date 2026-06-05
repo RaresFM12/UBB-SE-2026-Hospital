@@ -23,4 +23,5 @@ public interface IUserAccountService
     void Register(string email, string password, string confirmPassword, string username, string phoneNumber, string role);
     void UpdateProfile(string username, string phoneNumber);
     void ChangePassword(string oldPassword, string newPassword, string confirmPassword);
+    void Login(string email, string password);
 }

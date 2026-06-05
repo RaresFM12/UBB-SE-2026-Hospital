@@ -126,4 +126,7 @@ public class HttpAdminProxy(HttpClient httpClient) : ProxyBase(httpClient), IAdm
         public string ItemName { get; set; } = string.Empty;
         public int OrderCount { get; set; }
     }
+    public void AddItemWithQuantity(Item item)
+        => Task.Run(async () => await PostAsync<Item, object>($"{ItemsUri}/with-quantity", item)).GetAwaiter().GetResult();
+
 }

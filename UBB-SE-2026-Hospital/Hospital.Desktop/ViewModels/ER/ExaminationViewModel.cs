@@ -188,7 +188,7 @@ public partial class ExaminationViewModel : ObservableObject
                 return;
             }
 
-            var requestId = await dispatchService.CreateRequestAsync(triage.Specialization, "ER", SelectedVisit.VisitId);
+            var requestId = await dispatchService.CreateRequestAsync(triage.Specialization, "ER");
             StatusMessage = $"Doctor request #{requestId} was sent to ER Dispatch for {triage.Specialization}.";
             await ShowDialog("Doctor Requested",
                 $"Visit {SelectedVisit.VisitId} was sent to ER Dispatch.\nRequired specialization: {triage.Specialization}\nRequest ID: {requestId}");

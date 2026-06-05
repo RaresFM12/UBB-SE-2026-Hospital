@@ -50,4 +50,6 @@ public interface IAdminService
 
     Task<IReadOnlyList<HighRiskMedicine>> GetHighRiskMedicinesAsync(CancellationToken cancellationToken = default);
     IReadOnlyList<Notification> GetNotificationsForUser(User user);
+    bool SubstanceExists(string name);
+    void AddItemWithQuantity(Item item);
 }

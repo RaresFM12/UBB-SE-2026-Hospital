@@ -12,4 +12,7 @@ public class HttpBillingProxy(HttpClient httpClient) : ProxyBase(httpClient), IB
 
     public async Task<decimal> ApplyDiscountAsync(decimal basePrice, int discount)
         => await PostAsync<ApplyDiscountRequest, decimal>($"{BaseUri}/discount", new ApplyDiscountRequest { BasePrice = basePrice, Discount = discount });
+
+    public async Task<decimal> PersistDiscountAsync(int recordId, decimal basePrice, int discount)
+        => await PostAsync<object, decimal>($"{BaseUri}/persist-discount", new { recordId, basePrice, discount });
 }

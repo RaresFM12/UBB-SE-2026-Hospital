@@ -31,23 +31,23 @@ namespace Hospital.Desktop.ViewModels.Admin
 
         public async Task LoadAppointmentsForDoctorAsync(int doctorId)
         {
-            var appointments = await this.appointmentService.GetAppointmentsForAdminAsync(doctorId);
+            var appointments = await this.appointmentService.GetAllAppointmentsAsync();
             this.AppointmentsList.ReplaceWith(appointments);
         }
 
         public async Task BookAppointmentAsync(string patientId, int doctorId, DateTime date, TimeSpan time)
         {
-            await this.appointmentService.CreateAppointmentAsync(patientId, doctorId, date, time);
+            await this.appointmentService.CreateAppointmentAsync(0, doctorId, date, date.Add(time), "Pending");
         }
 
         public async Task FinishAppointmentAsync(Appointment appointment)
         {
-            await this.appointmentService.FinishAppointmentAsync(appointment);
+            await this.appointmentService.FinishAppointmentAsync(appointment.Id);
         }
 
         public async Task CancelAppointmentAsync(Appointment appointment)
         {
-            await this.appointmentService.CancelAppointmentAsync(appointment);
+            await this.appointmentService.CancelAppointmentAsync(appointment.Id);
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

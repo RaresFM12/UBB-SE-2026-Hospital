@@ -17,7 +17,7 @@ public class HttpShiftManagementProxy(HttpClient httpClient) : ProxyBase(httpCli
     {
         try
         {
-            var shift = new Shift(0, staff, location, start, end, ShiftStatus.SCHEDULED);
+            var shift = new Shift(0, staff, location, start, end, ShiftStatus.Scheduled);
             Task.Run(async () => await PostAsync<Shift, object>(BaseUri, shift)).GetAwaiter().GetResult();
             return true;
         }

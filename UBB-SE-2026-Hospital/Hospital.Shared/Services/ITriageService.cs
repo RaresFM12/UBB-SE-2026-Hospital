@@ -9,4 +9,9 @@ public interface ITriageService
     Task<Triage> CreateAsync(Triage triage);
     Task<Triage> UpdateAsync(Triage triage);
     Task DeleteAsync(int id);
+    Task<Triage?> GetByVisitIdAsync(int visitId);
+    Task<Triage> CreateTriageAsync(int visitId, Hospital.Data.Models.DTOs.PerformTriageRequest parameters);
+    Task MoveVisitToQueueAsync(int visitId);
+    Task CloseVisitAsync(int visitId);
+    Task<List<Hospital.Data.Models.ERVisit>> GetVisitsForTriageAsync();
 }

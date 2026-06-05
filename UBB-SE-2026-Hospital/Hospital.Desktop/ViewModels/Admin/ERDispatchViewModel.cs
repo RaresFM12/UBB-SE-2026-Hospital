@@ -6,6 +6,7 @@ namespace Hospital.Desktop.ViewModels.Admin
     using System.Threading.Tasks;
     using Hospital.Desktop.Command;
     using Hospital.Data.Models;
+using Hospital.Shared.Models.StaffPharmacy;
     using Hospital.Shared.Services;
     using Hospital.Desktop.ViewModels.Base;
 
@@ -93,9 +94,9 @@ namespace Hospital.Desktop.ViewModels.Admin
                         this.UnmatchedRequests.Add(new UnmatchedRequestRow
                         {
                             RequestId = request.Id,
-                            VisitId = request.VisitId,
-                            PatientName = request.Visit?.Patient?.FullName ?? "Unknown patient",
-                            ChiefComplaint = request.Visit?.ChiefComplaint ?? string.Empty,
+                            VisitId = 0,
+                            PatientName = "Unknown patient",
+                            ChiefComplaint = string.Empty,
                             RequestSpecialization = request.Specialization,
                             RequestLocation = request.Location,
                             NoMatchReason = "No available matching doctor found.",
@@ -106,9 +107,9 @@ namespace Hospital.Desktop.ViewModels.Admin
                         this.SuccessfulMatches.Add(new SuccessfulMatchRow
                         {
                             RequestId = request.Id,
-                            VisitId = request.VisitId,
-                            PatientName = request.Visit?.Patient?.FullName ?? "Unknown patient",
-                            ChiefComplaint = request.Visit?.ChiefComplaint ?? string.Empty,
+                            VisitId = 0,
+                            PatientName = "Unknown patient",
+                            ChiefComplaint = string.Empty,
                             AssignedDoctor = request.AssignedDoctor?.FullName ?? UnknownDoctorName,
                             Specialization = request.Specialization,
                             MatchReason = "Assigned through ER Dispatch.",
@@ -227,9 +228,9 @@ namespace Hospital.Desktop.ViewModels.Admin
             this.SuccessfulMatches.Add(new SuccessfulMatchRow
             {
                 RequestId = overrideResult.Request.Id,
-                VisitId = overrideResult.Request.VisitId,
-                PatientName = overrideResult.Request.Visit?.Patient?.FullName ?? "Unknown patient",
-                ChiefComplaint = overrideResult.Request.Visit?.ChiefComplaint ?? string.Empty,
+                VisitId = 0,
+                PatientName = "Unknown patient",
+                ChiefComplaint = string.Empty,
                 AssignedDoctor = overrideResult.MatchedDoctorName ?? UnknownDoctorName,
                 Specialization = overrideResult.Request.Specialization,
                 MatchReason = overrideResult.MatchReason,
@@ -259,9 +260,9 @@ namespace Hospital.Desktop.ViewModels.Admin
                 this.SuccessfulMatches.Add(new SuccessfulMatchRow
                 {
                     RequestId = dispatchResult.Request.Id,
-                    VisitId = dispatchResult.Request.VisitId,
-                    PatientName = dispatchResult.Request.Visit?.Patient?.FullName ?? "Unknown patient",
-                    ChiefComplaint = dispatchResult.Request.Visit?.ChiefComplaint ?? string.Empty,
+                    VisitId = 0,
+                    PatientName = "Unknown patient",
+                    ChiefComplaint = string.Empty,
                     AssignedDoctor = dispatchResult.MatchedDoctorName ?? UnknownDoctorName,
                     Specialization = dispatchResult.Request.Specialization,
                     MatchReason = dispatchResult.MatchReason,
@@ -272,9 +273,9 @@ namespace Hospital.Desktop.ViewModels.Admin
                 this.UnmatchedRequests.Add(new UnmatchedRequestRow
                 {
                     RequestId = dispatchResult.Request.Id,
-                    VisitId = dispatchResult.Request.VisitId,
-                    PatientName = dispatchResult.Request.Visit?.Patient?.FullName ?? "Unknown patient",
-                    ChiefComplaint = dispatchResult.Request.Visit?.ChiefComplaint ?? string.Empty,
+                    VisitId = 0,
+                    PatientName = "Unknown patient",
+                    ChiefComplaint = string.Empty,
                     RequestSpecialization = dispatchResult.Request.Specialization,
                     RequestLocation = dispatchResult.Request.Location,
                     NoMatchReason = dispatchResult.Message,
@@ -360,8 +361,8 @@ namespace Hospital.Desktop.ViewModels.Admin
                 new OverrideCandidateRow
                 {
                     DoctorId = candidate.DoctorId,
-                    FullName = candidate.FullName,
-                    MinutesToEnd = candidate.MinutesToEnd,
+                    FullName = $"{candidate.FirstName} {candidate.LastName}".Trim(),
+                    MinutesToEnd = 0,
                 };
         }
     }

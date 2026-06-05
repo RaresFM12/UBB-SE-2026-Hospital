@@ -29,8 +29,8 @@ public class HttpTriageProxy(HttpClient httpClient) : ProxyBase(httpClient), ITr
     public async Task<Triage?> GetByVisitIdAsync(int visitId)
         => await GetAsync<Triage>($"{BaseUri}/visit/{visitId}");
 
-    public async Task<Triage> CreateTriageAsync(int visitId, PerformTriageDto parameters)
-        => await PostAsync<PerformTriageDto, Triage>($"{BaseUri}/visit/{visitId}", parameters)
+    public async Task<Triage> CreateTriageAsync(int visitId, PerformTriageRequest parameters)
+        => await PostAsync<PerformTriageRequest, Triage>($"{BaseUri}/visit/{visitId}", parameters)
            ?? throw new InvalidOperationException("Failed to create triage.");
 
     public async Task MoveVisitToQueueAsync(int visitId)

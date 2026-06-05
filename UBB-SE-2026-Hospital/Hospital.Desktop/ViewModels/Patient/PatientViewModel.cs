@@ -149,7 +149,7 @@ public partial class PatientViewModel : ObservableObject
         {
             IReadOnlyList<PatientModel> result = string.IsNullOrWhiteSpace(SearchQuery)
                 ? await patientService.GetPatientsAsync()
-                : await patientService.SearchPatientsAsync(new SearchPatientsRequest { NamePart = SearchQuery.Trim() });
+                : await patientService.SearchPatientsAsync(new SearchPatientsRequest { NamePart = SearchQuery.Trim() }, CancellationToken.None);
 
             foreach (var patient in result)
             {
@@ -196,7 +196,7 @@ public partial class PatientViewModel : ObservableObject
 
         try
         {
-            await patientService.UpdatePatientAsync(SelectedPatient.PatientId, new UpdatePatientRequest
+            await patientService.UpdatePatientAsync(SelectedPatient.PatientId, new Hospital.Data.Models.DTOs.UpdatePatientRequest
             {
                 FirstName = SelectedPatient.FirstName,
                 LastName = SelectedPatient.LastName,
@@ -248,7 +248,7 @@ public partial class PatientViewModel : ObservableObject
         try
         {
             PatientModel details = await patientService.GetPatientDetailsAsync(patientId);
-            MedicalHistory? history = await patientService.GetMedicalHistoryAsync(patientId);
+            MedicalHistory? history = await ((Hospital.Desktop.Proxy.HttpPatientProxy)patientService).GetMedicalHistoryAsync(patientId);
             List<string> allergies = await patientService.GetPatientAllergiesAsync(patientId);
 
             if (SelectedPatient?.PatientId != patientId)
@@ -291,7 +291,7 @@ public partial class PatientViewModel : ObservableObject
 
         try
         {
-            List<MedicalRecord> records = await patientService.GetMedicalRecordsAsync(medicalHistoryId);
+            List<MedicalRecord> records = await ((Hospital.Desktop.Proxy.HttpPatientProxy)patientService).GetMedicalRecordsAsync(medicalHistoryId);
             foreach (var record in records.OrderByDescending(record => record.ConsultationDate))
             {
                 MedicalRecords.Add(record);

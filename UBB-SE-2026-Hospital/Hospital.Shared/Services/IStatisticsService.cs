@@ -8,4 +8,6 @@ public interface IStatisticsService
     Task<Dictionary<string, int>> GetMostPrescribedMedsAsync();
     Task<Dictionary<string, int>> GetPatientGenderDistributionAsync();
     Task<Dictionary<string, int>> GetAgeDistributionAsync();
+    Task<Dictionary<string, int>> GetPatientsByBloodTypeAsync();
+    Task<Dictionary<string, int>> GetPatientsByRhAsync();
 }

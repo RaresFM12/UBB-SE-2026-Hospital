@@ -316,7 +316,7 @@ using Hospital.Shared.Services;
                 var typeLine = string.IsNullOrWhiteSpace(appointmentDetails.Type) ? "N/A" : appointmentDetails.Type;
                 var locationLine = string.IsNullOrWhiteSpace(appointmentDetails.Location) ? "Location TBD" : appointmentDetails.Location;
                 var statusLine = string.IsNullOrWhiteSpace(appointmentDetails.Status) ? "Unknown" : appointmentDetails.Status;
-                var formattedDate = appointmentDetails.Date.ToString(AppointmentDateFormat);
+                var formattedDate = appointmentDetails.AppointmentDate.ToString(AppointmentDateFormat);
                 var formattedStartTime = appointmentDetails.StartTime.ToString(AppointmentTimeFormat);
                 var formattedEndTime = appointmentDetails.EndTime.ToString(AppointmentTimeFormat);
 

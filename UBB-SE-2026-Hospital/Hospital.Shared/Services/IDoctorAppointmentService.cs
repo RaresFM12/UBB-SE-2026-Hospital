@@ -17,4 +17,5 @@ public interface IDoctorAppointmentService
     Task FinishAppointmentAsync(int appointmentId, CancellationToken cancellationToken = default);
     Task CancelAppointmentAsync(int appointmentId, CancellationToken cancellationToken = default);
     Task<int?> GetDoctorIdByEmailAsync(string email, CancellationToken cancellationToken = default);
+    Task<Hospital.Data.Models.Appointment?> GetAppointmentDetailsAsync(int appointmentId, CancellationToken cancellationToken = default);
 }
