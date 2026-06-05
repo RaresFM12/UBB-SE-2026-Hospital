@@ -1,3 +1,4 @@
+using Hospital.Shared.Proxies;
 namespace Hospital.Web.Controllers
 {
     using System.Linq;
@@ -54,3 +55,4 @@ namespace Hospital.Web.Controllers
         }
     }
 }
+

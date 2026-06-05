@@ -3,10 +3,12 @@ using Hospital.Data.Models;
 using Hospital.Web.Models.Triage;
 using Hospital.Shared.Services;
 using Hospital.Web.Services;
+using Hospital.Shared.Proxies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Hospital.Services;
 using Hospital.Web.Services;
+using Hospital.Shared.Proxies;
 
 namespace Hospital.Web.Controllers;
 
@@ -236,3 +238,4 @@ public class TriageController : Controller
         return RedirectToAction("AuthenticationView", "Authentication");
     }
 }
+

@@ -1,3 +1,4 @@
+using Hospital.Shared.Proxies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -173,3 +174,4 @@ namespace Hospital.Web.Controllers
         }
     }
 }
+

@@ -1,6 +1,7 @@
 using Hospital.Data.Models;
 using Hospital.Web.Models.Queue;
 using Hospital.Web.Services;
+using Hospital.Shared.Proxies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -77,3 +78,4 @@ public class QueueController : Controller
         return RedirectToAction("AuthenticationView", "Authentication");
     }
 }
+

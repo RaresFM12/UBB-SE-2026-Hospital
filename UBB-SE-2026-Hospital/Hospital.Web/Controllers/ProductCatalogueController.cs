@@ -1,3 +1,4 @@
+using Hospital.Shared.Proxies;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -234,3 +235,4 @@ namespace Hospital.Web.Controllers
         [Authorize(Roles = "Admin")][HttpPost, ActionName("Delete")][ValidateAntiForgeryToken] public IActionResult DeleteConfirmed(int id) => RedirectToAction(nameof(Index));
     }
 }
+

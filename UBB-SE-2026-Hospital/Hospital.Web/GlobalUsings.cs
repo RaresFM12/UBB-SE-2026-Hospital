@@ -7,7 +7,7 @@ global using Hospital.Web.Services;
 global using ER_Visit = Hospital.Data.Models.ERVisit;
 global using DoctorProfile = Hospital.Data.Models.DoctorProfile;
 global using ERDispatchResult = Hospital.Data.Models.ERDispatchResult;
-global using IErWorkflowService = Hospital.Web.Services.IErWorkflowApiClient;
+global using IErWorkflowService = Hospital.Shared.Proxies.IErWorkflowApiClient;
 global using PeriodTrackerDashboardSnapshot = Hospital.Data.Models.PeriodTrackerDashboardSnapshot;
 global using PeriodTrackerState = Hospital.Data.Models.PeriodTrackerState;
 global using RecordDTO = Hospital.Data.Models.MedicalRecordDetails;

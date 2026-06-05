@@ -1,3 +1,4 @@
+using Hospital.Shared.Proxies;
 using Hospital.Data.Models;
 using Hospital.Services;
 using Hospital.Shared.Services;
@@ -209,3 +210,4 @@ public class OrganDonorController : Controller
         return total;
     }
 }
+

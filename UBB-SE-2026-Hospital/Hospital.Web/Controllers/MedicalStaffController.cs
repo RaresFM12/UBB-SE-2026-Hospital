@@ -2,6 +2,7 @@ using Hospital.Data.Models;
 using Hospital.Data.Models;
 using Hospital.Web.Models.MedicalStaff;
 using Hospital.Web.Services;
+using Hospital.Shared.Proxies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 
@@ -96,3 +97,4 @@ public class MedicalStaffController : Controller
             : new SearchPatientsDto { NamePart = trimmed };
     }
 }
+

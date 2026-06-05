@@ -1,3 +1,4 @@
+using Hospital.Shared.Proxies;
 namespace Hospital.Web.Controllers
 {
     using System;
@@ -87,3 +88,4 @@ namespace Hospital.Web.Controllers
         }
     }
 }
+

@@ -1,3 +1,4 @@
+using Hospital.Shared.Proxies;
 using Hospital.Shared.Services;
 using Hospital.Web.Models.Statistics;
 using Microsoft.AspNetCore.Authorization;
@@ -66,3 +67,4 @@ public class StatisticsController : Controller
         return model;
     }
 }
+

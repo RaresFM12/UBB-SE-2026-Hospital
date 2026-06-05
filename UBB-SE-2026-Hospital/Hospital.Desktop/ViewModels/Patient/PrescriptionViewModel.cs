@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Hospital.Desktop.Proxy;
+using Hospital.Shared.Proxies;
 using Hospital.Data.Models;
 using Hospital.Data.Models;
 
@@ -13,7 +13,7 @@ namespace Hospital.Desktop.ViewModels.Patient;
 
 public partial class PrescriptionViewModel : ObservableObject
 {
-    private readonly HttpPrescriptionProxy prescriptionService;
+    private readonly PrescriptionApiClient prescriptionService;
     private const int PageSize = 9;
     private int loadVersion;
 
@@ -28,7 +28,7 @@ public partial class PrescriptionViewModel : ObservableObject
 
     public PrescriptionFilter ActiveFilter { get; private set; } = new();
 
-    public PrescriptionViewModel(HttpPrescriptionProxy prescriptionService)
+    public PrescriptionViewModel(PrescriptionApiClient prescriptionService)
     {
         this.prescriptionService = prescriptionService;
     }
@@ -129,3 +129,5 @@ public partial class PrescriptionViewModel : ObservableObject
     private static int? TryParseNullableInt(string? value)
         => int.TryParse(value, out int parsed) ? parsed : null;
 }
+
+

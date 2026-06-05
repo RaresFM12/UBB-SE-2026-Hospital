@@ -1,3 +1,4 @@
+using Hospital.Shared.Proxies;
 using Hospital.Data.Models;
 using Hospital.Services;
 using Hospital.Data.Models;

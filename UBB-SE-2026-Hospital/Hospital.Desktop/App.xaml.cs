@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Net.Http;
 using Hospital.Desktop.Auth;
-using Hospital.Desktop.Proxy;
+using Hospital.Shared.Proxies;
 using Hospital.Desktop.Services;
 using Hospital.Desktop.ViewModels.Accounts; // removed to avoid ambiguity
 using Hospital.Desktop.ViewModels.Admin;
@@ -63,29 +63,29 @@ public partial class App : Application
         services.AddSingleton<NavigationService>();
 
         // Async proxies (House-MD + MysteryInc)
-        services.AddSingleton<IPatientService, HttpPatientProxy>();
-        services.AddSingleton<IERRoomService, HttpERRoomProxy>();
-        services.AddSingleton<IERVisitService, HttpERVisitProxy>();
-        services.AddSingleton<ITriageService, HttpTriageProxy>();
-        services.AddSingleton<IExaminationService, HttpExaminationProxy>();
-        services.AddSingleton<ITransferLogService, HttpTransferLogProxy>();
-        services.AddSingleton<IDoctorAppointmentService, HttpDoctorAppointmentProxy>();
-        services.AddSingleton<IERDispatchService, HttpERDispatchProxy>();
-        services.AddSingleton<IAllergyService, HttpAllergyProxy>();
-        services.AddSingleton<IStatisticsService, HttpStatisticsProxy>();
-        services.AddSingleton<ITransplantService, HttpTransplantProxy>();
-        services.AddSingleton<IBloodCompatibilityService, HttpBloodCompatibilityProxy>();
-        services.AddSingleton<IBillingService, HttpBillingProxy>();
-        services.AddSingleton<IAddictDetectionService, HttpAddictDetectionProxy>();
-        services.AddSingleton<HttpPrescriptionProxy>();
-        services.AddSingleton<IPrescriptionService>(sp => sp.GetRequiredService<HttpPrescriptionProxy>());
+        services.AddSingleton<IPatientService, PatientApiClient>();
+        services.AddSingleton<IERRoomService, ERRoomApiClient>();
+        services.AddSingleton<IERVisitService, ERVisitApiClient>();
+        services.AddSingleton<ITriageService, TriageApiClient>();
+        services.AddSingleton<IExaminationService, ExaminationApiClient>();
+        services.AddSingleton<ITransferLogService, TransferLogApiClient>();
+        services.AddSingleton<IDoctorAppointmentService, DoctorAppointmentApiClient>();
+        services.AddSingleton<IERDispatchService, ERDispatchApiClient>();
+        services.AddSingleton<IAllergyService, AllergyApiClient>();
+        services.AddSingleton<IStatisticsService, StatisticsApiClient>();
+        services.AddSingleton<ITransplantService, TransplantApiClient>();
+        services.AddSingleton<IBloodCompatibilityService, BloodCompatibilityApiClient>();
+        services.AddSingleton<IBillingService, BillingApiClient>();
+        services.AddSingleton<IAddictDetectionService, AddictDetectionApiClient>();
+        services.AddSingleton<PrescriptionApiClient>();
+        services.AddSingleton<IPrescriptionService>(sp => sp.GetRequiredService<PrescriptionApiClient>());
 
         // Sync-blocking proxies (923-2 admin/client)
-        services.AddSingleton<IAdminService, HttpAdminProxy>();
-        services.AddSingleton<IOrderService, HttpOrdersProxy>();
-        services.AddSingleton<IUserAccountService, HttpUserAccountProxy>();
-        services.AddSingleton<IShiftManagementService, HttpShiftManagementProxy>();
-        services.AddSingleton<IFatigueAuditService, HttpFatigueAuditProxy>();
+        services.AddSingleton<IAdminService, AdminApiClient>();
+        services.AddSingleton<IOrderService, OrdersApiClient>();
+        services.AddSingleton<IUserAccountService, UserAccountApiClient>();
+        services.AddSingleton<IShiftManagementService, ShiftManagementApiClient>();
+        services.AddSingleton<IFatigueAuditService, FatigueAuditApiClient>();
 
         // ViewModels
         // Removed incorrect ViewModel registration; EditPageViewModel is registered later
@@ -179,3 +179,5 @@ public partial class App : Application
         File.AppendAllText(logPath, $"{DateTimeOffset.Now:O}{Environment.NewLine}{ex}{Environment.NewLine}");
     }
 }
+
+

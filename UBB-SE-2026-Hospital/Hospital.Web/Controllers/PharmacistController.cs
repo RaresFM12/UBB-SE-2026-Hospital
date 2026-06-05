@@ -5,6 +5,7 @@ using Hospital.Data.Repositories;
 using Hospital.Web.Models.Pharmacist;
 using Hospital.Web.Models.Prescription;
 using Hospital.Web.Services;
+using Hospital.Shared.Proxies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -198,3 +199,4 @@ public class PharmacistController : Controller
         return builder.ToString();
     }
 }
+

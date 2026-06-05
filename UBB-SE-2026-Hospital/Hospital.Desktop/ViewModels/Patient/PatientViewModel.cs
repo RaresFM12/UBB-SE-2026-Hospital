@@ -248,7 +248,7 @@ public partial class PatientViewModel : ObservableObject
         try
         {
             PatientModel details = await patientService.GetPatientDetailsAsync(patientId);
-            MedicalHistory? history = await ((Hospital.Desktop.Proxy.HttpPatientProxy)patientService).GetMedicalHistoryAsync(patientId);
+            MedicalHistory? history = await ((Hospital.Shared.Proxies.PatientApiClient)patientService).GetMedicalHistoryAsync(patientId);
             List<string> allergies = await patientService.GetPatientAllergiesAsync(patientId);
 
             if (SelectedPatient?.PatientId != patientId)
@@ -291,7 +291,7 @@ public partial class PatientViewModel : ObservableObject
 
         try
         {
-            List<MedicalRecord> records = await ((Hospital.Desktop.Proxy.HttpPatientProxy)patientService).GetMedicalRecordsAsync(medicalHistoryId);
+            List<MedicalRecord> records = await ((Hospital.Shared.Proxies.PatientApiClient)patientService).GetMedicalRecordsAsync(medicalHistoryId);
             foreach (var record in records.OrderByDescending(record => record.ConsultationDate))
             {
                 MedicalRecords.Add(record);
@@ -369,3 +369,5 @@ public partial class PatientViewModel : ObservableObject
         OnPropertyChanged(nameof(DiscountActionVisibility));
     }
 }
+
+

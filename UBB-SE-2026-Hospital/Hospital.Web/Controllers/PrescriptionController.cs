@@ -1,3 +1,4 @@
+using Hospital.Shared.Proxies;
 using System.Security.Cryptography;
 using Hospital.Data.Models;
 using Hospital.Data.Models;
@@ -231,3 +232,4 @@ public class PrescriptionController : Controller
     private static int? TryParseInt(string? value) =>
         int.TryParse(value, out int result) ? result : null;
 }
+

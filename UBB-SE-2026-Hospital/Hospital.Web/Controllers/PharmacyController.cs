@@ -1,3 +1,4 @@
+using Hospital.Shared.Proxies;
 using Hospital.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,3 +11,4 @@ public class PharmacyController(IAdminService adminService) : Controller
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
         => View(await adminService.GetItemsAsync(null, cancellationToken));
 }
+

@@ -1,3 +1,4 @@
+using Hospital.Shared.Proxies;
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Hospital.Services;
@@ -113,3 +114,4 @@ public class BloodCompatibilityController : Controller
         return total;
     }
 }
+

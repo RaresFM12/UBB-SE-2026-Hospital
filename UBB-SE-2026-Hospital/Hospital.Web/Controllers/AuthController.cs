@@ -1,3 +1,4 @@
+using Hospital.Shared.Proxies;
 using System.Security.Claims;
 using Hospital.Shared.Services;
 using Hospital.Data.Models; 
@@ -117,3 +118,4 @@ public class AuthController : Controller
         return RedirectToAction(nameof(Login));
     }
 }
+

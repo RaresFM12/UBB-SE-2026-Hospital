@@ -1,4 +1,5 @@
 using Hospital.Web.Services;
+using Hospital.Shared.Proxies;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

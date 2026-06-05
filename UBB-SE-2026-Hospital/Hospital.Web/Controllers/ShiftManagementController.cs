@@ -1,3 +1,4 @@
+using Hospital.Shared.Proxies;
 namespace Hospital.Web.Controllers;
 
 using System;
@@ -326,3 +327,4 @@ public class ShiftManagementController : Controller
         return this.RedirectToAction(nameof(Index), new { shiftDate = selectedDate.ToString("yyyy-MM-dd") });
     }
 }
+

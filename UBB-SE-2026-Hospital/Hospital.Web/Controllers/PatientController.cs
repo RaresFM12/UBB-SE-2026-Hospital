@@ -1,3 +1,4 @@
+using Hospital.Shared.Proxies;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -425,3 +426,4 @@ public class PatientsController : Controller
 
     private IActionResult RedirectToLogin() => RedirectToAction("Login", "Auth");
 }
+

@@ -1,3 +1,4 @@
+using Hospital.Shared.Proxies;
 using Hospital.Web.Models.Consultations;
 using Hospital.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -95,3 +96,4 @@ public class ConsultationController : Controller
         return View(model);
     }
 }
+

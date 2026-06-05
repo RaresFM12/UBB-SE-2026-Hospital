@@ -2,6 +2,7 @@ using Hospital.Data.Models;
 using Hospital.Data.Models;
 using Hospital.Web.Models.RoomManagement;
 using Hospital.Web.Services;
+using Hospital.Shared.Proxies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -131,3 +132,4 @@ public class RoomManagementController : Controller
         return RedirectToAction("AuthenticationView", "Authentication");
     }
 }
+

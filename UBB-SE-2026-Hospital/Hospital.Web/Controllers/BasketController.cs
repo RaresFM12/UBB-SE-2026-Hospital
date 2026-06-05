@@ -1,3 +1,4 @@
+using Hospital.Shared.Proxies;
     using System;
     using System.Collections.Generic;
     using System.Security.Claims;
@@ -179,3 +180,4 @@ public class BasketController : Controller
         return int.TryParse(idValue, out int userId) ? userId : null;
     }
 }
+

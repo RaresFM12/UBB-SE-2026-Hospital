@@ -1,3 +1,4 @@
+using Hospital.Shared.Proxies;
 using Hospital.Web.Models.Modules;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -81,3 +82,4 @@ public class ModulesController : Controller
         return View(module);
     }
 }
+

@@ -1,5 +1,6 @@
 using Hospital.Web.Models.Ghost;
 using Hospital.Web.Services;
+using Hospital.Shared.Proxies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -63,3 +64,4 @@ public class GhostController : Controller
             LastRefreshed = DateTime.UtcNow
         };
 }
+

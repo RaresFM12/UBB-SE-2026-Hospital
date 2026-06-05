@@ -1,3 +1,4 @@
+using Hospital.Shared.Proxies;
 using System;
 using System.Collections.Generic;
 using System.Linq;

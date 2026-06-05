@@ -1,6 +1,7 @@
 using Hospital.Data.Models;
 using Hospital.Web.Models.RoomAssignment;
 using Hospital.Web.Services;
+using Hospital.Shared.Proxies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -196,3 +197,4 @@ public class RoomAssignmentController : Controller
         return RedirectToAction("AuthenticationView", "Authentication");
     }
 }
+
