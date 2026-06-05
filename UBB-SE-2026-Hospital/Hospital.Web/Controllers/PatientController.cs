@@ -15,6 +15,7 @@ using MedicalRecord = Hospital.Shared.Models.PatientEr.MedicalRecord;
 using PatientProfileViewModel = Hospital.Web.Models.Patient.PatientProfileViewModel;
 using DbPatient = Hospital.Data.Models.Patient;
 using Hospital.Services.PatientEr;
+using IAllergyService = Hospital.Services.PatientEr.IAllergyService;
 
 namespace Hospital.Web.Controllers;
 

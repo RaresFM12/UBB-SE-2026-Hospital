@@ -31,4 +31,9 @@ public class Patient
     public bool Transferred { get; set; }
 
     public MedicalHistory? MedicalHistory { get; set; }
+
+    public static implicit operator Patient(Data.Models.Patient v)
+    {
+        throw new NotImplementedException();
+    }
 }

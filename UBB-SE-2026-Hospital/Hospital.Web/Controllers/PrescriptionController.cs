@@ -7,6 +7,7 @@ using Hospital.Shared.Services;
 using Hospital.Services.PatientEr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using IPrescriptionService = Hospital.Shared.Services.IPrescriptionService;
 
 namespace Hospital.Web.Controllers;
 

@@ -1,3 +1,4 @@
+using System;
 using Hospital.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -12,7 +13,12 @@ public static class DataServiceCollectionExtensions
         IConfiguration configuration)
     {
         services.AddDbContext<HospitalDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            options.UseSqlServer(
+                configuration.GetConnectionString("DefaultConnection"),
+                sqlOptions => sqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: TimeSpan.FromSeconds(10),
+                    errorNumbersToAdd: null)));
 
         // Authorization (roles & modules)
         services.AddScoped<IModuleRepository, ModuleRepository>();
