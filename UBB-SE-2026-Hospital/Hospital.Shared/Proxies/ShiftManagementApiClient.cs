@@ -51,7 +51,27 @@ public class ShiftManagementApiClient(HttpClient httpClient) : ApiClientBase(htt
               .GetAwaiter().GetResult().Cast<IStaff>().ToList();
 
     public IReadOnlyList<string> GetSpecializationsAndCertificationsForLocation(string location)
-        => Task.Run(async () => await GetAsync<List<string>>($"api/staff/specializations?location={Uri.EscapeDataString(location)}") ?? []).GetAwaiter().GetResult();
+    {
+        var allStaff = Task.Run(async () => await GetAllStaffAsync()).GetAwaiter().GetResult();
+        if (string.Equals(location, "Pharmacy", StringComparison.OrdinalIgnoreCase))
+        {
+            return allStaff
+                .OfType<Pharmacyst>()
+                .Select(staff => staff.Certification)
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(value => value)
+                .ToList();
+        }
+
+        return allStaff
+            .OfType<Doctor>()
+            .Select(staff => staff.Specialization)
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(value => value)
+            .ToList();
+    }
 
     public bool IsStaffWorkingDuring(int staffId, DateTime startTime, DateTime endTime)
         => Task.Run(async () => await GetAsync<bool>($"{BaseUri}/is-working?staffId={staffId}&startTime={QueryDate(startTime)}&endTime={QueryDate(endTime)}")).GetAwaiter().GetResult();
@@ -117,7 +137,23 @@ public class ShiftManagementApiClient(HttpClient httpClient) : ApiClientBase(htt
         => await PutAsync<object>($"api/staff/{staffId}/availability", new { isAvailable, status });
 
     public async Task<IReadOnlyList<Staff>> GetFilteredStaffAsync(string location, string requiredSpecializationOrCertification, CancellationToken cancellationToken = default)
-        => await GetAsync<List<Staff>>($"api/staff/filtered?location={Uri.EscapeDataString(location)}&requiredSpecializationOrCertification={Uri.EscapeDataString(requiredSpecializationOrCertification)}") ?? [];
+    {
+        var allStaff = await GetAllStaffAsync(cancellationToken);
+        if (string.Equals(location, "Pharmacy", StringComparison.OrdinalIgnoreCase))
+        {
+            return allStaff
+                .OfType<Pharmacyst>()
+                .Where(staff => staff.Certification.Contains(requiredSpecializationOrCertification, StringComparison.OrdinalIgnoreCase))
+                .Cast<Staff>()
+                .ToList();
+        }
+
+        return allStaff
+            .OfType<Doctor>()
+            .Where(staff => staff.Specialization.Contains(requiredSpecializationOrCertification, StringComparison.OrdinalIgnoreCase))
+            .Cast<Staff>()
+            .ToList();
+    }
 }
 
 
