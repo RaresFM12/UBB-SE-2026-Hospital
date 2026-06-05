@@ -11,7 +11,7 @@ public class UserAccountApiClient(HttpClient httpClient) : ApiClientBase(httpCli
 
     public User? LoadCurrentUser(int userId)
     {
-        var user = Task.Run(async () => await GetAsync<User>($"{BaseUri}/{userId}")).GetAwaiter().GetResult();
+        var user = Task.Run(async () => await GetAsync<User>("api/auth/me")).GetAwaiter().GetResult();
         CurrentUser = user;
         return user;
     }
@@ -25,9 +25,11 @@ public class UserAccountApiClient(HttpClient httpClient) : ApiClientBase(httpCli
     public void UpdateProfile(string newUsername, string newPhoneNumber)
     {
         if (CurrentUser == null) return;
+        Task.Run(async () => await PutAsync(
+            "api/auth/profile",
+            new { username = newUsername, phoneNumber = newPhoneNumber })).GetAwaiter().GetResult();
         CurrentUser.Username = newUsername;
         CurrentUser.PhoneNumber = newPhoneNumber;
-        Task.Run(async () => await PutAsync($"{BaseUri}/{CurrentUser.Id}", CurrentUser)).GetAwaiter().GetResult();
     }
 
     public void ChangePassword(string oldPassword, string newPassword, string confirmNewPassword)

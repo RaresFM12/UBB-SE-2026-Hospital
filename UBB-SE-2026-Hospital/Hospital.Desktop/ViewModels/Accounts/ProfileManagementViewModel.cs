@@ -2,6 +2,7 @@ namespace Hospital.Desktop.ViewModels.Accounts
 {
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
+    using Hospital.Data.Models;
     using Hospital.Shared.Services;
 
     public class ProfileManagementViewModel : INotifyPropertyChanged
@@ -17,7 +18,6 @@ namespace Hospital.Desktop.ViewModels.Accounts
         {
             this.userAccountService = userAccountService;
             this.currentUserService = currentUserService;
-            this.LoadUserData();
         }
 
         public string Email => this.userAccountService.CurrentUser?.Email ?? string.Empty;
@@ -54,27 +54,44 @@ namespace Hospital.Desktop.ViewModels.Accounts
 
         public void LoadUserData()
         {
-            var currentUser = this.userAccountService.CurrentUser;
-            int userId = currentUser?.Id ?? this.currentUserService.UserId;
+            this.ErrorMessage = null;
+            int userId = this.userAccountService.CurrentUser?.Id ?? this.currentUserService.UserId;
             if (userId <= 0)
             {
+                this.ErrorMessage = "No signed-in user was found.";
                 return;
             }
 
-            currentUser = this.userAccountService.LoadCurrentUser(userId);
-            if (currentUser == null)
+            try
             {
-                return;
-            }
+                User? currentUser = this.userAccountService.LoadCurrentUser(userId);
+                if (currentUser == null)
+                {
+                    this.ErrorMessage = "Could not load your profile.";
+                    return;
+                }
 
-            this.OnPropertyChanged(nameof(this.Email));
-            this.Username = currentUser.Username;
-            this.PhoneNumber = currentUser.PhoneNumber;
+                this.OnPropertyChanged(nameof(this.Email));
+                this.Username = currentUser.Username;
+                this.PhoneNumber = currentUser.PhoneNumber;
+            }
+            catch (System.Exception exception)
+            {
+                this.ErrorMessage = exception.Message;
+            }
         }
 
         public void SaveChanges()
         {
-            this.userAccountService.UpdateProfile(this.Username, this.PhoneNumber);
+            try
+            {
+                this.ErrorMessage = null;
+                this.userAccountService.UpdateProfile(this.Username, this.PhoneNumber);
+            }
+            catch (System.Exception exception)
+            {
+                this.ErrorMessage = exception.Message;
+            }
         }
 
         public void CancelChanges()

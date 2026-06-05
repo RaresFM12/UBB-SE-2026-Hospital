@@ -8,7 +8,10 @@ namespace Hospital.API.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public class AuthController(IAuthService authService, IModuleAccessService moduleAccessService) : ControllerBase
+public class AuthController(
+    IAuthService authService,
+    IModuleAccessService moduleAccessService,
+    IUserAccountService userAccountService) : ControllerBase
 {
     [AllowAnonymous]
     [HttpPost("login")]
@@ -33,4 +36,44 @@ public class AuthController(IAuthService authService, IModuleAccessService modul
     [HttpGet("modules/{moduleKey}/access")]
     public async Task<ActionResult<bool>> CanAccessModule(string moduleKey, CancellationToken cancellationToken)
         => Ok(await moduleAccessService.CanAccessModuleAsync(this.GetCurrentUser().Id, moduleKey, cancellationToken));
+
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<ActionResult<User>> GetCurrentUserProfile(CancellationToken cancellationToken)
+    {
+        UserPrincipal currentUser = this.GetCurrentUser();
+        if (currentUser.Id <= 0)
+        {
+            return Unauthorized();
+        }
+
+        User? user = await userAccountService.GetUserByIdAsync(currentUser.Id, cancellationToken);
+        return user is null ? NotFound() : Ok(user);
+    }
+
+    [Authorize]
+    [HttpPut("profile")]
+    public async Task<IActionResult> UpdateProfile(
+        [FromBody] UpdateProfileRequest request,
+        CancellationToken cancellationToken)
+    {
+        UserPrincipal currentUser = this.GetCurrentUser();
+        if (currentUser.Id <= 0)
+        {
+            return Unauthorized();
+        }
+
+        User? user = await userAccountService.GetUserByIdAsync(currentUser.Id, cancellationToken);
+        if (user is null)
+        {
+            return NotFound();
+        }
+
+        user.Username = request.Username ?? string.Empty;
+        user.PhoneNumber = request.PhoneNumber ?? string.Empty;
+        await userAccountService.UpdateUserAsync(user, cancellationToken);
+        return NoContent();
+    }
+
+    public record UpdateProfileRequest(string? Username, string? PhoneNumber);
 }

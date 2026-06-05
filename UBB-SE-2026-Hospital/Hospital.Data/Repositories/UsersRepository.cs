@@ -36,9 +36,12 @@ public class UsersRepository(HospitalDbContext context) : IUsersRepository
 
     public async Task<User> UpdateUserAsync(User user)
     {
-        context.Users.Update(user);
+        var existing = await context.Users.FindAsync(user.Id)
+            ?? throw new KeyNotFoundException($"User with id {user.Id} was not found.");
+
+        context.Entry(existing).CurrentValues.SetValues(user);
         await context.SaveChangesAsync();
-        return user;
+        return existing;
     }
 
     public async Task DeleteUserAsync(int userId)
