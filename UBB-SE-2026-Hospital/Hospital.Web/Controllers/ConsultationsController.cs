@@ -23,9 +23,57 @@ public class ConsultationController : Controller
     }
 
     [HttpGet]
-    public IActionResult Index()
+    public async Task<IActionResult> Index(int? patientId)
     {
-        return View();
+        IReadOnlyList<PatientErPatient> allPatients = await patientService.GetPatientsAsync();
+
+        var model = new ConsultationsIndexViewModel
+        {
+            SelectedPatientId = patientId,
+            Patients = allPatients
+                .OrderBy(patient => patient.LastName)
+                .ThenBy(patient => patient.FirstName)
+                .Select(patient => new PatientOption
+                {
+                    Id = patient.PatientId,
+                    FullName = $"{patient.FirstName} {patient.LastName}".Trim(),
+                    Cnp = patient.Cnp ?? string.Empty
+                })
+                .ToList()
+        };
+
+        if (patientId.HasValue)
+        {
+            try
+            {
+                PatientErPatient selected = await patientService.GetPatientDetailsAsync(patientId.Value);
+                model.SelectedPatientName = $"{selected.FirstName} {selected.LastName}".Trim();
+
+                List<PatientErMedicalRecord> records = selected.MedicalHistory?.MedicalRecords?.ToList()
+                    ?? new List<PatientErMedicalRecord>();
+
+                model.Records = records
+                    .OrderByDescending(record => record.ConsultationDate)
+                    .Select(record => new RecordOption
+                    {
+                        RecordId = record.RecordId,
+                        ConsultationDate = record.ConsultationDate,
+                        Diagnosis = record.Diagnosis ?? "N/A",
+                        SourceType = record.SourceType.ToString()
+                    })
+                    .ToList();
+            }
+            catch (ArgumentException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
+        }
+
+        return View(model);
     }
 
     [HttpGet]

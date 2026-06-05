@@ -198,48 +198,88 @@ namespace Hospital.Services
 
             snapshot.IsInMenstrualPhase = today >= computedStart && today <= endPeriod;
 
-            if (today >= computedStart && today <= endPeriod)
+            bool isCurrentCycle = snapshot.MonthOffset == 0;
+
+            if (isCurrentCycle)
             {
-                snapshot.CurrentPhaseString = "Menstrual Phase";
+                if (today >= computedStart && today <= endPeriod)
+                {
+                    snapshot.CurrentPhaseString = "Menstrual Phase";
+                }
+                else if (today > endPeriod && today < startOvulation)
+                {
+                    snapshot.CurrentPhaseString = "Follicular Phase";
+                }
+                else if (today >= startOvulation && today <= endOvulation)
+                {
+                    snapshot.CurrentPhaseString = "Ovulation Phase";
+                }
+                else if (today > endOvulation && today < nextPeriod)
+                {
+                    snapshot.CurrentPhaseString = "Luteal Phase";
+                }
+                else
+                {
+                    snapshot.CurrentPhaseString = "Menstrual Phase";
+                }
             }
-            else if (today > endPeriod && today < startOvulation)
+            else if (computedStart > today)
             {
-                snapshot.CurrentPhaseString = "Follicular Phase";
-            }
-            else if (today >= startOvulation && today <= endOvulation)
-            {
-                snapshot.CurrentPhaseString = "Ovulation Phase";
-            }
-            else if (today > endOvulation && today < nextPeriod)
-            {
-                snapshot.CurrentPhaseString = "Luteal Phase";
+                snapshot.CurrentPhaseString = $"Will start on {computedStart:dd.MM.yyyy}";
             }
             else
             {
-                snapshot.CurrentPhaseString = "Out of Scope Cycle";
+                snapshot.CurrentPhaseString = $"Started on {computedStart:dd.MM.yyyy}";
             }
 
-            snapshot.NextPeriodDateString = nextPeriod.ToString("d");
+            snapshot.NextPeriodDateString = nextPeriod.ToString("dd.MM.yyyy");
             snapshot.CurrentDayOfCycle = (int)(today - computedStart).TotalDays + 1;
 
-            double daysLeftPeriod = Math.Max(0, Math.Ceiling((nextPeriod - today).TotalDays));
-            snapshot.NextPeriodDistanceString = $"{daysLeftPeriod} days left";
-
-            if (today < startOvulation)
+            double daysDifference = Math.Ceiling((nextPeriod - today).TotalDays);
+            if (isCurrentCycle)
             {
-                snapshot.DaysUntilOvulation = (int)Math.Ceiling((startOvulation - today).TotalDays);
-                snapshot.OvulationDistanceString = $"In {snapshot.DaysUntilOvulation} days";
+                snapshot.NextPeriodDistanceString = $"{Math.Max(0, daysDifference)} days left";
             }
-            else if (today >= startOvulation && today <= endOvulation)
+            else if (daysDifference < 0)
             {
-                snapshot.DaysUntilOvulation = 0;
-                snapshot.OvulationDistanceString = "In Progress";
+                snapshot.NextPeriodDistanceString = $"{(int)Math.Abs(daysDifference)} days ago";
             }
             else
             {
-                DateTime nextMonthOvulation = nextPeriod.AddDays(11);
-                snapshot.DaysUntilOvulation = (int)Math.Ceiling((nextMonthOvulation - today).TotalDays);
-                snapshot.OvulationDistanceString = $"In {snapshot.DaysUntilOvulation} days";
+                snapshot.NextPeriodDistanceString = $"In {(int)daysDifference} days";
+            }
+
+            if (isCurrentCycle)
+            {
+                if (today < startOvulation)
+                {
+                    snapshot.DaysUntilOvulation = (int)Math.Ceiling((startOvulation - today).TotalDays);
+                    snapshot.OvulationDistanceString = $"In {snapshot.DaysUntilOvulation} days";
+                }
+                else if (today >= startOvulation && today <= endOvulation)
+                {
+                    snapshot.DaysUntilOvulation = 0;
+                    snapshot.OvulationDistanceString = "In Progress";
+                }
+                else
+                {
+                    DateTime nextMonthOvulation = nextPeriod.AddDays(11);
+                    snapshot.DaysUntilOvulation = (int)Math.Ceiling((nextMonthOvulation - today).TotalDays);
+                    snapshot.OvulationDistanceString = $"In {snapshot.DaysUntilOvulation} days";
+                }
+            }
+            else
+            {
+                double ovulationDiff = Math.Ceiling((startOvulation - today).TotalDays);
+                snapshot.DaysUntilOvulation = (int)ovulationDiff;
+                if (ovulationDiff < 0)
+                {
+                    snapshot.OvulationDistanceString = $"{(int)Math.Abs(ovulationDiff)} days ago";
+                }
+                else
+                {
+                    snapshot.OvulationDistanceString = $"In {(int)ovulationDiff} days";
+                }
             }
         }
 

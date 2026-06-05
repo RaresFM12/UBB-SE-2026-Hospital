@@ -8,6 +8,8 @@
 <div class="row">
     <div class="col-md-6">
         <form asp-action="Create" method="post">
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
             <div class="mb-3">
                 <label class="form-label">Select Doctor (Organizer)</label>
                 <select asp-for="SelectedDoctorId" class="form-select">
@@ -16,21 +18,26 @@
                         <option value="@doctor.DoctorId">@doctor.DoctorName</option>
                     }
                 </select>
+                <span asp-validation-for="SelectedDoctorId" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
                 <label asp-for="Title" class="form-label"></label>
                 <input asp-for="Title" class="form-control" maxlength="25" />
+                <span asp-validation-for="Title" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
                 <label asp-for="Description" class="form-label"></label>
                 <textarea asp-for="Description" class="form-control" rows="3" maxlength="100"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
                 <label asp-for="Date" class="form-label"></label>
                 <input asp-for="Date" class="form-control" type="date" />
+                <span asp-validation-for="Date" class="text-danger"></span>
+                <small class="form-text text-muted">Must be at least 1 week from today.</small>
             </div>
 
             <div class="mb-3">
@@ -41,6 +48,7 @@
                         <option value="@i">@i</option>
                     }
                 </select>
+                <span asp-validation-for="MaxParticipantsCount" class="text-danger"></span>
             </div>
 
             <button type="submit" class="btn btn-primary">Create Hangout</button>
@@ -50,3 +58,7 @@
         </form>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

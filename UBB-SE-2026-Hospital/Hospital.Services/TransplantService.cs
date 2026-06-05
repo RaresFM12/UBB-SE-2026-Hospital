@@ -148,6 +148,30 @@ public class TransplantService(
         return null;
     }
 
+    public async Task<List<Transplant>> GetByReceiverIdAsync(int receiverId)
+    {
+        List<Transplant> all = await transplantRepository.GetAllAsync();
+        return all.Where(t => t.Receiver?.PatientId == receiverId).ToList();
+    }
+
+    public async Task<List<Transplant>> GetByDonorIdAsync(int donorId)
+    {
+        List<Transplant> all = await transplantRepository.GetAllAsync();
+        return all.Where(t => t.Donor?.PatientId == donorId).ToList();
+    }
+
+    public async Task<List<TransplantMatch>> GetMatchesAsync()
+    {
+        List<Transplant> all = await transplantRepository.GetAllAsync();
+        var matches = new List<TransplantMatch>();
+        foreach (Transplant t in all)
+            matches.AddRange(await transplantRepository.GetMatchesForTransplantAsync(t.TransplantId));
+        return matches;
+    }
+
+    public async Task<List<TransplantMatch>> GetTopMatchesForDonorAsync(int donorId, string organType)
+        => await GetTopMatchesAsDisplayModelsAsync(donorId, organType);
+
     private async Task<float> CalculatePostMortemScoreAsync(Patient donor, Patient receiver)
     {
         float score = bloodCompatibilityService.CalculateScore(donor, receiver);
