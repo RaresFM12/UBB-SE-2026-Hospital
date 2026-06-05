@@ -1,5 +1,5 @@
-using Hospital.Data.Models.DTOs;
-using Hospital.Services.PatientEr;
+using Hospital.Data.Models;
+using Hospital.Services;
 using Hospital.Shared.Services;
 using Hospital.Web.Models.BloodCompatibility;
 using Hospital.Web.Models.Patients;
@@ -7,9 +7,9 @@ using Hospital.Web.Models.Transplant;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using DbPatient = Hospital.Data.Models.Patient;
-using IBloodCompatibilityService = Hospital.Services.PatientEr.IBloodCompatibilityService;
-using ITransplantService = Hospital.Services.PatientEr.ITransplantService;
-using SharedPatient = Hospital.Shared.Models.PatientEr.Patient;
+using IBloodCompatibilityService = Hospital.Services.IBloodCompatibilityService;
+using ITransplantService = Hospital.Services.ITransplantService;
+using SharedPatient = Hospital.Data.Models.Patient;
 
 namespace Hospital.Web.Controllers;
 
@@ -24,7 +24,7 @@ public class OrganDonorController : Controller
     private const int SameSexScore = 20;
     private const int DifferentSexScore = 10;
 
-    private readonly Hospital.Services.PatientEr.IBloodCompatibilityService bloodCompatibilityService;
+    private readonly Hospital.Services.IBloodCompatibilityService bloodCompatibilityService;
     private readonly ITransplantService transplantService;
     private readonly IPatientService patientService;
 
@@ -202,9 +202,7 @@ public class OrganDonorController : Controller
         int ageGap = Math.Abs(donor.DateOfBirth.Year - recipient.DateOfBirth.Year);
         total += Math.Max(NoCompatibilityScore, MaxAgeScore - (ageGap / AgeScoreStepYears * AgeScoreStepYears));
 
-        char donorSex = char.ToUpperInvariant(donor.Sex);
-        char recipientSex = char.ToUpperInvariant(recipient.Sex);
-        total += donorSex != '\0' && recipientSex != '\0' && donorSex == recipientSex
+        total += donor.Sex == recipient.Sex
             ? SameSexScore
             : DifferentSexScore;
 

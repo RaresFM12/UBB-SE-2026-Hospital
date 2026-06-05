@@ -1,5 +1,5 @@
 using Hospital.Data.Models;
-using Hospital.Shared.Models.StaffPharmacy;
+using Hospital.Data.Models;
 using Hospital.Shared.Services;
 
 namespace Hospital.Desktop.Proxy;

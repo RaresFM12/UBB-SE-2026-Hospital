@@ -1,5 +1,5 @@
-using Hospital.Data.Models.DTOs;
-using Hospital.Services.PatientEr;
+using Hospital.Data.Models;
+using Hospital.Services;
 using Hospital.API.Auth;
 using Microsoft.AspNetCore.Mvc;
 

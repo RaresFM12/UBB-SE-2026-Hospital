@@ -1,6 +1,6 @@
 using System.Text;
 using Hospital.Data.Configuration;
-using Hospital.Services.DependencyInjection;
+using Hospital.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 

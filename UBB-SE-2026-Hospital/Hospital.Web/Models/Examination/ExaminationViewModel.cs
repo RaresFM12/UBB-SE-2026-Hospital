@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using Hospital.Data.Models.DTOs;
+using Hospital.Data.Models;
 
 namespace Hospital.Web.Models.Examination;
 

@@ -6,7 +6,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Hospital.Shared.DTOs.Auth;
+using Hospital.Data.Models;
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 

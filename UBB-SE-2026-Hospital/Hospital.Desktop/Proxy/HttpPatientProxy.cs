@@ -1,8 +1,8 @@
 using Hospital.Data.Models;
-using Hospital.Data.Models.DTOs;
+using Hospital.Data.Models;
 using Hospital.Shared.Services;
-using SharedPatient = Hospital.Shared.Models.PatientEr.Patient;
-using SharedPrescription = Hospital.Shared.Models.PatientEr.Prescription;
+using SharedPatient = Hospital.Data.Models.Patient;
+using SharedPrescription = Hospital.Data.Models.Prescription;
 
 namespace Hospital.Desktop.Proxy;
 
@@ -70,7 +70,7 @@ public class HttpPatientProxy(HttpClient httpClient) : ProxyBase(httpClient), IP
 
     public async Task DeletePatientAsync(int id)
         => await DeleteAsync($"{BaseUri}/{id}");
-    public async Task UpdatePatientAsync(int patientId, Hospital.Data.Models.DTOs.UpdatePatientRequest request, CancellationToken cancellationToken = default)
+    public async Task UpdatePatientAsync(int patientId, Hospital.Data.Models.UpdatePatientRequest request, CancellationToken cancellationToken = default)
         => await PutAsync($"{BaseUri}/{patientId}", request);
     public async Task<List<Hospital.Data.Models.MedicalRecord>> GetMedicalRecordsAsync(int historyId)
         => await GetAsync<List<Hospital.Data.Models.MedicalRecord>>($"api/patients/{historyId}/medical-records") ?? [];

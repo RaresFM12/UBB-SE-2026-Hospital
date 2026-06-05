@@ -1,11 +1,11 @@
 using Hospital.Data.Models;
-using Hospital.Data.Models.DTOs;
+using Hospital.Data.Models;
 using Hospital.Web.Models.Triage;
 using Hospital.Shared.Services;
 using Hospital.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Hospital.Services.PatientEr;
+using Hospital.Services;
 using Hospital.Web.Services;
 
 namespace Hospital.Web.Controllers;

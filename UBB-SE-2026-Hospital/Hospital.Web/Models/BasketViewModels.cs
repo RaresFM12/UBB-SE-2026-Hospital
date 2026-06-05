@@ -2,7 +2,7 @@ namespace Hospital.Web.Models
 {
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
-    using Hospital.Shared.Models.Orders;
+    using Hospital.Data.Models;
 
     public class BasketViewModel
     {

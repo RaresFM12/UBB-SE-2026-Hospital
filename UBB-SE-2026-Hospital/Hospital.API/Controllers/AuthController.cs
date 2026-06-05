@@ -1,5 +1,5 @@
 using Hospital.API.Auth;
-using Hospital.Shared.DTOs.Auth;
+using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

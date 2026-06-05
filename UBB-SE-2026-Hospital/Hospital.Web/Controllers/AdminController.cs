@@ -8,14 +8,14 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Hospital.Data.Models.DTOs;
-using Hospital.Shared.Models;
-using Hospital.Shared.DTOs;
-using Hospital.Services.PatientEr;
+using Hospital.Data.Models;
+using Hospital.Data.Models;
+using Hospital.Data.Models;
+using Hospital.Services;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using IAllergyService = Hospital.Services.PatientEr.IAllergyService;
+using IAllergyService = Hospital.Services.IAllergyService;
 
 namespace Hospital.Web.Controllers;
 

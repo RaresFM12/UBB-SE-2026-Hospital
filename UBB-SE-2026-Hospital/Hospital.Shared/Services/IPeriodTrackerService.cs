@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Hospital.Data.Models;
-using Hospital.Shared.Models.StaffPharmacy;
+using Hospital.Data.Models;
 
 namespace Hospital.Shared.Services
 {

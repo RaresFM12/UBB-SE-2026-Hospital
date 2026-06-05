@@ -1,4 +1,4 @@
-using Hospital.Data.Models.DTOs;
+using Hospital.Data.Models;
 using Hospital.Shared.Services;
 
 namespace Hospital.Desktop.Proxy;

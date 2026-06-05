@@ -108,7 +108,7 @@ public class PharmacistController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> BuildPoliceReport(int patientId)
     {
-        var filter = new Hospital.Data.Models.DTOs.PrescriptionFilter { PrescriptionId = patientId };
+        var filter = new Hospital.Data.Models.PrescriptionFilter { PrescriptionId = patientId };
         var matches = await prescriptionRepository.GetFilteredAsync(filter);
         Prescription? prescription = matches.FirstOrDefault();
 

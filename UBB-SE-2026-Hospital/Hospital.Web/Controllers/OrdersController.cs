@@ -9,7 +9,7 @@ namespace Hospital.Web.Controllers
     using Hospital.Data.Models;
     using Hospital.Shared.Services;
     using Hospital.Web.Models;
-    using BasketItemViewModel = Hospital.Shared.Models.Orders.BasketItemViewModel;
+    using BasketItemViewModel = Hospital.Data.Models.BasketItemViewModel;
 
     [Authorize]
     public class OrdersController : Controller

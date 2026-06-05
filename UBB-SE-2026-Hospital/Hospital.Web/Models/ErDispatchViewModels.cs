@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Hospital.Data.Models;
-using Hospital.Shared.Models.StaffPharmacy;
+using Hospital.Data.Models;
 
 namespace Hospital.Web.Models
 {

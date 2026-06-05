@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Text;
 using Hospital.Web.Models.Transplant;
 using Hospital.Shared.Services;
-using Hospital.Services.PatientEr;
+using Hospital.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Hospital.Services.PatientEr;
+using Hospital.Services;
 using ITransplantService = Hospital.Shared.Services.ITransplantService;
 
 namespace Hospital.Web.Controllers;

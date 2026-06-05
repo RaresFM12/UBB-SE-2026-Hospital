@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Hospital.Shared.Services;
 using Hospital.Web.Models;
-using BasketItemViewModel = Hospital.Shared.Models.Orders.BasketItemViewModel;
+using BasketItemViewModel = Hospital.Data.Models.BasketItemViewModel;
 
 namespace Hospital.Web.Controllers;
 

@@ -1,4 +1,4 @@
-using SharedBasketEntry = Hospital.Shared.Models.StaffPharmacy.BasketEntry;
+using SharedBasketEntry = Hospital.Data.Models.BasketEntryDto;
 namespace Hospital.Shared.Services;
 
 public interface IBasketService

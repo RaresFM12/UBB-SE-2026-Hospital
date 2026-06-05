@@ -1,5 +1,5 @@
 using Hospital.Shared.Services;
-using Hospital.Data.Models.DTOs;
+using Hospital.Data.Models;
 using Prescription = Hospital.Data.Models.Prescription;
 
 namespace Hospital.Desktop.Proxy;

@@ -1,4 +1,4 @@
-using Hospital.Data.Models.DTOs;
+using Hospital.Data.Models;
 using Hospital.Data.Models;
 using Hospital.Web.Models.Transfer;
 using Hospital.Web.Services;

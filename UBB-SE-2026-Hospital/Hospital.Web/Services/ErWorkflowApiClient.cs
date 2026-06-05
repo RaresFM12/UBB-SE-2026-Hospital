@@ -1,5 +1,5 @@
 using Hospital.Data.Models;
-using Hospital.Data.Models.DTOs;
+using Hospital.Data.Models;
 
 namespace Hospital.Web.Services;
 

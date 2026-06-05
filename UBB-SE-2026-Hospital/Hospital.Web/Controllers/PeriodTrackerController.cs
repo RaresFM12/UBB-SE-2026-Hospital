@@ -1,6 +1,6 @@
 using Hospital.Data.Models;
-using Hospital.Services.StaffPharmacy;
-using Hospital.Shared.Models;
+using Hospital.Services;
+using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Hospital.Web.Models;
 using Microsoft.AspNetCore.Authorization;

@@ -1,12 +1,12 @@
 using System.Security.Claims;
 using Hospital.Shared.Services;
-using Hospital.Shared.DTOs.Auth; 
+using Hospital.Data.Models; 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
-using LoginRequest = Hospital.Shared.DTOs.Auth.LoginRequest;
+using LoginRequest = Hospital.Data.Models.LoginRequest;
 
 namespace Hospital.Web.Controllers;
 

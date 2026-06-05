@@ -1,5 +1,5 @@
 using Hospital.Data.Models;
-using Hospital.Data.Models.Auth;
+using Hospital.Data.Models;
 using Microsoft.EntityFrameworkCore;
 namespace Hospital.Data;
 

@@ -1,6 +1,6 @@
-using Hospital.Services.PatientEr;
+using Hospital.Services;
 using Hospital.Data.Repositories;
-using SharedPatient = Hospital.Shared.Models.PatientEr.Patient;
+using SharedPatient = Hospital.Data.Models.Patient;
 using DbPatient = Hospital.Data.Models.Patient;
 
 namespace Hospital.Tests.Services;
@@ -36,7 +36,7 @@ public class PatientServiceTests
         public Task<DbPatient?> GetByIdAsync(int patientId)
             => Task.FromResult<DbPatient?>(null);
 
-        public Task<List<DbPatient>> GetFilteredAsync(Hospital.Data.Models.DTOs.PatientFilter filter)
+        public Task<List<DbPatient>> GetFilteredAsync(Hospital.Data.Models.PatientFilter filter)
             => throw new NotImplementedException();
 
         public Task<DbPatient> CreateAsync(DbPatient patient)

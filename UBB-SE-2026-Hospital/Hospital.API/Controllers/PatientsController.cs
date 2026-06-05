@@ -1,4 +1,4 @@
-using Hospital.Shared.Models.PatientEr;
+using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Hospital.API.Auth;
 using Microsoft.AspNetCore.Mvc;

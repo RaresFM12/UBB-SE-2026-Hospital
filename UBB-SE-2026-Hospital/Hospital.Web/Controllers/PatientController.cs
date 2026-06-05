@@ -5,17 +5,17 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Hospital.Data.Models;
-using Hospital.Data.Models.DTOs;
+using Hospital.Data.Models;
 using Hospital.Web.Models.Admin;
 using Hospital.Web.Models.Patients;
 using Hospital.Shared.Services;
 using Hospital.Web.Models.Patient;
-using Patient = Hospital.Shared.Models.PatientEr.Patient;
-using MedicalRecord = Hospital.Shared.Models.PatientEr.MedicalRecord;
+using Patient = Hospital.Data.Models.Patient;
+using MedicalRecord = Hospital.Data.Models.MedicalRecord;
 using PatientProfileViewModel = Hospital.Web.Models.Patient.PatientProfileViewModel;
 using DbPatient = Hospital.Data.Models.Patient;
-using Hospital.Services.PatientEr;
-using IAllergyService = Hospital.Services.PatientEr.IAllergyService;
+using Hospital.Services;
+using IAllergyService = Hospital.Services.IAllergyService;
 
 namespace Hospital.Web.Controllers;
 
@@ -226,7 +226,7 @@ public class PatientsController : Controller
             Dob = patient.DateOfBirth,
             Sex = patient.Sex.ToString(),
             Cnp = patient.Cnp,
-            PhoneNo = patient.PhoneNo,
+            PhoneNo = patient.PhoneNumber,
             EmergencyContact = patient.EmergencyContact,
             IsArchived = patient.IsArchived,
             BloodType = mh?.BloodType?.ToString() ?? "N/A",
@@ -318,7 +318,7 @@ public class PatientsController : Controller
     }
 
     private async Task<List<DbPatient>> SearchPatientsAsync(string? q, int? min, int? max, Sex? s, CancellationToken ct) =>
-        await _patientService.SearchPatientsAsync(new Hospital.Data.Models.DTOs.SearchPatientsRequest
+        await _patientService.SearchPatientsAsync(new Hospital.Data.Models.SearchPatientsRequest
         {
             MinAge = min,
             MaxAge = max,

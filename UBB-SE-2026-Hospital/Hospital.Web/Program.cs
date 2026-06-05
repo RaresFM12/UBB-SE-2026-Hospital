@@ -1,5 +1,5 @@
 using Hospital.Data.Configuration;
-using Hospital.Services.DependencyInjection;
+using Hospital.Services;
 using Hospital.Web.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.Cookies;
 

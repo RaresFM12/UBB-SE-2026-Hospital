@@ -3,9 +3,9 @@ using Hospital.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using IBillingService = Hospital.Shared.Services.IBillingService;
-using PatientErMedicalRecord = Hospital.Shared.Models.PatientEr.MedicalRecord;
-using PatientErPatient = Hospital.Shared.Models.PatientEr.Patient;
-using PatientErPrescription = Hospital.Shared.Models.PatientEr.Prescription;
+using PatientErMedicalRecord = Hospital.Data.Models.MedicalRecord;
+using PatientErPatient = Hospital.Data.Models.Patient;
+using PatientErPrescription = Hospital.Data.Models.Prescription;
 
 namespace Hospital.Web.Controllers;
 

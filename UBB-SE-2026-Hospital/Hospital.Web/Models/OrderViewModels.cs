@@ -1,6 +1,6 @@
 namespace Hospital.Web.Models
 {
-    using Hospital.Shared.Models.Orders;
+    using Hospital.Data.Models;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;

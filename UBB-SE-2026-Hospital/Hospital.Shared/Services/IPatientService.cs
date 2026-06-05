@@ -1,6 +1,6 @@
-using Hospital.Data.Models.DTOs; 
+using Hospital.Data.Models; 
 using DbPatient = Hospital.Data.Models.Patient;
-using Hospital.Shared.Models.PatientEr;
+using Hospital.Data.Models;
 
 namespace Hospital.Shared.Services;
 

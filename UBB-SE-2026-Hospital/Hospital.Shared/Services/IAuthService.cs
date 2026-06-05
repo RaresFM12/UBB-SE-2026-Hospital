@@ -1,4 +1,4 @@
-using Hospital.Shared.DTOs.Auth;
+using Hospital.Data.Models;
 
 namespace Hospital.Shared.Services;
 

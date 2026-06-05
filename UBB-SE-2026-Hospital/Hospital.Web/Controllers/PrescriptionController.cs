@@ -1,10 +1,10 @@
 using System.Security.Cryptography;
 using Hospital.Data.Models;
-using Hospital.Data.Models.DTOs;
+using Hospital.Data.Models;
 using Hospital.Web.Models.Prescription;
 using Hospital.Web.Models; 
 using Hospital.Shared.Services; 
-using Hospital.Services.PatientEr;
+using Hospital.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using IPrescriptionService = Hospital.Shared.Services.IPrescriptionService;

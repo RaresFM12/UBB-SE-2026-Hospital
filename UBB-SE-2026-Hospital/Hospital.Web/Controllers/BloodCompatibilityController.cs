@@ -1,6 +1,6 @@
-using Hospital.Shared.Models.PatientEr;
+using Hospital.Data.Models;
 using Hospital.Shared.Services;
-using Hospital.Services.PatientEr;
+using Hospital.Services;
 using Hospital.Web.Models.BloodCompatibility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,8 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Patient = Hospital.Shared.Models.PatientEr.Patient;
-using IBloodCompatibilityService = Hospital.Services.PatientEr.IBloodCompatibilityService;
+using Patient = Hospital.Data.Models.Patient;
+using IBloodCompatibilityService = Hospital.Services.IBloodCompatibilityService;
 
 namespace Hospital.Web.Controllers;
 
