@@ -155,11 +155,11 @@ namespace Hospital.Web.Controllers
 
             if (currentUser.StockAlerts.Contains(id))
             {
-                currentUser.RemoveStockAlertFromUser(id);
+                currentUser.StockAlerts.Remove(id);
             }
             else
             {
-                currentUser.AddStockAlertToUser(id);
+                currentUser.StockAlerts.Add(id);
             }
 
             await _usersRepository.UpdateUserAsync(currentUser);
