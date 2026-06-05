@@ -1,22 +1,86 @@
 <Page
     x:Class="Hospital.Desktop.Views.Patient.StatisticsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:conv="using:Hospital.Desktop.Converters">
+
+    <Page.Resources>
+        <conv:CountToBarWidthConverter x:Key="BarWidth"/>
+        <conv:CollectionEmptyToVisibilityConverter x:Key="EmptyToVis"/>
+        <conv:SumOfValuesConverter x:Key="SumValues"/>
+
+        <SolidColorBrush x:Key="CardBorderBrush" Color="#E5E7EB"/>
+        <SolidColorBrush x:Key="BadgeBackgroundBrush" Color="#DCECEC"/>
+
+        <Style x:Key="CardBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource AppSurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="16"/>
+        </Style>
+
+        <Style x:Key="CardTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource AppTextPrimaryBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="EmptyStateStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontStyle" Value="Italic"/>
+            <Setter Property="Margin" Value="0,4,0,0"/>
+            <Setter Property="Foreground" Value="{StaticResource AppTextSecondaryBrush}"/>
+        </Style>
+
+        <!-- One row: label, proportional bar, and a count badge. -->
+        <DataTemplate x:Key="StatRowTemplate">
+            <Grid Margin="0,5,0,5" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Spacing="5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Key}" FontSize="13"
+                               Foreground="{StaticResource AppTextPrimaryBrush}"
+                               TextTrimming="CharacterEllipsis"/>
+                    <Rectangle Height="6" RadiusX="3" RadiusY="3"
+                               HorizontalAlignment="Left"
+                               Fill="{StaticResource AppAccentBrush}"
+                               Width="{Binding Value, Converter={StaticResource BarWidth}}"/>
+                </StackPanel>
+                <Border Grid.Column="1" VerticalAlignment="Center" MinWidth="34"
+                        Background="{StaticResource BadgeBackgroundBrush}"
+                        CornerRadius="10" Padding="10,2">
+                    <TextBlock Text="{Binding Value}" FontSize="13" FontWeight="SemiBold"
+                               HorizontalAlignment="Center"
+                               Foreground="{StaticResource AppAccentBrush}"/>
+                </Border>
+            </Grid>
+        </DataTemplate>
+    </Page.Resources>
 
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
-        <Grid Padding="24" RowSpacing="16">
+        <Grid Padding="24" RowSpacing="20">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <StackPanel Orientation="Horizontal" Spacing="12">
-                <TextBlock Text="Statistics" FontSize="28" FontWeight="SemiBold" Foreground="{StaticResource AppAccentBrush}" VerticalAlignment="Center"/>
-                <Button Content="Refresh" Command="{Binding LoadStatisticsCommand}"/>
-                <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource AppErrorBrush}" VerticalAlignment="Center"/>
+            <!-- Header -->
+            <StackPanel Spacing="4">
+                <StackPanel Orientation="Horizontal" Spacing="14">
+                    <TextBlock Text="Statistics" FontSize="28" FontWeight="SemiBold"
+                               Foreground="{StaticResource AppAccentBrush}" VerticalAlignment="Center"/>
+                    <Button Content="Refresh" Command="{Binding LoadStatisticsCommand}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource AppErrorBrush}" VerticalAlignment="Center"/>
+                </StackPanel>
+                <TextBlock Text="Overview of patients, consultations and prescriptions"
+                           FontSize="13" Foreground="{StaticResource AppTextSecondaryBrush}"/>
             </StackPanel>
 
+            <!-- Cards -->
             <Grid Grid.Row="1" ColumnSpacing="16" RowSpacing="16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -29,59 +93,142 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <Border Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
-                    <StackPanel>
-                        <TextBlock Text="Active vs Archived" FontWeight="SemiBold"/>
-                        <ItemsControl ItemsSource="{Binding ActiveVsArchived}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock><Run Text="{Binding Key}"/><Run Text=": "/><Run Text="{Binding Value}"/></TextBlock>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                <!-- Active vs Archived -->
+                <Border Style="{StaticResource CardBorderStyle}">
+                    <StackPanel Spacing="6">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Active vs Archived" Style="{StaticResource CardTitleStyle}"/>
+                            <Border Grid.Column="1" Background="{StaticResource AppAccentBrush}" CornerRadius="10" Padding="9,1" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding ActiveVsArchived, Converter={StaticResource SumValues}}" Foreground="White" FontSize="12" FontWeight="SemiBold"/>
+                            </Border>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding ActiveVsArchived}" ItemTemplate="{StaticResource StatRowTemplate}"/>
+                        <TextBlock Text="No data available" Style="{StaticResource EmptyStateStyle}"
+                                   Visibility="{Binding ActiveVsArchived, Converter={StaticResource EmptyToVis}}"/>
                     </StackPanel>
                 </Border>
-                <Border Grid.Column="1" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
-                    <StackPanel>
-                        <TextBlock Text="Age Distribution" FontWeight="SemiBold"/>
-                        <ItemsControl ItemsSource="{Binding AgeDistribution}"/>
+
+                <!-- Age Distribution -->
+                <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}">
+                    <StackPanel Spacing="6">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Age Distribution" Style="{StaticResource CardTitleStyle}"/>
+                            <Border Grid.Column="1" Background="{StaticResource AppAccentBrush}" CornerRadius="10" Padding="9,1" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding AgeDistribution, Converter={StaticResource SumValues}}" Foreground="White" FontSize="12" FontWeight="SemiBold"/>
+                            </Border>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding AgeDistribution}" ItemTemplate="{StaticResource StatRowTemplate}"/>
+                        <TextBlock Text="No data available" Style="{StaticResource EmptyStateStyle}"
+                                   Visibility="{Binding AgeDistribution, Converter={StaticResource EmptyToVis}}"/>
                     </StackPanel>
                 </Border>
-                <Border Grid.Column="2" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
-                    <StackPanel>
-                        <TextBlock Text="Blood Types" FontWeight="SemiBold"/>
-                        <ItemsControl ItemsSource="{Binding PatientsByBloodType}"/>
+
+                <!-- Blood Types -->
+                <Border Grid.Column="2" Style="{StaticResource CardBorderStyle}">
+                    <StackPanel Spacing="6">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Blood Types" Style="{StaticResource CardTitleStyle}"/>
+                            <Border Grid.Column="1" Background="{StaticResource AppAccentBrush}" CornerRadius="10" Padding="9,1" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding PatientsByBloodType, Converter={StaticResource SumValues}}" Foreground="White" FontSize="12" FontWeight="SemiBold"/>
+                            </Border>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding PatientsByBloodType}" ItemTemplate="{StaticResource StatRowTemplate}"/>
+                        <TextBlock Text="No data available" Style="{StaticResource EmptyStateStyle}"
+                                   Visibility="{Binding PatientsByBloodType, Converter={StaticResource EmptyToVis}}"/>
                     </StackPanel>
                 </Border>
-                <Border Grid.Row="1" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
-                    <StackPanel>
-                        <TextBlock Text="Rh Factor" FontWeight="SemiBold"/>
-                        <ItemsControl ItemsSource="{Binding PatientsByRh}"/>
+
+                <!-- Rh Factor -->
+                <Border Grid.Row="1" Style="{StaticResource CardBorderStyle}">
+                    <StackPanel Spacing="6">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Rh Factor" Style="{StaticResource CardTitleStyle}"/>
+                            <Border Grid.Column="1" Background="{StaticResource AppAccentBrush}" CornerRadius="10" Padding="9,1" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding PatientsByRh, Converter={StaticResource SumValues}}" Foreground="White" FontSize="12" FontWeight="SemiBold"/>
+                            </Border>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding PatientsByRh}" ItemTemplate="{StaticResource StatRowTemplate}"/>
+                        <TextBlock Text="No data available" Style="{StaticResource EmptyStateStyle}"
+                                   Visibility="{Binding PatientsByRh, Converter={StaticResource EmptyToVis}}"/>
                     </StackPanel>
                 </Border>
-                <Border Grid.Row="1" Grid.Column="1" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
-                    <StackPanel>
-                        <TextBlock Text="Gender" FontWeight="SemiBold"/>
-                        <ItemsControl ItemsSource="{Binding GenderDistribution}"/>
+
+                <!-- Gender -->
+                <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource CardBorderStyle}">
+                    <StackPanel Spacing="6">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Gender" Style="{StaticResource CardTitleStyle}"/>
+                            <Border Grid.Column="1" Background="{StaticResource AppAccentBrush}" CornerRadius="10" Padding="9,1" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding GenderDistribution, Converter={StaticResource SumValues}}" Foreground="White" FontSize="12" FontWeight="SemiBold"/>
+                            </Border>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding GenderDistribution}" ItemTemplate="{StaticResource StatRowTemplate}"/>
+                        <TextBlock Text="No data available" Style="{StaticResource EmptyStateStyle}"
+                                   Visibility="{Binding GenderDistribution, Converter={StaticResource EmptyToVis}}"/>
                     </StackPanel>
                 </Border>
-                <Border Grid.Row="1" Grid.Column="2" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
-                    <StackPanel>
-                        <TextBlock Text="Consultations" FontWeight="SemiBold"/>
-                        <ItemsControl ItemsSource="{Binding ConsultationDistribution}"/>
+
+                <!-- Consultations -->
+                <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource CardBorderStyle}">
+                    <StackPanel Spacing="6">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Consultations" Style="{StaticResource CardTitleStyle}"/>
+                            <Border Grid.Column="1" Background="{StaticResource AppAccentBrush}" CornerRadius="10" Padding="9,1" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding ConsultationDistribution, Converter={StaticResource SumValues}}" Foreground="White" FontSize="12" FontWeight="SemiBold"/>
+                            </Border>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding ConsultationDistribution}" ItemTemplate="{StaticResource StatRowTemplate}"/>
+                        <TextBlock Text="No data available" Style="{StaticResource EmptyStateStyle}"
+                                   Visibility="{Binding ConsultationDistribution, Converter={StaticResource EmptyToVis}}"/>
                     </StackPanel>
                 </Border>
-                <Border Grid.Row="2" Grid.ColumnSpan="3" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
-                    <StackPanel Orientation="Horizontal" Spacing="48">
-                        <StackPanel>
-                            <TextBlock Text="Top Diagnoses" FontWeight="SemiBold"/>
-                            <ItemsControl ItemsSource="{Binding TopDiagnoses}"/>
+
+                <!-- Top Diagnoses + Most Prescribed Meds -->
+                <Border Grid.Row="2" Grid.ColumnSpan="3" Style="{StaticResource CardBorderStyle}">
+                    <Grid ColumnSpacing="40">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Spacing="6">
+                            <TextBlock Text="Top Diagnoses" Style="{StaticResource CardTitleStyle}"/>
+                            <ItemsControl ItemsSource="{Binding TopDiagnoses}" ItemTemplate="{StaticResource StatRowTemplate}"/>
+                            <TextBlock Text="No data available" Style="{StaticResource EmptyStateStyle}"
+                                       Visibility="{Binding TopDiagnoses, Converter={StaticResource EmptyToVis}}"/>
                         </StackPanel>
-                        <StackPanel>
-                            <TextBlock Text="Most Prescribed Meds" FontWeight="SemiBold"/>
-                            <ItemsControl ItemsSource="{Binding MostPrescribedMeds}"/>
+
+                        <StackPanel Grid.Column="1" Spacing="6">
+                            <TextBlock Text="Most Prescribed Meds" Style="{StaticResource CardTitleStyle}"/>
+                            <ItemsControl ItemsSource="{Binding MostPrescribedMeds}" ItemTemplate="{StaticResource StatRowTemplate}"/>
+                            <TextBlock Text="No data available" Style="{StaticResource EmptyStateStyle}"
+                                       Visibility="{Binding MostPrescribedMeds, Converter={StaticResource EmptyToVis}}"/>
                         </StackPanel>
-                    </StackPanel>
+                    </Grid>
                 </Border>
             </Grid>
         </Grid>

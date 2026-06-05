@@ -3,6 +3,7 @@ using Hospital.Data.Repositories;
 using Moq;
 using SharedPatient = Hospital.Shared.Models.PatientEr.Patient;
 using DbPatient = Hospital.Data.Models.Patient;
+using Moq;
 
 namespace Hospital.Tests.Services;
 
@@ -37,6 +38,9 @@ public class PatientServiceTests
                     LastName = "Pop",
                 },
             });
+
+        public Task<List<DbPatient>> GetAllWithMedicalHistoryAsync()
+            => GetAllAsync();
 
         public Task<DbPatient?> GetByIdAsync(int patientId)
             => Task.FromResult<DbPatient?>(null);

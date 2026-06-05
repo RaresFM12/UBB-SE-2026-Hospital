@@ -130,25 +130,25 @@
             </GridView>
         </ScrollViewer>
 
-        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="30" Margin="0,20,0,0">
-            <Button Command="{Binding PrevPageCommand}" Width="110" Height="40" CornerRadius="20" Background="#00A896" BorderThickness="0" Foreground="White">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE72B;" FontSize="12" />
-                    <TextBlock Text="Previous" FontWeight="SemiBold" />
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="30" Margin="0,20,0,0">
+            <Button Command="{Binding PrevPageCommand}" Width="110" Height="40" CornerRadius="20" Background="#00A896" BorderThickness="0" Foreground="White" VerticalAlignment="Center" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0">
+                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <FontIcon Glyph="&#xE72B;" FontSize="12" VerticalAlignment="Center" />
+                    <TextBlock Text="Previous" FontWeight="SemiBold" VerticalAlignment="Center" />
                 </StackPanel>
             </Button>
 
-            <Border Background="{StaticResource BrandDark}" CornerRadius="20" Padding="20,0" Height="40">
-                <TextBlock Foreground="White" FontWeight="Bold">
+            <Border Background="{StaticResource BrandDark}" CornerRadius="20" Padding="20,0" Height="40" VerticalAlignment="Center">
+                <TextBlock Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Run Text="PAGE " />
                     <Run Text="{Binding CurrentPage}" />
                 </TextBlock>
             </Border>
 
-            <Button Command="{Binding NextPageCommand}" Width="110" Height="40" CornerRadius="20" Background="#00A896" BorderThickness="0" Foreground="White">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <TextBlock Text="Next" FontWeight="SemiBold" />
-                    <FontIcon Glyph="&#xE72A;" FontSize="12" />
+            <Button Command="{Binding NextPageCommand}" Width="110" Height="40" CornerRadius="20" Background="#00A896" BorderThickness="0" Foreground="White" VerticalAlignment="Center" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0">
+                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <TextBlock Text="Next" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <FontIcon Glyph="&#xE72A;" FontSize="12" VerticalAlignment="Center" />
                 </StackPanel>
             </Button>
         </StackPanel>
