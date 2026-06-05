@@ -108,7 +108,7 @@ public class ExaminationController : Controller
 
             ERRoom room = await ResolveAssignedRoomAsync(form.VisitId, cancellationToken);
             List<Examination> visitExaminations = await erApiClient.GetExaminationsByVisitIdAsync(form.VisitId, cancellationToken);
-            Examination? existing = visitExaminations.OrderByDescending(e => e.ExaminationDate).FirstOrDefault();
+            Examination? existing = visitExaminations.OrderByDescending(evaluation => evaluation.ExaminationDate).FirstOrDefault();
             ErDoctorAssignment doctor = erStaffService.GetDoctorById(form.DoctorId);
             Staff doctorStaff = MapDoctor(doctor);
 
@@ -237,7 +237,7 @@ public class ExaminationController : Controller
             };
         }
 
-        Examination? existing = history.FirstOrDefault(e => e.Visit.VisitId == selectedVisit.VisitId);
+        Examination? existing = history.FirstOrDefault(evaluation => evaluation.Visit.VisitId == selectedVisit.VisitId);
         if (existing is not null)
         {
             ErDoctorAssignment doctor = erStaffService.GetDoctorById(existing.Doctor.StaffId);
@@ -282,7 +282,7 @@ public class ExaminationController : Controller
         if (currentRoom is not null) return currentRoom;
 
         Examination? latestExam = (await erApiClient.GetExaminationsByVisitIdAsync(visitId, cancellationToken))
-            .OrderByDescending(e => e.ExaminationDate).FirstOrDefault();
+            .OrderByDescending(evaluation => evaluation.ExaminationDate).FirstOrDefault();
         if (latestExam is not null) return latestExam.Room;
 
         ERRoom? fallbackRoom = (await erApiClient.GetRoomsAsync(cancellationToken)).OrderBy(room => room.RoomId).FirstOrDefault();

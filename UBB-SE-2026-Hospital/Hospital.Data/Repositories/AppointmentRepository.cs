@@ -11,30 +11,30 @@ public class AppointmentRepository(HospitalDbContext context) : IAppointmentRepo
 {
     public async Task<Appointment?> GetByIdAsync(int appointmentId)
         => await context.Appointments
-            .Include(a => a.Doctor)
-            .FirstOrDefaultAsync(a => a.Id == appointmentId);
+            .Include(appointment => appointment.Doctor)
+            .FirstOrDefaultAsync(appointment => appointment.Id == appointmentId);
 
     public async Task<List<Appointment>> GetAllAsync()
         => await context.Appointments
-            .Include(a => a.Doctor)
+            .Include(appointment => appointment.Doctor)
             .ToListAsync();
 
     public async Task<List<Appointment>> GetByDoctorIdAsync(int doctorId)
         => await context.Appointments
-            .Include(a => a.Doctor)
-            .Where(a => a.Doctor!.StaffId == doctorId)
+            .Include(appointment => appointment.Doctor)
+            .Where(appointment => appointment.Doctor!.StaffId == doctorId)
             .ToListAsync();
 
     public async Task<List<Appointment>> GetByPatientIdAsync(int patientId)
         => await context.Appointments
-            .Include(a => a.Doctor)
-            .Where(a => a.ExternalRefId == patientId)
+            .Include(appointment => appointment.Doctor)
+            .Where(appointment => appointment.ExternalRefId == patientId)
             .ToListAsync();
 
     public async Task<List<Appointment>> GetByDateRangeAsync(DateTime start, DateTime end)
         => await context.Appointments
-            .Include(a => a.Doctor)
-            .Where(a => a.AppointmentDate >= start && a.AppointmentDate <= end)
+            .Include(appointment => appointment.Doctor)
+            .Where(appointment => appointment.AppointmentDate >= start && appointment.AppointmentDate <= end)
             .ToListAsync();
 
     public async Task<Appointment> CreateAsync(Appointment appointment)

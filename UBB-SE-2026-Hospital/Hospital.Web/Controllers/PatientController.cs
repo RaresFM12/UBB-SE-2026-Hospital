@@ -28,10 +28,10 @@ public class PatientsController : Controller
     private const int MissingStaffId = 0;
     private const int NoDiscountApplied = 0;
 
-    private readonly IPatientService _patientService;
+    private readonly IPatientApiClient _patientService;
     private readonly IAllergyService _allergyService;
 
-    public PatientsController(IPatientService patientService, IAllergyService allergyService)
+    public PatientsController(IPatientApiClient patientService, IAllergyService allergyService)
     {
         _patientService = patientService;
         _allergyService = allergyService;
@@ -72,9 +72,8 @@ public class PatientsController : Controller
 
         try
         {
-            await _patientService.UpdatePatientAsync(new DbPatient
+            await _patientService.UpdatePatientAsync(model.Id,new UpdatePatientRequest
             {
-                PatientId = model.Id,
                 FirstName = model.FirstName.Trim(),
                 LastName = model.LastName.Trim(),
                 Cnp = model.Cnp.Trim(),
@@ -191,7 +190,7 @@ public class PatientsController : Controller
 
         try
         {
-            await _patientService.ArchiveAsDeceasedAsync(id, deathDate.Value, cancellationToken);
+            await _patientService.ArchiveAsDeceasedAsync(id,new ArchiveAsDeceasedRequest { DeathDate = deathDate.Value }, cancellationToken);
             TempData["SuccessMessage"] = "Patient marked as deceased.";
         }
         catch (Exception ex)
@@ -210,12 +209,12 @@ public class PatientsController : Controller
         if (patient.MedicalHistory?.MedicalRecords != null)
         {
             records = patient.MedicalHistory.MedicalRecords
-                .OrderByDescending(r => r.ConsultationDate)
+                .OrderByDescending(record => record.ConsultationDate)
                 .Select(MapRecord)
                 .ToList();
         }
 
-        var selectedRecord = selectedRecordId.HasValue ? records.FirstOrDefault(r => r.Id == selectedRecordId.Value) : records.FirstOrDefault();
+        var selectedRecord = selectedRecordId.HasValue ? records.FirstOrDefault(record => record.Id == selectedRecordId.Value) : records.FirstOrDefault();
 
         var mh = patient.MedicalHistory;
 
@@ -291,13 +290,13 @@ public class PatientsController : Controller
     {
         var searchResults = await SearchPatientsAsync(search, minAge, maxAge, sex, cancellationToken);
         var visiblePatients = searchResults
-            .Where(p => p.IsArchived == archived)
-            .OrderBy(p => p.LastName)
-            .ThenBy(p => p.FirstName)
+            .Where(patient => patient.IsArchived == archived)
+            .OrderBy(patient => patient.LastName)
+            .ThenBy(patient => patient.FirstName)
             .ToList();
 
         DbPatient? selectedPatient = selectedId.HasValue && !create
-            ? visiblePatients.FirstOrDefault(p => p.PatientId == selectedId.Value) ?? await _patientService.GetByIdAsync(selectedId.Value, cancellationToken)
+            ? visiblePatients.FirstOrDefault(patient => patient.PatientId == selectedId.Value) ?? await _patientService.GetByIdAsync(selectedId.Value, cancellationToken)
             : null;
 
         var newPatient = createPatient ?? new CreatePatientViewModel();

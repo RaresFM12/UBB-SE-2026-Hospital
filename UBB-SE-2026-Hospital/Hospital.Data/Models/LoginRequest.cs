@@ -1,8 +1,15 @@
-namespace Hospital.Data.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-public class LoginRequest
+namespace Hospital.Data.Models
 {
-    public string Email { get; set; } = string.Empty;
+    public class LoginRequest
+    {
+        public string Email { get; set; } = string.Empty;
 
-    public string Password { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
 }
