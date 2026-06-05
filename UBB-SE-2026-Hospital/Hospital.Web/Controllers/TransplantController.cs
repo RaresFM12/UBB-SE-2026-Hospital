@@ -7,8 +7,7 @@ using Hospital.Shared.Services;
 using Hospital.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Hospital.Services;
-using ITransplantService = Hospital.Shared.Services.ITransplantService;
+using ITransplantService = Hospital.Services.ITransplantService;
 
 namespace Hospital.Web.Controllers;
 
