@@ -1,4 +1,3 @@
-#if false
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Hospital.API.Auth;
@@ -56,4 +55,3 @@ public class OrdersController(IOrderService orderService) : ControllerBase
 
     public record CreateOrderRequest(int ClientId, DateOnly PickUpDate, bool IsCompleted, bool IsExpired);
 }
-#endif

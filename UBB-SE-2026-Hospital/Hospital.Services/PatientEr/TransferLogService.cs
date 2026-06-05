@@ -7,9 +7,7 @@ namespace Hospital.Services.PatientEr;
 
 public class TransferLogService(
     ITransferLogRepository transferLogRepository,
-    IERVisitRepository erVisitRepository) :
-    ITransferLogService,
-    Hospital.Shared.Services.ITransferLogService
+    IERVisitRepository erVisitRepository) : ITransferLogService
 {
     public Task<List<TransferLog>> GetAllAsync()
         => transferLogRepository.GetAllAsync();
@@ -22,9 +20,6 @@ public class TransferLogService(
 
     public Task<TransferLog> UpdateAsync(TransferLog transferLog)
         => transferLogRepository.UpdateAsync(transferLog);
-
-    async Task Hospital.Shared.Services.ITransferLogService.UpdateAsync(TransferLog log)
-        => await UpdateAsync(log);
 
     public Task DeleteAsync(int id)
         => transferLogRepository.DeleteAsync(id);

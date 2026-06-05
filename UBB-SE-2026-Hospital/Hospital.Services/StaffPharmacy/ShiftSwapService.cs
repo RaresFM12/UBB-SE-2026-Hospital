@@ -1,4 +1,3 @@
-#if false
 using Hospital.Data.Models;
 using Hospital.Data.Repositories;
 using Hospital.Shared.Services;
@@ -13,6 +12,9 @@ public class ShiftSwapService(
 {
     public async Task<IReadOnlyList<ShiftSwapRequest>> GetAllShiftSwapRequestsAsync(CancellationToken cancellationToken = default)
         => await shiftSwapRepository.GetAllAsync();
+
+    public List<ShiftSwapRequest> GetAllShiftSwapRequests() =>
+        GetAllShiftSwapRequestsAsync().GetAwaiter().GetResult().ToList();
 
     public async Task<ShiftSwapRequest?> GetShiftSwapByIdAsync(int swapId, CancellationToken cancellationToken = default)
         => await shiftSwapRepository.GetByIdAsync(swapId);
@@ -46,6 +48,13 @@ public class ShiftSwapService(
         return request.SwapId;
     }
 
+    public void RequestShiftSwap(int requesterId, int shiftId, int colleagueId, out string message)
+    {
+        CreateShiftSwapRequestAsync(shiftId, requesterId, colleagueId, DateTime.Now, ShiftSwapRequestStatus.PENDING)
+            .GetAwaiter().GetResult();
+        message = "Shift swap request created.";
+    }
+
     public async Task UpdateShiftSwapStatusAsync(int swapId, string status, CancellationToken cancellationToken = default)
     {
         var request = await shiftSwapRepository.GetByIdAsync(swapId)
@@ -61,6 +70,9 @@ public class ShiftSwapService(
             .Where(shift => shift.StartTime > DateTime.Now)
             .OrderBy(shift => shift.StartTime)
             .ToList();
+
+    public List<Shift> GetFutureShiftsForStaff(int staffId) =>
+        GetFutureShiftsForStaffAsync(staffId).GetAwaiter().GetResult().ToList();
 
     public async Task<IReadOnlyList<Staff>> GetEligibleSwapColleaguesAsync(int requesterId, int shiftId, CancellationToken cancellationToken = default)
     {
@@ -100,6 +112,12 @@ public class ShiftSwapService(
             .ToList();
     }
 
+    public List<IStaff> GetEligibleSwapColleaguesForShift(int requesterId, int shiftId, out string error)
+    {
+        error = string.Empty;
+        return GetEligibleSwapColleaguesAsync(requesterId, shiftId).GetAwaiter().GetResult().Cast<IStaff>().ToList();
+    }
+
     public async Task<bool> AcceptSwapRequestAsync(int swapId, int colleagueId, CancellationToken cancellationToken = default)
     {
         var request = await shiftSwapRepository.GetByIdAsync(swapId);
@@ -122,6 +140,13 @@ public class ShiftSwapService(
         return true;
     }
 
+    public void AcceptSwapRequest(int swapId, int colleagueId, out string message)
+    {
+        message = AcceptSwapRequestAsync(swapId, colleagueId).GetAwaiter().GetResult()
+            ? "Shift swap accepted."
+            : "Shift swap could not be accepted.";
+    }
+
     public async Task<bool> RejectSwapRequestAsync(int swapId, int colleagueId, CancellationToken cancellationToken = default)
     {
         var request = await shiftSwapRepository.GetByIdAsync(swapId);
@@ -141,13 +166,19 @@ public class ShiftSwapService(
         });
         return true;
     }
-    public List<Shift> GetFutureShiftsForStaff(int staffId) { throw new System.NotImplementedException(); }
-    public List<IStaff> GetEligibleSwapColleaguesForShift(int requesterId, int shiftId, out string error) { throw new System.NotImplementedException(); }
-    public bool RequestShiftSwap(int requesterId, int shiftId, int colleagueId, out string message) { throw new System.NotImplementedException(); }
-    public List<ShiftSwapRequest> GetIncomingSwapRequests(int colleagueId) { throw new System.NotImplementedException(); }
-    public bool AcceptSwapRequest(int swapId, int colleagueId, out string message) { throw new System.NotImplementedException(); }
-    public bool RejectSwapRequest(int swapId, int colleagueId, out string message) { throw new System.NotImplementedException(); }
-    public List<Doctor> GetAllDoctors() { throw new System.NotImplementedException(); }
-    public List<ShiftSwapRequest> GetAllShiftSwapRequests() { throw new System.NotImplementedException(); }
+
+    public void RejectSwapRequest(int swapId, int colleagueId, out string message)
+    {
+        message = RejectSwapRequestAsync(swapId, colleagueId).GetAwaiter().GetResult()
+            ? "Shift swap rejected."
+            : "Shift swap could not be rejected.";
+    }
+
+    public List<Doctor> GetAllDoctors() =>
+        staffRepository.GetAllDoctorsAsync().GetAwaiter().GetResult();
+
+    public List<ShiftSwapRequest> GetIncomingSwapRequests(int staffId) =>
+        GetAllShiftSwapRequestsAsync().GetAwaiter().GetResult()
+            .Where(request => request.Colleague?.StaffId == staffId && request.Status == ShiftSwapRequestStatus.PENDING)
+            .ToList();
 }
-#endif

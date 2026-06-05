@@ -87,7 +87,7 @@ namespace Hospital.Data.Migrations
             // Use raw SQL to bypass EF column name mapping issue with StaffID PK
             migrationBuilder.Sql(@"
                 SET IDENTITY_INSERT [Staff] ON;
-                INSERT INTO [Staff] ([StaffId],[Email],[PasswordHash],[Role],[Department],[FirstName],[LastName],[ContactInfo],[Available],[LicenseNumber],[Specialization],[Status],[Certification],[YearsOfExperience],[HourlyRate],[DoctorStatus]) VALUES
+                INSERT INTO [Staff] ([StaffID],[Email],[PasswordHash],[Role],[Department],[FirstName],[LastName],[ContactInfo],[Available],[LicenseNumber],[Specialization],[Status],[Certification],[YearsOfExperience],[HourlyRate],[DoctorStatus]) VALUES
                 (1,'house@hospital.local', 'hash','Doctor',    'Diagnostics','Gregory','House', '555-0101',1,'LIC-1001','Diagnostician','Available','Board Certified',10,150.0,0),
                 (2,'wilson@hospital.local','hash','Doctor',    'Oncology',   'James',  'Wilson','555-0102',1,'LIC-1002','Diagnostician','Available','Board Certified', 8,140.0,0),
                 (3,'cuddy@hospital.local', 'hash','Doctor',    'Admin',      'Lisa',   'Cuddy', '555-0103',1,'LIC-1003','Surgery',      'Available','Board Certified',12,160.0,0),
@@ -298,10 +298,11 @@ namespace Hospital.Data.Migrations
                     { 13, 13, 4, "General",     1, new DateTime(2026,4,5,8,10,0)  },
                     { 14, 14, 1, "Cardiology",  2, new DateTime(2026,4,5,9,10,0)  },
                     { 15, 15, 3, "Orthopedics", 3, new DateTime(2026,4,5,10,10,0) },
-                    // Keep visits 16, 19 and 20 untriaged so fresh databases have real
-                    // REGISTERED cases available for the triage flow.
+                    { 16, 16, 2, "Cardiology",  1, new DateTime(2026,4,6,8,10,0)  },
                     { 17, 17, 3, "Neurology",   2, new DateTime(2026,4,6,9,10,0)  },
-                    { 18, 18, 4, "General",     3, new DateTime(2026,4,6,10,10,0) }
+                    { 18, 18, 4, "General",     3, new DateTime(2026,4,6,10,10,0) },
+                    { 19, 19, 3, "Orthopedics", 1, new DateTime(2026,4,7,8,10,0)  },
+                    { 20, 20, 2, "Pulmonology", 2, new DateTime(2026,4,7,9,10,0)  }
                 });
 
             // ── 13. TriageParameters ──────────────────────────────────────────────
@@ -325,8 +326,11 @@ namespace Hospital.Data.Migrations
                     { 13, 13, 1, 1, 1, 1, 1 },
                     { 14, 14, 1, 1, 1, 1, 3 },
                     { 15, 15, 1, 1, 2, 3, 2 },
+                    { 16, 16, 1, 2, 1, 1, 2 },
                     { 17, 17, 2, 1, 1, 2, 3 },
-                    { 18, 18, 1, 1, 1, 1, 2 }
+                    { 18, 18, 1, 1, 1, 1, 2 },
+                    { 19, 19, 1, 1, 2, 3, 2 },
+                    { 20, 20, 1, 2, 1, 1, 2 }
                 });
 
             // ── 14. Examinations ──────────────────────────────────────────────────
@@ -638,7 +642,7 @@ namespace Hospital.Data.Migrations
             migrationBuilder.DeleteData(table: "ERRooms", keyColumn: "RoomId", keyValues: new object[] { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20 });
             migrationBuilder.DeleteData(table: "ERVisits", keyColumn: "VisitId", keyValues: new object[] { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20 });
             migrationBuilder.DeleteData(table: "Patients", keyColumn: "PatientId", keyValues: new object[] { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20 });
-            migrationBuilder.Sql("DELETE FROM [Staff] WHERE [StaffId] IN (1,2,3,4,5)");
+            migrationBuilder.Sql("DELETE FROM [Staff] WHERE [StaffID] IN (1,2,3,4,5)");
             migrationBuilder.DeleteData(table: "Users", keyColumn: "Id", keyValues: new object[] { 1,2,3,4,5,6,7 });
 
             // Reference data

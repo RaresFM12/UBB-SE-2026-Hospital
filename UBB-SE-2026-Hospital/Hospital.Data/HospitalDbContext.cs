@@ -1,7 +1,6 @@
 using Hospital.Data.Models;
 using Hospital.Data.Models.Auth;
 using Microsoft.EntityFrameworkCore;
-
 namespace Hospital.Data;
 
 public class HospitalDbContext(DbContextOptions<HospitalDbContext> options) : DbContext(options)
@@ -66,7 +65,11 @@ public class HospitalDbContext(DbContextOptions<HospitalDbContext> options) : Db
         modelBuilder.Entity<User>().HasIndex(u => u.Username).IsUnique();
 
         ConfigureAuthorization(modelBuilder);
-
+        modelBuilder.Entity<Shift>(entity =>
+        {
+            entity.Property(e => e.StartTime).HasColumnName("StartTime");
+            entity.Property(e => e.EndTime).HasColumnName("EndTime");
+        });
         // Non-standard primary keys
         modelBuilder.Entity<Staff>().HasKey(s => s.StaffId);
         modelBuilder.Entity<ERRoom>().HasKey(r => r.RoomId);
@@ -150,12 +153,6 @@ public class HospitalDbContext(DbContextOptions<HospitalDbContext> options) : Db
             .HasOne(r => r.AssignedDoctor)
             .WithMany()
             .HasForeignKey("AssignedDoctorId")
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<ERRequest>()
-            .HasOne(r => r.Visit)
-            .WithMany()
-            .HasForeignKey("VisitId")
             .OnDelete(DeleteBehavior.Restrict);
 
         // PharmacyHandover → Staff

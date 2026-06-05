@@ -1,4 +1,3 @@
-#if false
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Hospital.API.Auth;
@@ -55,4 +54,3 @@ public class SubstancesController(IAdminService adminService) : ControllerBase
 
     public record CreateSubstanceRequest(string Name, float LethalDose, string Description);
 }
-#endif

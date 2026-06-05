@@ -6,11 +6,18 @@ namespace Hospital.Services.PatientEr;
 
 public class BloodCompatibilityService(
     IPatientRepository patientRepository,
-    IMedicalHistoryRepository historyRepository) :
-    IBloodCompatibilityService,
-    Hospital.Shared.Services.IBloodCompatibilityService
+    IMedicalHistoryRepository historyRepository) : IBloodCompatibilityService
 {
-    public async Task<List<Patient>> GetTopCompatibleDonorsAsync(int recipientId)
+    private const int MaxCompatibleDonors = 20;
+    private const int NoCompatibilityScore = 0;
+    private const int ExactBloodRhMatchScore = 50;
+    private const int PartialBloodRhMatchScore = 25;
+    private const int MaxAgeScore = 30;
+    private const int AgeScoreStepYears = 5;
+    private const int SameSexScore = 20;
+    private const int DifferentSexScore = 10;
+
+    public async Task<List<Hospital.Shared.Models.PatientEr.Patient>> GetTopCompatibleDonorsAsync(int recipientId)
     {
         Patient? recipient = await patientRepository.GetByIdAsync(recipientId);
 
@@ -25,7 +32,7 @@ public class BloodCompatibilityService(
 
         foreach (Patient donor in allPatients)
         {
-            if (donor.PatientId == recipientId || donor.IsDeceased)
+            if (donor.PatientId == recipientId || !donor.IsDeceased)
                 continue;
 
             donor.MedicalHistory = await historyRepository.GetByPatientIdAsync(donor.PatientId);
@@ -47,23 +54,42 @@ public class BloodCompatibilityService(
         }
 
         return rankedDonors
-            .OrderByDescending(x => x.Score)
-            .Select(x => x.Donor)
-            .Take(20)
-            .ToList();
+        .OrderByDescending(x => x.Score)
+        .Select(x => x.Donor)
+        .Take(MaxCompatibleDonors)
+        .Select(p => new Hospital.Shared.Models.PatientEr.Patient
+        {
+            PatientId = p.PatientId,
+            FirstName = p.FirstName,
+            LastName = p.LastName,
+            Cnp = p.Cnp,
+            DateOfBirth = p.DateOfBirth,
+            Sex = (char)p.Sex,
+            IsArchived = p.IsArchived,
+            MedicalHistory = p.MedicalHistory is null
+                ? null
+                : new Hospital.Shared.Models.PatientEr.MedicalHistory
+                {
+                    BloodType = p.MedicalHistory.BloodType,
+                    Rh = p.MedicalHistory.Rh
+                }
+        })
+        .ToList();
     }
 
     public int CalculateScore(Patient donor, Patient recipient)
     {
         if (donor.MedicalHistory is null || recipient.MedicalHistory is null)
-            return 0;
+            return NoCompatibilityScore;
 
         int total = donor.MedicalHistory.BloodType == recipient.MedicalHistory.BloodType
-            && donor.MedicalHistory.Rh == recipient.MedicalHistory.Rh ? 50 : 25;
+            && donor.MedicalHistory.Rh == recipient.MedicalHistory.Rh
+            ? ExactBloodRhMatchScore
+            : PartialBloodRhMatchScore;
 
         int ageGap = Math.Abs(donor.DateOfBirth.Year - recipient.DateOfBirth.Year);
-        total += Math.Max(0, 30 - ageGap / 5 * 5);
-        total += donor.Sex == recipient.Sex ? 20 : 10;
+        total += Math.Max(NoCompatibilityScore, MaxAgeScore - ageGap / AgeScoreStepYears * AgeScoreStepYears);
+        total += donor.Sex == recipient.Sex ? SameSexScore : DifferentSexScore;
 
         return total;
     }

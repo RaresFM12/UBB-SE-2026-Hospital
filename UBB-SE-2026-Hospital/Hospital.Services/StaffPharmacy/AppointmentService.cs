@@ -1,4 +1,3 @@
-#if false
 using Hospital.Data.Models;
 using Hospital.Data.Repositories;
 using Hospital.Shared.Services;
@@ -47,6 +46,17 @@ public class AppointmentService(
     public async Task<Appointment?> GetAppointmentByIdAsync(int appointmentId, CancellationToken cancellationToken = default)
         => await appointmentRepository.GetByIdAsync(appointmentId);
 
+    public async Task<IReadOnlyList<(int DoctorId, string DoctorName)>> GetAllDoctorsAsync(CancellationToken cancellationToken = default)
+        => (await staffRepository.GetAllDoctorsAsync())
+            .Select(doctor => (doctor.StaffId, doctor.FullName))
+            .ToList();
+
+    public async Task<IReadOnlyList<Shift>> GetShiftsForStaffInRangeAsync(int staffId, DateTime start, DateTime end, CancellationToken cancellationToken = default)
+        => (await shiftRepository.GetByStaffIdAsync(staffId))
+            .Where(shift => shift.StartTime < end && shift.EndTime > start)
+            .OrderBy(shift => shift.StartTime)
+            .ToList();
+
     public async Task CreateAppointmentAsync(int patientId, int doctorId, DateTime startTime, DateTime endTime, string status, CancellationToken cancellationToken = default)
     {
         await EnsureDoctorIsBookableAsync(doctorId, startTime);
@@ -56,7 +66,9 @@ public class AppointmentService(
             PatientName = $"PAT-{patientId}",
             ExternalRefId = patientId,
             Doctor = await GetDoctorAsync(doctorId),
-            AppointmentDate = startTime,
+            AppointmentDate = startTime.Date,
+            StartTime = startTime.TimeOfDay,
+            EndTime = endTime.TimeOfDay,
             Status = string.IsNullOrWhiteSpace(status) ? ScheduledStatus : status,
         });
     }
@@ -171,44 +183,4 @@ public class AppointmentService(
             throw new InvalidOperationException($"Doctor #{doctorId} exceeded the {MaxConsecutiveHours:F0}h consecutive duty limit.");
         }
     }
-    public Task<IReadOnlyList<Appointment>> GetUpcomingAppointmentsAsync(int doctorUserId, DateTime fromDate, int skipCount, int takeCount) { throw new System.NotImplementedException(); }
-    public Task<IReadOnlyList<(int DoctorId, string DoctorName)>> GetAllDoctorsAsync() { throw new System.NotImplementedException(); }
-    public Task<Appointment?> GetAppointmentDetailsAsync(int appointmentId) { throw new System.NotImplementedException(); }
-    public Task<IReadOnlyList<Appointment>> GetAppointmentsForAdminAsync(int doctorId) { throw new System.NotImplementedException(); }
-    public Task CreateAppointmentAsync(string patientName, int doctorId, DateTime date, TimeSpan startTime) { throw new System.NotImplementedException(); }
-    public Task BookAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task BookAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task FinishAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task<IReadOnlyList<Appointment>> GetAppointmentsInRangeAsync(int doctorId, DateTime fromDate, DateTime toDate) { throw new System.NotImplementedException(); }
-    public Task CancelAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task<IReadOnlyList<Shift>> GetShiftsForStaffInRangeAsync(int doctorId, DateTime fromDate, DateTime toDate) { throw new System.NotImplementedException(); }
-    public Task<int?> GetDoctorIdByEmailAsync(string email) { throw new System.NotImplementedException(); }
-    public Task BookAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task FinishAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task CancelAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task BookAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task FinishAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task CancelAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task BookAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task FinishAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task CancelAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task BookAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task FinishAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task CancelAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task BookAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task FinishAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task CancelAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task BookAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task FinishAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task CancelAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task BookAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task FinishAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task CancelAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task BookAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task FinishAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task CancelAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task BookAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task FinishAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
-    public Task CancelAppointmentAsync(Appointment appointment) { throw new System.NotImplementedException(); }
 }
-#endif

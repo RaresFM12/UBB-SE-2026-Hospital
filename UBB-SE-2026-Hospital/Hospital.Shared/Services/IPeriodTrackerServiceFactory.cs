@@ -1,11 +1,10 @@
-namespace Hospital.Shared.Services
+namespace Hospital.Shared.Services;
+
+public interface IPeriodTrackerServiceFactory
 {
-    public interface IPeriodTrackerServiceFactory
-    {
-        IPeriodTrackerService CreatePeriodTrackerService();
+    IPeriodTrackerService CreatePeriodTrackerService();
 
-        IWellnessItemsService CreateWellnessItemsService();
+    IWellnessItemsService CreateWellnessItemsService();
 
-        IBasketService CreateBasketService();
-    }
+    IBasketService CreateBasketService();
 }

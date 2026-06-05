@@ -1,4 +1,3 @@
-#if false
 using Hospital.Data.Models;
 using Hospital.Data.Repositories;
 using Hospital.Shared.Services;
@@ -30,6 +29,12 @@ public class ShiftManagementService(
         await shiftRepository.CreateAsync(new Shift(0, staff, location, startTime, endTime, status));
     }
 
+    public bool TryAddShift(IStaff staff, DateTime startTime, DateTime endTime, string location)
+    {
+        CreateShiftAsync(staff.StaffId, location, startTime, endTime, ShiftStatus.Scheduled).GetAwaiter().GetResult();
+        return true;
+    }
+
     public async Task UpdateShiftStatusAsync(int shiftId, ShiftStatus status, CancellationToken cancellationToken = default)
     {
         var shift = await shiftRepository.GetByIdAsync(shiftId)
@@ -37,6 +42,12 @@ public class ShiftManagementService(
         shift.Status = status;
         await shiftRepository.UpdateAsync(shift);
     }
+
+    public void CancelShift(int shiftId) =>
+        UpdateShiftStatusAsync(shiftId, ShiftStatus.Cancelled).GetAwaiter().GetResult();
+
+    public void SetShiftActive(int shiftId) =>
+        UpdateShiftStatusAsync(shiftId, ShiftStatus.Active).GetAwaiter().GetResult();
 
     public async Task UpdateShiftStaffAsync(int shiftId, int staffId, CancellationToken cancellationToken = default)
     {
@@ -61,6 +72,9 @@ public class ShiftManagementService(
             .Where(shift => shift.StartTime.Date == date.Date)
             .ToList();
 
+    public IReadOnlyList<Shift> GetDailyShifts(DateTime date) =>
+        GetDailyShiftsAsync(date).GetAwaiter().GetResult();
+
     public async Task<IReadOnlyList<Shift>> GetWeeklyShiftsAsync(DateTime date, CancellationToken cancellationToken = default)
     {
         int daysFromMonday = (DaysInWeek + (date.DayOfWeek - DayOfWeek.Monday)) % DaysInWeek;
@@ -71,6 +85,9 @@ public class ShiftManagementService(
             .Where(shift => shift.StartTime >= weekStart && shift.StartTime < weekEnd)
             .ToList();
     }
+
+    public IReadOnlyList<Shift> GetWeeklyShifts(DateTime date) =>
+        GetWeeklyShiftsAsync(date).GetAwaiter().GetResult();
 
     public async Task<IReadOnlyList<Shift>> GetActiveShiftsAsync(CancellationToken cancellationToken = default)
         => (await shiftRepository.GetAllAsync())
@@ -150,56 +167,53 @@ public class ShiftManagementService(
             .Cast<Staff>()
             .ToList();
     }
-    public void SetShiftActive(int shiftId) { throw new System.NotImplementedException(); }
-    public void CancelShift(int shiftId) { throw new System.NotImplementedException(); }
-    public bool ValidateNoOverlap(int staffId, DateTime start, DateTime end) { throw new System.NotImplementedException(); }
-    public void AddShift(Shift shift) { throw new System.NotImplementedException(); }
-    public bool TryAddShift(IStaff staff, DateTime start, DateTime end, string location) { throw new System.NotImplementedException(); }
-    public bool ValidateShiftTimes(TimeSpan start, TimeSpan end) { throw new System.NotImplementedException(); }
-    public List<Shift> GetDailyShifts(DateTime date) { throw new System.NotImplementedException(); }
-    public List<Shift> GetWeeklyShifts(DateTime date) { throw new System.NotImplementedException(); }
-    public bool ReassignShift(Shift shift, IStaff newStaff) { throw new System.NotImplementedException(); }
-    public List<IStaff> GetFilteredStaff(string location, string requiredSpecializationOrCertification) { throw new System.NotImplementedException(); }
-    public List<IStaff> FindStaffReplacements(Shift shift) { throw new System.NotImplementedException(); }
-    public List<string> GetSpecializationsAndCertificationsForLocation(string location) { throw new System.NotImplementedException(); }
-    public float GetWeeklyHours(int staffId) { throw new System.NotImplementedException(); }
-    public List<Shift> GetActiveShifts() { throw new System.NotImplementedException(); }
-    public bool IsStaffWorkingDuring(int staffId, DateTime startTime, DateTime endTime) { throw new System.NotImplementedException(); }
-    public void AddShift(Shift shift) { throw new System.NotImplementedException(); }
-    public bool TryAddShift(IStaff staff, DateTime start, DateTime end, string location) { throw new System.NotImplementedException(); }
-    public bool ReassignShift(Shift shift, IStaff newStaff) { throw new System.NotImplementedException(); }
-    public List<IStaff> FindStaffReplacements(Shift shift) { throw new System.NotImplementedException(); }
-    public void AddShift(Shift shift) { throw new System.NotImplementedException(); }
-    public bool TryAddShift(IStaff staff, DateTime start, DateTime end, string location) { throw new System.NotImplementedException(); }
-    public bool ReassignShift(Shift shift, IStaff newStaff) { throw new System.NotImplementedException(); }
-    public List<IStaff> FindStaffReplacements(Shift shift) { throw new System.NotImplementedException(); }
-    public void AddShift(Shift shift) { throw new System.NotImplementedException(); }
-    public bool TryAddShift(IStaff staff, DateTime start, DateTime end, string location) { throw new System.NotImplementedException(); }
-    public bool ReassignShift(Shift shift, IStaff newStaff) { throw new System.NotImplementedException(); }
-    public List<IStaff> FindStaffReplacements(Shift shift) { throw new System.NotImplementedException(); }
-    public void AddShift(Shift shift) { throw new System.NotImplementedException(); }
-    public bool TryAddShift(IStaff staff, DateTime start, DateTime end, string location) { throw new System.NotImplementedException(); }
-    public bool ReassignShift(Shift shift, IStaff newStaff) { throw new System.NotImplementedException(); }
-    public List<IStaff> FindStaffReplacements(Shift shift) { throw new System.NotImplementedException(); }
-    public void AddShift(Shift shift) { throw new System.NotImplementedException(); }
-    public bool TryAddShift(IStaff staff, DateTime start, DateTime end, string location) { throw new System.NotImplementedException(); }
-    public bool ReassignShift(Shift shift, IStaff newStaff) { throw new System.NotImplementedException(); }
-    public List<IStaff> FindStaffReplacements(Shift shift) { throw new System.NotImplementedException(); }
-    public void AddShift(Shift shift) { throw new System.NotImplementedException(); }
-    public bool TryAddShift(IStaff staff, DateTime start, DateTime end, string location) { throw new System.NotImplementedException(); }
-    public bool ReassignShift(Shift shift, IStaff newStaff) { throw new System.NotImplementedException(); }
-    public List<IStaff> FindStaffReplacements(Shift shift) { throw new System.NotImplementedException(); }
-    public void AddShift(Shift shift) { throw new System.NotImplementedException(); }
-    public bool TryAddShift(IStaff staff, DateTime start, DateTime end, string location) { throw new System.NotImplementedException(); }
-    public bool ReassignShift(Shift shift, IStaff newStaff) { throw new System.NotImplementedException(); }
-    public List<IStaff> FindStaffReplacements(Shift shift) { throw new System.NotImplementedException(); }
-    public void AddShift(Shift shift) { throw new System.NotImplementedException(); }
-    public bool TryAddShift(IStaff staff, DateTime start, DateTime end, string location) { throw new System.NotImplementedException(); }
-    public bool ReassignShift(Shift shift, IStaff newStaff) { throw new System.NotImplementedException(); }
-    public List<IStaff> FindStaffReplacements(Shift shift) { throw new System.NotImplementedException(); }
-    public void AddShift(Shift shift) { throw new System.NotImplementedException(); }
-    public bool TryAddShift(IStaff staff, DateTime start, DateTime end, string location) { throw new System.NotImplementedException(); }
-    public bool ReassignShift(Shift shift, IStaff newStaff) { throw new System.NotImplementedException(); }
-    public List<IStaff> FindStaffReplacements(Shift shift) { throw new System.NotImplementedException(); }
+
+    public bool ValidateShiftTimes(TimeSpan startTime, TimeSpan endTime) =>
+        endTime > startTime;
+
+    public IReadOnlyList<string> GetSpecializationsAndCertificationsForLocation(string location)
+    {
+        var allStaff = staffRepository.GetAllAsync().GetAwaiter().GetResult();
+        if (string.Equals(location, PharmacyLocationLabel, StringComparison.OrdinalIgnoreCase))
+        {
+            return allStaff
+                .OfType<Pharmacyst>()
+                .Select(staff => staff.Certification)
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(value => value)
+                .ToList();
+        }
+
+        return allStaff
+            .OfType<Doctor>()
+            .Select(staff => staff.Specialization)
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(value => value)
+            .ToList();
+    }
+
+    public IReadOnlyList<IStaff> GetFilteredStaff(string location, string requiredSpecializationOrCertification) =>
+        GetFilteredStaffAsync(location, requiredSpecializationOrCertification).GetAwaiter().GetResult().Cast<IStaff>().ToList();
+
+    public IReadOnlyList<IStaff> FindStaffReplacements(Shift shift)
+    {
+        string qualification = shift.Staff switch
+        {
+            Doctor doctor => doctor.Specialization,
+            Pharmacyst pharmacyst => pharmacyst.Certification,
+            _ => string.Empty,
+        };
+
+        return GetFilteredStaff(shift.Location, qualification)
+            .Where(staff => staff.StaffId != shift.Staff.StaffId)
+            .ToList();
+    }
+
+    public bool ReassignShift(Shift shift, IStaff replacement)
+    {
+        UpdateShiftStaffAsync(shift.Id, replacement.StaffId).GetAwaiter().GetResult();
+        return true;
+    }
 }
-#endif

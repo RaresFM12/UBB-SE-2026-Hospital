@@ -1,4 +1,3 @@
-#if false
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Hospital.API.Auth;
@@ -54,4 +53,3 @@ public class StaffController(IShiftManagementService shiftManagementService) : C
     public record UpdateStatusRequest(string Status);
     public record UpdateAvailabilityRequest(bool IsAvailable, DoctorStatus Status);
 }
-#endif

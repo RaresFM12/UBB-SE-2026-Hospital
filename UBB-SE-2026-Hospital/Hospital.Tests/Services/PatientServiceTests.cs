@@ -1,9 +1,7 @@
 using Hospital.Services.PatientEr;
 using Hospital.Data.Repositories;
-using Moq;
 using SharedPatient = Hospital.Shared.Models.PatientEr.Patient;
 using DbPatient = Hospital.Data.Models.Patient;
-using Moq;
 
 namespace Hospital.Tests.Services;
 
@@ -14,33 +12,26 @@ public class PatientServiceTests
     public async Task GetPatientsAsync_ReturnsRepositoryResults()
     {
         var repository = new FakePatientRepository();
-        var service = new PatientService(
-            repository,
-            Mock.Of<IMedicalHistoryRepository>(),
-            Mock.Of<IMedicalRecordRepository>(),
-            Mock.Of<IPrescriptionRepository>());
+        var service = new PatientService(repository);
 
         var patients = await service.GetPatientsAsync();
 
-        Assert.AreEqual(1, patients.Count);
+        Assert.HasCount(1, patients);
         Assert.AreEqual("Ana", patients[0].FirstName);
     }
 
     private sealed class FakePatientRepository : IPatientRepository
     {
         public Task<List<DbPatient>> GetAllAsync()
-            => Task.FromResult(new List<DbPatient>
-            {
+            => Task.FromResult<List<DbPatient>>(
+            [
                 new DbPatient
                 {
                     PatientId = 1,
                     FirstName = "Ana",
                     LastName = "Pop",
                 },
-            });
-
-        public Task<List<DbPatient>> GetAllWithMedicalHistoryAsync()
-            => GetAllAsync();
+            ]);
 
         public Task<DbPatient?> GetByIdAsync(int patientId)
             => Task.FromResult<DbPatient?>(null);

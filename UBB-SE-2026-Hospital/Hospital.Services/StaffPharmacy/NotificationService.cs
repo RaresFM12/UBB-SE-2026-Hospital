@@ -1,4 +1,3 @@
-#if false
 using Hospital.Data.Models;
 using Hospital.Data.Repositories;
 using Hospital.Shared.Services;
@@ -27,4 +26,3 @@ public class NotificationService(
     public async Task<IReadOnlyList<Notification>> GetNotificationsForStaffAsync(int staffId, CancellationToken cancellationToken = default)
         => await notificationRepository.GetByStaffIdAsync(staffId);
 }
-#endif

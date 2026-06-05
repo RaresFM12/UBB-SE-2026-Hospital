@@ -1,4 +1,3 @@
-#if false
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Hospital.API.Auth;
@@ -34,4 +33,3 @@ public class AppointmentsController(IDoctorAppointmentService appointmentService
     public record CreateAppointmentRequest(int PatientId, int DoctorId, DateTime StartTime, DateTime EndTime, string Status);
     public record UpdateStatusRequest(string Status);
 }
-#endif

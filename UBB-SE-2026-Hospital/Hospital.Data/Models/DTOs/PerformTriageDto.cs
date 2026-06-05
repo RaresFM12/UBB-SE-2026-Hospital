@@ -28,8 +28,6 @@ public class PerformTriageRequest
         };
 }
 
-public class PerformTriageDto : PerformTriageRequest;
-
 public class PerformTriageResponse
 {
     public Triage Triage { get; set; } = new();

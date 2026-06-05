@@ -1,0 +1,26 @@
+@{
+    ViewData["Title"] = "Consultations";
+}
+
+<div class="container mt-4" style="max-width: 720px;">
+    <h1 class="mb-3">Consultations</h1>
+    <p class="text-muted">Open a consultation by entering the patient and record identifiers.</p>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form method="get" asp-action="Details" class="row g-3">
+                <div class="col-md-6">
+                    <label for="patientId" class="form-label">Patient ID</label>
+                    <input id="patientId" name="patientId" type="number" class="form-control" min="1" required />
+                </div>
+                <div class="col-md-6">
+                    <label for="recordId" class="form-label">Record ID</label>
+                    <input id="recordId" name="recordId" type="number" class="form-control" min="1" required />
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">Open consultation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

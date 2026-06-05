@@ -9,24 +9,15 @@ namespace Hospital.Data.Repositories;
 public class ERRoomRepository(HospitalDbContext context) : IERRoomRepository
 {
     public async Task<ERRoom?> GetByIdAsync(int roomId)
-        => await context.ERRooms
-            .Include(room => room.CurrentVisit)
-            .ThenInclude(visit => visit.Patient)
-            .FirstOrDefaultAsync(room => room.RoomId == roomId);
+        => await context.ERRooms.FindAsync(roomId);
 
     public async Task<List<ERRoom>> GetAllAsync()
-        => await context.ERRooms
-            .Include(room => room.CurrentVisit)
-            .ThenInclude(visit => visit.Patient)
-            .ToListAsync();
+        => await context.ERRooms.ToListAsync();
 
     public async Task<List<ERRoom>> GetAvailableRoomsAsync()
     {
         bool IsAvailableRoom(ERRoom room) => room.AvailabilityStatus == ERRoom.RoomStatus.Available;
-        var all = await context.ERRooms
-            .Include(room => room.CurrentVisit)
-            .ThenInclude(visit => visit.Patient)
-            .ToListAsync();
+        var all = await context.ERRooms.ToListAsync();
         return all.Where(IsAvailableRoom).ToList();
     }
 

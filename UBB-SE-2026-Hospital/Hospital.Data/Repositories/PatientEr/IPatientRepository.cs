@@ -9,7 +9,6 @@ public interface IPatientRepository
 {
     Task<Patient?> GetByIdAsync(int patientId);
     Task<List<Patient>> GetAllAsync();
-    Task<List<Patient>> GetAllWithMedicalHistoryAsync();
     Task<List<Patient>> GetFilteredAsync(PatientFilter filter);
     Task<Patient> CreateAsync(Patient patient);
     Task<Patient> UpdateAsync(Patient patient);

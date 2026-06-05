@@ -19,7 +19,11 @@ public class Shift
     }
 
     public string Location { get; set; } = string.Empty;
+
+    [Column("StartTime")]
     public DateTime StartTime { get; set; }
+
+    [Column("EndTime")]
     public DateTime EndTime { get; set; }
     public ShiftStatus Status { get; set; } = ShiftStatus.Scheduled;
 

@@ -7,10 +7,12 @@ namespace Hospital.Data.Repositories;
 public interface IItemsRepository
 {
     Task<Item?> GetByIdAsync(int itemId);
+    Task<Item?> GetByIdNoTrackingAsync(int itemId);
     Task<List<Item>> GetAllAsync();
     Task<List<Item>> GetLowStockItemsAsync(int threshold);
     Task<Item> CreateAsync(Item item);
     Task<Item> UpdateAsync(Item item);
+    Task UpdateWithEntriesAsync(Item updatedItem);
     Task DeleteAsync(int itemId);
 
     Task<List<ItemBatch>> GetBatchesByItemIdAsync(int itemId);

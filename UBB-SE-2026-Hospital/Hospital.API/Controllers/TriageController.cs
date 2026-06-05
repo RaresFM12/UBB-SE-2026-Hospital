@@ -1,5 +1,4 @@
 using Hospital.Data.Models;
-using Hospital.Data.Models.DTOs;
 using Hospital.Shared.Services;
 using Hospital.API.Auth;
 using Microsoft.AspNetCore.Mvc;
@@ -30,30 +29,6 @@ public class TriageController(
             return result is null ? NotFound() : Ok(result);
         }
         catch (Exception ex) { logger.LogError(ex, "Failed to fetch triage {Id}.", id); return Problem(statusCode: 500, title: "Could not fetch triage."); }
-    }
-
-    [HttpGet("visit/{visitId:int}")]
-    public async Task<ActionResult<Triage>> GetByVisitId(int visitId)
-    {
-        try
-        {
-            Triage? result = await triageService.GetByVisitIdAsync(visitId);
-            return result is null ? NotFound() : Ok(result);
-        }
-        catch (Exception ex) { logger.LogError(ex, "Failed to fetch triage for visit {VisitId}.", visitId); return Problem(statusCode: 500, title: "Could not fetch visit triage."); }
-    }
-
-    [HttpPost("visit/{visitId:int}")]
-    public async Task<ActionResult<Triage>> CreateForVisit(int visitId, [FromBody] PerformTriageDto parameters)
-    {
-        try
-        {
-            Triage result = await triageService.CreateTriageAsync(visitId, parameters);
-            return CreatedAtAction(nameof(GetById), new { id = result.TriageId }, result);
-        }
-        catch (ArgumentOutOfRangeException ex) { return BadRequest(ex.Message); }
-        catch (ArgumentException ex) { return NotFound(ex.Message); }
-        catch (Exception ex) { logger.LogError(ex, "Failed to create triage for visit {VisitId}.", visitId); return Problem(statusCode: 500, title: "Could not create visit triage."); }
     }
 
     [HttpPost]
