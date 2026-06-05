@@ -5,7 +5,7 @@ namespace Hospital.Desktop.ViewModels.Admin
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Linq;
-    using Hospital.Shared.Models;
+    using Hospital.Data.Models;
     using Hospital.Shared.Services;
     using Hospital.Desktop.ViewModels.Base;
 

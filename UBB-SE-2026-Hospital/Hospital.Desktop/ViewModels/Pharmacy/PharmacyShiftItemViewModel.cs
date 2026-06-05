@@ -1,4 +1,4 @@
-using Hospital.Shared.Models;
+using Hospital.Data.Models;
 namespace Hospital.Desktop.ViewModels.Pharmacy;
 
 using System;

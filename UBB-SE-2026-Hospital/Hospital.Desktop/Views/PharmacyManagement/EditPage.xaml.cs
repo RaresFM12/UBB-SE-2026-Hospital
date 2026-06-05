@@ -14,7 +14,7 @@ namespace Hospital.Desktop.Views.PharmacyManagement
     
     using Hospital.Desktop.Services;
 using Hospital.Shared.Services;
-using Hospital.Shared.Models;
+using Hospital.Data.Models;
 using Hospital.Shared.Services;
     using Hospital.Desktop.ViewModels.PharmacyManagement;
 

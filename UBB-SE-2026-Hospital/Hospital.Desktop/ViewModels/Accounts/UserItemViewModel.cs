@@ -1,6 +1,6 @@
 namespace Hospital.Desktop.ViewModels.Accounts
 {
-    using Hospital.Shared.Models;
+    using Hospital.Data.Models;
 
     public class UserItemViewModel
     {

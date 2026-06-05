@@ -4,7 +4,7 @@ namespace Hospital.Desktop.Converters
     using Microsoft.UI;
     using Microsoft.UI.Xaml.Data;
     using Microsoft.UI.Xaml.Media;
-    using Hospital.Shared.Models;
+    using Hospital.Data.Models;
     // using Hospital.Desktop.ViewModels.ProductsCatalogue;
 
     public partial class StockLevelToColorConverter : IValueConverter

@@ -5,7 +5,7 @@ namespace Hospital.Desktop.Views.Admin
     using Microsoft.UI.Xaml.Controls;
     using Microsoft.UI.Xaml.Navigation;
     using Hospital.Shared.Configuration;
-    using Hospital.Shared.Models;
+    using Hospital.Data.Models;
     using Hospital.Desktop.ViewModels.Admin;
 
     public sealed partial class AdminSchedulePage : Page

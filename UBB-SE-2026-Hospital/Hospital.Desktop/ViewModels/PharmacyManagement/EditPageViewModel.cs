@@ -5,7 +5,7 @@ using Microsoft.UI.Xaml;
 
 using Hospital.Desktop.Services;
 using Hospital.Shared.Services;
-using Hospital.Shared.Models;
+using Hospital.Data.Models;
 
 namespace Hospital.Desktop.ViewModels.PharmacyManagement
 {

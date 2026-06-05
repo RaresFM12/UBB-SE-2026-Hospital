@@ -9,7 +9,7 @@ namespace Hospital.Desktop.ViewModels.Doctor
     
     using Hospital.Desktop.Services;
 using Hospital.Shared.Services;
-using Hospital.Shared.Models;
+using Hospital.Data.Models;
 using Hospital.Shared.Services;
     using Hospital.Desktop.ViewModels.Base;
     using Hospital.Desktop.Views.Shell;

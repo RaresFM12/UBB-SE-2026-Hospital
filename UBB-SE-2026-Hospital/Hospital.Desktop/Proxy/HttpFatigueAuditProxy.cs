@@ -1,4 +1,4 @@
-using Hospital.Shared.Models;
+using Hospital.Data.Models;
 using Hospital.Shared.Services;
 
 namespace Hospital.Desktop.Proxy;
@@ -16,9 +16,6 @@ public class HttpFatigueAuditProxy(HttpClient httpClient) : ProxyBase(httpClient
             Task.Run(async () => await PutAsync<object>($"api/shifts/{shiftId}/staff", new { staffId = newStaffId })).GetAwaiter().GetResult();
             return true;
         }
-        catch
-        {
-            return false;
-        }
+        catch { return false; }
     }
 }

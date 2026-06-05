@@ -253,7 +253,7 @@ public partial class ExaminationViewModel : ObservableObject
         return fallbackRoom?.RoomId ?? throw new InvalidOperationException("No ER rooms available.");
     }
 
-    private bool ApplyDispatchAssignment(Hospital.Shared.Models.ERRequest? request)
+    private bool ApplyDispatchAssignment(Hospital.Data.Models.ERRequest? request)
     {
         if (request?.AssignedDoctor == null)
         {

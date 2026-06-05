@@ -8,10 +8,9 @@
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
             </ResourceDictionary.MergedDictionaries>
-            <Color x:Key="HospitalAccentColor">#006A6A</Color>
-            <SolidColorBrush x:Key="HospitalAccentBrush" Color="{StaticResource HospitalAccentColor}" />
+            <SolidColorBrush x:Key="HospitalAccentBrush" Color="#006A6A" />
             <SolidColorBrush x:Key="AppBackgroundBrush" Color="#F5F5F5" />
-            <SolidColorBrush x:Key="AppAccentBrush" Color="{StaticResource HospitalAccentColor}" />
+            <SolidColorBrush x:Key="AppAccentBrush" Color="#006A6A" />
             <SolidColorBrush x:Key="AppSurfaceBrush" Color="White" />
             <SolidColorBrush x:Key="AppTextPrimaryBrush" Color="#1F2937" />
             <SolidColorBrush x:Key="AppTextSecondaryBrush" Color="#6B7280" />

@@ -5,7 +5,7 @@
     xmlns:local="using:Hospital.Desktop.Views.PharmacyManagement"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:models="using:Hospital.Shared.Models"
+    xmlns:models="using:Hospital.Data.Models"
     mc:Ignorable="d">
 
     <ScrollViewer VerticalScrollMode="Enabled" HorizontalScrollMode="Enabled" Width="Auto" Height="Auto" Background="{StaticResource AppBackgroundBrush}">

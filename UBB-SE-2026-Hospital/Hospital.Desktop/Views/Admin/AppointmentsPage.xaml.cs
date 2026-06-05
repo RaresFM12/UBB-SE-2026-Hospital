@@ -3,7 +3,7 @@ namespace Hospital.Desktop.Views.Admin
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
-    using Hospital.Shared.Models;
+    using Hospital.Data.Models;
     using Hospital.Desktop.ViewModels.Admin;
     // using Hospital.Desktop.Views.Doctor;
 

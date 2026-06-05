@@ -5,7 +5,7 @@ namespace Hospital.Desktop.ViewModels.Accounts
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
-    using Hospital.Shared.Models;
+    using Hospital.Data.Models;
     using Hospital.Shared.Services;
 
     public class AdminAccountsManagementViewModel : INotifyPropertyChanged

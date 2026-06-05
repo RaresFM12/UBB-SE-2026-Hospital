@@ -6,7 +6,7 @@ namespace Hospital.Desktop.ViewModels.Admin
     using System.Linq;
     using Hospital.Desktop.Command;
     using Hospital.Shared.Services;
-    using Hospital.Shared.Models;
+    using Hospital.Data.Models;
     using Hospital.Desktop.ViewModels.Base;
 
     public sealed class FatigueShiftAuditViewModel : ObservableObject

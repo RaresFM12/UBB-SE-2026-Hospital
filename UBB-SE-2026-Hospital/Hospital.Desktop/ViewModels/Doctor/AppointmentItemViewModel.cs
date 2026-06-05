@@ -1,4 +1,4 @@
-using Hospital.Shared.Models;
+using Hospital.Data.Models;
 namespace Hospital.Desktop.ViewModels.Doctor
 {
     using System;
@@ -49,11 +49,11 @@ namespace Hospital.Desktop.ViewModels.Doctor
             this.EndTime = item.EndTime;
         }
 
-        public Hospital.Shared.Models.Appointment ToAppointment() => new Hospital.Shared.Models.Appointment
+        public Hospital.Data.Models.Appointment ToAppointment() => new Hospital.Data.Models.Appointment
         {
             Id = this.AppointmentItemId,
             PatientName = this.PatientName,
-            Doctor = new Hospital.Shared.Models.Doctor { StaffID = this.DoctorId },
+            Doctor = new Hospital.Data.Models.Doctor { StaffID = this.DoctorId },
             Date = this.Date,
             StartTime = this.StartTime,
             EndTime = this.EndTime,

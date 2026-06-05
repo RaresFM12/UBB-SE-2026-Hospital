@@ -5,7 +5,7 @@ namespace Hospital.Desktop.ViewModels.Admin
     using System.Linq;
     using System.Threading.Tasks;
     using Hospital.Desktop.Command;
-    using Hospital.Shared.Models;
+    using Hospital.Data.Models;
     using Hospital.Shared.Services;
     using Hospital.Desktop.ViewModels.Base;
 

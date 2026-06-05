@@ -2,7 +2,7 @@
     x:Class="Hospital.Desktop.Views.Admin.AppointmentsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:models="using:Hospital.Shared.Models">
+    xmlns:models="using:Hospital.Data.Models">
 
     <Grid Padding="24" ColumnSpacing="20" Background="{StaticResource AppBackgroundBrush}">
         <Grid.ColumnDefinitions>
