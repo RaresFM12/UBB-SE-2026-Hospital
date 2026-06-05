@@ -150,7 +150,7 @@ public partial class App : Application
         var loginWindow = Services.GetRequiredService<LoginWindow>();
         loginWindow.ViewModel.LoginSucceeded += () =>
         {
-            loginWindow.DispatcherQueue.TryEnqueue(() =>
+            loginWindow.DispatcherQueue.TryEnqueue(async () =>
             {
                 try
                 {
@@ -162,7 +162,14 @@ public partial class App : Application
                 catch (Exception ex)
                 {
                     LogException(ex);
-                    throw;
+                    var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+                    {
+                        Title = "Launch Error",
+                        Content = ex.ToString(),
+                        CloseButtonText = "OK",
+                        XamlRoot = loginWindow.Content?.XamlRoot,
+                    };
+                    await dialog.ShowAsync();
                 }
             });
         };
