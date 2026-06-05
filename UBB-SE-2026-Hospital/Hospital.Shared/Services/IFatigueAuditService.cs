@@ -1,4 +1,4 @@
-using Hospital.Shared.Models.StaffPharmacy;
+using Hospital.Data.Models;
 
 namespace Hospital.Shared.Services;
 
