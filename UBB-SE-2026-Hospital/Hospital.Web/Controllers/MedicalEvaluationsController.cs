@@ -1,4 +1,4 @@
-using Hospital.Shared.Proxies;
+﻿using Hospital.Shared.Proxies;
 namespace Hospital.Web.Controllers
 {
     using System;
@@ -16,12 +16,12 @@ namespace Hospital.Web.Controllers
         private const string ErrorMessageKey = "ErrorMessage";
         private const string WarningMessageKey = "WarningMessage";
 
-        private readonly IMedicalEvaluationService medicalEvaluationService;
-        private readonly IWellnessItemsService wellnessItemsService;
+        private readonly IMedicalEvaluationApiClient medicalEvaluationService;
+        private readonly IWellnessItemsApiClient wellnessItemsService;
 
         public MedicalEvaluationsController(
-            IMedicalEvaluationService medicalEvaluationService,
-            IWellnessItemsService wellnessItemsService)
+            IMedicalEvaluationApiClient medicalEvaluationService,
+            IWellnessItemsApiClient wellnessItemsService)
         {
             this.medicalEvaluationService = medicalEvaluationService;
             this.wellnessItemsService = wellnessItemsService;

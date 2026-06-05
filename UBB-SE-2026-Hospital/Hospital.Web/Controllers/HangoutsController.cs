@@ -1,4 +1,4 @@
-using Hospital.Shared.Proxies;
+﻿using Hospital.Shared.Proxies;
 namespace Hospital.Web.Controllers
 {
     using System;
@@ -15,11 +15,11 @@ namespace Hospital.Web.Controllers
     [Authorize(Roles = "Doctor,Admin")]
     public class HangoutsController : Controller
     {
-        private readonly IHangoutService hangoutService;
-        private readonly IDoctorAppointmentService doctorAppointmentService;
+        private readonly IHangoutApiClient hangoutService;
+        private readonly IDoctorAppointmentApiClient doctorAppointmentService;
         private readonly IStaffRepository staffRepository;
 
-        public HangoutsController(IHangoutService hangoutService, IDoctorAppointmentService doctorAppointmentService, IStaffRepository staffRepository)
+        public HangoutsController(IHangoutApiClient hangoutService, IDoctorAppointmentApiClient doctorAppointmentService, IStaffRepository staffRepository)
         {
             this.hangoutService = hangoutService;
             this.doctorAppointmentService = doctorAppointmentService;

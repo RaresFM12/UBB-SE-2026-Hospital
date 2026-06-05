@@ -13,9 +13,9 @@ namespace Hospital.Web.Controllers;
 
 public class AuthController : Controller
 {
-    private readonly IAuthService _authService;
+    private readonly IAuthenticationApiClient _authService;
 
-    public AuthController(IAuthService authService)
+    public AuthController(IAuthenticationApiClient authService)
     {
         _authService = authService;
     }
@@ -49,7 +49,7 @@ public class AuthController : Controller
 
         try
         {
-            var response = await _authService.LoginAsync(model, cancellationToken);
+            var response = await _authService.LoginAsync(model.Email, model.Password, cancellationToken);
 
             var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
             var jwtToken = handler.ReadJwtToken(response.Token);

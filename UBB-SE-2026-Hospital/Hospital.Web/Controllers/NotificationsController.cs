@@ -1,4 +1,4 @@
-using Hospital.Shared.Proxies;
+﻿using Hospital.Shared.Proxies;
 namespace Hospital.Web.Controllers
 {
     using System.Linq;
@@ -11,10 +11,10 @@ namespace Hospital.Web.Controllers
     [Authorize(Roles = "Client , Admin")]
     public class NotificationsController : Controller
     {
-        private readonly IAdminService adminService;
-        private readonly IUserAccountService userAccountService;
+        private readonly IAdminApiClient adminService;
+        private readonly IUserAccountApiClient userAccountService;
 
-        public NotificationsController(IAdminService adminService, IUserAccountService userAccountService)
+        public NotificationsController(IAdminApiClient adminService, IUserAccountApiClient userAccountService)
         {
             this.adminService = adminService;
             this.userAccountService = userAccountService;

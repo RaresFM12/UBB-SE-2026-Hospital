@@ -1,4 +1,4 @@
-using Hospital.Shared.Proxies;
+﻿using Hospital.Shared.Proxies;
 using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Hospital.Web.Models;
@@ -16,7 +16,6 @@ using Hospital.Services;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using IAllergyService = Hospital.Services.IAllergyService;
 
 namespace Hospital.Web.Controllers;
 
@@ -27,11 +26,11 @@ public class AdminController : Controller
     private const string SubstanceLineDelimiter = ":";
     private static readonly string[] LineDelimiters = { "\r\n", "\n" };
 
-    private readonly IAdminService adminService;
-    private readonly IPatientService patientService;
-    private readonly IAllergyService allergyService;
+    private readonly IAdminApiClient adminService;
+    private readonly IPatientApiClient patientService;
+    private readonly IAllergyApiClient allergyService;
 
-    public AdminController(IAdminService adminService, IPatientService patientService, IAllergyService allergyService)
+    public AdminController(IAdminApiClient adminService, IPatientApiClient patientService, IAllergyApiClient allergyService)
     {
         this.adminService = adminService;
         this.patientService = patientService;

@@ -14,9 +14,9 @@ namespace Hospital.Web.Controllers;
 [Authorize(Roles = "Client,Admin")]
 public class BasketController : Controller
 {
-    private readonly IOrderService orderService;
+    private readonly IOrdersApiClient orderService;
 
-    public BasketController(IOrderService orderService)
+    public BasketController(IOrdersApiClient orderService)
     {
         this.orderService = orderService;
     }

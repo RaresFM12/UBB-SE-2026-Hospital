@@ -25,9 +25,9 @@ public class DoctorAppointmentsController : Controller
     private const string FinishedStatus = "Finished";
     private const string CanceledStatus = "Canceled";
 
-    private readonly IDoctorAppointmentService appointmentService;
+    private readonly IDoctorAppointmentApiClient appointmentService;
 
-    public DoctorAppointmentsController(IDoctorAppointmentService appointmentService)
+    public DoctorAppointmentsController(IDoctorAppointmentApiClient appointmentService)
     {
         this.appointmentService = appointmentService;
     }

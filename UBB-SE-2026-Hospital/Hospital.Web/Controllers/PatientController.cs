@@ -1,4 +1,4 @@
-using Hospital.Shared.Proxies;
+﻿using Hospital.Shared.Proxies;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -16,7 +16,6 @@ using MedicalRecord = Hospital.Data.Models.MedicalRecord;
 using PatientProfileViewModel = Hospital.Web.Models.Patient.PatientProfileViewModel;
 using DbPatient = Hospital.Data.Models.Patient;
 using Hospital.Services;
-using IAllergyService = Hospital.Services.IAllergyService;
 
 namespace Hospital.Web.Controllers;
 
@@ -28,10 +27,10 @@ public class PatientsController : Controller
     private const int MissingStaffId = 0;
     private const int NoDiscountApplied = 0;
 
-    private readonly IPatientService _patientService;
-    private readonly IAllergyService _allergyService;
+    private readonly IPatientApiClient _patientService;
+    private readonly IAllergyApiClient _allergyService;
 
-    public PatientsController(IPatientService patientService, IAllergyService allergyService)
+    public PatientsController(IPatientApiClient patientService, IAllergyApiClient allergyService)
     {
         _patientService = patientService;
         _allergyService = allergyService;
@@ -72,9 +71,8 @@ public class PatientsController : Controller
 
         try
         {
-            await _patientService.UpdatePatientAsync(new DbPatient
+            await _patientService.UpdatePatientAsync(model.Id, new UpdatePatientRequest
             {
-                PatientId = model.Id,
                 FirstName = model.FirstName.Trim(),
                 LastName = model.LastName.Trim(),
                 Cnp = model.Cnp.Trim(),
@@ -191,7 +189,7 @@ public class PatientsController : Controller
 
         try
         {
-            await _patientService.ArchiveAsDeceasedAsync(id, deathDate.Value, cancellationToken);
+            await _patientService.ArchiveAsDeceasedAsync(id, new ArchiveAsDeceasedRequest { DeathDate = deathDate.Value }, cancellationToken);
             TempData["SuccessMessage"] = "Patient marked as deceased.";
         }
         catch (Exception ex)
