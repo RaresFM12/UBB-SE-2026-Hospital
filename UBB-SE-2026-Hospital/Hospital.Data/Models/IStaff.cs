@@ -3,6 +3,8 @@ namespace Hospital.Data.Models;
 public interface IStaff
 {
     int StaffId { get; set; }
+
+    [System.Text.Json.Serialization.JsonIgnore]
     int StaffID
     {
         get => StaffId;
