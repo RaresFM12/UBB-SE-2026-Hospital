@@ -10,12 +10,10 @@ namespace Hospital.Web.Controllers;
 public class StatisticsController : Controller
 {
     private readonly IStatisticsApiClient statisticsService;
-    private readonly IAdminApiClient adminService;
 
-    public StatisticsController(IStatisticsApiClient statisticsService, IAdminApiClient adminService)
+    public StatisticsController(IStatisticsApiClient statisticsService)
     {
         this.statisticsService = statisticsService;
-        this.adminService = adminService;
     }
 
     [HttpGet]

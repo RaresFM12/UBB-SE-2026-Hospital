@@ -1,7 +1,6 @@
 using Hospital.Data.Models;
-using Hospital.Data.Models;
-using Hospital.Services;
 using Hospital.API.Auth;
+using Hospital.Shared.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hospital.API.Controllers;

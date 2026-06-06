@@ -1,0 +1,329 @@
+<Page
+    x:Class="Hospital.Desktop.Views.Pharmacy.ProductCataloguePage"
+    x:Name="Root"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:Hospital.Desktop.Converters"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:StringNotEmptyToVisibilityConverter x:Key="StringNotEmptyToVisibilityConverter"/>
+        <converters:DiscountPercentageToVisibilityConverter x:Key="DiscountToVisibilityConverter"/>
+        <converters:NoDiscountToVisibilityConverter x:Key="NoDiscountToVisibilityConverter"/>
+        <converters:StockLevelToColorConverter x:Key="StockLevelToColorConverter"/>
+    </Page.Resources>
+
+    <Grid Background="{StaticResource AppBackgroundBrush}" Padding="24" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <TextBlock Grid.Row="0"
+                   Text="Product Catalogue"
+                   FontSize="36"
+                   FontWeight="SemiBold"
+                   Foreground="{StaticResource AppTextPrimaryBrush}"/>
+
+        <!-- Error Message Panel -->
+        <Border Grid.Row="1"
+                Background="{StaticResource AppSurfaceBrush}"
+                BorderBrush="{StaticResource AppErrorBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="16,12"
+                Visibility="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyToVisibilityConverter}}">
+            <TextBlock Text="{Binding ErrorMessage}"
+                       Foreground="{StaticResource AppErrorBrush}"
+                       FontSize="14"
+                       TextWrapping="Wrap"/>
+        </Border>
+
+        <!-- Two-Column Layout -->
+        <Grid Grid.Row="2" ColumnSpacing="24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="280"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ═══════════════════════════════════════════════════════════
+                 LEFT COLUMN — Sidebar Filters
+                 Matches Web Index.cshtml filter form exactly
+                 ═══════════════════════════════════════════════════════════ -->
+            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
+                <Border Background="{StaticResource AppSurfaceBrush}"
+                        CornerRadius="8"
+                        Padding="16"
+                        BorderBrush="{StaticResource AppAccentBrush}"
+                        BorderThickness="1">
+                    <StackPanel Spacing="12">
+
+                        <TextBlock Text="Search &amp; Filter"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource AppTextPrimaryBrush}"/>
+
+                        <!-- Search Bar -->
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox PlaceholderText="Search products..."
+                                     Text="{Binding SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Button Grid.Column="1"
+                                    Content="Search"
+                                    Click="ApplyFiltersButton_Click"
+                                    Background="{StaticResource AppAccentBrush}"
+                                    Foreground="White"/>
+                        </Grid>
+
+                        <!-- Sort By -->
+                        <TextBlock Text="SORT BY"
+                                   FontWeight="SemiBold"
+                                   FontSize="12"
+                                   Foreground="{StaticResource AppTextSecondaryBrush}"
+                                   Margin="0,8,0,0"/>
+                        <ComboBox SelectedIndex="{Binding SelectedSortByIndex, Mode=TwoWay}"
+                                  HorizontalAlignment="Stretch">
+                            <ComboBoxItem Content="Default"/>
+                            <ComboBoxItem Content="Price"/>
+                            <ComboBoxItem Content="Newest"/>
+                        </ComboBox>
+                        <ComboBox SelectedIndex="{Binding SelectedSortDirectionIndex, Mode=TwoWay}"
+                                  HorizontalAlignment="Stretch">
+                            <ComboBoxItem Content="Ascending"/>
+                            <ComboBoxItem Content="Descending"/>
+                        </ComboBox>
+
+                        <!-- Category Checkboxes (7) -->
+                        <TextBlock Text="CATEGORY"
+                                   FontWeight="SemiBold"
+                                   FontSize="12"
+                                   Foreground="{StaticResource AppTextSecondaryBrush}"
+                                   Margin="0,8,0,0"/>
+                        <CheckBox Content="Pain Relief"    IsChecked="{Binding FilterCategoryPainRelief, Mode=TwoWay}"/>
+                        <CheckBox Content="Wellness"       IsChecked="{Binding FilterCategoryWellness, Mode=TwoWay}"/>
+                        <CheckBox Content="Cold and Flu"   IsChecked="{Binding FilterCategoryColdAndFlu, Mode=TwoWay}"/>
+                        <CheckBox Content="Allergy"        IsChecked="{Binding FilterCategoryAllergy, Mode=TwoWay}"/>
+                        <CheckBox Content="Digestion"      IsChecked="{Binding FilterCategoryDigestion, Mode=TwoWay}"/>
+                        <CheckBox Content="Skincare"       IsChecked="{Binding FilterCategorySkincare, Mode=TwoWay}"/>
+                        <CheckBox Content="First Aid"      IsChecked="{Binding FilterCategoryFirstAid, Mode=TwoWay}"/>
+
+                        <!-- Price Range Checkboxes (5) -->
+                        <TextBlock Text="PRICE RANGE"
+                                   FontWeight="SemiBold"
+                                   FontSize="12"
+                                   Foreground="{StaticResource AppTextSecondaryBrush}"
+                                   Margin="0,8,0,0"/>
+                        <CheckBox Content="0-49 lei"       IsChecked="{Binding FilterPriceRange0To49, Mode=TwoWay}"/>
+                        <CheckBox Content="50-99 lei"      IsChecked="{Binding FilterPriceRange50To99, Mode=TwoWay}"/>
+                        <CheckBox Content="100-199 lei"    IsChecked="{Binding FilterPriceRange100To199, Mode=TwoWay}"/>
+                        <CheckBox Content="200-499 lei"    IsChecked="{Binding FilterPriceRange200To499, Mode=TwoWay}"/>
+                        <CheckBox Content="500+ lei"       IsChecked="{Binding FilterPriceRange500Plus, Mode=TwoWay}"/>
+
+                        <!-- Stock Availability Dropdown -->
+                        <TextBlock Text="STOCK AVAILABILITY"
+                                   FontWeight="SemiBold"
+                                   FontSize="12"
+                                   Foreground="{StaticResource AppTextSecondaryBrush}"
+                                   Margin="0,8,0,0"/>
+                        <ComboBox SelectedIndex="{Binding SelectedStockFilterIndex, Mode=TwoWay}"
+                                  HorizontalAlignment="Stretch">
+                            <ComboBoxItem Content="All Items"/>
+                            <ComboBoxItem Content="In Stock (>0)"/>
+                            <ComboBoxItem Content="Low Stock (&lt;10)"/>
+                        </ComboBox>
+
+                        <!-- Discount Filter Dropdown -->
+                        <TextBlock Text="DISCOUNT FILTER"
+                                   FontWeight="SemiBold"
+                                   FontSize="12"
+                                   Foreground="{StaticResource AppTextSecondaryBrush}"
+                                   Margin="0,8,0,0"/>
+                        <ComboBox SelectedIndex="{Binding SelectedDiscountFilterIndex, Mode=TwoWay}"
+                                  HorizontalAlignment="Stretch">
+                            <ComboBoxItem Content="All Products"/>
+                            <ComboBoxItem Content="Discounted Only"/>
+                            <ComboBoxItem Content="Non-Discounted"/>
+                        </ComboBox>
+
+                        <!-- Apply Filters Button -->
+                        <Button Content="Apply Filters"
+                                Click="ApplyFiltersButton_Click"
+                                HorizontalAlignment="Stretch"
+                                Margin="0,12,0,0"
+                                Background="#28a745"
+                                Foreground="White"
+                                FontWeight="Bold"/>
+                    </StackPanel>
+                </Border>
+            </ScrollViewer>
+
+            <!-- ═══════════════════════════════════════════════════════════
+                 RIGHT COLUMN — Product Card Grid + Pagination
+                 ═══════════════════════════════════════════════════════════ -->
+            <Grid Grid.Column="1" RowSpacing="16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Product Cards -->
+                <GridView Grid.Row="0"
+                          ItemsSource="{Binding Products}"
+                          SelectionMode="None"
+                          IsItemClickEnabled="True"
+                          ItemClick="ProductCard_ItemClick"
+                          Padding="0">
+                    <GridView.ItemContainerStyle>
+                        <Style TargetType="GridViewItem">
+                            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Setter Property="Margin" Value="4"/>
+                        </Style>
+                    </GridView.ItemContainerStyle>
+                    <GridView.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{StaticResource AppSurfaceBrush}"
+                                    CornerRadius="8"
+                                    Width="230"
+                                    BorderBrush="{StaticResource AppAccentBrush}"
+                                    BorderThickness="1">
+                                <Grid Padding="16" RowSpacing="6">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Row 0: Discount Badge -->
+                                    <Border Grid.Row="0"
+                                            Background="#dc3545"
+                                            CornerRadius="4"
+                                            HorizontalAlignment="Left"
+                                            Padding="6,2"
+                                            Visibility="{Binding DiscountPercentage, Converter={StaticResource DiscountToVisibilityConverter}}">
+                                        <TextBlock Text="{Binding DiscountBadgeText}"
+                                                   Foreground="White"
+                                                   FontWeight="Bold"
+                                                   FontSize="12"/>
+                                    </Border>
+
+                                    <!-- Row 1: Product Info (star-sized, absorbs height difference) -->
+                                    <StackPanel Grid.Row="1" Spacing="4">
+                                        <TextBlock Text="{Binding Name}"
+                                                   FontWeight="Bold"
+                                                   FontSize="15"
+                                                   TextWrapping="Wrap"
+                                                   MaxLines="2"
+                                                   TextTrimming="CharacterEllipsis"/>
+
+                                        <TextBlock Text="{Binding Producer}"
+                                                   Foreground="{StaticResource AppTextSecondaryBrush}"
+                                                   FontSize="12"
+                                                   MaxLines="1"
+                                                   TextTrimming="CharacterEllipsis"/>
+
+                                        <!-- Price: Discounted -->
+                                        <StackPanel Visibility="{Binding DiscountPercentage, Converter={StaticResource DiscountToVisibilityConverter}}"
+                                                    Spacing="2">
+                                            <TextBlock Text="{Binding OldPriceFormatted}"
+                                                       FontSize="13"
+                                                       Foreground="{StaticResource AppTextSecondaryBrush}"
+                                                       TextDecorations="Strikethrough"/>
+                                            <TextBlock Text="{Binding FinalPriceFormatted}"
+                                                       FontSize="20"
+                                                       FontWeight="Bold"
+                                                       Foreground="#28a745"/>
+                                        </StackPanel>
+
+                                        <!-- Price: No Discount -->
+                                        <TextBlock Text="{Binding OldPriceFormatted}"
+                                                   Visibility="{Binding DiscountPercentage, Converter={StaticResource NoDiscountToVisibilityConverter}}"
+                                                   FontSize="20"
+                                                   FontWeight="Bold"
+                                                   Foreground="{StaticResource AppTextPrimaryBrush}"/>
+
+                                        <!-- Stock Status -->
+                                        <TextBlock Text="{Binding StockText}"
+                                                   FontWeight="SemiBold"
+                                                   FontSize="12"
+                                                   Foreground="{Binding StockLevel, Converter={StaticResource StockLevelToColorConverter}}"/>
+                                    </StackPanel>
+
+                                    <!-- Row 2: Add to Cart (anchored at bottom) -->
+                                    <Button Grid.Row="2"
+                                            Content="Add to Cart"
+                                            Command="{Binding ElementName=Root, Path=ViewModel.AddToCartCommand}"
+                                            CommandParameter="{Binding}"
+                                            IsEnabled="{Binding CanAddToCart}"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Bottom"
+                                            Margin="0,6,0,0"
+                                            FontWeight="Bold"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </GridView.ItemTemplate>
+                </GridView>
+
+                <!-- Pagination Bar -->
+                <Grid Grid.Row="1"
+                      Padding="0,8"
+                      ColumnSpacing="16"
+                      HorizontalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0"
+                            Content="← Previous Page"
+                            Command="{Binding PreviousPageCommand}"
+                            IsEnabled="{Binding HasPreviousPage}"/>
+
+                    <TextBlock Grid.Column="1"
+                               VerticalAlignment="Center"
+                               FontWeight="Bold"
+                               Foreground="{StaticResource AppTextSecondaryBrush}">
+                        <Run Text="Page "/>
+                        <Run Text="{Binding DisplayPageNumber}"/>
+                    </TextBlock>
+
+                    <Button Grid.Column="2"
+                            Content="Next Page →"
+                            Command="{Binding NextPageCommand}"
+                            IsEnabled="{Binding HasNextPage}"/>
+                </Grid>
+
+                <!-- Loading overlay -->
+                <Grid Grid.Row="0"
+                      Grid.RowSpan="2"
+                      Background="#7F000000"
+                      CornerRadius="8"
+                      Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Spacing="12">
+                        <ProgressRing IsActive="True"
+                                      Width="64"
+                                      Height="64"
+                                      Foreground="{StaticResource AppAccentBrush}"/>
+                        <TextBlock Text="Loading Catalogue..."
+                                   Foreground="White"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Grid>
+</Page>

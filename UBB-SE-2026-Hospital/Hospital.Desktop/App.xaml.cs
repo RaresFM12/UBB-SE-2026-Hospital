@@ -43,7 +43,7 @@ public partial class App : Application
         string apiBaseUrl = configuration["ApiBaseUrl"] ?? "http://localhost:5106";
 
         // JWT auth handler + named HttpClient
-        //services.AddTransient<JwtAuthHandler>();
+        services.AddTransient<JwtAuthHandler>();
         services.AddHttpClient("api", c =>
         {
             c.BaseAddress = new Uri(apiBaseUrl);
@@ -86,15 +86,21 @@ public partial class App : Application
         services.AddSingleton<IAdminService, AdminApiClient>();
         services.AddSingleton<IOrderService, OrdersApiClient>();
         services.AddSingleton<IUserAccountService, UserAccountApiClient>();
-        services.AddHttpClient<IShiftManagementService, ShiftManagementApiClient>("api");
+        services.AddHttpClient<IShiftManagementService, ShiftManagementApiClient>("api")
+            .AddHttpMessageHandler<JwtAuthHandler>();
         services.AddSingleton<IFatigueAuditService, FatigueAuditApiClient>();
-        services.AddHttpClient<IPharmacyScheduleService, PharmacyScheduleApiClient>("api");
 
         // Newly ported web features (desktop parity)
         services.AddSingleton<IGhostApiClient, GhostApiClient>();
         services.AddSingleton<IMedicalEvaluationService, MedicalEvaluationApiClient>();
-        services.AddHttpClient<IHangoutService, HangoutApiClient>("api");
-        services.AddHttpClient<IPharmacyScheduleService, PharmacyScheduleApiClient>("api");
+        services.AddHttpClient<IHangoutService, HangoutApiClient>("api")
+            .AddHttpMessageHandler<JwtAuthHandler>();
+        services.AddHttpClient<IPharmacyScheduleService, PharmacyScheduleApiClient>("api")
+            .AddHttpMessageHandler<JwtAuthHandler>();
+        services.AddHttpClient<IProductCatalogueService, ProductCatalogueApiClient>("api")
+            .AddHttpMessageHandler<JwtAuthHandler>();
+        services.AddHttpClient<IBasketApiClient, BasketApiClient>("api")
+            .AddHttpMessageHandler<JwtAuthHandler>();
         services.AddSingleton<IShiftSwapService, ShiftSwapApiClient>();
         services.AddSingleton<INotificationService, NotificationApiClient>();
 
@@ -137,6 +143,8 @@ public partial class App : Application
         services.AddTransient<Hospital.Desktop.ViewModels.Pharmacy.PharmacyScheduleViewModel>();
         services.AddTransient<Hospital.Desktop.ViewModels.Pharmacy.PharmacyShiftItemViewModel>();
         services.AddTransient<Hospital.Desktop.ViewModels.PharmacyManagement.EditPageViewModel>();
+        services.AddTransient<Hospital.Desktop.ViewModels.Pharmacy.ProductCatalogueViewModel>();
+        services.AddTransient<Hospital.Desktop.ViewModels.Pharmacy.ProductDetailsViewModel>();
 
         //the details of the appointments in the doctors schedule did not show up without this line commented out
         //services.AddTransient<Hospital.Desktop.Views.Shell.DialogPresenter>();
