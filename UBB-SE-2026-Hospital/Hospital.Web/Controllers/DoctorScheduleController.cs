@@ -1,4 +1,4 @@
-﻿using Hospital.Shared.Proxies;
+using Hospital.Shared.Proxies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -30,7 +30,7 @@ public class DoctorScheduleController : Controller
         if (string.IsNullOrEmpty(userEmail)) return null;
         var doctors = _shiftSwapService.GetAllDoctors();
         var matchingDoctor = doctors.FirstOrDefault(doctor => doctor.Email == userEmail);
-        return matchingDoctor?.StaffID;
+        return matchingDoctor?.StaffId;
     }
 
     public async Task<IActionResult> Index(
@@ -57,7 +57,7 @@ public class DoctorScheduleController : Controller
         if (!effectiveDoctorId.HasValue)
         {
             effectiveDoctorId = User.IsInRole("Admin")
-                ? doctors.FirstOrDefault()?.StaffID
+                ? doctors.FirstOrDefault()?.StaffId
                 : GetCurrentDoctorStaffId();
         }
 

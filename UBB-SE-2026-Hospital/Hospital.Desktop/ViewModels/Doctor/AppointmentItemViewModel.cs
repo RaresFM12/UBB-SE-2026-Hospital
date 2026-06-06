@@ -40,7 +40,7 @@ namespace Hospital.Desktop.ViewModels.Doctor
             this.PatientName = item.PatientName ?? string.Empty;
             this.Date = item.AppointmentDate;
             this.Notes = item.Notes ?? string.Empty;
-            this.DoctorId = item.Doctor?.StaffID ?? 0;
+            this.DoctorId = item.Doctor?.StaffId ?? 0;
             this.DoctorName = item.Doctor?.FullName ?? string.Empty;
             this.Type = item.Type ?? string.Empty;
             this.Location = item.Location ?? string.Empty;
@@ -53,7 +53,7 @@ namespace Hospital.Desktop.ViewModels.Doctor
         {
             Id = this.AppointmentItemId,
             PatientName = this.PatientName,
-            Doctor = new Hospital.Data.Models.Doctor { StaffID = this.DoctorId },
+            Doctor = new Hospital.Data.Models.Doctor { StaffId = this.DoctorId },
             AppointmentDate = this.Date,
             StartTime = this.StartTime,
             EndTime = this.EndTime,

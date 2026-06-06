@@ -93,7 +93,8 @@ public partial class App : Application
         // Newly ported web features (desktop parity)
         services.AddSingleton<IGhostApiClient, GhostApiClient>();
         services.AddSingleton<IMedicalEvaluationService, MedicalEvaluationApiClient>();
-        services.AddSingleton<IHangoutService, HangoutApiClient>();
+        services.AddHttpClient<IHangoutService, HangoutApiClient>("api");
+        services.AddHttpClient<IPharmacyScheduleService, PharmacyScheduleApiClient>("api");
         services.AddSingleton<IShiftSwapService, ShiftSwapApiClient>();
         services.AddSingleton<INotificationService, NotificationApiClient>();
 

@@ -1,4 +1,4 @@
-﻿@model Hospital.Data.Models.MedicalEvaluation
+@model Hospital.Data.Models.MedicalEvaluation
 @{
     ViewData["Title"] = "New Evaluation";
     var doctorList = ViewBag.DoctorList as IEnumerable<Hospital.Data.Models.Doctor>;
@@ -15,7 +15,7 @@
 
                 <div class="form-group mb-3">
                     <label class="control-label fw-bold">Current Staff (Evaluator)</label>
-                    <select name="Evaluator.StaffID" class="form-select" required>
+                    <select name="Evaluator.StaffId" class="form-select" required>
                         <option value="">-- Select Doctor --</option>
                         @if (doctorList != null)
                         {

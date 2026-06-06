@@ -36,7 +36,7 @@ public class ShiftManagementApiClient(HttpClient httpClient) : ApiClientBase(htt
     {
         try
         {
-            Task.Run(async () => await PutAsync<object>($"{BaseUri}/{shift.Id}/staff", new { staffId = newStaff.StaffID })).GetAwaiter().GetResult();
+            Task.Run(async () => await PutAsync<object>($"{BaseUri}/{shift.Id}/staff", new { staffId = newStaff.StaffId })).GetAwaiter().GetResult();
             return true;
         }
         catch { return false; }
