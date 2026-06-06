@@ -405,8 +405,7 @@
                                                 Background="Transparent"
                                                 Foreground="{StaticResource OvulationBlueBrush}"
                                                 CornerRadius="4"
-                                                Command="{Binding DataContext.AddToBasketCommand, ElementName=Root}"
-                                                CommandParameter="{Binding}"/>
+                                                Click="AddToBasket_Click"/>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>

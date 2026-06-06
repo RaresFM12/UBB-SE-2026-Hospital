@@ -21,4 +21,12 @@ public sealed partial class PeriodTrackerPage : Page
         base.OnNavigatedTo(e);
         await ViewModel.LoadCommand.ExecuteAsync(null);
     }
+
+    private async void AddToBasket_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (sender is Button button && button.DataContext is Hospital.Data.Models.PeriodTrackerShopItemSnapshot item)
+        {
+            await ViewModel.AddToBasketCommand.ExecuteAsync(item);
+        }
+    }
 }
