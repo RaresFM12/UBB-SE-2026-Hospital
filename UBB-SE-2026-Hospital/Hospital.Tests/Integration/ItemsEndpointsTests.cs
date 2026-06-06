@@ -15,7 +15,7 @@ public sealed class ItemsEndpointsTests : IntegrationTestBase
         var items = await client.GetFromJsonAsync<List<Item>>("/api/items", JsonOptions);
 
         Assert.IsNotNull(items);
-        Assert.IsTrue(items!.Any(i => i.Name == "Aspirin"));
+        Assert.IsTrue(items!.Any(item => item.Name == "Aspirin"));
     }
 
     [TestMethod]
@@ -26,7 +26,7 @@ public sealed class ItemsEndpointsTests : IntegrationTestBase
         var items = await client.GetFromJsonAsync<List<Item>>("/api/items?name=Aspirin", JsonOptions);
 
         Assert.IsNotNull(items);
-        Assert.IsTrue(items!.All(i => i.Name.Contains("Aspirin", StringComparison.OrdinalIgnoreCase)));
+        Assert.IsTrue(items!.All(item => item.Name.Contains("Aspirin", StringComparison.OrdinalIgnoreCase)));
     }
 
     [TestMethod]
@@ -113,7 +113,7 @@ public sealed class ItemsEndpointsTests : IntegrationTestBase
 
         Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
         var items = await client.GetFromJsonAsync<List<Item>>("/api/items?name=Paracetamol Forte", JsonOptions);
-        Assert.IsTrue(items!.Any(i => i.Name == "Paracetamol Forte"));
+        Assert.IsTrue(items!.Any(item => item.Name == "Paracetamol Forte"));
     }
 
     [TestMethod]

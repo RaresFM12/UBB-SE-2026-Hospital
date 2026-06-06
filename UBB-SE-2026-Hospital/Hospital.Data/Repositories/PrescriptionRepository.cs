@@ -26,7 +26,7 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
             .Include(patient => patient.MedicationList)
             .Include(patient => patient.MedicalRecord)
                 .ThenInclude(medicalRecord => medicalRecord.MedicalHistory)
-                    .ThenInclude(mh => mh.Patient)
+                    .ThenInclude(medicalHistory => medicalHistory.Patient)
             .Include(patient => patient.MedicalRecord)
                 .ThenInclude(medicalRecord => medicalRecord.StaffMember)
             .AsQueryable();
@@ -52,7 +52,7 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
 
         if (!string.IsNullOrWhiteSpace(filter.MedicationName))
             query = query.Where(patient =>
-                patient.MedicationList.Any(i => i.MedicationName.Contains(filter.MedicationName)));
+                patient.MedicationList.Any(prescriptionItem => prescriptionItem.MedicationName.Contains(filter.MedicationName)));
 
         return await query.ToListAsync();
     }
@@ -70,14 +70,14 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
             .Include(patient => patient.MedicationList)
             .Include(patient => patient.MedicalRecord)
                 .ThenInclude(medicalRecord => medicalRecord.MedicalHistory)
-                    .ThenInclude(mh => mh.Patient)
+                    .ThenInclude(medicalHistory => medicalHistory.Patient)
             .Where(patient => patient.Date >= cutoff)
             .ToListAsync();
 
         return prescriptions
             .GroupBy(patient => patient.MedicalRecord?.RecordId)
-            .Where(g => g.Count() >= 5)
-            .SelectMany(g => g)
+            .Where(group => group.Count() >= 5)
+            .SelectMany(group => group)
             .ToList();
     }
 
@@ -86,7 +86,7 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
             .Include(patient => patient.MedicationList)
             .Include(patient => patient.MedicalRecord)
                 .ThenInclude(medicalRecord => medicalRecord.MedicalHistory)
-                    .ThenInclude(mh => mh.Patient)
+                    .ThenInclude(medicalHistory => medicalHistory.Patient)
             .Include(patient => patient.MedicalRecord)
                 .ThenInclude(medicalRecord => medicalRecord.StaffMember)
             .OrderByDescending(patient => patient.Date)
@@ -96,7 +96,7 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
 
     public async Task<List<PrescriptionItem>> GetItemsAsync(int prescriptionId)
         => await context.PrescriptionItems
-            .Where(i => i.Prescription.PrescriptionId == prescriptionId)
+            .Where(prescriptionItem => prescriptionItem.Prescription.PrescriptionId == prescriptionId)
             .ToListAsync();
 
     public async Task MarkPoliceNotifiedAsync(int patientId)

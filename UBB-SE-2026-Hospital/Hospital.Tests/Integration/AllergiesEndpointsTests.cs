@@ -17,7 +17,7 @@ public sealed class AllergiesEndpointsTests : IntegrationTestBase
         Assert.IsNotNull(allergies);
         // 10 allergies are seeded via HasData.
         Assert.IsTrue(allergies!.Count >= 10);
-        Assert.IsTrue(allergies.Any(a => a.AllergyName == "Penicillin"));
+        Assert.IsTrue(allergies.Any(allergy => allergy.AllergyName == "Penicillin"));
     }
 
     [TestMethod]

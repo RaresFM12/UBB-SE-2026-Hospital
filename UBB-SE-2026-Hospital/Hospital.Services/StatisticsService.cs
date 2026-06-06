@@ -39,7 +39,7 @@ public class StatisticsService(
     {
         var records = await recordRepository.GetAllAsync();
         return records
-            .GroupBy(r => r.SourceType.ToString())
+            .GroupBy(record => record.SourceType.ToString())
             .ToDictionary(grouping => grouping.Key, grouping => grouping.Count());
     }
 
@@ -47,8 +47,8 @@ public class StatisticsService(
     {
         var records = await recordRepository.GetAllAsync();
         return records
-            .Where(r => !string.IsNullOrWhiteSpace(r.Diagnosis))
-            .GroupBy(r => r.Diagnosis!.Trim().ToUpperInvariant())
+            .Where(record => !string.IsNullOrWhiteSpace(record.Diagnosis))
+            .GroupBy(record => record.Diagnosis!.Trim().ToUpperInvariant())
             .ToDictionary(grouping => grouping.Key, grouping => grouping.Count());
     }
 

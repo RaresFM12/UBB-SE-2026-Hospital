@@ -16,12 +16,12 @@ public class TransplantRepository(HospitalDbContext context) : ITransplantReposi
 
     public async Task<List<Transplant>> GetByPatientIdAsync(int patientId)
         => await context.Transplants
-            .Where(t => t.Receiver.PatientId == patientId || t.Donor!.PatientId == patientId)
+            .Where(transplant => transplant.Receiver.PatientId == patientId || transplant.Donor!.PatientId == patientId)
             .ToListAsync();
 
     public async Task<List<TransplantMatch>> GetMatchesForTransplantAsync(int transplantId)
         => await context.TransplantMatches
-            .Where(m => m.Transplant.TransplantId == transplantId)
+            .Where(match => match.Transplant.TransplantId == transplantId)
             .ToListAsync();
 
     public async Task<Transplant> CreateAsync(Transplant transplant)

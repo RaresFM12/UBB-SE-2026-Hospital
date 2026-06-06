@@ -58,7 +58,7 @@ public sealed class StaffEndpointsTests : IntegrationTestBase
 
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         var doctors = await response.Content.ReadFromJsonAsync<List<DoctorSummary>>(JsonOptions);
-        Assert.IsTrue(doctors!.Any(d => d.LastName == "House"));
+        Assert.IsTrue(doctors!.Any(doctor => doctor.LastName == "House"));
     }
 
     [TestMethod]
