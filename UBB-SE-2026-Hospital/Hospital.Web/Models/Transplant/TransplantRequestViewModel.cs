@@ -7,7 +7,7 @@ namespace Hospital.Web.Models.Transplant;
 
 public class TransplantRequestViewModel
 {
-    [Required]
+    [Range(1, int.MaxValue, ErrorMessage = "Enter a valid patient ID.")]
     public int PatientId { get; set; }
 
     public string PatientName { get; set; } = string.Empty;
@@ -15,6 +15,8 @@ public class TransplantRequestViewModel
     public bool IsUrgent { get; set; }
 
     public string? WarningMessage { get; set; }
+
+    public string? StatusMessage { get; set; }
 
     [Required(ErrorMessage = "Please select an organ type.")]
     public string? SelectedOrgan { get; set; }

@@ -1,17 +1,12 @@
-﻿using Hospital.Shared.Proxies;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Hospital.Data.Models;
+using Hospital.Shared.Proxies;
 using Hospital.Web.Models.Transplant;
-using Hospital.Shared.Services;
-using Hospital.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Hospital.Services;
 
 namespace Hospital.Web.Controllers;
 
-[Authorize]
+[Authorize(Roles = "Admin,Doctor,Nurse")]
 public class TransplantController : Controller
 {
     private readonly ITransplantApiClient transplantService;
@@ -26,85 +21,184 @@ public class TransplantController : Controller
     [HttpGet]
     public IActionResult Index()
     {
-        return View();
+        return View(new TransplantLookupViewModel
+        {
+            SuccessMessage = this.TempData["SuccessMessage"]?.ToString(),
+        });
     }
 
     [HttpGet]
-    public async Task<IActionResult> Request(int patientId, CancellationToken cancellationToken)
+    public async Task<IActionResult> Request(string? patientId, CancellationToken cancellationToken)
     {
-        var patient = await patientService.GetByIdAsync(patientId, cancellationToken);
-        if (patient is null)
+        if (!int.TryParse(patientId, out int parsedPatientId) || parsedPatientId <= 0)
         {
-            TempData["ErrorMessage"] = "Patient not found.";
-            return RedirectToAction("Index", "Admin");
+            return this.LookupError(patientId, "Enter a valid positive patient ID.");
         }
 
-        bool isUrgent;
-        string? warning;
-
+        Patient? patient;
         try
         {
-            isUrgent = await transplantService.IsUrgentAsync(patientId);
-            warning = await transplantService.GetChronicWarningAsync(patientId);
+            patient = await this.patientService.GetByIdAsync(parsedPatientId, cancellationToken);
         }
-        catch (InvalidOperationException ex)
+        catch (UnauthorizedAccessException)
         {
-            TempData["ErrorMessage"] = ex.Message;
-            isUrgent = false;
-            warning = null;
+            return this.LookupError(patientId, "You do not have permission to access this patient.");
+        }
+        catch (InvalidOperationException)
+        {
+            return this.LookupError(
+                patientId,
+                "Patient information is temporarily unavailable. Please try again.");
+        }
+
+        if (patient is null)
+        {
+            return this.LookupError(patientId, $"No patient was found with ID {parsedPatientId}.");
         }
 
         var model = new TransplantRequestViewModel
         {
-            PatientId = patientId,
+            PatientId = parsedPatientId,
             PatientName = patient.FullName,
-            IsUrgent = isUrgent,
-            WarningMessage = warning,
         };
 
-        return View(model);
+        await this.PopulatePatientIndicatorsAsync(model, cancellationToken);
+        return this.View(model);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Request(TransplantRequestViewModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> Request(
+        TransplantRequestViewModel model,
+        CancellationToken cancellationToken)
     {
-        async Task<IActionResult> ReturnWithErrors()
+        async Task<IActionResult> ReturnWithErrorsAsync()
         {
-            var patient = await patientService.GetByIdAsync(model.PatientId, cancellationToken);
-            model.PatientName = patient?.FullName ?? string.Empty;
-
+            Patient? patient;
             try
             {
-                model.IsUrgent = await transplantService.IsUrgentAsync(model.PatientId);
-                model.WarningMessage = await transplantService.GetChronicWarningAsync(model.PatientId);
+                patient = await this.patientService.GetByIdAsync(model.PatientId, cancellationToken);
             }
-            catch
+            catch (UnauthorizedAccessException)
             {
+                return this.LookupError(
+                    model.PatientId.ToString(),
+                    "You do not have permission to access this patient.");
+            }
+            catch (InvalidOperationException)
+            {
+                return this.LookupError(
+                    model.PatientId.ToString(),
+                    "Patient information is temporarily unavailable. Please try again.");
             }
 
-            return View(model);
+            if (patient is null)
+            {
+                return this.LookupError(
+                    model.PatientId.ToString(),
+                    $"No patient was found with ID {model.PatientId}.");
+            }
+
+            model.PatientName = patient.FullName;
+            await this.PopulatePatientIndicatorsAsync(model, cancellationToken);
+            return this.View(model);
         }
 
-        if (!ModelState.IsValid)
+        if (!this.ModelState.IsValid)
         {
-            return await ReturnWithErrors();
+            return await ReturnWithErrorsAsync();
+        }
+
+        Patient? patient;
+        try
+        {
+            patient = await this.patientService.GetByIdAsync(model.PatientId, cancellationToken);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return this.LookupError(
+                model.PatientId.ToString(),
+                "You do not have permission to access this patient.");
+        }
+        catch (InvalidOperationException)
+        {
+            return this.LookupError(
+                model.PatientId.ToString(),
+                "Patient information is temporarily unavailable. Please try again.");
+        }
+
+        if (patient is null)
+        {
+            return this.LookupError(
+                model.PatientId.ToString(),
+                $"No patient was found with ID {model.PatientId}.");
         }
 
         try
         {
-            await transplantService.CreateWaitlistRequestAsync(model.PatientId, model.SelectedOrgan!);
+            await this.transplantService.CreateWaitlistRequestAsync(
+                model.PatientId,
+                model.SelectedOrgan!,
+                cancellationToken);
 
-            TempData["SuccessMessage"] =
-                "The patient has been successfully added to the Organ Transplant Waitlist.";
+            this.TempData["SuccessMessage"] =
+                $"{patient.FullName} was added to the organ transplant waitlist.";
 
-            return RedirectToAction("Index", "Admin", new { selectedId = model.PatientId });
+            return this.RedirectToAction(nameof(this.Index));
         }
-        catch (InvalidOperationException ex)
+        catch (ArgumentException exception)
         {
-            ModelState.AddModelError(string.Empty, ex.Message);
-            return await ReturnWithErrors();
+            this.ModelState.AddModelError(string.Empty, exception.Message);
+            return await ReturnWithErrorsAsync();
+        }
+        catch (InvalidOperationException exception)
+        {
+            this.ModelState.AddModelError(string.Empty, exception.Message);
+            return await ReturnWithErrorsAsync();
+        }
+    }
+
+    private ViewResult LookupError(string? patientId, string message)
+    {
+        return this.View("Index", new TransplantLookupViewModel
+        {
+            PatientId = patientId ?? string.Empty,
+            ErrorMessage = message,
+        });
+    }
+
+    private async Task PopulatePatientIndicatorsAsync(
+        TransplantRequestViewModel model,
+        CancellationToken cancellationToken)
+    {
+        List<string> unavailableIndicators = new();
+
+        try
+        {
+            model.IsUrgent = await this.transplantService.IsUrgentAsync(
+                model.PatientId,
+                cancellationToken);
+        }
+        catch (InvalidOperationException)
+        {
+            unavailableIndicators.Add("urgency");
+        }
+
+        try
+        {
+            model.WarningMessage = await this.transplantService.GetChronicWarningAsync(
+                model.PatientId,
+                cancellationToken);
+        }
+        catch (InvalidOperationException)
+        {
+            unavailableIndicators.Add("chronic-condition");
+        }
+
+        if (unavailableIndicators.Count > 0)
+        {
+            model.StatusMessage =
+                $"The patient was loaded, but {string.Join(" and ", unavailableIndicators)} information is temporarily unavailable.";
         }
     }
 }
-
