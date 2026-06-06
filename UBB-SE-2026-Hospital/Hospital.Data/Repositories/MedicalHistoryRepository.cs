@@ -9,17 +9,17 @@ public class MedicalHistoryRepository(HospitalDbContext context) : IMedicalHisto
 {
     public async Task<MedicalHistory?> GetByIdAsync(int medicalHistoryId)
         => await context.MedicalHistories
-            .Include(m => m.PatientAllergies)
-                .ThenInclude(pa => pa.Allergy)
-            .Include(m => m.MedicalRecords)
-            .FirstOrDefaultAsync(m => m.MedicalHistoryId == medicalHistoryId);
+            .Include(medicalHistory => medicalHistory.PatientAllergies)
+                .ThenInclude(patientAllergy => patientAllergy.Allergy)
+            .Include(medicalHistory => medicalHistory.MedicalRecords)
+            .FirstOrDefaultAsync(medicalHistory => medicalHistory.MedicalHistoryId == medicalHistoryId);
 
     public async Task<MedicalHistory?> GetByPatientIdAsync(int patientId)
         => await context.MedicalHistories
-            .Include(m => m.PatientAllergies)
-                .ThenInclude(pa => pa.Allergy)
-            .Include(m => m.MedicalRecords)
-            .FirstOrDefaultAsync(m => m.Patient.PatientId == patientId);
+            .Include(medicalHistory => medicalHistory.PatientAllergies)
+                .ThenInclude(patientAllergy => patientAllergy.Allergy)
+            .Include(medicalHistory => medicalHistory.MedicalRecords)
+            .FirstOrDefaultAsync(medicalHistory => medicalHistory.Patient.PatientId == patientId);
 
     public async Task<List<MedicalHistory>> GetAllAsync()
         => await context.MedicalHistories.ToListAsync();

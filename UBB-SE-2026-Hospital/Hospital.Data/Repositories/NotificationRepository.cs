@@ -10,24 +10,24 @@ public class NotificationRepository(HospitalDbContext context) : INotificationRe
 {
     public async Task<Notification?> GetByIdAsync(int notificationId)
         => await context.Notifications
-            .Include(n => n.Recipient)
-            .FirstOrDefaultAsync(n => n.Id == notificationId);
+            .Include(notification => notification.Recipient)
+            .FirstOrDefaultAsync(notification => notification.Id == notificationId);
 
     public async Task<List<Notification>> GetAllAsync()
         => await context.Notifications
-            .Include(n => n.Recipient)
+            .Include(notification => notification.Recipient)
             .ToListAsync();
 
     public async Task<List<Notification>> GetByStaffIdAsync(int staffId)
         => await context.Notifications
-            .Include(n => n.Recipient)
-            .Where(n => n.Recipient!.StaffId == staffId)
+            .Include(notification => notification.Recipient)
+            .Where(notification => notification.Recipient!.StaffId == staffId)
             .ToListAsync();
 
     public async Task<List<Notification>> GetUnreadByStaffIdAsync(int staffId)
         => await context.Notifications
-            .Include(n => n.Recipient)
-            .Where(n => n.Recipient!.StaffId == staffId && !n.IsRead)
+            .Include(notification => notification.Recipient)
+            .Where(notification => notification.Recipient!.StaffId == staffId && !notification.IsRead)
             .ToListAsync();
 
     public async Task<Notification> CreateAsync(Notification notification)

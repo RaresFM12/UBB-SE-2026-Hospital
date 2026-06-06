@@ -13,7 +13,7 @@ public class MedicalRecordRepository(HospitalDbContext context) : IMedicalRecord
 
     public async Task<List<MedicalRecord>> GetByMedicalHistoryIdAsync(int medicalHistoryId)
         => await context.MedicalRecords
-            .Where(r => r.MedicalHistory.MedicalHistoryId == medicalHistoryId)
+            .Where(medicalRecord => medicalRecord.MedicalHistory.MedicalHistoryId == medicalHistoryId)
             .ToListAsync();
 
     public async Task<List<MedicalRecord>> GetAllAsync()
