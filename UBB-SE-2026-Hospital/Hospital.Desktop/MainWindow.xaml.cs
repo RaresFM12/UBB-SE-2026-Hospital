@@ -435,21 +435,16 @@ public partial class MainWindow : Window
     {
         // Features the web navbar (_Layout.cshtml) exposes to every authenticated
         // user: the Patient Care, Facilities & Departments, and Pharmacy groups.
+        // NOTE: ER flow items and Queue are intentionally excluded from shared
+        // features because they must not appear in the Client or Pharmacist desktop UI.
         bool isSharedFeature = navigationTag
             is "Dashboard"
             or "ProfileManagement"
             // Patient Care
             or "Patients"
-            or "PatientRegistration"
             or "Consultations"
             or "MedicalEvaluations"
-            or "Queue"
-            or "Triage"
-            or "Examination"
             // Facilities & Departments
-            or "RoomManagement"
-            or "RoomAssignment"
-            or "TransferLog"
             or "BloodDonors"
             or "OrganDonor"
             or "Transplants"
@@ -460,12 +455,22 @@ public partial class MainWindow : Window
             or "Orders"
             or "AddictDetection";
 
+        // ER flow + Queue: visible to Admin and Doctor only.
+        bool isErFlowFeature = navigationTag
+            is "PatientRegistration"
+            or "Triage"
+            or "RoomManagement"
+            or "RoomAssignment"
+            or "Examination"
+            or "TransferLog"
+            or "Queue";
+
         return userRole switch
         {
             // Admin reaches every desktop page, mirroring the web Admin menu.
             UserRole.Admin => true,
-            // Doctor: shared features + the web Staff Portal "Doctor Actions".
-            UserRole.Doctor => isSharedFeature
+            // Doctor: shared features + ER flow + the web Staff Portal "Doctor Actions".
+            UserRole.Doctor => isSharedFeature || isErFlowFeature
                 || navigationTag is "Appointments" or "DoctorSchedule"
                 or "Hangouts" or "ShiftSwapRequests" or "IncomingSwaps",
             // Pharmacist: shared features + the web Staff Portal "Pharmacy Actions".
