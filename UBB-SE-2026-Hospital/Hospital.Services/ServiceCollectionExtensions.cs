@@ -19,7 +19,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Hospital.Shared.Services.IBillingService, BillingService>();
         services.AddScoped<Hospital.Services.IBloodCompatibilityService, BloodCompatibilityService>();
         services.AddScoped<Hospital.Services.IPrescriptionService, PrescriptionService>();
-        services.AddScoped<Hospital.Services.ITransferLogService, TransferLogService>();
+        services.AddScoped<Hospital.Shared.Services.ITransferLogService, TransferLogService>();
         services.AddScoped<ITransplantService, TransplantService>();
         services.AddScoped<Hospital.Services.IAddictDetectionService, AddictDetectionService>();
         services.AddScoped<IPatientService, PatientService>();

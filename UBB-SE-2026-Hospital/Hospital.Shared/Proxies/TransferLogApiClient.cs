@@ -1,5 +1,4 @@
 using Hospital.Data.Models;
-using Hospital.Data.Models;
 using Hospital.Shared.Services;
 
 namespace Hospital.Shared.Proxies;
