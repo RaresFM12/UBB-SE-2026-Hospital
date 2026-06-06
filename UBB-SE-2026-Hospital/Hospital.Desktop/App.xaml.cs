@@ -77,6 +77,7 @@ public partial class App : Application
         services.AddSingleton<IBloodCompatibilityService, BloodCompatibilityApiClient>();
         services.AddSingleton<IBillingService, BillingApiClient>();
         services.AddSingleton<IAddictDetectionService, AddictDetectionApiClient>();
+        services.AddSingleton<IPeriodTrackerService, PeriodTrackerApiClient>();
         services.AddSingleton<PrescriptionApiClient>();
         services.AddSingleton<IPrescriptionService>(sp => sp.GetRequiredService<PrescriptionApiClient>());
         services.AddSingleton<IPharmacyVacationService, PharmacyVacationApiClient>();

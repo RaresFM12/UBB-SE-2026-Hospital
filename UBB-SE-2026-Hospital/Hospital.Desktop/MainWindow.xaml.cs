@@ -98,6 +98,7 @@ public partial class MainWindow : Window
                 ("Queue", "Queue"),
                 ("Triage", "Triage"),
                 ("Examination", "Examination"),
+                ("Period Tracker", "PeriodTracker"),
             }));
 
         AddCategory(panel, "Facilities & Depts",
@@ -323,6 +324,7 @@ public partial class MainWindow : Window
             "Notifications" => typeof(Views.Admin.NotificationsPage),
             "Substances" => typeof(Views.Admin.SubstancesPage),
             "InventoryItems" => typeof(Views.Admin.InventoryItemsPage),
+            "PeriodTracker" => typeof(Views.Patient.PeriodTrackerPage),
             _ => null,
         };
 
@@ -445,6 +447,7 @@ public partial class MainWindow : Window
             or "Queue"
             or "Triage"
             or "Examination"
+            or "PeriodTracker"
             // Facilities & Departments
             or "RoomManagement"
             or "RoomAssignment"
