@@ -109,6 +109,7 @@ namespace Hospital.Desktop.ViewModels.Pharmacy
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Dashboard Load Error: {ex.Message}");
+                await _dialogPresenter.ShowMessageAsync("Load Error", ex.Message);
             }
         }
 
@@ -117,13 +118,20 @@ namespace Hospital.Desktop.ViewModels.Pharmacy
             var userId = _userService.UserId;
             if (userId == 0) return;
 
-            var rawNotes = await _trackerService.GetNotesAsync(userId);
-            Notes.Clear();
-            foreach (var kvp in rawNotes)
+            try
             {
-                Notes.Add(new PeriodTrackerNoteItemViewModel { NoteId = kvp.Key, Body = kvp.Value.Body, IsDone = kvp.Value.IsDone });
+                var rawNotes = await _trackerService.GetNotesAsync(userId);
+                Notes.Clear();
+                foreach (var kvp in rawNotes)
+                {
+                    Notes.Add(new PeriodTrackerNoteItemViewModel { NoteId = kvp.Key, Body = kvp.Value.Body, IsDone = kvp.Value.IsDone });
+                }
+                CanAddNote = Notes.Count < 4;
             }
-            CanAddNote = Notes.Count < 4;
+            catch (Exception ex)
+            {
+                await _dialogPresenter.ShowMessageAsync("Notes Error", ex.Message);
+            }
         }
 
         [RelayCommand]
