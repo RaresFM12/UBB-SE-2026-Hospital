@@ -68,7 +68,7 @@ public sealed class StaffEndpointsTests : IntegrationTestBase
 
         var pharmacists = await client.GetFromJsonAsync<List<Pharmacyst>>("/api/staff/pharmacists", JsonOptions);
 
-        Assert.IsTrue(pharmacists!.Any(p => p.LastName == "Mortar"));
+        Assert.IsTrue(pharmacists!.Any(pharmacist => pharmacist.LastName == "Mortar"));
     }
 
     [TestMethod]

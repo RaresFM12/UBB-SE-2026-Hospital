@@ -8,7 +8,7 @@ public class MedicalStaffDashboardViewModel
     public bool HasSearched { get; set; }
     public int? SelectedPatientId { get; set; }
     public PatientSearchResultViewModel? SelectedPatient =>
-        SearchResults.FirstOrDefault(p => p.Id == SelectedPatientId);
+        SearchResults.FirstOrDefault(patient => patient.Id == SelectedPatientId);
 }
 
 public class PatientSearchResultViewModel

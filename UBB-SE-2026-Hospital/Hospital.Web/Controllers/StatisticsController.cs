@@ -49,7 +49,7 @@ public class StatisticsController : Controller
                     break;
                 case StatisticsType.TopItems:
                     model.PrimaryData = adminService.GetTop30Items()
-                        .ToDictionary(t => t.Item2, t => t.Item3);
+                        .ToDictionary(tuplu => tuplu.Item2, tuplu => tuplu.Item3);
                     break;
                 case StatisticsType.TopSubstances:
                     model.PrimaryData = adminService.GetTop30Substances();
