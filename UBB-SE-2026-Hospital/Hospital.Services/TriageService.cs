@@ -119,10 +119,15 @@ public class TriageService(
 
     public async Task<List<ERVisit>> GetVisitsForTriageAsync()
         => (await erVisitRepository.GetAllAsync())
-            .Where(visit => string.Equals(
-                visit.Status,
-                ERVisit.VisitStatus.REGISTERED,
-                StringComparison.OrdinalIgnoreCase))
+            .Where(visit =>
+                string.Equals(
+                    visit.Status,
+                    ERVisit.VisitStatus.REGISTERED,
+                    StringComparison.OrdinalIgnoreCase)
+                || string.Equals(
+                    visit.Status,
+                    ERVisit.VisitStatus.TRIAGED,
+                    StringComparison.OrdinalIgnoreCase))
             .OrderBy(visit => visit.ArrivalDateTime)
             .ToList();
 }

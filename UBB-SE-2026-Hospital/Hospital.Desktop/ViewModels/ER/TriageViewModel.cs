@@ -135,6 +135,8 @@ public partial class TriageViewModel : ObservableObject
             var parameters = new PerformTriageRequest
             {
                 VisitId = SelectedVisit.VisitId,
+                NurseId = 2,
+                TriageTime = DateTime.Now,
                 Consciousness = Consciousness,
                 Breathing = Breathing,
                 Bleeding = Bleeding,

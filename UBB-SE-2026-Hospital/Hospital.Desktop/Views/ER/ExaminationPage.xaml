@@ -15,6 +15,7 @@
             <Button Content="Refresh" Command="{Binding LoadDataCommand}"/>
             <Button Content="Request Doctor" Command="{Binding RequestDoctorCommand}"/>
             <Button Content="Save Examination" Command="{Binding SaveExaminationCommand}"/>
+            <Button Content="View Summary" Command="{Binding ViewSummaryCommand}"/>
         </StackPanel>
 
         <Grid Grid.Row="1" ColumnSpacing="16">
@@ -57,34 +58,47 @@
                 </Grid>
             </Border>
             <Border Grid.Column="1" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
-                <StackPanel Spacing="10">
+                <Grid RowSpacing="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
                     <TextBlock Text="Examination Details" FontWeight="SemiBold"/>
-                    <Border Background="{StaticResource AppBackgroundBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="{Binding TriageLevelDisplay}" Foreground="{StaticResource AppAccentBrush}" FontWeight="SemiBold"/>
-                            <TextBlock Text="{Binding TriageSpecialization}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
-                            <TextBlock Text="{Binding TriageNurseId}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                    <ScrollViewer Grid.Row="1"
+                                  VerticalScrollBarVisibility="Auto"
+                                  VerticalScrollMode="Enabled"
+                                  HorizontalScrollMode="Disabled">
+                        <StackPanel Spacing="10" Padding="0,0,8,0">
+                            <Border Background="{StaticResource AppBackgroundBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="{Binding TriageLevelDisplay}" Foreground="{StaticResource AppAccentBrush}" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding TriageSpecialization}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding TriageNurseId}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                                </StackPanel>
+                            </Border>
+                            <TextBox Header="Doctor ID" Text="{Binding DoctorId}" IsReadOnly="True"/>
+                            <TextBox Header="Assigned Doctor" Text="{Binding DoctorName}" IsReadOnly="True"/>
+                            <TextBox Header="Specialty" Text="{Binding DoctorSpecialty}" IsReadOnly="True"/>
+                            <TextBox Header="Notes" Text="{Binding Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" MinHeight="140"/>
+                            <TextBlock Text="Previous Examination Notes" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                            <ListView ItemsSource="{Binding ExaminationHistory}" MaxHeight="220">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{StaticResource AppBackgroundBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,0,0,8">
+                                            <StackPanel Spacing="4">
+                                                <TextBlock Foreground="{StaticResource AppTextSecondaryBrush}">
+                                                    <Run Text="Exam on "/>
+                                                    <Run Text="{Binding ExaminationDate}"/>
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding Findings}" TextWrapping="Wrap" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
                         </StackPanel>
-                    </Border>
-                    <NumberBox Header="Doctor ID" Value="{Binding DoctorId, Mode=TwoWay}"/>
-                    <TextBox Header="Notes" Text="{Binding Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" MinHeight="140"/>
-                    <TextBlock Text="Previous Examination Notes" FontWeight="SemiBold" Foreground="{StaticResource AppTextPrimaryBrush}"/>
-                    <ListView ItemsSource="{Binding ExaminationHistory}" MaxHeight="220">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Border Background="{StaticResource AppBackgroundBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,0,0,8">
-                                    <StackPanel Spacing="4">
-                                        <TextBlock Foreground="{StaticResource AppTextSecondaryBrush}">
-                                            <Run Text="Exam on "/>
-                                            <Run Text="{Binding ExaminationDate}"/>
-                                        </TextBlock>
-                                        <TextBlock Text="{Binding Findings}" TextWrapping="Wrap" Foreground="{StaticResource AppTextPrimaryBrush}"/>
-                                    </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </StackPanel>
+                    </ScrollViewer>
+                </Grid>
             </Border>
         </Grid>
 

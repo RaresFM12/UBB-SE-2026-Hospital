@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Hospital.Data.Models;
-using Hospital.Data.Models;
 using Hospital.Shared.Services;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
 namespace Hospital.Desktop.ViewModels.ER;
@@ -15,100 +15,85 @@ public partial class TransferLogViewModel : ObservableObject
 {
     private readonly ITransferLogService transferLogService;
     private readonly IERVisitService erVisitService;
+    private readonly IExaminationService examinationService;
 
-    public Action? ClearGridSelection { get; set; }
-    public Action? RefreshGrid { get; set; }
-    public Microsoft.UI.Xaml.XamlRoot? XamlRoot { get; set; }
+    public XamlRoot? XamlRoot { get; set; }
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasSelectedVisit))]
-    private VisitSummary? selectedVisit;
-
-    [ObservableProperty] private ObservableCollection<VisitSummary> eligibleVisits = new ObservableCollection<VisitSummary>();
-    [ObservableProperty] private ObservableCollection<TransferLog> transferLogs = new ObservableCollection<TransferLog>();
+    [ObservableProperty] private VisitSummary? selectedVisit;
+    [ObservableProperty] private ObservableCollection<VisitSummary> eligibleVisits = [];
+    [ObservableProperty] private ObservableCollection<TransferLog> transferLogs = [];
     [ObservableProperty] private string statusMessage = string.Empty;
-    [ObservableProperty] private bool canRetry = false;
-
-    public bool HasSelectedVisit => selectedVisit != null;
+    [ObservableProperty] private ERExaminationSummary? examinationSummary;
+    [ObservableProperty] private Visibility examinationSummaryVisibility = Visibility.Collapsed;
 
     public TransferLogViewModel(
         ITransferLogService transferLogService,
-        IERVisitService erVisitService)
+        IERVisitService erVisitService,
+        IExaminationService examinationService)
     {
         this.transferLogService = transferLogService;
         this.erVisitService = erVisitService;
+        this.examinationService = examinationService;
     }
+
+    partial void OnSelectedVisitChanged(VisitSummary? value)
+        => _ = LoadLogs();
 
     [RelayCommand]
     public async Task LoadLogs()
     {
         TransferLogs.Clear();
-        CanRetry = false;
-        if (SelectedVisit == null) return;
+        ExaminationSummary = null;
+        ExaminationSummaryVisibility = Visibility.Collapsed;
+        if (SelectedVisit is null)
+        {
+            return;
+        }
 
-        var logs = await transferLogService.GetByVisitIdAsync(SelectedVisit.VisitId);
-        foreach (var log in logs)
+        foreach (TransferLog log in await transferLogService.GetByVisitIdAsync(SelectedVisit.VisitId))
         {
             TransferLogs.Add(log);
         }
 
-        var latest = TransferLogs.FirstOrDefault();
-        if (latest != null && latest.Status == "FAILED")
+        if (TransferLogs.Any(log =>
+                string.Equals(log.Status, "SUCCESS", StringComparison.OrdinalIgnoreCase)))
         {
-            CanRetry = true;
+            ExaminationSummary =
+                await examinationService.GetSummaryByVisitIdAsync(SelectedVisit.VisitId);
+            ExaminationSummaryVisibility = ExaminationSummary is null
+                ? Visibility.Collapsed
+                : Visibility.Visible;
         }
-    }
-
-    partial void OnSelectedVisitChanged(VisitSummary? value)
-    {
-        _ = LoadLogs();
     }
 
     [RelayCommand]
     public async Task LoadData()
     {
-        SelectedVisit = null;
-        TransferLogs.Clear();
-        StatusMessage = string.Empty;
-        CanRetry = false;
-
-        var freshList = new ObservableCollection<VisitSummary>();
-        var eligible = await transferLogService.GetEligibleVisitsAsync();
-
-        foreach (var ev in eligible)
+        int? selectedVisitId = SelectedVisit?.VisitId;
+        var visits = await transferLogService.GetEligibleVisitsAsync();
+        EligibleVisits = new ObservableCollection<VisitSummary>(visits.Select(visit => new VisitSummary
         {
-            freshList.Add(new VisitSummary
-            {
-                VisitId = ev.VisitId,
-                ChiefComplaint = ev.ChiefComplaint,
-                Status = ev.Status,
-                PatientName = ev.PatientName,
-                Transferred = ev.Transferred,
-            });
-        }
+            VisitId = visit.VisitId,
+            ChiefComplaint = visit.ChiefComplaint,
+            Status = visit.Status,
+            PatientName = visit.PatientName,
+            Transferred = visit.Transferred,
+        }));
+        SelectedVisit = selectedVisitId is null
+            ? null
+            : EligibleVisits.FirstOrDefault(visit => visit.VisitId == selectedVisitId);
 
-        EligibleVisits = freshList;
         StatusMessage = EligibleVisits.Count == 0
-            ? "No visits are ready for transfer yet. A visit must reach IN_EXAMINATION first."
-            : $"{EligibleVisits.Count} visit(s) are ready for transfer or closure.";
+            ? "No visits are eligible for transfer."
+            : $"{EligibleVisits.Count} visit(s) are eligible for transfer or closure.";
     }
 
     [RelayCommand]
     public async Task SendPatientData()
     {
-        if (SelectedVisit == null)
+        if (SelectedVisit is null)
         {
             await ShowDialog("Validation Error", "Please select a visit before sending.");
-            return;
-        }
-        if (SelectedVisit.Status != ERVisit.VisitStatus.IN_EXAMINATION)
-        {
-            await ShowDialog("Validation Error", "Transfer is only allowed for visits with status IN_EXAMINATION.");
-            return;
-        }
-        if (SelectedVisit.Transferred)
-        {
-            await ShowDialog("Validation Error", "This patient already has a successful transfer.");
             return;
         }
 
@@ -117,76 +102,53 @@ public partial class TransferLogViewModel : ObservableObject
             await erVisitService.TransferVisitAsync(SelectedVisit.VisitId);
             SelectedVisit.Status = ERVisit.VisitStatus.TRANSFERRED;
             SelectedVisit.Transferred = true;
-            StatusMessage = "SUCCESS";
-            CanRetry = false;
-            await ShowDialog("Transfer Successful", $"Patient data for Visit {SelectedVisit.VisitId} has been successfully sent.");
+            StatusMessage = "The patient was transferred.";
+            await LoadLogs();
+            await ShowDialog("Transfer Successful", "The patient was transferred.");
         }
         catch (Exception ex)
         {
-            StatusMessage = $"FAILED - {ex.Message}";
-            CanRetry = true;
-            await ShowDialog("Transfer Failed", $"Transfer failed: {ex.Message}");
-        }
-        finally
-        {
-            await LoadLogs();
-        }
-    }
-
-    [RelayCommand]
-    public async Task RetryTransfer()
-    {
-        if (SelectedVisit == null) return;
-        try
-        {
-            await erVisitService.RetryTransferAsync(SelectedVisit.VisitId);
-            SelectedVisit.Status = ERVisit.VisitStatus.TRANSFERRED;
-            SelectedVisit.Transferred = true;
-            StatusMessage = "Retry SUCCESS";
-            CanRetry = false;
-            await ShowDialog("Retry Successful", $"Patient data for Visit {SelectedVisit.VisitId} was successfully sent on retry.");
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = $"Retry FAILED - {ex.Message}";
-            await ShowDialog("Retry Failed", $"Retry failed: {ex.Message}");
-        }
-        finally
-        {
-            await LoadLogs();
+            StatusMessage = $"Transfer failed: {ex.Message}";
+            await ShowDialog("Transfer Failed", ex.Message);
         }
     }
 
     [RelayCommand]
     public async Task CloseVisit()
     {
-        if (SelectedVisit == null)
+        if (SelectedVisit is null)
         {
             await ShowDialog("Validation Error", "Please select a visit before closing.");
-            return;
-        }
-        if (SelectedVisit.Status != ERVisit.VisitStatus.IN_EXAMINATION)
-        {
-            await ShowDialog("Validation Error", "Closing is only allowed for visits with status IN_EXAMINATION.");
             return;
         }
 
         try
         {
             await erVisitService.CloseVisitAsync(SelectedVisit.VisitId);
-            SelectedVisit.Status = ERVisit.VisitStatus.CLOSED;
-            await ShowDialog("Visit Closed", $"Visit {SelectedVisit.VisitId} for {SelectedVisit.PatientName} has been closed successfully.");
+            await ShowDialog("Visit Closed", $"Visit {SelectedVisit.VisitId} was closed.");
+            SelectedVisit = null;
+            await LoadData();
         }
         catch (Exception ex)
         {
-            await ShowDialog("Close Failed", $"Could not close visit: {ex.Message}");
+            await ShowDialog("Close Failed", ex.Message);
         }
     }
 
     private async Task ShowDialog(string title, string message)
     {
-        if (XamlRoot == null) return;
-        var dialog = new ContentDialog { Title = title, Content = message, CloseButtonText = "OK", XamlRoot = XamlRoot };
+        if (XamlRoot is null)
+        {
+            return;
+        }
+
+        var dialog = new ContentDialog
+        {
+            Title = title,
+            Content = message,
+            CloseButtonText = "OK",
+            XamlRoot = XamlRoot,
+        };
         await dialog.ShowAsync();
     }
 }
