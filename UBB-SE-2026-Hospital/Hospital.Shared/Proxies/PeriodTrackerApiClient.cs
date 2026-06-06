@@ -26,8 +26,17 @@ public class PeriodTrackerApiClient(HttpClient httpClient) : ApiClientBase(httpC
     }
 
     public async Task UpdatePeriodTrackerAsync(int userId, DateTimeOffset startPeriodDate, double cycleDays, double periodLasts, int premenstrualSyndromeOption, CancellationToken cancellationToken = default)
-        => await PutAsync($"{BaseUri}/{userId}", new { startPeriodDate, cycleDays, periodLasts, premenstrualSyndromeOption }, cancellationToken);
+    {
+        var request = new UpdatePeriodTrackerRequest
+        {
+            StartPeriodDate = startPeriodDate,
+            CycleDays = cycleDays,
+            PeriodLasts = periodLasts,
+            PremenstrualSyndromeOption = premenstrualSyndromeOption
+        };
 
+        await PutAsync($"{BaseUri}/{userId}", request, cancellationToken);
+    }
     public async Task AddNoteAsync(int userId, string noteBody, CancellationToken cancellationToken = default)
         => await PostAsync($"{BaseUri}/{userId}/notes", new { noteBody }, cancellationToken);
 

@@ -37,10 +37,9 @@ namespace Hospital.Services
         public Hospital.Data.Models.PeriodTrackerState GetTrackerState(int userId)
         {
             var user = this.usersRepository.GetUserByIdAsync(userId).GetAwaiter().GetResult();
-            bool hasTracker = user != null && user.CycleDays > 0;
 
             return new Hospital.Data.Models.PeriodTrackerState
-            { 
+            {
                 StartPeriodDate = user != null && user.StartPeriodDate.Year > 2000
                     ? new DateTimeOffset(user.StartPeriodDate.ToDateTime(new TimeOnly(0, 0)))
                     : new DateTimeOffset(DateTime.Today),
@@ -54,9 +53,11 @@ namespace Hospital.Services
         {
             var state = GetTrackerState(userId);
 
+            bool isConfigured = state.StartPeriodDate.Year > 2000 && state.CycleDays > 0;
+
             var snapshot = new PeriodTrackerDashboardSnapshot
             {
-                HasPeriodTracker = state.HasPeriodTracker,
+                HasPeriodTracker = isConfigured, 
                 StartPeriodDate = state.StartPeriodDate.DateTime,
                 CycleDays = (int)state.CycleDays,
                 PeriodLasts = (int)state.PeriodLasts,
@@ -70,10 +71,11 @@ namespace Hospital.Services
                 }).ToList()
             };
 
+            PopulateRecommendedProducts(snapshot);
+
             if (snapshot.HasPeriodTracker && snapshot.CycleDays > 0)
             {
                 RunCalendarCalculations(snapshot);
-                PopulateRecommendedProducts(snapshot);
             }
 
             return snapshot;
@@ -104,7 +106,7 @@ namespace Hospital.Services
             var user = await GetUserAsync(userId, cancellationToken);
             if (user == null) return;
 
-            user.StartPeriodDate = DateOnly.FromDateTime(startPeriodDate.DateTime);
+            user.StartPeriodDate = DateOnly.FromDateTime(startPeriodDate.ToLocalTime().DateTime);
             user.CycleDays = (int)cycleDays;
             user.PeriodLasts = (int)periodLasts;
             user.PremenstrualSyndromeOption = premenstrualSyndromeOption;

@@ -80,6 +80,10 @@ public partial class App : Application
         services.AddSingleton<PrescriptionApiClient>();
         services.AddSingleton<IPrescriptionService>(sp => sp.GetRequiredService<PrescriptionApiClient>());
         services.AddSingleton<IPharmacyVacationService, PharmacyVacationApiClient>();
+        services.AddHttpClient<IPeriodTrackerApiClient, PeriodTrackerApiClient>("api")
+                .AddHttpMessageHandler<JwtAuthHandler>();
+        services.AddTransient<Hospital.Desktop.ViewModels.Pharmacy.PeriodTrackerViewModel>();
+        services.AddTransient<Hospital.Desktop.Views.Pharmacy.PeriodTrackerPage>();
 
         // Sync-blocking proxies (923-2 admin/client)
         services.AddSingleton<IAdminService, AdminApiClient>();
