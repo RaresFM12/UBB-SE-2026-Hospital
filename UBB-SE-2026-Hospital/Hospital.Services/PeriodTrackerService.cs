@@ -87,7 +87,7 @@ namespace Hospital.Services
             if (user == null || user.PeriodNoteEntries == null)
                 return new Dictionary<int, (string, bool)>();
 
-            return user.PeriodNoteEntries.ToDictionary(n => n.NoteId, n => (n.NoteBody, n.IsDone));
+            return user.PeriodNoteEntries.ToDictionary(periodNote => periodNote.NoteId, periodNote => (periodNote.NoteBody, periodNote.IsDone));
         }
 
         public async Task<Dictionary<int, (string Body, bool IsDone)>> GetNotesAsync(int userId, CancellationToken cancellationToken = default)
@@ -96,7 +96,7 @@ namespace Hospital.Services
             if (user == null || user.PeriodNoteEntries == null)
                 return new Dictionary<int, (string, bool)>();
 
-            return user.PeriodNoteEntries.ToDictionary(n => n.NoteId, n => (n.NoteBody, n.IsDone));
+            return user.PeriodNoteEntries.ToDictionary(periodNote => periodNote.NoteId, periodNote => (periodNote.NoteBody, periodNote.IsDone));
         }
 
         public async Task UpdatePeriodTrackerAsync(int userId, DateTimeOffset startPeriodDate, double cycleDays, double periodLasts, int premenstrualSyndromeOption, CancellationToken cancellationToken = default)
@@ -117,7 +117,7 @@ namespace Hospital.Services
             var user = await GetUserAsync(userId, cancellationToken);
             if (user == null) return;
 
-            int nextId = (user.PeriodNoteEntries?.Any() == true) ? user.PeriodNoteEntries.Max(n => n.NoteId) + 1 : 1;
+            int nextId = (user.PeriodNoteEntries?.Any() == true) ? user.PeriodNoteEntries.Max(periodNote => periodNote.NoteId) + 1 : 1;
 
             user.PeriodNoteEntries ??= new List<PeriodNote>();
             user.PeriodNoteEntries.Add(new PeriodNote
@@ -134,7 +134,7 @@ namespace Hospital.Services
         public async Task UpdateNoteAsync(int userId, int noteId, string noteBody, bool isDone, CancellationToken cancellationToken = default)
         {
             var user = await GetUserAsync(userId, cancellationToken);
-            var note = user?.PeriodNoteEntries?.FirstOrDefault(n => n.NoteId == noteId);
+            var note = user?.PeriodNoteEntries?.FirstOrDefault(periodNote => periodNote.NoteId == noteId);
             if (note != null)
             {
                 note.NoteBody = noteBody ?? string.Empty;
@@ -146,7 +146,7 @@ namespace Hospital.Services
         public async Task DeleteNoteAsync(int userId, int noteId, CancellationToken cancellationToken = default)
         {
             var user = await GetUserAsync(userId, cancellationToken);
-            var note = user?.PeriodNoteEntries?.FirstOrDefault(n => n.NoteId == noteId);
+            var note = user?.PeriodNoteEntries?.FirstOrDefault(periodNote => periodNote.NoteId == noteId);
             if (note != null)
             {
                 user.PeriodNoteEntries!.Remove(note);

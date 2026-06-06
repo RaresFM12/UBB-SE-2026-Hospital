@@ -11,10 +11,10 @@ public class TriageParametersRepository(HospitalDbContext context) : ITriagePara
         => await context.TriageParameters.FindAsync(triageParametersId);
 
     public async Task<TriageParameters?> GetByTriageIdAsync(int triageId)
-        => await context.TriageParameters.FirstOrDefaultAsync(tp => tp.Triage.TriageId == triageId);
+        => await context.TriageParameters.FirstOrDefaultAsync(triageParameters => triageParameters.Triage.TriageId == triageId);
 
     public async Task<List<TriageParameters>> GetAllAsync()
-        => await context.TriageParameters.Include(tp => tp.Triage).ToListAsync();
+        => await context.TriageParameters.Include(triageParameters => triageParameters.Triage).ToListAsync();
 
     public async Task<TriageParameters> CreateAsync(TriageParameters triageParameters)
     {
@@ -32,10 +32,10 @@ public class TriageParametersRepository(HospitalDbContext context) : ITriagePara
 
     public async Task DeleteAsync(int triageParametersId)
     {
-        var tp = await context.TriageParameters.FindAsync(triageParametersId);
-        if (tp is not null)
+        var triageParameters = await context.TriageParameters.FindAsync(triageParametersId);
+        if (triageParameters is not null)
         {
-            context.TriageParameters.Remove(tp);
+            context.TriageParameters.Remove(triageParameters);
             await context.SaveChangesAsync();
         }
     }

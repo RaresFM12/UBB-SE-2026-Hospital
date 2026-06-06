@@ -13,26 +13,26 @@ public class StatisticsService(
     {
         var patients = await patientRepository.GetAllAsync();
         return patients
-            .Where(p => p.MedicalHistory?.BloodType.HasValue == true)
-            .GroupBy(p => p.MedicalHistory!.BloodType!.Value.ToString())
-            .ToDictionary(g => g.Key, g => g.Count());
+            .Where(patient => patient.MedicalHistory?.BloodType.HasValue == true)
+            .GroupBy(patient => patient.MedicalHistory!.BloodType!.Value.ToString())
+            .ToDictionary(grouping => grouping.Key, grouping => grouping.Count());
     }
 
     public async Task<Dictionary<string, int>> GetPatientsByRhAsync()
     {
         var patients = await patientRepository.GetAllAsync();
         return patients
-            .Where(p => p.MedicalHistory?.Rh.HasValue == true)
-            .GroupBy(p => p.MedicalHistory!.Rh!.Value.ToString())
-            .ToDictionary(g => g.Key, g => g.Count());
+            .Where(patient => patient.MedicalHistory?.Rh.HasValue == true)
+            .GroupBy(patient => patient.MedicalHistory!.Rh!.Value.ToString())
+            .ToDictionary(grouping => grouping.Key, grouping => grouping.Count());
     }
 
     public async Task<Dictionary<string, int>> GetPatientGenderDistributionAsync()
     {
         var patients = await patientRepository.GetAllAsync();
         return patients
-            .GroupBy(p => p.Sex.ToString())
-            .ToDictionary(g => g.Key, g => g.Count());
+            .GroupBy(patient => patient.Sex.ToString())
+            .ToDictionary(grouping => grouping.Key, grouping => grouping.Count());
     }
 
     public async Task<Dictionary<string, int>> GetConsultationDistributionAsync()
@@ -40,7 +40,7 @@ public class StatisticsService(
         var records = await recordRepository.GetAllAsync();
         return records
             .GroupBy(r => r.SourceType.ToString())
-            .ToDictionary(g => g.Key, g => g.Count());
+            .ToDictionary(grouping => grouping.Key, grouping => grouping.Count());
     }
 
     public async Task<Dictionary<string, int>> GetTopDiagnosesAsync()
@@ -49,7 +49,7 @@ public class StatisticsService(
         return records
             .Where(r => !string.IsNullOrWhiteSpace(r.Diagnosis))
             .GroupBy(r => r.Diagnosis!.Trim().ToUpperInvariant())
-            .ToDictionary(g => g.Key, g => g.Count());
+            .ToDictionary(grouping => grouping.Key, grouping => grouping.Count());
     }
 
     public async Task<Dictionary<string, int>> GetAgeDistributionAsync()
@@ -77,13 +77,13 @@ public class StatisticsService(
     {
         var prescriptions = await prescriptionRepository.GetAllAsync();
         return prescriptions
-            .Where(p => p.MedicationList is not null)
-            .SelectMany(p => p.MedicationList)
+            .Where(patient => patient.MedicationList is not null)
+            .SelectMany(patient => patient.MedicationList)
             .Where(item => !string.IsNullOrWhiteSpace(item.MedicationName))
             .GroupBy(item => item.MedicationName.Trim().ToUpperInvariant())
-            .OrderByDescending(g => g.Count())
+            .OrderByDescending(grouping => grouping.Count())
             .Take(20)
-            .ToDictionary(g => g.Key, g => g.Count());
+            .ToDictionary(grouping => grouping.Key, grouping => grouping.Count());
     }
 
     public async Task<Dictionary<string, int>> GetActiveVsArchivedRatioAsync()
@@ -91,8 +91,8 @@ public class StatisticsService(
         var patients = await patientRepository.GetAllAsync();
         return new Dictionary<string, int>
         {
-            { "Active", patients.Count(p => !p.IsArchived) },
-            { "Archived", patients.Count(p => p.IsArchived) },
+            { "Active", patients.Count(patient => !patient.IsArchived) },
+            { "Archived", patients.Count(patient => patient.IsArchived) },
         };
     }
 }

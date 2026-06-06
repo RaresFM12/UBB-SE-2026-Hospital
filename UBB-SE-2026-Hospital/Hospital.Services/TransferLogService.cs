@@ -37,7 +37,7 @@ public class TransferLogService(
                 v.Status,
                 ERVisit.VisitStatus.TRANSFERRED,
                 StringComparison.OrdinalIgnoreCase))
-            .ThenBy(v => v.ArrivalDateTime)
+            .ThenBy(visit => visit.ArrivalDateTime)
             .ToList();
 
         return visits.Select(v => new ERTransferEligibleVisit

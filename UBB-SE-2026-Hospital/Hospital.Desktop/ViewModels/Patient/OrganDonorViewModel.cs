@@ -156,9 +156,9 @@ public partial class OrganDonorViewModel : ObservableObject
     {
         var existing = await transplantService.GetByReceiverIdAsync(RecipientPatientId);
         return existing
-            .Where(t => t.Status == TransplantStatus.Pending
-                && string.Equals(t.OrganType, SelectedOrgan, StringComparison.OrdinalIgnoreCase))
-            .OrderByDescending(t => t.RequestDate)
+            .Where(transplant => transplant.Status == TransplantStatus.Pending
+                && string.Equals(transplant.OrganType, SelectedOrgan, StringComparison.OrdinalIgnoreCase))
+            .OrderByDescending(transplant => transplant.RequestDate)
             .FirstOrDefault();
     }
 }

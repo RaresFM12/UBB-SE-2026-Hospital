@@ -11,7 +11,7 @@ public class ShiftSwapRepository(HospitalDbContext context) : IShiftSwapReposito
     public async Task<ShiftSwapRequest?> GetByIdAsync(int requestId)
         => await context.ShiftSwapRequests
             .Include(request => request.Shift)
-                .ThenInclude(s => s!.Staff)
+                .ThenInclude(staff => staff!.Staff)
             .Include(request => request.Requester)
             .Include(request => request.Colleague)
             .FirstOrDefaultAsync(request => request.SwapId == requestId);
@@ -19,7 +19,7 @@ public class ShiftSwapRepository(HospitalDbContext context) : IShiftSwapReposito
     public async Task<List<ShiftSwapRequest>> GetAllAsync()
         => await context.ShiftSwapRequests
             .Include(request => request.Shift)
-                .ThenInclude(s => s!.Staff)
+                .ThenInclude(staff => staff!.Staff)
             .Include(request => request.Requester)
             .Include(request => request.Colleague)
             .ToListAsync();
@@ -27,7 +27,7 @@ public class ShiftSwapRepository(HospitalDbContext context) : IShiftSwapReposito
     public async Task<List<ShiftSwapRequest>> GetByStaffIdAsync(int staffId)
         => await context.ShiftSwapRequests
             .Include(request => request.Shift)
-                .ThenInclude(s => s!.Staff)
+                .ThenInclude(staff => staff!.Staff)
             .Include(request => request.Requester)
             .Include(request => request.Colleague)
             .Where(request => request.Requester!.StaffId == staffId || request.Colleague!.StaffId == staffId)
@@ -36,7 +36,7 @@ public class ShiftSwapRepository(HospitalDbContext context) : IShiftSwapReposito
     public async Task<List<ShiftSwapRequest>> GetPendingAsync()
         => await context.ShiftSwapRequests
             .Include(request => request.Shift)
-                .ThenInclude(s => s!.Staff)
+                .ThenInclude(staff => staff!.Staff)
             .Include(request => request.Requester)
             .Include(request => request.Colleague)
             .Where(request => request.Status == ShiftSwapRequestStatus.PENDING)

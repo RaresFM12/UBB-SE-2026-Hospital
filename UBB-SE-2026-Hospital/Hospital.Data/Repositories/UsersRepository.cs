@@ -69,8 +69,8 @@ public class UsersRepository(HospitalDbContext context) : IUsersRepository
 
     public async Task<List<UserDiscount>> GetUserDiscountsAsync(int userId)
         => await context.UserDiscounts
-            .Include(d => d.Item)
-            .Where(d => d.User.Id == userId)
+            .Include(discount => discount.Item)
+            .Where(discount => discount.User.Id == userId)
             .ToListAsync();
 
     public async Task AddUserDiscountAsync(int userId, UserDiscount discount)
@@ -82,7 +82,7 @@ public class UsersRepository(HospitalDbContext context) : IUsersRepository
     }
 
     public async Task<List<UserNotification>> GetUserNotificationsAsync(int userId)
-        => await context.UserNotifications.Where(n => n.User.Id == userId).ToListAsync();
+        => await context.UserNotifications.Where(notification => notification.User.Id == userId).ToListAsync();
 
     public async Task AddUserNotificationAsync(int userId, UserNotification notification)
     {
@@ -93,7 +93,7 @@ public class UsersRepository(HospitalDbContext context) : IUsersRepository
     }
 
     public async Task<List<PeriodNote>> GetPeriodNotesAsync(int userId)
-        => await context.PeriodNotes.Where(n => n.User.Id == userId).ToListAsync();
+        => await context.PeriodNotes.Where(notification => notification.User.Id == userId).ToListAsync();
 
     public async Task AddPeriodNoteAsync(int userId, PeriodNote note)
     {

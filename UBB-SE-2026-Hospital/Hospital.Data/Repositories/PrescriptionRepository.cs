@@ -25,10 +25,10 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
         var query = context.Prescriptions
             .Include(patient => patient.MedicationList)
             .Include(patient => patient.MedicalRecord)
-                .ThenInclude(r => r.MedicalHistory)
+                .ThenInclude(medicalRecord => medicalRecord.MedicalHistory)
                     .ThenInclude(mh => mh.Patient)
             .Include(patient => patient.MedicalRecord)
-                .ThenInclude(r => r.StaffMember)
+                .ThenInclude(medicalRecord => medicalRecord.StaffMember)
             .AsQueryable();
 
         if (filter.PrescriptionId.HasValue)
@@ -69,7 +69,7 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
         var prescriptions = await context.Prescriptions
             .Include(patient => patient.MedicationList)
             .Include(patient => patient.MedicalRecord)
-                .ThenInclude(r => r.MedicalHistory)
+                .ThenInclude(medicalRecord => medicalRecord.MedicalHistory)
                     .ThenInclude(mh => mh.Patient)
             .Where(patient => patient.Date >= cutoff)
             .ToListAsync();
@@ -85,10 +85,10 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
         => await context.Prescriptions
             .Include(patient => patient.MedicationList)
             .Include(patient => patient.MedicalRecord)
-                .ThenInclude(r => r.MedicalHistory)
+                .ThenInclude(medicalRecord => medicalRecord.MedicalHistory)
                     .ThenInclude(mh => mh.Patient)
             .Include(patient => patient.MedicalRecord)
-                .ThenInclude(r => r.StaffMember)
+                .ThenInclude(medicalRecord => medicalRecord.StaffMember)
             .OrderByDescending(patient => patient.Date)
             .Skip((page - 1) * n)
             .Take(n)
@@ -102,7 +102,7 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
     public async Task MarkPoliceNotifiedAsync(int patientId)
     {
         var records = await context.MedicalRecords
-            .Where(r => r.MedicalHistory.Patient.PatientId == patientId)
+            .Where(medicalRecord => medicalRecord.MedicalHistory.Patient.PatientId == patientId)
             .ToListAsync();
         foreach (var record in records)
             record.PoliceNotified = true;
@@ -111,8 +111,8 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
 
     public async Task<List<int>> GetPoliceNotifiedPatientIdsAsync(IEnumerable<int> patientIds)
         => await context.MedicalRecords
-            .Where(r => patientIds.Contains(r.MedicalHistory.Patient.PatientId) && r.PoliceNotified)
-            .Select(r => r.MedicalHistory.Patient.PatientId)
+            .Where(medicalRecord => patientIds.Contains(medicalRecord.MedicalHistory.Patient.PatientId) && medicalRecord.PoliceNotified)
+            .Select(medicalRecord => medicalRecord.MedicalHistory.Patient.PatientId)
             .Distinct()
             .ToListAsync();
 
