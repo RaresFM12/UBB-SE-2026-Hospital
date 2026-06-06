@@ -19,4 +19,7 @@ public class AllergyApiClient : ApiClientBase, IAllergyApiClient, IAllergyServic
 
     public async Task<List<Allergy>> GetAllAsync() =>
         await GetAllergiesAsync(CancellationToken.None);
+
+    public Task<List<Allergy>> GetAllergiesAsync() =>
+        GetAllergiesAsync(CancellationToken.None);
 }

@@ -1,6 +1,5 @@
 ﻿using Hospital.Shared.Proxies;
 using Hospital.Data.Models;
-using Hospital.Services;
 using Hospital.Shared.Services;
 using Hospital.Web.Models.BloodCompatibility;
 using Hospital.Web.Models.Patients;
@@ -8,7 +7,6 @@ using Hospital.Web.Models.Transplant;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using DbPatient = Hospital.Data.Models.Patient;
-using IBloodCompatibilityService = Hospital.Services.IBloodCompatibilityService;
 using SharedPatient = Hospital.Data.Models.Patient;
 
 namespace Hospital.Web.Controllers;

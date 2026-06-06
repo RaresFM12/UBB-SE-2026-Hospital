@@ -15,4 +15,8 @@ public interface ITransplantService
     Task<string?> GetChronicWarningAsync(int patientId);
     Task CreateWaitlistRequestAsync(int receiverId, string organType);
     Task AssignDonorAsync(int transplantId, int donorId, float finalScore);
+    Task<Transplant> CreateAsync(Transplant transplant);
+    Task<Transplant> UpdateAsync(Transplant transplant);
+    Task DeleteAsync(int id);
+    Task<List<Transplant>> GetByPatientIdAsync(int patientId);
 }

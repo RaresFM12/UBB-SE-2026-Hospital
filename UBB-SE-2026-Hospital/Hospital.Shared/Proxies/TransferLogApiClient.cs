@@ -17,8 +17,11 @@ public class TransferLogApiClient(HttpClient httpClient) : ApiClientBase(httpCli
     public async Task<TransferLog> CreateAsync(TransferLog transferLog)
         => await PostAsync<TransferLog, TransferLog>(BaseUri, transferLog) ?? transferLog;
 
-    public async Task UpdateAsync(TransferLog transferLog)
-        => await PutAsync($"{BaseUri}/{transferLog.TransferLogId}", transferLog);
+    public async Task<TransferLog> UpdateAsync(TransferLog transferLog)
+    {
+        await PutAsync($"{BaseUri}/{transferLog.TransferLogId}", transferLog);
+        return transferLog;
+    }
 
     public async Task DeleteAsync(int id)
         => await DeleteAsync($"{BaseUri}/{id}");

@@ -1,11 +1,14 @@
 using Hospital.Data.Models;
 using Hospital.Data.Repositories;
-using Hospital.Services;
+using Hospital.Shared.Services;
 
 namespace Hospital.Services;
 
 public class AllergyService(IAllergyRepository allergyRepository) : IAllergyService
 {
     public Task<List<Allergy>> GetAllergiesAsync()
+        => allergyRepository.GetAllAsync();
+
+    public Task<List<Allergy>> GetAllAsync()
         => allergyRepository.GetAllAsync();
 }

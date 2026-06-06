@@ -1,6 +1,3 @@
-using Hospital.Services;
-using Hospital.Services;
-using Hospital.Services;
 using Hospital.Shared.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,14 +11,14 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IModuleAccessService, ModuleAccessService>();
         services.AddSingleton<IRolePermissionCache, RolePermissionCache>();
 
-        services.AddScoped<Hospital.Shared.Services.IStatisticsService, Hospital.Services.StatisticsService>();
-        services.AddScoped<Hospital.Services.IAllergyService, AllergyService>();
-        services.AddScoped<Hospital.Shared.Services.IBillingService, BillingService>();
-        services.AddScoped<Hospital.Services.IBloodCompatibilityService, BloodCompatibilityService>();
-        services.AddScoped<Hospital.Services.IPrescriptionService, PrescriptionService>();
-        services.AddScoped<Hospital.Services.ITransferLogService, TransferLogService>();
+        services.AddScoped<IStatisticsService, StatisticsService>();
+        services.AddScoped<IAllergyService, AllergyService>();
+        services.AddScoped<IBillingService, BillingService>();
+        services.AddScoped<IBloodCompatibilityService, BloodCompatibilityService>();
+        services.AddScoped<IPrescriptionService, PrescriptionService>();
+        services.AddScoped<ITransferLogService, TransferLogService>();
         services.AddScoped<ITransplantService, TransplantService>();
-        services.AddScoped<Hospital.Services.IAddictDetectionService, AddictDetectionService>();
+        services.AddScoped<IAddictDetectionService, AddictDetectionService>();
         services.AddScoped<IPatientService, PatientService>();
         services.AddScoped<IERRoomService, ERRoomService>();
         services.AddScoped<IERVisitService, ERVisitService>();

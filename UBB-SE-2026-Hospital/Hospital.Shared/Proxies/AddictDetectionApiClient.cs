@@ -29,5 +29,8 @@ public class AddictDetectionApiClient : ApiClientBase, IAddictDetectionApiClient
 
     public async Task<string> GetChronicConditionsAsync(int patientId)
         => await GetAsync<string>($"{BaseUri}/{patientId}/chronic-conditions") ?? "None reported.";
+
+    public Task MarkPoliceNotifiedAsync(int patientId)
+        => MarkPoliceNotifiedAsync(patientId, CancellationToken.None);
 }
 
