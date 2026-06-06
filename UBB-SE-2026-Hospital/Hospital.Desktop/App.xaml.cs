@@ -96,6 +96,10 @@ public partial class App : Application
             .AddHttpMessageHandler<JwtAuthHandler>();
         services.AddHttpClient<IPharmacyScheduleService, PharmacyScheduleApiClient>("api")
             .AddHttpMessageHandler<JwtAuthHandler>();
+        services.AddHttpClient<IProductCatalogueService, ProductCatalogueApiClient>("api")
+            .AddHttpMessageHandler<JwtAuthHandler>();
+        services.AddHttpClient<IBasketApiClient, BasketApiClient>("api")
+            .AddHttpMessageHandler<JwtAuthHandler>();
         services.AddSingleton<IShiftSwapService, ShiftSwapApiClient>();
         services.AddSingleton<INotificationService, NotificationApiClient>();
 
@@ -138,6 +142,8 @@ public partial class App : Application
         services.AddTransient<Hospital.Desktop.ViewModels.Pharmacy.PharmacyScheduleViewModel>();
         services.AddTransient<Hospital.Desktop.ViewModels.Pharmacy.PharmacyShiftItemViewModel>();
         services.AddTransient<Hospital.Desktop.ViewModels.PharmacyManagement.EditPageViewModel>();
+        services.AddTransient<Hospital.Desktop.ViewModels.Pharmacy.ProductCatalogueViewModel>();
+        services.AddTransient<Hospital.Desktop.ViewModels.Pharmacy.ProductDetailsViewModel>();
 
         //the details of the appointments in the doctors schedule did not show up without this line commented out
         //services.AddTransient<Hospital.Desktop.Views.Shell.DialogPresenter>();

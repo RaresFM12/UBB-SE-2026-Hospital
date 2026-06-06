@@ -119,7 +119,7 @@ public partial class MainWindow : Window
             ("", new[]
             {
                 ("Prescriptions", "Prescriptions"),
-                ("Product Catalogue", "Inventory"),
+                ("Product Catalogue", "ProductCatalogue"),
                 ("Orders", "Orders"),
                 ("Addict Detection", "AddictDetection"),
             }),
@@ -291,6 +291,7 @@ public partial class MainWindow : Window
             "DoctorSchedule" => typeof(Views.Doctor.DoctorSchedulePage),
             "PharmacySchedule" => typeof(Views.Pharmacy.PharmacySchedulePage),
             "Inventory" => typeof(Views.PharmacyManagement.EditPage),
+            "ProductCatalogue" => typeof(Views.Pharmacy.ProductCataloguePage),
             "ERDispatch" => typeof(Views.Admin.ERDispatchPage),
             "FatigueAudit" => typeof(Views.Admin.FatigueAuditPage),
             "AdminSchedule" => typeof(Views.Admin.AdminSchedulePage),
@@ -455,7 +456,7 @@ public partial class MainWindow : Window
             or "Ghost"
             // Pharmacy
             or "Prescriptions"
-            or "Inventory"
+            or "ProductCatalogue"
             or "Orders"
             or "AddictDetection";
 
@@ -468,7 +469,7 @@ public partial class MainWindow : Window
                 || navigationTag is "Appointments" or "DoctorSchedule"
                 or "Hangouts" or "ShiftSwapRequests" or "IncomingSwaps",
             // Pharmacist: shared features + the web Staff Portal "Pharmacy Actions".
-            UserRole.Pharmacist => isSharedFeature || navigationTag is "PharmacySchedule",
+            UserRole.Pharmacist => isSharedFeature || navigationTag is "PharmacySchedule" || navigationTag is "Inventory",
             // Client: shared features + the web "Client Tools".
             UserRole.Client => isSharedFeature || navigationTag is "Billing" or "Basket",
             _ => false,
