@@ -50,6 +50,7 @@ public class ERVisitsController(IERVisitService erVisitService, ILogger<ERVisits
             ERVisit result = await erVisitService.CreateAsync(visit);
             return CreatedAtAction(nameof(GetById), new { id = result.VisitId }, result);
         }
+        catch (ArgumentException ex) { return BadRequest(ex.Message); }
         catch (Exception ex) { logger.LogError(ex, "Failed to create ER visit."); return Problem(statusCode: 500, title: "Could not create ER visit."); }
     }
 

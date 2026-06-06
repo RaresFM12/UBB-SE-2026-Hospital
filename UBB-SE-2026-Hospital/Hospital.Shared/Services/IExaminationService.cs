@@ -12,6 +12,8 @@ public interface IExaminationService
     Task<Examination> UpdateAsync(Examination examination);
     Task DeleteAsync(int id);
     Task<List<ERVisit>> GetEligibleVisitsAsync();
+    Task<Examination> RequestDoctorAsync(int visitId);
+    Task<Examination> SaveExaminationAsync(int visitId, string notes);
     Task<List<Examination>> GetPatientHistoryAsync(int patientId);
     Task<ERExaminationSummary?> GetSummaryByVisitIdAsync(int visitId);
 }
