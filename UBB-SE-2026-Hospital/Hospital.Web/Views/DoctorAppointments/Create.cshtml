@@ -9,10 +9,15 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <div class="col-md-6">
-        <label asp-for="PatientName" class="form-label"></label>
-        <input asp-for="PatientName" class="form-control" placeholder="123" />
-        <div class="form-text">Use the patient id as an integer (e.g., 123).</div>
-        <span asp-validation-for="PatientName" class="text-danger"></span>
+        <label asp-for="PatientId" class="form-label"></label>
+        <select asp-for="PatientId" class="form-select">
+            <option value="">-- Select a patient --</option>
+            @foreach (var patient in Model.Patients)
+            {
+                <option value="@patient.PatientId">@patient.FullName</option>
+            }
+        </select>
+        <span asp-validation-for="PatientId" class="text-danger"></span>
     </div>
 
     <div class="col-md-6">

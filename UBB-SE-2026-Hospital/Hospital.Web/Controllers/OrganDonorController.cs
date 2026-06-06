@@ -1,4 +1,4 @@
-using Hospital.Shared.Proxies;
+﻿using Hospital.Shared.Proxies;
 using Hospital.Data.Models;
 using Hospital.Services;
 using Hospital.Shared.Services;
@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using DbPatient = Hospital.Data.Models.Patient;
 using IBloodCompatibilityService = Hospital.Services.IBloodCompatibilityService;
-using ITransplantService = Hospital.Services.ITransplantService;
 using SharedPatient = Hospital.Data.Models.Patient;
 
 namespace Hospital.Web.Controllers;
@@ -25,14 +24,14 @@ public class OrganDonorController : Controller
     private const int SameSexScore = 20;
     private const int DifferentSexScore = 10;
 
-    private readonly Hospital.Services.IBloodCompatibilityService bloodCompatibilityService;
-    private readonly ITransplantService transplantService;
-    private readonly IPatientService patientService;
+    private readonly IBloodCompatibilityApiClient bloodCompatibilityService;
+    private readonly ITransplantApiClient transplantService;
+    private readonly IPatientApiClient patientService;
 
     public OrganDonorController(
-        IBloodCompatibilityService bloodCompatibilityService,
-        ITransplantService transplantService,
-        IPatientService patientService)
+        IBloodCompatibilityApiClient bloodCompatibilityService,
+        ITransplantApiClient transplantService,
+        IPatientApiClient patientService)
     {
         this.bloodCompatibilityService = bloodCompatibilityService;
         this.transplantService = transplantService;
@@ -85,7 +84,7 @@ public class OrganDonorController : Controller
 
         try
         {
-            var pendingTransplant = (await transplantService.GetByPatientIdAsync(patient.PatientId))
+            var pendingTransplant = (await transplantService.GetByReceiverIdAsync(patient.PatientId, default))
                 .Where(transplant => transplant.Status == Hospital.Data.Models.TransplantStatus.Pending
                     && string.Equals(transplant.OrganType, organ, StringComparison.OrdinalIgnoreCase))
                 .OrderByDescending(transplant => transplant.RequestDate)
@@ -95,7 +94,7 @@ public class OrganDonorController : Controller
             {
                 await transplantService.CreateWaitlistRequestAsync(patient.PatientId, organ);
 
-                pendingTransplant = (await transplantService.GetByPatientIdAsync(patient.PatientId))
+                pendingTransplant = (await transplantService.GetByReceiverIdAsync(patient.PatientId, default))
                     .Where(transplant => transplant.Status == Hospital.Data.Models.TransplantStatus.Pending
                         && string.Equals(transplant.OrganType, organ, StringComparison.OrdinalIgnoreCase))
                     .OrderByDescending(transplant => transplant.RequestDate)

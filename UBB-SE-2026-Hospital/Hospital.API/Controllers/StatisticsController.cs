@@ -7,7 +7,7 @@ namespace Hospital.API.Controllers;
 [ApiController]
 [AuthorizeRole("Admin")]
 [Route("api/statistics")]
-public class StatisticsController(IStatisticsService statisticsService, ILogger<StatisticsController> logger) : ControllerBase
+public class StatisticsController(Hospital.Shared.Services.IStatisticsService statisticsService, ILogger<StatisticsController> logger) : ControllerBase
 {
     [HttpGet("active-vs-archived")]
     public async Task<ActionResult<Dictionary<string, int>>> GetActiveVsArchivedRatio()

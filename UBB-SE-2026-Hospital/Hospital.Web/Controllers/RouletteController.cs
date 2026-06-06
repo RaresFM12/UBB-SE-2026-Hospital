@@ -1,7 +1,7 @@
 using Hospital.Data.Models;
 using Hospital.Web.Models.Consultations;
 using Hospital.Web.Services;
-using Hospital.Shared.Proxies;
+using Hospital.Shared.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,13 +27,13 @@ public class RouletteController : Controller
         FullDiscount
     };
 
-    private readonly IPatientApiClient patientApiClient;
-    private readonly IBillingApiClient billingApiClient;
+    private readonly IPatientService patientService;
+    private readonly IBillingService billingService;
 
-    public RouletteController(IPatientApiClient patientApiClient, IBillingApiClient billingApiClient)
+    public RouletteController(IPatientService patientService, IBillingService billingService)
     {
-        this.patientApiClient = patientApiClient;
-        this.billingApiClient = billingApiClient;
+        this.patientService = patientService;
+        this.billingService = billingService;
     }
 
     [HttpGet]
@@ -42,7 +42,7 @@ public class RouletteController : Controller
         Patient patient;
         try
         {
-            patient = await patientApiClient.GetPatientDetailsAsync(patientId, HttpContext.RequestAborted);
+            patient = await patientService.GetPatientDetailsAsync(patientId, HttpContext.RequestAborted);
         }
         catch (InvalidOperationException ex)
         {
@@ -61,7 +61,7 @@ public class RouletteController : Controller
         decimal basePrice;
         try
         {
-            basePrice = await billingApiClient.ComputeBasePriceAsync(patientId, recordId, HttpContext.RequestAborted);
+            basePrice = await billingService.ComputeBasePriceAsync(patientId, recordId);
         }
         catch (InvalidOperationException)
         {
@@ -91,7 +91,7 @@ public class RouletteController : Controller
 
         try
         {
-            await billingApiClient.ApplyDiscountAsync(recordId, basePrice, discount, HttpContext.RequestAborted);
+            await billingService.PersistDiscountAsync(recordId, basePrice, discount);
         }
         catch (InvalidOperationException ex)
         {

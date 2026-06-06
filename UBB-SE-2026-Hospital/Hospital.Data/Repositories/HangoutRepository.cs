@@ -10,15 +10,15 @@ public class HangoutRepository(HospitalDbContext context) : IHangoutRepository
 {
     public async Task<Hangout?> GetByIdAsync(int hangoutId)
         => await context.Hangouts
-            .Include(h => h.HangoutParticipantEntries)
-            .FirstOrDefaultAsync(h => h.HangoutID == hangoutId);
+            .Include(hangout => hangout.HangoutParticipantEntries)
+            .FirstOrDefaultAsync(hangout => hangout.HangoutID == hangoutId);
 
     public async Task<List<Hangout>> GetAllAsync()
-        => await context.Hangouts.Include(h => h.HangoutParticipantEntries).ToListAsync();
+        => await context.Hangouts.Include(hangout => hangout.HangoutParticipantEntries).ToListAsync();
 
     public async Task<List<Hangout>> GetByOrganizerIdAsync(int staffId)
         => await context.Hangouts
-            .Where(h => h.Organizer!.StaffId == staffId)
+            .Where(hangout => hangout.Organizer!.StaffId == staffId)
             .ToListAsync();
 
     public async Task<Hangout> CreateAsync(Hangout hangout)

@@ -1,4 +1,4 @@
-using Hospital.Shared.Proxies;
+﻿using Hospital.Shared.Proxies;
 namespace Hospital.Web.Controllers
 {
     using System;
@@ -12,9 +12,9 @@ namespace Hospital.Web.Controllers
     [Authorize(Roles = "Admin")]
     public class SubstancesController : Controller
     {
-        private readonly IAdminService adminService;
+        private readonly IAdminApiClient adminService;
 
-        public SubstancesController(IAdminService adminService)
+        public SubstancesController(IAdminApiClient adminService)
         {
             this.adminService = adminService;
         }

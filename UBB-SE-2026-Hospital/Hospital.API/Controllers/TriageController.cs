@@ -42,6 +42,37 @@ public class TriageController(
         catch (Exception ex) { logger.LogError(ex, "Failed to create triage."); return Problem(statusCode: 500, title: "Could not create triage."); }
     }
 
+    [HttpPost("perform")]
+    public async Task<ActionResult<PerformTriageResponse>> Perform([FromBody] PerformTriageRequest request)
+    {
+        try
+        {
+            Triage triage = await triageService.CreateTriageAsync(request.VisitId, request);
+            TriageParameters parameters = request.ToParameters(triage);
+            return Ok(new PerformTriageResponse
+            {
+                Triage = triage,
+                Parameters = parameters,
+            });
+        }
+        catch (ArgumentException ex) { return BadRequest(ex.Message); }
+        catch (InvalidOperationException ex) { return Conflict(ex.Message); }
+        catch (Exception ex) { logger.LogError(ex, "Failed to perform triage for visit {VisitId}.", request.VisitId); return Problem(statusCode: 500, title: "Could not perform triage."); }
+    }
+
+    [HttpPost("visit/{visitId:int}/move-to-queue")]
+    public async Task<IActionResult> MoveToQueue(int visitId)
+    {
+        try
+        {
+            await triageService.MoveVisitToQueueAsync(visitId);
+            return NoContent();
+        }
+        catch (ArgumentException ex) { return BadRequest(ex.Message); }
+        catch (InvalidOperationException ex) { return Conflict(ex.Message); }
+        catch (Exception ex) { logger.LogError(ex, "Failed to move visit {VisitId} to the room queue.", visitId); return Problem(statusCode: 500, title: "Could not move visit to the room queue."); }
+    }
+
     [HttpPost("decide")]
     public ActionResult<TriageDecisionResponse> Decide([FromBody] TriageParameters parameters)
     {

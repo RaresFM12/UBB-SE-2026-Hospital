@@ -9,13 +9,21 @@ namespace Hospital.Data.Repositories;
 public class TransferLogRepository(HospitalDbContext context) : ITransferLogRepository
 {
     public async Task<TransferLog?> GetByIdAsync(int transferLogId)
-        => await context.TransferLogs.FindAsync(transferLogId);
+        => await context.TransferLogs
+            .Include(transferLog => transferLog.Visit)
+            .FirstOrDefaultAsync(transferLog => transferLog.TransferLogId == transferLogId);
 
     public async Task<List<TransferLog>> GetAllAsync()
-        => await context.TransferLogs.ToListAsync();
+        => await context.TransferLogs
+            .Include(transferLog => transferLog.Visit)
+            .ToListAsync();
 
     public async Task<List<TransferLog>> GetByVisitIdAsync(int visitId)
-        => await context.TransferLogs.Where(t => t.Visit.VisitId == visitId).ToListAsync();
+        => await context.TransferLogs
+            .Include(transferLog => transferLog.Visit)
+            .Where(transferLog => transferLog.Visit.VisitId == visitId)
+            .OrderByDescending(transferLog => transferLog.TransferTime)
+            .ToListAsync();
 
     public async Task<TransferLog> CreateAsync(TransferLog transferLog)
     {

@@ -1,4 +1,4 @@
-using Hospital.Shared.Proxies;
+﻿using Hospital.Shared.Proxies;
 using Hospital.Data.Models;
 using Hospital.Services;
 using Hospital.Data.Models;
@@ -24,12 +24,12 @@ namespace Hospital.Web.Controllers
         private const int MaximumPmsOption = 3;
         private const int DefaultBasketQuantity = 1;
 
-        private readonly IPeriodTrackerService _periodTrackerService;
-        private readonly IBasketService _basketService;
+        private readonly IPeriodTrackerApiClient _periodTrackerService;
+        private readonly IBasketApiClient _basketService;
 
         public PeriodTrackerController(
-            IPeriodTrackerService periodTrackerService,
-            IBasketService basketService)
+            IPeriodTrackerApiClient periodTrackerService,
+            IBasketApiClient basketService)
         {
             _periodTrackerService = periodTrackerService;
             _basketService = basketService;

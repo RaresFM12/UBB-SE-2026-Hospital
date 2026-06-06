@@ -17,10 +17,10 @@ namespace Hospital.Web.Controllers
     {
         private const int MinimumPickupLeadDays = 1;
 
-        private readonly IOrderService orderService;
-        private readonly IUserAccountService userAccountService;
+        private readonly IOrdersApiClient orderService;
+        private readonly IUserAccountApiClient userAccountService;
 
-        public OrdersController(IOrderService orderService, IUserAccountService userAccountService)
+        public OrdersController(IOrdersApiClient orderService, IUserAccountApiClient userAccountService)
         {
             this.orderService = orderService;
             this.userAccountService = userAccountService;

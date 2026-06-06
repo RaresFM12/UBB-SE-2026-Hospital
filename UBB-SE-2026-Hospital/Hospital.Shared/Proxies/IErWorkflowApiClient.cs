@@ -27,12 +27,15 @@ public interface IErWorkflowApiClient
     Task<Triage?> GetTriageByVisitIdAsync(int visitId, CancellationToken cancellationToken = default);
     Task<Triage> CreateTriageAsync(Triage triage, CancellationToken cancellationToken = default);
     Task<PerformTriageResponse> PerformTriageAsync(PerformTriageRequest request, CancellationToken cancellationToken = default);
+    Task MoveVisitToQueueAsync(int visitId, CancellationToken cancellationToken = default);
 
     Task<List<TriageParameters>> GetTriageParametersAsync(CancellationToken cancellationToken = default);
     Task<TriageParameters?> GetTriageParametersByTriageIdAsync(int triageId, CancellationToken cancellationToken = default);
     Task<TriageParameters> CreateTriageParametersAsync(TriageParameters parameters, CancellationToken cancellationToken = default);
 
     Task<List<ERVisit>> GetEligibleExaminationVisitsAsync(CancellationToken cancellationToken = default);
+    Task<Examination> RequestDoctorAsync(int visitId, CancellationToken cancellationToken = default);
+    Task SaveExaminationAsync(SaveExaminationRequest request, CancellationToken cancellationToken = default);
     Task<List<Examination>> GetExaminationsByVisitIdAsync(int visitId, CancellationToken cancellationToken = default);
     Task<List<Examination>> GetPatientExaminationHistoryAsync(string patientId, CancellationToken cancellationToken = default);
     Task<ERExaminationSummary?> GetExaminationSummaryAsync(int visitId, CancellationToken cancellationToken = default);

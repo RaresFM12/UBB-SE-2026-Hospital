@@ -9,7 +9,6 @@ using Hospital.Desktop.Command;
 using Hospital.Desktop.Services;
 using Hospital.Shared.Services;
 using Hospital.Data.Models;
-using Hospital.Shared.Services;
 using Hospital.Desktop.ViewModels.Base;
 
 public class PharmacyScheduleViewModel : ObservableObject

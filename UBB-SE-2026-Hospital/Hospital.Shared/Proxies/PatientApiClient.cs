@@ -118,23 +118,7 @@ public class PatientApiClient : ApiClientBase, IPatientApiClient, IPatientServic
         }
     }
 
-    // IPatientService implementation
-    public async Task<IReadOnlyList<Patient>> GetPatientsAsync(CancellationToken cancellationToken = default)
-        => await GetAsync<List<Patient>>(BaseUri, cancellationToken) ?? [];
-
-    public async Task UpdatePatientAsync(Patient patient, CancellationToken cancellationToken = default)
-        => await PutAsync($"{BaseUri}/{patient.PatientId}", patient, cancellationToken);
-
-    public async Task ArchiveAsDeceasedAsync(int patientId, DateTime deathDate, CancellationToken cancellationToken = default)
-        => await PutAsync<object>($"{BaseUri}/{patientId}/archive-deceased", new { deathDate }, cancellationToken);
-
-    public async Task<int> CreateMedicalRecordAsync(int patientId, MedicalRecord record, CancellationToken cancellationToken = default)
-        => await PostAsync<MedicalRecord, int>($"{BaseUri}/{patientId}/medical-records", record, cancellationToken);
-
-    public async Task CreatePrescriptionAsync(int recordId, Prescription prescription)
-        => await PostAsync<Prescription, object>($"{BaseUri}/records/{recordId}/prescription", prescription);
-
-    // Some extra getters
+    // IPatientApiClient extra overloads (without CancellationToken)
     public async Task<MedicalHistory?> GetMedicalHistoryAsync(int id)
         => await GetAsync<MedicalHistory>($"{BaseUri}/{id}/medical-history");
 
@@ -146,5 +130,37 @@ public class PatientApiClient : ApiClientBase, IPatientApiClient, IPatientServic
 
     public async Task<List<MedicalRecord>> GetMedicalRecordsAsync(int historyId)
         => await GetAsync<List<MedicalRecord>>($"api/patients/{historyId}/medical-records") ?? [];
-}
 
+    public async Task<List<Patient>> GetAllPatients(CancellationToken cancellationToken = default)
+        => await GetAsync<List<Patient>>(BaseUri, cancellationToken) ?? [];
+
+    // IPatientService bridge methods (members not already covered above)
+    public async Task<IReadOnlyList<Patient>> GetPatientsAsync(CancellationToken cancellationToken = default)
+        => await GetAsync<List<Patient>>(BaseUri, cancellationToken) ?? [];
+
+    public async Task UpdatePatientAsync(Patient patient, CancellationToken cancellationToken = default)
+        => await PutAsync($"{BaseUri}/{patient.PatientId}", new UpdatePatientRequest
+        {
+            FirstName = patient.FirstName,
+            LastName = patient.LastName,
+            DateOfBirth = patient.DateOfBirth,
+            Cnp = patient.Cnp,
+            Sex = patient.Sex,
+            PhoneNumber = patient.PhoneNumber,
+            EmergencyContact = patient.EmergencyContact,
+            IsDonor = patient.IsDonor,
+            Transferred = patient.Transferred,
+            DateOfDeath = patient.DateOfDeath,
+            IsArchived = patient.IsArchived,
+        }, cancellationToken);
+
+    // IPatientService.ArchiveAsDeceasedAsync(int, DateTime, CancellationToken) bridge
+    public Task ArchiveAsDeceasedAsync(int patientId, DateTime deathDate, CancellationToken cancellationToken = default)
+        => ArchiveAsDeceasedAsync(patientId, new ArchiveAsDeceasedRequest { DeathDate = deathDate }, cancellationToken);
+
+    public async Task<int> CreateMedicalRecordAsync(int patientId, MedicalRecord record, CancellationToken cancellationToken = default)
+        => await PostAsync<MedicalRecord, int>($"{BaseUri}/{patientId}/medical-records", record, cancellationToken);
+
+    public Task CreatePrescriptionAsync(int recordId, Prescription prescription)
+        => PostAsync($"{BaseUri}/records/{recordId}/prescription", prescription);
+}

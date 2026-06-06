@@ -25,12 +25,12 @@ public class BloodCompatibilityController : Controller
     private const int SameSexScore = 20;
     private const int DifferentSexScore = 10;
 
-    private readonly IBloodCompatibilityService _bloodCompatibilityService;
-    private readonly IPatientService _patientService;
+    private readonly IBloodCompatibilityApiClient _bloodCompatibilityService;
+    private readonly IPatientApiClient _patientService;
 
     public BloodCompatibilityController(
-        IBloodCompatibilityService bloodCompatibilityService,
-        IPatientService patientService)
+        IBloodCompatibilityApiClient bloodCompatibilityService,
+        IPatientApiClient patientService)
     {
         _bloodCompatibilityService = bloodCompatibilityService;
         _patientService = patientService;
@@ -39,7 +39,7 @@ public class BloodCompatibilityController : Controller
     [HttpGet]
     public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
     {
-        var patients = await _patientService.GetPatientsAsync(cancellationToken);
+        var patients = await _patientService.GetAllPatients(cancellationToken);
         return View(patients);
     }
 
@@ -69,7 +69,7 @@ public class BloodCompatibilityController : Controller
         List<Patient> topDonors;
         try
         {
-            topDonors = await _bloodCompatibilityService.GetTopCompatibleDonorsAsync(patientId);
+            topDonors = await _bloodCompatibilityService.GetTopCompatibleDonorsAsync(patientId, default);
         }
         catch (InvalidOperationException ex)
         {

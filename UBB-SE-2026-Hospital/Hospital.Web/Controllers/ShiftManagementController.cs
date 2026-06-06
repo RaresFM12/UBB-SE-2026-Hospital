@@ -1,4 +1,4 @@
-using Hospital.Shared.Proxies;
+﻿using Hospital.Shared.Proxies;
 namespace Hospital.Web.Controllers;
 
 using System;
@@ -31,12 +31,12 @@ public class ShiftManagementController : Controller
         "Pharmacy",
     };
 
-    private readonly IShiftManagementService shiftManagementService;
-    private readonly ISalaryComputationService salaryComputationService;
+    private readonly IShiftManagementApiClient shiftManagementService;
+    private readonly ISalaryComputationApiClient salaryComputationService;
 
     public ShiftManagementController(
-        IShiftManagementService shiftManagementService,
-        ISalaryComputationService salaryComputationService)
+        IShiftManagementApiClient shiftManagementService,
+        ISalaryComputationApiClient salaryComputationService)
     {
         this.shiftManagementService = shiftManagementService;
         this.salaryComputationService = salaryComputationService;

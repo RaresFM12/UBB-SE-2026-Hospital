@@ -49,6 +49,20 @@ public class TriageService(
         ERVisit visit = await erVisitRepository.GetByIdAsync(visitId)
             ?? throw new ArgumentException($"ER visit {visitId} was not found.");
 
+        if (!string.Equals(visit.Status, ERVisit.VisitStatus.REGISTERED, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                $"ER visit {visitId} cannot be triaged while it is in {visit.Status} status.");
+        }
+
+        Triage? existingTriage = await triageRepository.GetByVisitIdAsync(visitId);
+        if (existingTriage is not null)
+        {
+            // Visit status is authoritative. Seeded databases may contain stale
+            // triage data for visits that are still REGISTERED.
+            await triageRepository.DeleteAsync(existingTriage.TriageId);
+        }
+
         var triage = new Triage
         {
             Visit = visit,
@@ -56,6 +70,7 @@ public class TriageService(
             TriageTime = request.TriageTime,
         };
         TriageParameters parameters = request.ToParameters(triage);
+        parameters.ValidateParameters();
         triage.TriageLevel = request.TriageLevel is >= 1 and <= 5
             ? request.TriageLevel
             : triageDecisionService.CalculateTriageLevel(parameters);
@@ -76,6 +91,20 @@ public class TriageService(
     {
         ERVisit visit = await erVisitRepository.GetByIdAsync(visitId)
             ?? throw new ArgumentException($"ER visit {visitId} was not found.");
+
+        if (!string.Equals(visit.Status, ERVisit.VisitStatus.TRIAGED, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                $"ER visit {visitId} must be TRIAGED before it can move to the room queue.");
+        }
+
+        Triage triage = await triageRepository.GetByVisitIdAsync(visitId)
+            ?? throw new InvalidOperationException($"Triage was not found for visit {visitId}.");
+        if (await triageParametersRepository.GetByTriageIdAsync(triage.TriageId) is null)
+        {
+            throw new InvalidOperationException($"Triage parameters were not found for visit {visitId}.");
+        }
+
         visit.Status = ERVisit.VisitStatus.WAITING_FOR_ROOM;
         await erVisitRepository.UpdateAsync(visit);
     }

@@ -9,13 +9,16 @@ namespace Hospital.Data.Repositories;
 public class ExaminationRepository(HospitalDbContext context) : IExaminationRepository
 {
     public async Task<Examination?> GetByIdAsync(int examinationId)
-        => await context.Examinations.FindAsync(examinationId);
+        => await WithDetails()
+            .FirstOrDefaultAsync(examination => examination.ExaminationId == examinationId);
 
     public async Task<List<Examination>> GetByVisitIdAsync(int visitId)
-        => await context.Examinations.Where(e => e.Visit.VisitId == visitId).ToListAsync();
+        => await WithDetails()
+            .Where(examination => examination.Visit.VisitId == visitId)
+            .ToListAsync();
 
     public async Task<List<Examination>> GetAllAsync()
-        => await context.Examinations.ToListAsync();
+        => await WithDetails().ToListAsync();
 
     public async Task<Examination> CreateAsync(Examination examination)
     {
@@ -40,4 +43,11 @@ public class ExaminationRepository(HospitalDbContext context) : IExaminationRepo
             await context.SaveChangesAsync();
         }
     }
+
+    private IQueryable<Examination> WithDetails() =>
+        context.Examinations
+            .Include(examination => examination.Visit)
+            .ThenInclude(visit => visit.Patient)
+            .Include(examination => examination.Doctor)
+            .Include(examination => examination.Room);
 }

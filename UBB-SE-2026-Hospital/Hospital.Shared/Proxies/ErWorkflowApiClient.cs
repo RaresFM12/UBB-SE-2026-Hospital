@@ -108,6 +108,9 @@ public class ErWorkflowApiClient : ApiClientBase, IErWorkflowApiClient
             cancellationToken)
         ?? throw new InvalidOperationException("Failed to perform triage: no response from server.");
 
+    public Task MoveVisitToQueueAsync(int visitId, CancellationToken cancellationToken = default) =>
+        PostAsync<object>($"{TriagesBaseUri}/visit/{visitId}/move-to-queue", new { }, cancellationToken);
+
     public async Task<List<TriageParameters>> GetTriageParametersAsync(CancellationToken cancellationToken = default) =>
         await GetAsync<List<TriageParameters>>(TriageParametersBaseUri, cancellationToken) ?? new List<TriageParameters>();
 
@@ -122,6 +125,18 @@ public class ErWorkflowApiClient : ApiClientBase, IErWorkflowApiClient
 
     public async Task<List<ERVisit>> GetEligibleExaminationVisitsAsync(CancellationToken cancellationToken = default) =>
         await GetAsync<List<ERVisit>>($"{ExaminationsBaseUri}/eligible-visits", cancellationToken) ?? new List<ERVisit>();
+
+    public async Task<Examination> RequestDoctorAsync(int visitId, CancellationToken cancellationToken = default) =>
+        await PostAsync<object, Examination>(
+            $"{ExaminationsBaseUri}/visit/{visitId}/request-doctor",
+            new { },
+            cancellationToken)
+        ?? throw new InvalidOperationException("Doctor assignment returned no examination.");
+
+    public Task SaveExaminationAsync(
+        SaveExaminationRequest request,
+        CancellationToken cancellationToken = default) =>
+        PostAsync($"{ExaminationsBaseUri}/save", request, cancellationToken);
 
     public async Task<List<Examination>> GetExaminationsByVisitIdAsync(int visitId, CancellationToken cancellationToken = default) =>
         await GetAsync<List<Examination>>($"{ExaminationsBaseUri}/visit/{visitId}", cancellationToken) ?? new List<Examination>();
