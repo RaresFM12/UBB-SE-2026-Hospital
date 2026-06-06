@@ -1,4 +1,5 @@
 using System;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,6 +35,14 @@ public sealed partial class ProductCataloguePage : Page
         if (clickArgs.ClickedItem is CatalogueItemViewModel selectedItem)
         {
             this.Frame.Navigate(typeof(ProductDetailsPage), selectedItem);
+        }
+    }
+
+    private async void AddToCartButton_Click(object sender, RoutedEventArgs eventArgs)
+    {
+        if (sender is Button { DataContext: CatalogueItemViewModel item })
+        {
+            await this.ViewModel.AddItemToCartAsync(item);
         }
     }
 }

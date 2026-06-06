@@ -1,0 +1,122 @@
+<Page
+    x:Class="Hospital.Desktop.Views.Patient.PeriodTrackerPage"
+    x:Name="Root"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
+        <StackPanel Padding="24" Spacing="16">
+            <TextBlock Text="Period Tracker"
+                       FontSize="32"
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource AppTextPrimaryBrush}"/>
+
+            <TextBlock Text="{Binding StatusMessage}"
+                       Foreground="{StaticResource AppAccentBrush}"
+                       TextWrapping="Wrap"/>
+
+            <Grid ColumnSpacing="16" RowSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="360"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0"
+                        Background="{StaticResource AppSurfaceBrush}"
+                        BorderBrush="{StaticResource AppAccentBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="16">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Cycle Settings"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource AppTextPrimaryBrush}"/>
+
+                        <TextBlock Text="Last period start" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                        <CalendarDatePicker Date="{Binding StartPeriodDate, Mode=TwoWay}"/>
+
+                        <TextBlock Text="Cycle days" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                        <NumberBox Value="{Binding CycleDays, Mode=TwoWay}" Minimum="1" SpinButtonPlacementMode="Inline"/>
+
+                        <TextBlock Text="Period length" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                        <NumberBox Value="{Binding PeriodLasts, Mode=TwoWay}" Minimum="1" SpinButtonPlacementMode="Inline"/>
+
+                        <TextBlock Text="PMS option" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                        <NumberBox Value="{Binding PremenstrualSyndromeOption, Mode=TwoWay}" Minimum="0" SpinButtonPlacementMode="Inline"/>
+
+                        <Button Content="Save"
+                                Command="{Binding SaveCommand}"
+                                HorizontalAlignment="Stretch"
+                                Background="{StaticResource AppAccentBrush}"
+                                Foreground="White"/>
+                    </StackPanel>
+                </Border>
+
+                <StackPanel Grid.Column="1" Spacing="16">
+                    <Border Background="{StaticResource AppSurfaceBrush}"
+                            BorderBrush="{StaticResource AppAccentBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="16">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Overview"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                            <TextBlock Text="{Binding CurrentPhase}" Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                            <TextBlock Text="{Binding NextPeriod}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding Ovulation}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="{StaticResource AppSurfaceBrush}"
+                            BorderBrush="{StaticResource AppAccentBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="16">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Notes"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Text="{Binding NewNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         PlaceholderText="Add note..."/>
+                                <Button Grid.Column="1"
+                                        Content="Add"
+                                        Command="{Binding AddNoteCommand}"/>
+                            </Grid>
+                            <ListView ItemsSource="{Binding Notes}" SelectionMode="None" MaxHeight="320">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid ColumnSpacing="8" Padding="0,4">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Body}"
+                                                       TextWrapping="Wrap"
+                                                       Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                                            <Button Grid.Column="1"
+                                                    Content="Delete"
+                                                    Command="{Binding DataContext.DeleteNoteCommand, ElementName=Root}"
+                                                    CommandParameter="{Binding}"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

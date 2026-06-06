@@ -20,6 +20,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -44,8 +45,21 @@
                        TextWrapping="Wrap"/>
         </Border>
 
+        <Border Grid.Row="2"
+                Background="{StaticResource AppSurfaceBrush}"
+                BorderBrush="{StaticResource AppAccentBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="16,12"
+                Visibility="{Binding StatusMessage, Converter={StaticResource StringNotEmptyToVisibilityConverter}}">
+            <TextBlock Text="{Binding StatusMessage}"
+                       Foreground="{StaticResource AppAccentBrush}"
+                       FontSize="14"
+                       TextWrapping="Wrap"/>
+        </Border>
+
         <!-- Two-Column Layout -->
-        <Grid Grid.Row="2" ColumnSpacing="24">
+        <Grid Grid.Row="3" ColumnSpacing="24">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="280"/>
                 <ColumnDefinition Width="*"/>
@@ -260,8 +274,7 @@
                                     <!-- Row 2: Add to Cart (anchored at bottom) -->
                                     <Button Grid.Row="2"
                                             Content="Add to Cart"
-                                            Command="{Binding ElementName=Root, Path=ViewModel.AddToCartCommand}"
-                                            CommandParameter="{Binding}"
+                                            Click="AddToCartButton_Click"
                                             IsEnabled="{Binding CanAddToCart}"
                                             HorizontalAlignment="Stretch"
                                             VerticalAlignment="Bottom"

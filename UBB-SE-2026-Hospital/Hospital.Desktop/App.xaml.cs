@@ -31,7 +31,11 @@ public partial class App : Application
     public App()
     {
         InitializeComponent();
-        UnhandledException += (_, e) => LogException(e.Exception);
+        UnhandledException += (_, e) =>
+        {
+            LogException(e.Exception);
+            e.Handled = true;
+        };
 
         var services = new ServiceCollection();
         var configuration = new ConfigurationBuilder()
@@ -49,6 +53,7 @@ public partial class App : Application
             c.BaseAddress = new Uri(apiBaseUrl);
             c.Timeout = TimeSpan.FromSeconds(10);
         })
+        .AddHttpMessageHandler<JwtAuthHandler>()
         .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
         {
             ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
@@ -86,6 +91,7 @@ public partial class App : Application
         services.AddSingleton<IAdminService, AdminApiClient>();
         services.AddSingleton<IOrderService, OrdersApiClient>();
         services.AddSingleton<IUserAccountService, UserAccountApiClient>();
+        services.AddSingleton<IPeriodTrackerService, PeriodTrackerApiClient>();
         services.AddHttpClient<IShiftManagementService, ShiftManagementApiClient>("api")
             .AddHttpMessageHandler<JwtAuthHandler>();
         services.AddSingleton<IFatigueAuditService, FatigueAuditApiClient>();
@@ -128,6 +134,7 @@ public partial class App : Application
         services.AddTransient<StatisticsViewModel>();
         services.AddTransient<BillingViewModel>();
         services.AddTransient<AddictDetectionViewModel>();
+        services.AddTransient<PeriodTrackerViewModel>();
 
         // Windows & Pages
         services.AddTransient<LoginWindow>();

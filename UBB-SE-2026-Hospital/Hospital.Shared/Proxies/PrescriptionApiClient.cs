@@ -129,6 +129,11 @@ public class PrescriptionApiClient : ApiClientBase, IPrescriptionApiClient, IPre
             throw new ArgumentException(message);
         }
 
+        if (response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
+        {
+            throw new UnauthorizedAccessException("Please sign in again to continue.");
+        }
+
         throw new InvalidOperationException(message);
     }
 

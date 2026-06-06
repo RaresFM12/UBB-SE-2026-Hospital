@@ -47,6 +47,7 @@ public class ProductCatalogueViewModel : ObservableObject
 
     private ObservableCollection<CatalogueItemViewModel> products = new();
     private string errorMessage = string.Empty;
+    private string statusMessage = string.Empty;
     private bool isLoading;
     private string searchQuery = string.Empty;
 
@@ -85,6 +86,12 @@ public class ProductCatalogueViewModel : ObservableObject
     {
         get => this.errorMessage;
         set => this.SetProperty(ref this.errorMessage, value);
+    }
+
+    public string StatusMessage
+    {
+        get => this.statusMessage;
+        set => this.SetProperty(ref this.statusMessage, value);
     }
 
     public bool IsLoading
@@ -244,7 +251,7 @@ public class ProductCatalogueViewModel : ObservableObject
         this.ApplyFiltersCommand = new AsyncRelayCommand(this.ApplyFiltersAsync);
         this.PreviousPageCommand = new AsyncRelayCommand(this.GoToPreviousPageAsync, () => this.HasPreviousPage);
         this.NextPageCommand = new AsyncRelayCommand(this.GoToNextPageAsync, () => this.HasNextPage);
-        this.AddToCartCommand = new RelayCommandWithOneParameter<CatalogueItemViewModel>(this.AddItemToCart);
+        this.AddToCartCommand = new RelayCommandWithOneParameter<CatalogueItemViewModel>(item => _ = this.AddItemToCartAsync(item));
     }
 
     // ── Public Methods ────────────────────────────────────────────────────
@@ -252,6 +259,7 @@ public class ProductCatalogueViewModel : ObservableObject
     public async Task LoadProductsAsync()
     {
         this.ErrorMessage = string.Empty;
+        this.StatusMessage = string.Empty;
         this.IsLoading = true;
 
         try
@@ -334,7 +342,7 @@ public class ProductCatalogueViewModel : ObservableObject
         }
     }
 
-    private async void AddItemToCart(CatalogueItemViewModel catalogueItem)
+    public async Task AddItemToCartAsync(CatalogueItemViewModel? catalogueItem)
     {
         if (catalogueItem == null || !catalogueItem.CanAddToCart)
         {
@@ -345,10 +353,19 @@ public class ProductCatalogueViewModel : ObservableObject
         {
             int userId = this.currentUserService.UserId;
             await this.basketService.AddToBasketAsync(userId, catalogueItem.ItemId, DefaultCartQuantity);
-            System.Diagnostics.Debug.WriteLine($"Added '{catalogueItem.Name}' (ID={catalogueItem.ItemId}) to basket for user {userId}.");
+            var basket = await this.basketService.GetBasketAsync(userId);
+            if (!basket.TryGetValue(catalogueItem.ItemId, out var basketEntry) || basketEntry.Quantity <= 0)
+            {
+                this.ErrorMessage = $"Could not confirm '{catalogueItem.Name}' in your basket.";
+                return;
+            }
+
+            this.ErrorMessage = string.Empty;
+            this.StatusMessage = $"Added '{catalogueItem.Name}' to basket. Quantity: {basketEntry.Quantity}.";
         }
         catch (Exception exception)
         {
+            this.StatusMessage = string.Empty;
             this.ErrorMessage = $"Failed to add to cart: {exception.Message}";
         }
     }
