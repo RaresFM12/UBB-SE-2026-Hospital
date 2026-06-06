@@ -66,13 +66,19 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
     public async Task<List<Prescription>> GetPotentialDrugAddictsAsync()
     {
         var cutoff = DateTime.UtcNow.AddDays(-30);
-        return await context.Prescriptions
+        var prescriptions = await context.Prescriptions
             .Include(p => p.MedicationList)
+            .Include(p => p.MedicalRecord)
+                .ThenInclude(r => r.MedicalHistory)
+                    .ThenInclude(mh => mh.Patient)
             .Where(p => p.Date >= cutoff)
-            .GroupBy(p => p.MedicalRecord.RecordId)
+            .ToListAsync();
+
+        return prescriptions
+            .GroupBy(p => p.MedicalRecord?.RecordId)
             .Where(g => g.Count() >= 5)
             .SelectMany(g => g)
-            .ToListAsync();
+            .ToList();
     }
 
     public async Task<List<Prescription>> GetTopNAsync(int n, int page)
