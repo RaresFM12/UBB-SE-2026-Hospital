@@ -93,8 +93,8 @@ public class PharmacistController : Controller
             .Select(prescription => new AddictCandidateViewModel
             {
                 Id = prescription.PrescriptionId,
-                FirstName = string.IsNullOrWhiteSpace(p.PatientName)
-                    ? $"Patient on Prescription #{p.PrescriptionId}"
+                FirstName = string.IsNullOrWhiteSpace(prescription.PatientName)
+                    ? $"Patient on Prescription #{prescription.PrescriptionId}"
                     : prescription.PatientName,
                 LastName = string.Empty,
                 IsPoliceNotified = false
