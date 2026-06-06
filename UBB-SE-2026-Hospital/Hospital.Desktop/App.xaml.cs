@@ -77,10 +77,14 @@ public partial class App : Application
         services.AddSingleton<IBloodCompatibilityService, BloodCompatibilityApiClient>();
         services.AddSingleton<IBillingService, BillingApiClient>();
         services.AddSingleton<IAddictDetectionService, AddictDetectionApiClient>();
-        services.AddSingleton<IPeriodTrackerService, PeriodTrackerApiClient>();
         services.AddSingleton<PrescriptionApiClient>();
         services.AddSingleton<IPrescriptionService>(sp => sp.GetRequiredService<PrescriptionApiClient>());
         services.AddSingleton<IPharmacyVacationService, PharmacyVacationApiClient>();
+        services.AddHttpClient<IPeriodTrackerApiClient, PeriodTrackerApiClient>("api")
+                .AddHttpMessageHandler<JwtAuthHandler>();
+        services.AddSingleton<IPeriodTrackerService>(sp => sp.GetRequiredService<IPeriodTrackerApiClient>() as PeriodTrackerApiClient ?? throw new InvalidOperationException("PeriodTrackerApiClient not found"));
+        services.AddTransient<Hospital.Desktop.ViewModels.Pharmacy.PeriodTrackerViewModel>();
+        services.AddTransient<Hospital.Desktop.Views.Pharmacy.PeriodTrackerPage>();
 
         // Sync-blocking proxies (923-2 admin/client)
         services.AddSingleton<IAdminService, AdminApiClient>();

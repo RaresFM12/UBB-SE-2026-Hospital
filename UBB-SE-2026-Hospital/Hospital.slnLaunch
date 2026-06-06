@@ -18,7 +18,7 @@
       {
         "Path": "Hospital.API\\Hospital.API.csproj",
         "Action": "Start",
-        "DebugTarget": "http"
+        "DebugTarget": "https"
       },
       {
         "Path": "Hospital.Desktop\\Hospital.Desktop.csproj",

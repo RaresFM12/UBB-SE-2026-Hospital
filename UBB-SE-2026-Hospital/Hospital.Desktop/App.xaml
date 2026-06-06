@@ -15,6 +15,7 @@
             <SolidColorBrush x:Key="AppTextPrimaryBrush" Color="#1F2937" />
             <SolidColorBrush x:Key="AppTextSecondaryBrush" Color="#6B7280" />
             <SolidColorBrush x:Key="AppErrorBrush" Color="#DC2626" />
+            <SolidColorBrush x:Key="AppSuccessBrush" Color="#16A34A" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

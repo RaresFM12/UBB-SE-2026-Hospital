@@ -126,6 +126,7 @@ public partial class MainWindow : Window
             }),
             ("Client Tools", new[]
             {
+                ("Period Tracker", "PeriodTracker"),
                 ("My Basket", "Basket"),
                 ("Billing", "Billing"),
             }));
@@ -324,7 +325,7 @@ public partial class MainWindow : Window
             "Notifications" => typeof(Views.Admin.NotificationsPage),
             "Substances" => typeof(Views.Admin.SubstancesPage),
             "InventoryItems" => typeof(Views.Admin.InventoryItemsPage),
-            "PeriodTracker" => typeof(Views.Patient.PeriodTrackerPage),
+            "PeriodTracker" => typeof(Views.Pharmacy.PeriodTrackerPage),
             _ => null,
         };
 
@@ -473,7 +474,7 @@ public partial class MainWindow : Window
             // Pharmacist: shared features + the web Staff Portal "Pharmacy Actions".
             UserRole.Pharmacist => isSharedFeature || navigationTag is "PharmacySchedule",
             // Client: shared features + the web "Client Tools".
-            UserRole.Client => isSharedFeature || navigationTag is "Billing" or "Basket",
+            UserRole.Client => isSharedFeature || navigationTag is "Billing" or "Basket" or "PeriodTracker",
             _ => false,
         };
     }
