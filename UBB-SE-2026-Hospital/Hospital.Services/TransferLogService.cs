@@ -1,7 +1,6 @@
 using Hospital.Data.Models;
-using Hospital.Data.Models;
 using Hospital.Data.Repositories;
-using Hospital.Services;
+using Hospital.Shared.Services;
 
 namespace Hospital.Services;
 
@@ -18,8 +17,8 @@ public class TransferLogService(
     public Task<TransferLog> CreateAsync(TransferLog transferLog)
         => transferLogRepository.CreateAsync(transferLog);
 
-    public Task<TransferLog> UpdateAsync(TransferLog transferLog)
-        => transferLogRepository.UpdateAsync(transferLog);
+    public async Task UpdateAsync(TransferLog transferLog)
+        => await transferLogRepository.UpdateAsync(transferLog);
 
     public Task DeleteAsync(int id)
         => transferLogRepository.DeleteAsync(id);
