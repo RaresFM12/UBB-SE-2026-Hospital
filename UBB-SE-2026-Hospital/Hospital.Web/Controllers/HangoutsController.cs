@@ -101,7 +101,7 @@ namespace Hospital.Web.Controllers
                 return this.View(viewModel);
             }
 
-            var creator = new Staff { StaffID = viewModel.SelectedDoctorId };
+            var creator = new Staff { StaffId = viewModel.SelectedDoctorId };
 
             try
             {
@@ -182,7 +182,7 @@ namespace Hospital.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Join(int hangoutId, int staffId)
         {
-            var joiningStaff = new Staff { StaffID = staffId };
+            var joiningStaff = new Staff { StaffId = staffId };
 
             try
             {
