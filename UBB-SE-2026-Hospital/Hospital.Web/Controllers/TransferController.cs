@@ -43,7 +43,7 @@ public class TransferController : Controller
         try
         {
             await erApiClient.TransferVisitAsync(visitId, cancellationToken);
-            TempData["SuccessMessage"] = $"Visit {visitId} was transferred to Patient Management.";
+            TempData["SuccessMessage"] = "The patient was transferred.";
         }
         catch (UnauthorizedAccessException)
         {
@@ -55,29 +55,7 @@ public class TransferController : Controller
             return RedirectToAction(nameof(Index), new { selectedVisitId = visitId });
         }
 
-        return RedirectToAction(nameof(Index));
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Retry(int visitId, CancellationToken cancellationToken)
-    {
-        try
-        {
-            await erApiClient.RetryTransferAsync(visitId, cancellationToken);
-            TempData["SuccessMessage"] = $"Transfer retry for visit {visitId} succeeded.";
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return RedirectToLogin();
-        }
-        catch (Exception ex)
-        {
-            TempData["ErrorMessage"] = $"Retry failed: {ex.Message}";
-            return RedirectToAction(nameof(Index), new { selectedVisitId = visitId });
-        }
-
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Index), new { selectedVisitId = visitId });
     }
 
     [HttpPost]
@@ -130,13 +108,21 @@ public class TransferController : Controller
             .Select(log => new TransferLogItemViewModel
             {
                 TransferId = log.TransferLogId,
-                VisitId = log.Visit.VisitId,
+                VisitId = log.Visit?.VisitId ?? selectedVisitId.Value,
                 TransferTime = log.TransferTime,
                 TargetSystem = log.TargetSystem,
                 Status = log.Status
             })
             .ToList();
-        model.CanRetry = model.TransferLogs.FirstOrDefault()?.Status == "FAILED";
+
+        bool hasSuccessfulTransfer = model.TransferLogs.Any(log =>
+            string.Equals(log.Status, "SUCCESS", StringComparison.OrdinalIgnoreCase));
+        if (hasSuccessfulTransfer)
+        {
+            model.ExaminationSummary = await erApiClient.GetExaminationSummaryAsync(
+                selectedVisitId.Value,
+                cancellationToken);
+        }
 
         return model;
     }

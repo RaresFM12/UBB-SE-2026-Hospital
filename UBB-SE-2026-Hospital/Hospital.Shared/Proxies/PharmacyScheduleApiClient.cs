@@ -5,6 +5,7 @@ namespace Hospital.Shared.Proxies;
 
 public class PharmacyScheduleApiClient(HttpClient httpClient) : ApiClientBase(httpClient), IPharmacyScheduleService, IPharmacyScheduleApiClient
 {
+    private const string StaffUri = "api/staff";
     private const string ShiftsUri = "api/shifts";
     private const string PharmacistsUri = "api/staff/pharmacists";
 

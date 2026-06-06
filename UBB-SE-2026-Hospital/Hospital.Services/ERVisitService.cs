@@ -29,8 +29,22 @@ public class ERVisitService(
             .Where(visit => string.Equals(visit.Status, status, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
-    public Task<ERVisit> CreateAsync(ERVisit visit)
-        => erVisitRepository.CreateAsync(visit);
+    public async Task<ERVisit> CreateAsync(ERVisit visit)
+    {
+        ArgumentNullException.ThrowIfNull(visit);
+
+        if (visit.Patient is null || visit.Patient.PatientId <= 0)
+        {
+            throw new ArgumentException("A valid patient is required to create an ER visit.");
+        }
+
+        Patient patient = await patientRepository.GetByIdAsync(visit.Patient.PatientId)
+            ?? throw new ArgumentException(
+                $"Patient {visit.Patient.PatientId} was not found.");
+
+        visit.Patient = patient;
+        return await erVisitRepository.CreateAsync(visit);
+    }
 
     public async Task<ERVisit> UpdateAsync(ERVisit visit)
     {
