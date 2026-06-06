@@ -100,11 +100,22 @@ public class TransplantApiClient : ApiClientBase, ITransplantApiClient, ITranspl
             using HttpResponseMessage response = await httpClient.GetAsync(
                 $"{BaseUri}/chronic-warning/{patientId}", cancellationToken);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<string?>(jsonOptions, cancellationToken);
+
+            string responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+            if (string.IsNullOrWhiteSpace(responseBody))
+            {
+                return null;
+            }
+
+            return JsonSerializer.Deserialize<string?>(responseBody, jsonOptions);
         }
         catch (HttpRequestException)
         {
             throw new InvalidOperationException("Could not connect to the transplant API.");
+        }
+        catch (JsonException)
+        {
+            throw new InvalidOperationException("The transplant API returned an invalid chronic warning.");
         }
     }
 
