@@ -223,7 +223,31 @@ public class PharmacyScheduleViewModel : ObservableObject
     private async Task LoadPharmacistsAsync()
     {
         this.Pharmacists.Clear();
-        var allPharmacists = await Task.Run(() => this.scheduleService.GetPharmacists());
+
+        bool isAdminRole = string.Equals(this.currentUser.Role, AdminRoleLabel, StringComparison.OrdinalIgnoreCase);
+        if (!isAdminRole)
+        {
+            this.Pharmacists.Add(new PharmacistOption
+            {
+                StaffId = this.currentUser.UserId,
+                PharmacistName = "My Schedule"
+            });
+            
+            this.SelectedPharmacist = this.Pharmacists.First();
+            return;
+        }
+
+        IReadOnlyList<Pharmacyst> allPharmacists = Array.Empty<Pharmacyst>();
+
+        try
+        {
+            allPharmacists = await Task.Run(() => this.scheduleService.GetPharmacists());
+        }
+        catch (Exception exception)
+        {
+            this.ErrorMessage = $"Failed to load pharmacists: {exception.Message}";
+            return;
+        }
 
         string GetPharmacistFirstName(Pharmacyst pharmacist) => pharmacist.FirstName;
         string GetPharmacistLastName(Pharmacyst pharmacist) => pharmacist.LastName;

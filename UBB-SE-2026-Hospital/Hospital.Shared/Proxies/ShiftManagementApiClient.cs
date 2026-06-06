@@ -27,10 +27,10 @@ public class ShiftManagementApiClient(HttpClient httpClient) : ApiClientBase(htt
     public bool ValidateShiftTimes(TimeSpan start, TimeSpan end) => start < end;
 
     public IReadOnlyList<Shift> GetDailyShifts(DateTime date)
-        => Task.Run(async () => await GetAsync<List<Shift>>($"{BaseUri}/daily?date={date:yyyy-MM-dd}") ?? []).GetAwaiter().GetResult();
+        => Task.Run(async () => await GetDailyShiftsAsync(date)).GetAwaiter().GetResult();
 
     public IReadOnlyList<Shift> GetWeeklyShifts(DateTime date)
-        => Task.Run(async () => await GetAsync<List<Shift>>($"{BaseUri}/weekly?date={date:yyyy-MM-dd}") ?? []).GetAwaiter().GetResult();
+        => Task.Run(async () => await GetWeeklyShiftsAsync(date)).GetAwaiter().GetResult();
 
     public bool ReassignShift(Shift shift, IStaff newStaff)
     {
@@ -51,7 +51,27 @@ public class ShiftManagementApiClient(HttpClient httpClient) : ApiClientBase(htt
               .GetAwaiter().GetResult().Cast<IStaff>().ToList();
 
     public IReadOnlyList<string> GetSpecializationsAndCertificationsForLocation(string location)
-        => Task.Run(async () => await GetAsync<List<string>>($"api/staff/specializations?location={Uri.EscapeDataString(location)}") ?? []).GetAwaiter().GetResult();
+    {
+        var allStaff = Task.Run(async () => await GetAllStaffAsync()).GetAwaiter().GetResult();
+        if (string.Equals(location, "Pharmacy", StringComparison.OrdinalIgnoreCase))
+        {
+            return allStaff
+                .OfType<Pharmacyst>()
+                .Select(staff => staff.Certification)
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(value => value)
+                .ToList();
+        }
+
+        return allStaff
+            .OfType<Doctor>()
+            .Select(staff => staff.Specialization)
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(value => value)
+            .ToList();
+    }
 
     public bool IsStaffWorkingDuring(int staffId, DateTime startTime, DateTime endTime)
         => Task.Run(async () => await GetAsync<bool>($"{BaseUri}/is-working?staffId={staffId}&startTime={QueryDate(startTime)}&endTime={QueryDate(endTime)}")).GetAwaiter().GetResult();
@@ -75,10 +95,19 @@ public class ShiftManagementApiClient(HttpClient httpClient) : ApiClientBase(htt
         => await DeleteAsync($"{BaseUri}/{shiftId}");
 
     public async Task<IReadOnlyList<Shift>> GetDailyShiftsAsync(DateTime date, CancellationToken cancellationToken = default)
-        => await GetAsync<List<Shift>>($"{BaseUri}/daily?date={date:yyyy-MM-dd}") ?? [];
+    {
+        var allShifts = await GetAsync<List<Shift>>(BaseUri) ?? [];
+        return allShifts.Where(shiftItem => shiftItem.StartTime.Date == date.Date).ToList();
+    }
 
     public async Task<IReadOnlyList<Shift>> GetWeeklyShiftsAsync(DateTime date, CancellationToken cancellationToken = default)
-        => await GetAsync<List<Shift>>($"{BaseUri}/weekly?date={date:yyyy-MM-dd}") ?? [];
+    {
+        const int daysInWeek = 7;
+        var allShifts = await GetAsync<List<Shift>>(BaseUri) ?? [];
+        var startOfWeek = date.Date.AddDays(-((daysInWeek + (date.DayOfWeek - DayOfWeek.Monday)) % daysInWeek));
+        var endOfWeek = startOfWeek.AddDays(daysInWeek);
+        return allShifts.Where(shiftItem => shiftItem.StartTime >= startOfWeek && shiftItem.StartTime < endOfWeek).ToList();
+    }
 
     public async Task<IReadOnlyList<Shift>> GetActiveShiftsAsync(CancellationToken cancellationToken = default)
         => await GetAsync<List<Shift>>($"{BaseUri}/active") ?? [];
@@ -108,7 +137,23 @@ public class ShiftManagementApiClient(HttpClient httpClient) : ApiClientBase(htt
         => await PutAsync<object>($"api/staff/{staffId}/availability", new { isAvailable, status });
 
     public async Task<IReadOnlyList<Staff>> GetFilteredStaffAsync(string location, string requiredSpecializationOrCertification, CancellationToken cancellationToken = default)
-        => await GetAsync<List<Staff>>($"api/staff/filtered?location={Uri.EscapeDataString(location)}&requiredSpecializationOrCertification={Uri.EscapeDataString(requiredSpecializationOrCertification)}") ?? [];
+    {
+        var allStaff = await GetAllStaffAsync(cancellationToken);
+        if (string.Equals(location, "Pharmacy", StringComparison.OrdinalIgnoreCase))
+        {
+            return allStaff
+                .OfType<Pharmacyst>()
+                .Where(staff => staff.Certification.Contains(requiredSpecializationOrCertification, StringComparison.OrdinalIgnoreCase))
+                .Cast<Staff>()
+                .ToList();
+        }
+
+        return allStaff
+            .OfType<Doctor>()
+            .Where(staff => staff.Specialization.Contains(requiredSpecializationOrCertification, StringComparison.OrdinalIgnoreCase))
+            .Cast<Staff>()
+            .ToList();
+    }
 }
 
 

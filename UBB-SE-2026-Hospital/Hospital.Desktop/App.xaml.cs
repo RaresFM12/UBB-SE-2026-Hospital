@@ -87,8 +87,9 @@ public partial class App : Application
         services.AddSingleton<IAdminService, AdminApiClient>();
         services.AddSingleton<IOrderService, OrdersApiClient>();
         services.AddSingleton<IUserAccountService, UserAccountApiClient>();
-        services.AddSingleton<IShiftManagementService, ShiftManagementApiClient>();
+        services.AddHttpClient<IShiftManagementService, ShiftManagementApiClient>("api");
         services.AddSingleton<IFatigueAuditService, FatigueAuditApiClient>();
+        services.AddHttpClient<IPharmacyScheduleService, PharmacyScheduleApiClient>("api");
 
         // Newly ported web features (desktop parity)
         services.AddSingleton<IGhostApiClient, GhostApiClient>();
