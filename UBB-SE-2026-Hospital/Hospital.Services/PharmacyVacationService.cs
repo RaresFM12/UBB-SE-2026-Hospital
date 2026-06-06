@@ -27,8 +27,8 @@ namespace Hospital.Services
         {
             var pharmacists = await this.staffRepository.GetAllPharmacistsAsync();
             return pharmacists
-                .OrderBy(p => p.FirstName)
-                .ThenBy(p => p.LastName)
+                .OrderBy(pharmacist => pharmacist.FirstName)
+                .ThenBy(pharmacist => pharmacist.LastName)
                 .ToList();
         }
 
@@ -48,7 +48,7 @@ namespace Hospital.Services
             }
 
             var pharmacists = await this.staffRepository.GetAllPharmacistsAsync();
-            var pharmacist = pharmacists.FirstOrDefault(p => p.StaffId == pharmacistStaffId)
+            var pharmacist = pharmacists.FirstOrDefault(pharmacist => pharmacist.StaffId == pharmacistStaffId)
                 ?? throw new ArgumentException("Pharmacist not found.");
 
             var pharmacistShifts = await this.shiftRepository.GetByStaffIdAsync(pharmacistStaffId);

@@ -45,6 +45,13 @@ public class StatisticsController : Controller
                     model.PrimaryData = await statisticsService.GetPatientGenderDistributionAsync();
                     model.SecondaryData = await statisticsService.GetAgeDistributionAsync();
                     break;
+                case StatisticsType.TopItems:
+                    model.PrimaryData = adminService.GetTop30Items()
+                        .ToDictionary(tuplu => tuplu.Item2, tuplu => tuplu.Item3);
+                    break;
+                case StatisticsType.TopSubstances:
+                    model.PrimaryData = adminService.GetTop30Substances();
+                    break;
                 default:
                     model.PrimaryData = await statisticsService.GetActiveVsArchivedRatioAsync();
                     break;

@@ -17,7 +17,7 @@ public sealed class SubstancesEndpointsTests : IntegrationTestBase
         Assert.IsNotNull(substances);
         // 19 substances are seeded via HasData in the DbContext.
         Assert.IsTrue(substances!.Count >= 19);
-        Assert.IsTrue(substances.Any(s => s.Name == "Ibuprofen"));
+        Assert.IsTrue(substances.Any(substance => substance.Name == "Ibuprofen"));
     }
 
     [TestMethod]

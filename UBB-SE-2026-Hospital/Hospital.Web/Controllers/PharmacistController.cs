@@ -88,14 +88,14 @@ public class PharmacistController : Controller
             .GetTopNAsync(AddictPrescriptionFetchLimit, 1);
 
         var candidates = prescriptions
-            .Where(p => p.MedicationList != null && p.MedicationList.Count >= AddictMinimumMedications)
-            .Where(p => !NotifiedCandidateIds.Contains(p.PrescriptionId))
-            .Select(p => new AddictCandidateViewModel
+            .Where(prescription => prescription.MedicationList != null && prescription.MedicationList.Count >= AddictMinimumMedications)
+            .Where(prescription => !NotifiedCandidateIds.Contains(prescription.PrescriptionId))
+            .Select(prescription => new AddictCandidateViewModel
             {
-                Id = p.PrescriptionId,
-                FirstName = string.IsNullOrWhiteSpace(p.PatientName)
-                    ? $"Patient on Prescription #{p.PrescriptionId}"
-                    : p.PatientName,
+                Id = prescription.PrescriptionId,
+                FirstName = string.IsNullOrWhiteSpace(prescription.PatientName)
+                    ? $"Patient on Prescription #{prescription.PrescriptionId}"
+                    : prescription.PatientName,
                 LastName = string.Empty,
                 IsPoliceNotified = false
             })
@@ -182,7 +182,7 @@ public class PharmacistController : Controller
             ?? (string.IsNullOrWhiteSpace(prescription.DoctorName) ? "Unknown" : prescription.DoctorName);
 
         string medications = prescription.MedicationList is { Count: > 0 }
-            ? string.Join(", ", prescription.MedicationList.Select(m => m.MedicationName))
+            ? string.Join(", ", prescription.MedicationList.Select(medication => medication.MedicationName))
             : "Unknown";
 
         var builder = new StringBuilder();

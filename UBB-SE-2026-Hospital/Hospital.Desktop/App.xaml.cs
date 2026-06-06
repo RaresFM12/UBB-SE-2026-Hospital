@@ -53,7 +53,7 @@ public partial class App : Application
         {
             ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
         });
-        services.AddSingleton(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("api"));
+        services.AddSingleton(serviceProvider => serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("api"));
         var apiBaseUri = new Uri(apiBaseUrl);
         // Register shared business logic services
 
@@ -78,7 +78,8 @@ public partial class App : Application
         services.AddSingleton<IBillingService, BillingApiClient>();
         services.AddSingleton<IAddictDetectionService, AddictDetectionApiClient>();
         services.AddSingleton<PrescriptionApiClient>();
-        services.AddSingleton<IPrescriptionService>(sp => sp.GetRequiredService<PrescriptionApiClient>());
+        services.AddSingleton<IPrescriptionService>(serviceProvider => serviceProvider.GetRequiredService<PrescriptionApiClient>());
+        services.AddSingleton<IPharmacyScheduleService, PharmacyScheduleApiClient>();
         services.AddSingleton<IPharmacyVacationService, PharmacyVacationApiClient>();
 
         // Sync-blocking proxies (923-2 admin/client)
@@ -95,6 +96,10 @@ public partial class App : Application
         services.AddHttpClient<IHangoutService, HangoutApiClient>("api")
             .AddHttpMessageHandler<JwtAuthHandler>();
         services.AddHttpClient<IPharmacyScheduleService, PharmacyScheduleApiClient>("api")
+            .AddHttpMessageHandler<JwtAuthHandler>();
+        services.AddHttpClient<IProductCatalogueService, ProductCatalogueApiClient>("api")
+            .AddHttpMessageHandler<JwtAuthHandler>();
+        services.AddHttpClient<IBasketApiClient, BasketApiClient>("api")
             .AddHttpMessageHandler<JwtAuthHandler>();
         services.AddSingleton<IShiftSwapService, ShiftSwapApiClient>();
         services.AddSingleton<INotificationService, NotificationApiClient>();
@@ -138,6 +143,8 @@ public partial class App : Application
         services.AddTransient<Hospital.Desktop.ViewModels.Pharmacy.PharmacyScheduleViewModel>();
         services.AddTransient<Hospital.Desktop.ViewModels.Pharmacy.PharmacyShiftItemViewModel>();
         services.AddTransient<Hospital.Desktop.ViewModels.PharmacyManagement.EditPageViewModel>();
+        services.AddTransient<Hospital.Desktop.ViewModels.Pharmacy.ProductCatalogueViewModel>();
+        services.AddTransient<Hospital.Desktop.ViewModels.Pharmacy.ProductDetailsViewModel>();
 
         //the details of the appointments in the doctors schedule did not show up without this line commented out
         //services.AddTransient<Hospital.Desktop.Views.Shell.DialogPresenter>();

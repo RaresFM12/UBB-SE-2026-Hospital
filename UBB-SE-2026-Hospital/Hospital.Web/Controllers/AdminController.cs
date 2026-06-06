@@ -106,8 +106,8 @@ public class AdminController : Controller
     public async Task<IActionResult> Patients(string? searchQuery, int? minAge, int? maxAge, Sex? sex, bool archived = false, int? selectedId = null, CancellationToken cancellationToken = default)
     {
         var searchResults = await SearchPatientsAsync(searchQuery, minAge, maxAge, sex, cancellationToken);
-        var visiblePatients = searchResults.Where(p => p.IsArchived == archived).OrderBy(p => p.LastName).ToList();
-        Patient? selectedPatient = selectedId.HasValue ? (visiblePatients.FirstOrDefault(p => p.PatientId == selectedId.Value) ?? await patientService.GetByIdAsync(selectedId.Value, cancellationToken)) : null;
+        var visiblePatients = searchResults.Where(patient => patient.IsArchived == archived).OrderBy(patient => patient.LastName).ToList();
+        Patient? selectedPatient = selectedId.HasValue ? (visiblePatients.FirstOrDefault(patient => patient.PatientId == selectedId.Value) ?? await patientService.GetByIdAsync(selectedId.Value, cancellationToken)) : null;
 
         return View("Index", new AdminPatientsIndexViewModel
         {

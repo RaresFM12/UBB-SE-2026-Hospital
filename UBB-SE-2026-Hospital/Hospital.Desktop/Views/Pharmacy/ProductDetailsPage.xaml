@@ -1,0 +1,248 @@
+<Page
+    x:Class="Hospital.Desktop.Views.Pharmacy.ProductDetailsPage"
+    x:Name="DetailsRoot"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:Hospital.Desktop.Converters"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:StringNotEmptyToVisibilityConverter x:Key="StringNotEmptyToVisibilityConverter"/>
+        <converters:DiscountPercentageToVisibilityConverter x:Key="DiscountToVisibilityConverter"/>
+        <converters:NoDiscountToVisibilityConverter x:Key="NoDiscountToVisibilityConverter"/>
+        <converters:StockLevelToColorConverter x:Key="StockLevelToColorConverter"/>
+    </Page.Resources>
+
+    <Grid Background="{StaticResource AppBackgroundBrush}" Padding="24" RowSpacing="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Back Button -->
+        <Button Grid.Row="0"
+                Content="← Back to Catalogue"
+                Click="BackButton_Click"
+                HorizontalAlignment="Left"
+                Background="Transparent"
+                Foreground="{StaticResource AppAccentBrush}"
+                FontWeight="SemiBold"/>
+
+        <!-- Main Content -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="24">
+
+                <!-- Product Header: Image (Left) + Info (Right) -->
+                <Grid ColumnSpacing="32">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="320"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left Side: Product Image Placeholder -->
+                    <Border Grid.Column="0"
+                            Background="{StaticResource AppSurfaceBrush}"
+                            CornerRadius="12"
+                            BorderBrush="{StaticResource AppAccentBrush}"
+                            BorderThickness="1"
+                            Height="320"
+                            VerticalAlignment="Top">
+                        <Grid>
+                            <FontIcon Glyph="&#xE8B9;"
+                                      FontSize="80"
+                                      Foreground="{StaticResource AppTextSecondaryBrush}"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      Opacity="0.4"/>
+                            <TextBlock Text="{Binding SelectedProduct.Category}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Bottom"
+                                       Margin="0,0,0,16"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource AppTextSecondaryBrush}"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Right Side: Product Info -->
+                    <StackPanel Grid.Column="1" Spacing="12">
+
+                        <!-- Product Name -->
+                        <TextBlock Text="{Binding SelectedProduct.Name}"
+                                   FontSize="28"
+                                   FontWeight="Bold"
+                                   TextWrapping="Wrap"
+                                   Foreground="{StaticResource AppTextPrimaryBrush}"/>
+
+                        <!-- Producer -->
+                        <TextBlock FontSize="15"
+                                   Foreground="{StaticResource AppTextSecondaryBrush}">
+                            <Run Text="by "/>
+                            <Run Text="{Binding SelectedProduct.Producer}"/>
+                        </TextBlock>
+
+                        <!-- Category & Label -->
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Border Background="{StaticResource AppAccentBrush}"
+                                    CornerRadius="4"
+                                    Padding="8,4">
+                                <TextBlock Text="{Binding SelectedProduct.Category}"
+                                           Foreground="White"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"/>
+                            </Border>
+                            <Border Background="{StaticResource AppSurfaceBrush}"
+                                    CornerRadius="4"
+                                    Padding="8,4"
+                                    BorderBrush="{StaticResource AppAccentBrush}"
+                                    BorderThickness="1">
+                                <TextBlock FontSize="12"
+                                           Foreground="{StaticResource AppTextSecondaryBrush}">
+                                    <Run Text="{Binding SelectedProduct.NumberOfPills}"/>
+                                    <Run Text=" pills"/>
+                                </TextBlock>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Price Section: Discounted -->
+                        <StackPanel Visibility="{Binding SelectedProduct.DiscountPercentage, Converter={StaticResource DiscountToVisibilityConverter}}"
+                                    Orientation="Horizontal"
+                                    Spacing="8"
+                                    Margin="0,8,0,0">
+                            <TextBlock Text="{Binding SelectedProduct.OldPriceFormatted}"
+                                       FontSize="18"
+                                       Foreground="{StaticResource AppTextSecondaryBrush}"
+                                       TextDecorations="Strikethrough"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding SelectedProduct.FinalPriceFormatted}"
+                                       FontSize="26"
+                                       FontWeight="Bold"
+                                       Foreground="#28a745"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock VerticalAlignment="Center"
+                                       FontSize="16"
+                                       Foreground="#dc3545"
+                                       FontWeight="SemiBold">
+                                <Run Text="{Binding SelectedProduct.DiscountBadgeText}"/>
+                                <Run Text=" off"/>
+                            </TextBlock>
+                        </StackPanel>
+
+                        <!-- Price Section: No Discount -->
+                        <TextBlock Text="{Binding SelectedProduct.OldPriceFormatted}"
+                                   Visibility="{Binding SelectedProduct.DiscountPercentage, Converter={StaticResource NoDiscountToVisibilityConverter}}"
+                                   FontSize="26"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource AppTextPrimaryBrush}"
+                                   Margin="0,8,0,0"/>
+
+                        <!-- Stock Status -->
+                        <TextBlock Text="{Binding SelectedProduct.StockText}"
+                                   FontWeight="Bold"
+                                   FontSize="15"
+                                   Foreground="{Binding SelectedProduct.StockLevel, Converter={StaticResource StockLevelToColorConverter}}"
+                                   Margin="0,4,0,0"/>
+
+                        <!-- Active Substances -->
+                        <TextBlock FontSize="13"
+                                   Foreground="{StaticResource AppTextSecondaryBrush}">
+                            <Run Text="Active Substances: " FontWeight="SemiBold"/>
+                            <Run Text="{Binding SelectedProduct.SubstancesText}"/>
+                        </TextBlock>
+
+                        <!-- Quantity Selector + Add to Basket -->
+                        <Border Background="{StaticResource AppSurfaceBrush}"
+                                CornerRadius="8"
+                                Padding="16"
+                                Margin="0,8,0,0"
+                                BorderBrush="{StaticResource AppAccentBrush}"
+                                BorderThickness="1">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Add to Basket"
+                                           FontWeight="Bold"
+                                           FontSize="16"
+                                           Foreground="{StaticResource AppTextPrimaryBrush}"/>
+
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <NumberBox Grid.Column="0"
+                                               Header="Quantity"
+                                               Value="{Binding SelectedQuantity, Mode=TwoWay}"
+                                               Minimum="1"
+                                               Maximum="50"
+                                               SpinButtonPlacementMode="Inline"
+                                               SmallChange="1"
+                                               LargeChange="5"
+                                               Width="180"
+                                               IsEnabled="{Binding CanAddToCart}"/>
+
+                                    <Button Grid.Column="1"
+                                            Content="Add to Basket"
+                                            Command="{Binding AddToBasketCommand}"
+                                            IsEnabled="{Binding CanAddToCart}"
+                                            VerticalAlignment="Bottom"
+                                            Height="40"
+                                            HorizontalAlignment="Left"
+                                            MinWidth="160"
+                                            Background="{StaticResource AppAccentBrush}"
+                                            Foreground="White"
+                                            FontWeight="Bold"/>
+                                </Grid>
+
+                                <!-- Validation Error -->
+                                <Border Background="#FFF3CD"
+                                        CornerRadius="4"
+                                        Padding="10,6"
+                                        Visibility="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyToVisibilityConverter}}">
+                                    <TextBlock Text="{Binding ErrorMessage}"
+                                               Foreground="#856404"
+                                               FontSize="13"
+                                               FontWeight="SemiBold"/>
+                                </Border>
+
+                                <!-- Success Message -->
+                                <Border Background="#D4EDDA"
+                                        CornerRadius="4"
+                                        Padding="10,6"
+                                        Visibility="{Binding SuccessMessage, Converter={StaticResource StringNotEmptyToVisibilityConverter}}">
+                                    <TextBlock Text="{Binding SuccessMessage}"
+                                               Foreground="#155724"
+                                               FontSize="13"
+                                               FontWeight="SemiBold"/>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Bottom: Product Description -->
+                <Border Background="{StaticResource AppSurfaceBrush}"
+                        CornerRadius="8"
+                        Padding="20"
+                        BorderBrush="{StaticResource AppAccentBrush}"
+                        BorderThickness="1">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Description"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                        <TextBlock Text="{Binding SelectedProduct.Description}"
+                                   TextWrapping="Wrap"
+                                   FontSize="14"
+                                   Foreground="{StaticResource AppTextSecondaryBrush}"
+                                   LineHeight="22"/>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

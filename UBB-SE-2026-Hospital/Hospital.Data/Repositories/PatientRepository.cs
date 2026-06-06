@@ -13,21 +13,21 @@ public class PatientRepository(HospitalDbContext context) : IPatientRepository
     public async Task<Patient?> GetByIdAsync(int patientId)
     {
         return await context.Patients
-            .Include(p => p.MedicalHistory)
-                .ThenInclude(mh => mh!.MedicalRecords)
+            .Include(patient => patient.MedicalHistory)
+                .ThenInclude(medicalHistory => medicalHistory!.MedicalRecords)
                     .ThenInclude(record => record.Prescription)
                         .ThenInclude(prescription => prescription!.MedicationList)
-            .Include(p => p.MedicalHistory)
-                .ThenInclude(mh => mh!.PatientAllergies)
+            .Include(patient => patient.MedicalHistory)
+                .ThenInclude(medicalHistory => medicalHistory!.PatientAllergies)
                     .ThenInclude(patientAllergy => patientAllergy.Allergy)
-            .FirstOrDefaultAsync(p => p.PatientId == patientId);
+            .FirstOrDefaultAsync(patient => patient.PatientId == patientId);
     }
 
     public async Task<List<Patient>> GetAllAsync()
         => await context.Patients
-            .Include(p => p.MedicalHistory)
-                .ThenInclude(mh => mh!.PatientAllergies)
-                    .ThenInclude(pa => pa.Allergy)
+            .Include(patient => patient.MedicalHistory)
+                .ThenInclude(medicalHistory => medicalHistory!.PatientAllergies)
+                    .ThenInclude(patientAllergy => patientAllergy.Allergy)
             .ToListAsync();
 
     public async Task<List<Patient>> GetFilteredAsync(PatientFilter filter)
@@ -35,24 +35,24 @@ public class PatientRepository(HospitalDbContext context) : IPatientRepository
         var query = context.Patients.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(filter.CNP))
-            query = query.Where(p => p.Cnp == filter.CNP);
+            query = query.Where(patient => patient.Cnp == filter.CNP);
 
         if (!string.IsNullOrWhiteSpace(filter.NamePart))
-            query = query.Where(p => (p.FirstName + " " + p.LastName).Contains(filter.NamePart));
+            query = query.Where(patient => (patient.FirstName + " " + patient.LastName).Contains(filter.NamePart));
 
         if (filter.Sex.HasValue)
-            query = query.Where(p => p.Sex == filter.Sex.Value);
+            query = query.Where(patient => patient.Sex == filter.Sex.Value);
 
         if (filter.MinAge.HasValue)
         {
             var maxBirth = DateTime.Today.AddYears(-filter.MinAge.Value);
-            query = query.Where(p => p.DateOfBirth <= maxBirth);
+            query = query.Where(patient => patient.DateOfBirth <= maxBirth);
         }
 
         if (filter.MaxAge.HasValue)
         {
             var minBirth = DateTime.Today.AddYears(-filter.MaxAge.Value - 1);
-            query = query.Where(p => p.DateOfBirth >= minBirth);
+            query = query.Where(patient => patient.DateOfBirth >= minBirth);
         }
 
         return await query.ToListAsync();

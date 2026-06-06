@@ -98,7 +98,7 @@ public sealed class AuthEndpointsTests : IntegrationTestBase
         Assert.IsNotNull(modules);
         CollectionAssert.AreEquivalent(
             new[] { "pharmacy", "orders", "prescriptions", "billing" },
-            modules!.Select(m => m.Key).ToArray());
+            modules!.Select(module => module.Key).ToArray());
     }
 
     [TestMethod]

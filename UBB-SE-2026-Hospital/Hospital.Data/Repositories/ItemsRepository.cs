@@ -10,29 +10,29 @@ public class ItemsRepository(HospitalDbContext context) : IItemsRepository
 {
     public async Task<Item?> GetByIdAsync(int itemId)
         => await context.Items
-            .Include(i => i.ItemBatchEntries)
-            .Include(i => i.ItemSubstanceEntries)
-                .ThenInclude(s => s.Substance)
-            .FirstOrDefaultAsync(i => i.Id == itemId);
+            .Include(item => item.ItemBatchEntries)
+            .Include(item => item.ItemSubstanceEntries)
+                .ThenInclude(substance => substance.Substance)
+            .FirstOrDefaultAsync(item => item.Id == itemId);
 
     public async Task<Item?> GetByIdNoTrackingAsync(int itemId)
         => await context.Items
             .AsNoTracking()
-            .Include(i => i.ItemBatchEntries)
-            .Include(i => i.ItemSubstanceEntries)
-                .ThenInclude(s => s.Substance)
-            .FirstOrDefaultAsync(i => i.Id == itemId);
+            .Include(item => item.ItemBatchEntries)
+            .Include(item => item.ItemSubstanceEntries)
+                .ThenInclude(substance => substance.Substance)
+            .FirstOrDefaultAsync(item => item.Id == itemId);
 
     public async Task<List<Item>> GetAllAsync()
         => await context.Items
-            .Include(i => i.ItemBatchEntries)
-            .Include(i => i.ItemSubstanceEntries)
-                .ThenInclude(s => s.Substance)
+            .Include(item => item.ItemBatchEntries)
+            .Include(item => item.ItemSubstanceEntries)
+                .ThenInclude(substance => substance.Substance)
             .ToListAsync();
 
     public async Task<List<Item>> GetLowStockItemsAsync(int threshold)
         => await context.Items
-            .Where(i => i.Quantity <= threshold)
+            .Where(item => item.Quantity <= threshold)
             .ToListAsync();
 
     public async Task<Item> CreateAsync(Item item)
@@ -115,7 +115,7 @@ public class ItemsRepository(HospitalDbContext context) : IItemsRepository
     }
 
     public async Task<List<ItemBatch>> GetBatchesByItemIdAsync(int itemId)
-        => await context.ItemBatches.Where(b => b.Item.Id == itemId).ToListAsync();
+        => await context.ItemBatches.Where(itemBatch => itemBatch.Item.Id == itemId).ToListAsync();
 
     public async Task<ItemBatch> AddBatchAsync(ItemBatch batch)
     {
@@ -146,7 +146,7 @@ public class ItemsRepository(HospitalDbContext context) : IItemsRepository
 
     public async Task<List<ItemSubstance>> GetSubstancesByItemIdAsync(int itemId)
         => await context.ItemSubstances
-            .Include(s => s.Substance)
-            .Where(s => s.Item.Id == itemId)
+            .Include(substance => substance.Substance)
+            .Where(substance => substance.Item.Id == itemId)
             .ToListAsync();
 }

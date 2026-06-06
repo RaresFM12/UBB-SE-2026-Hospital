@@ -10,24 +10,24 @@ public class OrdersRepository(HospitalDbContext context) : IOrdersRepository
 {
     public async Task<Order?> GetByIdAsync(int orderId)
         => await context.Orders
-            .Include(o => o.Client)
-            .Include(o => o.OrderItemEntries)
-                .ThenInclude(oi => oi.Item)
-            .FirstOrDefaultAsync(o => o.Id == orderId);
+            .Include(order => order.Client)
+            .Include(order => order.OrderItemEntries)
+                .ThenInclude(orderItem => orderItem.Item)
+            .FirstOrDefaultAsync(order => order.Id == orderId);
 
     public async Task<List<Order>> GetAllAsync()
         => await context.Orders
-            .Include(o => o.Client)
-            .Include(o => o.OrderItemEntries)
-                .ThenInclude(oi => oi.Item)
+            .Include(order => order.Client)
+            .Include(order => order.OrderItemEntries)
+                .ThenInclude(orderItem => orderItem.Item)
             .ToListAsync();
 
     public async Task<List<Order>> GetByUserIdAsync(int userId)
         => await context.Orders
-            .Include(o => o.Client)
-            .Include(o => o.OrderItemEntries)
-                .ThenInclude(oi => oi.Item)
-            .Where(o => o.Client.Id == userId)
+            .Include(order => order.Client)
+            .Include(order => order.OrderItemEntries)
+                .ThenInclude(orderItem => orderItem.Item)
+            .Where(order => order.Client.Id == userId)
             .ToListAsync();
 
     public async Task<Order> CreateAsync(Order order)
@@ -56,9 +56,9 @@ public class OrdersRepository(HospitalDbContext context) : IOrdersRepository
 
     public async Task<List<OrderItem>> GetOrderItemsByOrderIdAsync(int orderId)
         => await context.OrderItems
-            .Include(oi => oi.Item)
-            .Include(oi => oi.Order)
-            .Where(oi => oi.Order.Id == orderId)
+            .Include(orderItem => orderItem.Item)
+            .Include(orderItem => orderItem.Order)
+            .Where(orderItem => orderItem.Order.Id == orderId)
             .ToListAsync();
 
     public async Task<OrderItem> AddOrderItemAsync(OrderItem orderItem)

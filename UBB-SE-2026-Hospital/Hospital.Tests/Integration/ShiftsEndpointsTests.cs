@@ -15,7 +15,7 @@ public sealed class ShiftsEndpointsTests : IntegrationTestBase
         var shifts = await client.GetFromJsonAsync<List<Shift>>("/api/shifts", JsonOptions);
 
         Assert.IsNotNull(shifts);
-        Assert.IsTrue(shifts!.Any(s => s.Id == Ids.ShiftId));
+        Assert.IsTrue(shifts!.Any(shift => shift.Id == Ids.ShiftId));
     }
 
     [TestMethod]
@@ -66,7 +66,7 @@ public sealed class ShiftsEndpointsTests : IntegrationTestBase
 
         Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
         var shifts = await client.GetFromJsonAsync<List<Shift>>("/api/shifts", JsonOptions);
-        Assert.IsTrue(shifts!.Any(s => s.Location == "Pharmacy"));
+        Assert.IsTrue(shifts!.Any(shift => shift.Location == "Pharmacy"));
     }
 
     [TestMethod]
