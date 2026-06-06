@@ -17,7 +17,7 @@ public class PatientServiceTests
     private const string Cnp = "1234567890123";
     private const string OtherCnp = "3210987654321";
     private const string PhoneNumber = "0712345678";
-    private const string EmergencyContact = "Family";
+    private const string EmergencyContact = "John Doe 0712345678";
     private const string AllergyName = "Penicillin";
     private const string ChronicCondition = "Asthma";
     private static readonly DateTime BirthDate = new(1990, 1, 1);
