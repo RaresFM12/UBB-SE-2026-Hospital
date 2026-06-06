@@ -34,8 +34,6 @@ public class StatisticsViewModel
             "top-diagnoses"       => StatisticsType.TopDiagnoses,
             "top-medications"     => StatisticsType.TopMedications,
             "demographics"        => StatisticsType.Demographics,
-            "top-items"           => StatisticsType.TopItems,
-            "top-substances"      => StatisticsType.TopSubstances,
             _                     => StatisticsType.PatientDistribution,
         };
     }
@@ -48,8 +46,6 @@ public class StatisticsViewModel
             StatisticsType.TopDiagnoses       => "top-diagnoses",
             StatisticsType.TopMedications     => "top-medications",
             StatisticsType.Demographics       => "demographics",
-            StatisticsType.TopItems           => "top-items",
-            StatisticsType.TopSubstances      => "top-substances",
             _                                 => "patient-distribution",
         };
     }
@@ -62,8 +58,6 @@ public class StatisticsViewModel
             StatisticsType.TopDiagnoses       => "Top Diagnoses",
             StatisticsType.TopMedications     => "Top Medications",
             StatisticsType.Demographics       => "Demographics",
-            StatisticsType.TopItems           => "Top Items",
-            StatisticsType.TopSubstances      => "Top Substances",
             _                                 => "Patient Distribution",
         };
     }
@@ -77,8 +71,6 @@ public class StatisticsViewModel
             "top-diagnoses",
             "top-medications",
             "demographics",
-            "top-items",
-            "top-substances",
         ];
 
         return keys

@@ -10,12 +10,10 @@ namespace Hospital.Web.Controllers;
 public class StatisticsController : Controller
 {
     private readonly IStatisticsApiClient statisticsService;
-    private readonly IAdminApiClient adminService;
 
-    public StatisticsController(IStatisticsApiClient statisticsService, IAdminApiClient adminService)
+    public StatisticsController(IStatisticsApiClient statisticsService)
     {
         this.statisticsService = statisticsService;
-        this.adminService = adminService;
     }
 
     [HttpGet]
@@ -46,13 +44,6 @@ public class StatisticsController : Controller
                 case StatisticsType.Demographics:
                     model.PrimaryData = await statisticsService.GetPatientGenderDistributionAsync();
                     model.SecondaryData = await statisticsService.GetAgeDistributionAsync();
-                    break;
-                case StatisticsType.TopItems:
-                    model.PrimaryData = adminService.GetTop30Items()
-                        .ToDictionary(t => t.Item2, t => t.Item3);
-                    break;
-                case StatisticsType.TopSubstances:
-                    model.PrimaryData = adminService.GetTop30Substances();
                     break;
                 default:
                     model.PrimaryData = await statisticsService.GetActiveVsArchivedRatioAsync();
