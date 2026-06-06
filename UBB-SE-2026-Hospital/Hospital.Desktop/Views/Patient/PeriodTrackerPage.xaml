@@ -5,10 +5,31 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:Hospital.Desktop.Converters"
     mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:StrikethroughConverter x:Key="StrikethroughConverter"/>
+        <converters:PriceToLeiConverter x:Key="PriceToLeiConverter"/>
+
+        <!-- Colored bullet brushes -->
+        <SolidColorBrush x:Key="PeriodRedBrush" Color="#E53E3E"/>
+        <SolidColorBrush x:Key="FertilityGreenBrush" Color="#38A169"/>
+        <SolidColorBrush x:Key="OvulationBlueBrush" Color="#3182CE"/>
+        <SolidColorBrush x:Key="PmsOrangeBrush" Color="#DD6B20"/>
+        <SolidColorBrush x:Key="CoralBrush" Color="#E55B6A"/>
+        <SolidColorBrush x:Key="CardBorderBrush" Color="#C6D8D8"/>
+        <SolidColorBrush x:Key="DiscountBadgeBrush" Color="#1A1A1A"/>
+        <SolidColorBrush x:Key="PriceStrikeBrush" Color="#E53E3E"/>
+        <SolidColorBrush x:Key="PriceGreenBrush" Color="#38A169"/>
+        <SolidColorBrush x:Key="NavButtonBrush" Color="#2D6A6A"/>
+    </Page.Resources>
 
     <ScrollViewer Background="{StaticResource AppBackgroundBrush}">
         <StackPanel Padding="24" Spacing="16">
+
+            <!-- Page Title -->
             <TextBlock Text="Period Tracker"
                        FontSize="32"
                        FontWeight="SemiBold"
@@ -24,6 +45,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
+                <!-- LEFT COLUMN: Cycle Settings -->
                 <Border Grid.Column="0"
                         Background="{StaticResource AppSurfaceBrush}"
                         BorderBrush="{StaticResource AppAccentBrush}"
@@ -56,23 +78,188 @@
                     </StackPanel>
                 </Border>
 
+                <!-- RIGHT COLUMN: Dashboard -->
                 <StackPanel Grid.Column="1" Spacing="16">
-                    <Border Background="{StaticResource AppSurfaceBrush}"
-                            BorderBrush="{StaticResource AppAccentBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            Padding="16">
-                        <StackPanel Spacing="8">
-                            <TextBlock Text="Overview"
-                                       FontSize="18"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource AppTextPrimaryBrush}"/>
-                            <TextBlock Text="{Binding CurrentPhase}" Foreground="{StaticResource AppTextPrimaryBrush}"/>
-                            <TextBlock Text="{Binding NextPeriod}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
-                            <TextBlock Text="{Binding Ovulation}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
-                        </StackPanel>
-                    </Border>
 
+                    <!-- Separator line -->
+                    <Border BorderBrush="{StaticResource AppTextSecondaryBrush}"
+                            BorderThickness="0,0,0,1"
+                            Padding="0,0,0,8"/>
+
+                    <!-- Month/Cycle header -->
+                    <TextBlock Text="{Binding CurrentMonthName}"
+                               FontSize="24"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               Foreground="{StaticResource AppTextPrimaryBrush}"/>
+
+                    <!-- Three info cards -->
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="1.5*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- TODAY card -->
+                        <Border Grid.Column="0"
+                                BorderBrush="{StaticResource CardBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="16"
+                                Background="{StaticResource AppSurfaceBrush}">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Today"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource AppAccentBrush}"/>
+                                <TextBlock Text="{Binding TodayDate}"
+                                           FontSize="22"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                                <TextBlock Text="{Binding CurrentPhase}"
+                                           FontSize="13"
+                                           Foreground="{StaticResource CoralBrush}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- NEXT PERIOD card -->
+                        <Border Grid.Column="1"
+                                BorderBrush="{StaticResource CardBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="16"
+                                Background="{StaticResource AppSurfaceBrush}">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Next Period"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource AppAccentBrush}"/>
+                                <TextBlock Text="{Binding NextPeriodDate}"
+                                           FontSize="22"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                                <TextBlock Text="{Binding NextPeriodDistance}"
+                                           FontSize="13"
+                                           Foreground="{StaticResource CoralBrush}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- OVULATION card -->
+                        <Border Grid.Column="2"
+                                BorderBrush="{StaticResource CardBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="16"
+                                Background="{StaticResource AppSurfaceBrush}">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Ovulation"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource AppAccentBrush}"/>
+                                <TextBlock Text="{Binding OvulationDate}"
+                                           FontSize="22"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                                <TextBlock Text="{Binding OvulationDistance}"
+                                           FontSize="13"
+                                           Foreground="{StaticResource CoralBrush}"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- Cycle interval info with navigation -->
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Previous cycle button -->
+                        <Button Grid.Column="0"
+                                Content="&#xE76B;"
+                                FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                Command="{Binding PreviousCycleCommand}"
+                                VerticalAlignment="Center"
+                                Background="{StaticResource NavButtonBrush}"
+                                Foreground="White"
+                                Width="36" Height="36"
+                                CornerRadius="4"
+                                Padding="0"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"/>
+
+                        <!-- Interval list -->
+                        <StackPanel Grid.Column="1" Spacing="10" Margin="20,0">
+
+                            <!-- Period Days -->
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Ellipse Width="12" Height="12"
+                                         Fill="{StaticResource PeriodRedBrush}"
+                                         VerticalAlignment="Center"/>
+                                <TextBlock VerticalAlignment="Center" Foreground="{StaticResource PeriodRedBrush}" FontWeight="SemiBold">
+                                    <Run Text="Period Days: "/>
+                                    <Run Text="{Binding PeriodIntervalText}"/>
+                                </TextBlock>
+                            </StackPanel>
+
+                            <!-- Low Fertility Days -->
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Ellipse Width="12" Height="12"
+                                         Fill="{StaticResource FertilityGreenBrush}"
+                                         VerticalAlignment="Center"/>
+                                <TextBlock VerticalAlignment="Center" Foreground="{StaticResource FertilityGreenBrush}" FontWeight="SemiBold">
+                                    <Run Text="Low Fertility Days: "/>
+                                    <Run Text="{Binding LowFertilityIntervalText}"/>
+                                </TextBlock>
+                            </StackPanel>
+
+                            <!-- Ovulation Days -->
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Ellipse Width="12" Height="12"
+                                         Fill="{StaticResource OvulationBlueBrush}"
+                                         VerticalAlignment="Center"/>
+                                <TextBlock VerticalAlignment="Center" Foreground="{StaticResource OvulationBlueBrush}" FontWeight="SemiBold">
+                                    <Run Text="Ovulation Days: "/>
+                                    <Run Text="{Binding OvulationIntervalText}"/>
+                                </TextBlock>
+                            </StackPanel>
+
+                            <!-- PMS Days -->
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Ellipse Width="12" Height="12"
+                                         Fill="{StaticResource PmsOrangeBrush}"
+                                         VerticalAlignment="Center"/>
+                                <TextBlock VerticalAlignment="Center" Foreground="{StaticResource PmsOrangeBrush}" FontWeight="SemiBold">
+                                    <Run Text="PMS Days: "/>
+                                    <Run Text="{Binding PmsIntervalText}"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Next cycle button -->
+                        <Button Grid.Column="2"
+                                Content="&#xE76C;"
+                                FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                Command="{Binding NextCycleCommand}"
+                                VerticalAlignment="Center"
+                                Background="{StaticResource NavButtonBrush}"
+                                Foreground="White"
+                                Width="36" Height="36"
+                                CornerRadius="4"
+                                Padding="0"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"/>
+                    </Grid>
+
+                    <!-- Description -->
+                    <TextBlock Text="{Binding Description}"
+                               Foreground="{StaticResource AppTextSecondaryBrush}"
+                               TextWrapping="Wrap"
+                               Margin="0,4,0,0"/>
+
+                    <!-- Notes section -->
                     <Border Background="{StaticResource AppSurfaceBrush}"
                             BorderBrush="{StaticResource AppAccentBrush}"
                             BorderThickness="1"
@@ -115,8 +302,119 @@
                             </ListView>
                         </StackPanel>
                     </Border>
+
                 </StackPanel>
             </Grid>
+
+            <!-- ═══════════════════════════════════════════════════════ -->
+            <!-- RECOMMENDED RELATED WELLNESS ITEMS                     -->
+            <!-- ═══════════════════════════════════════════════════════ -->
+            <Border BorderBrush="{StaticResource AppTextSecondaryBrush}"
+                    BorderThickness="0,1,0,0"
+                    Margin="0,16,0,0"
+                    Padding="0,16,0,0">
+                <StackPanel Spacing="16">
+
+                    <!-- Header row -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Recommended related wellness items"
+                                   FontSize="20"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource AppTextPrimaryBrush}"
+                                   VerticalAlignment="Center"/>
+
+                        <!-- Discount badge -->
+                        <Border Grid.Column="1"
+                                Background="{StaticResource DiscountBadgeBrush}"
+                                CornerRadius="4"
+                                Padding="12,6"
+                                Visibility="{Binding IsDiscountActive, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Text="{Binding DiscountBadgeText}"
+                                       Foreground="White"
+                                       FontSize="13"
+                                       FontWeight="SemiBold"/>
+                        </Border>
+                    </Grid>
+
+                    <!-- Product grid -->
+                    <GridView ItemsSource="{Binding WellnessItems}"
+                              SelectionMode="None"
+                              IsItemClickEnabled="False"
+                              HorizontalAlignment="Stretch">
+                        <GridView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <ItemsWrapGrid MaximumRowsOrColumns="4"
+                                               Orientation="Horizontal"
+                                               ItemWidth="240"
+                                               ItemHeight="195"/>
+                            </ItemsPanelTemplate>
+                        </GridView.ItemsPanel>
+                        <GridView.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{StaticResource CardBorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="8"
+                                        Background="{StaticResource AppSurfaceBrush}"
+                                        Padding="16"
+                                        Margin="4"
+                                        Width="220"
+                                        Height="180">
+                                    <StackPanel Spacing="4"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center">
+                                        <!-- Item name -->
+                                        <TextBlock Text="{Binding RawItem.Name}"
+                                                   FontSize="14"
+                                                   FontWeight="Bold"
+                                                   HorizontalAlignment="Center"
+                                                   TextAlignment="Center"
+                                                   Foreground="{StaticResource AppTextPrimaryBrush}"/>
+                                        <!-- Producer -->
+                                        <TextBlock Text="{Binding RawItem.Producer}"
+                                                   FontSize="12"
+                                                   HorizontalAlignment="Center"
+                                                   Foreground="{StaticResource AppTextSecondaryBrush}"/>
+
+                                        <!-- Original price (strikethrough, shown when discount) -->
+                                        <TextBlock Text="{Binding RawItem.Price, Converter={StaticResource PriceToLeiConverter}}"
+                                                   FontSize="12"
+                                                   HorizontalAlignment="Center"
+                                                   Foreground="{StaticResource PriceStrikeBrush}"
+                                                   TextDecorations="{Binding HasDiscountApplied, Converter={StaticResource StrikethroughConverter}}"
+                                                   Visibility="{Binding HasDiscountApplied, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                                        <!-- Display price -->
+                                        <TextBlock Text="{Binding DisplayPrice, Converter={StaticResource PriceToLeiConverter}}"
+                                                   FontSize="14"
+                                                   FontWeight="SemiBold"
+                                                   HorizontalAlignment="Center"
+                                                   Foreground="{StaticResource PriceGreenBrush}"/>
+
+                                        <!-- Add to basket button -->
+                                        <Button Content="Add to basket"
+                                                HorizontalAlignment="Center"
+                                                Margin="0,6,0,0"
+                                                Padding="16,6"
+                                                BorderBrush="{StaticResource OvulationBlueBrush}"
+                                                BorderThickness="1"
+                                                Background="Transparent"
+                                                Foreground="{StaticResource OvulationBlueBrush}"
+                                                CornerRadius="4"
+                                                Click="AddToBasket_Click"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </GridView.ItemTemplate>
+                    </GridView>
+
+                </StackPanel>
+            </Border>
+
         </StackPanel>
     </ScrollViewer>
 </Page>
