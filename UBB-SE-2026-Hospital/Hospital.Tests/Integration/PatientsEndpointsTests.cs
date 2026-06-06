@@ -17,7 +17,7 @@ public sealed class PatientsEndpointsTests : IntegrationTestBase
 
         Assert.IsNotNull(patients);
         Assert.IsTrue(patients!.Count >= 2);
-        Assert.IsTrue(patients.Any(p => p.FirstName == "Ana" && p.LastName == "Pop"));
+        Assert.IsTrue(patients.Any(patient => patient.FirstName == "Ana" && patient.LastName == "Pop"));
     }
 
     [TestMethod]

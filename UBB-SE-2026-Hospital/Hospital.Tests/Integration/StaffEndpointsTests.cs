@@ -58,7 +58,7 @@ public sealed class StaffEndpointsTests : IntegrationTestBase
 
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         var doctors = await response.Content.ReadFromJsonAsync<List<DoctorSummary>>(JsonOptions);
-        Assert.IsTrue(doctors!.Any(d => d.LastName == "House"));
+        Assert.IsTrue(doctors!.Any(doctor => doctor.LastName == "House"));
     }
 
     [TestMethod]
@@ -68,7 +68,7 @@ public sealed class StaffEndpointsTests : IntegrationTestBase
 
         var pharmacists = await client.GetFromJsonAsync<List<Pharmacyst>>("/api/staff/pharmacists", JsonOptions);
 
-        Assert.IsTrue(pharmacists!.Any(p => p.LastName == "Mortar"));
+        Assert.IsTrue(pharmacists!.Any(pharmacist => pharmacist.LastName == "Mortar"));
     }
 
     [TestMethod]

@@ -16,7 +16,7 @@ public sealed class UsersEndpointsTests : IntegrationTestBase
 
         Assert.IsNotNull(users);
         Assert.IsTrue(users!.Count >= 6);
-        Assert.IsTrue(users.Any(u => u.Email == SeededIds.AdminEmail));
+        Assert.IsTrue(users.Any(user => user.Email == SeededIds.AdminEmail));
     }
 
     [TestMethod]

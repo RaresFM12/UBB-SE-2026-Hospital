@@ -10,19 +10,19 @@ public class UsersRepository(HospitalDbContext context) : IUsersRepository
 {
     public async Task<User?> GetUserByIdAsync(int userId)
         => await context.Users
-            .Include(u => u.UserDiscountEntries)
-            .Include(u => u.UserNotificationEntries)
-            .Include(u => u.PeriodNoteEntries)
-            .FirstOrDefaultAsync(u => u.Id == userId);
+            .Include(user => user.UserDiscountEntries)
+            .Include(user => user.UserNotificationEntries)
+            .Include(user => user.PeriodNoteEntries)
+            .FirstOrDefaultAsync(user => user.Id == userId);
 
     public async Task<User?> GetUserByEmailAsync(string email)
-        => await context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        => await context.Users.FirstOrDefaultAsync(user => user.Email == email);
 
     public async Task<User?> GetUserByUsernameAsync(string username)
-        => await context.Users.FirstOrDefaultAsync(u => u.Username == username);
+        => await context.Users.FirstOrDefaultAsync(user => user.Username == username);
 
     public async Task<bool> ExistsByUsernameAsync(string username)
-        => await context.Users.AnyAsync(u => u.Username == username);
+        => await context.Users.AnyAsync(user => user.Username == username);
 
     public async Task<List<User>> GetAllUsersAsync()
         => await context.Users.ToListAsync();
@@ -53,8 +53,8 @@ public class UsersRepository(HospitalDbContext context) : IUsersRepository
 
     public async Task<List<User>> GetUsersWithDueNotificationsAsync()
         => await context.Users
-            .Include(u => u.UserNotificationEntries)
-            .Where(u => u.UserNotificationEntries.Any())
+            .Include(user => user.UserNotificationEntries)
+            .Where(user => user.UserNotificationEntries.Any())
             .ToListAsync();
 
     public async Task UpdateLoyaltyPointsAsync(int userId, int points)
@@ -69,8 +69,8 @@ public class UsersRepository(HospitalDbContext context) : IUsersRepository
 
     public async Task<List<UserDiscount>> GetUserDiscountsAsync(int userId)
         => await context.UserDiscounts
-            .Include(d => d.Item)
-            .Where(d => d.User.Id == userId)
+            .Include(discount => discount.Item)
+            .Where(discount => discount.User.Id == userId)
             .ToListAsync();
 
     public async Task AddUserDiscountAsync(int userId, UserDiscount discount)
@@ -82,7 +82,7 @@ public class UsersRepository(HospitalDbContext context) : IUsersRepository
     }
 
     public async Task<List<UserNotification>> GetUserNotificationsAsync(int userId)
-        => await context.UserNotifications.Where(n => n.User.Id == userId).ToListAsync();
+        => await context.UserNotifications.Where(notification => notification.User.Id == userId).ToListAsync();
 
     public async Task AddUserNotificationAsync(int userId, UserNotification notification)
     {
@@ -93,7 +93,7 @@ public class UsersRepository(HospitalDbContext context) : IUsersRepository
     }
 
     public async Task<List<PeriodNote>> GetPeriodNotesAsync(int userId)
-        => await context.PeriodNotes.Where(n => n.User.Id == userId).ToListAsync();
+        => await context.PeriodNotes.Where(notification => notification.User.Id == userId).ToListAsync();
 
     public async Task AddPeriodNoteAsync(int userId, PeriodNote note)
     {

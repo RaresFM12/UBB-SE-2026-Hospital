@@ -80,8 +80,8 @@ public class TransplantService(
         string normalizedOrgan = organType.Trim();
         List<Transplant> allTransplants = await transplantRepository.GetAllAsync();
         List<Transplant> waitlist = allTransplants
-            .Where(t => t.Status == TransplantStatus.Pending
-                && string.Equals(t.OrganType, normalizedOrgan, StringComparison.OrdinalIgnoreCase))
+            .Where(transplant => transplant.Status == TransplantStatus.Pending
+                && string.Equals(transplant.OrganType, normalizedOrgan, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
         var matches = new List<TransplantMatch>();
@@ -119,8 +119,8 @@ public class TransplantService(
         }
 
         return matches
-            .OrderByDescending(m => m.CompatibilityScore)
-            .ThenBy(m => m.RequestDate)
+            .OrderByDescending(match => match.CompatibilityScore)
+            .ThenBy(match => match.RequestDate)
             .Take(5)
             .ToList();
     }
@@ -151,13 +151,13 @@ public class TransplantService(
     public async Task<List<Transplant>> GetByReceiverIdAsync(int receiverId)
     {
         List<Transplant> all = await transplantRepository.GetAllAsync();
-        return all.Where(t => t.Receiver?.PatientId == receiverId).ToList();
+        return all.Where(transplant => transplant.Receiver?.PatientId == receiverId).ToList();
     }
 
     public async Task<List<Transplant>> GetByDonorIdAsync(int donorId)
     {
         List<Transplant> all = await transplantRepository.GetAllAsync();
-        return all.Where(t => t.Donor?.PatientId == donorId).ToList();
+        return all.Where(transplant => transplant.Donor?.PatientId == donorId).ToList();
     }
 
     public async Task<List<TransplantMatch>> GetMatchesAsync()

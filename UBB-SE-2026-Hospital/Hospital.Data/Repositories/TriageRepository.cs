@@ -11,10 +11,10 @@ public class TriageRepository(HospitalDbContext context) : ITriageRepository
         => await context.Triages.FindAsync(triageId);
 
     public async Task<Triage?> GetByVisitIdAsync(int visitId)
-        => await context.Triages.FirstOrDefaultAsync(t => t.Visit.VisitId == visitId);
+        => await context.Triages.FirstOrDefaultAsync(triages => triages.Visit.VisitId == visitId);
 
     public async Task<List<Triage>> GetAllAsync()
-        => await context.Triages.Include(t => t.Visit).ThenInclude(v => v.Patient).ToListAsync();
+        => await context.Triages.Include(triages => triages.Visit).ThenInclude(visit => visit.Patient).ToListAsync();
 
     public async Task<Triage> CreateAsync(Triage triage)
     {

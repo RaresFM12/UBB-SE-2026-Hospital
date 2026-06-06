@@ -53,7 +53,7 @@ public partial class App : Application
         {
             ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
         });
-        services.AddSingleton(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("api"));
+        services.AddSingleton(serviceProvider => serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("api"));
         var apiBaseUri = new Uri(apiBaseUrl);
         // Register shared business logic services
 
@@ -78,7 +78,8 @@ public partial class App : Application
         services.AddSingleton<IBillingService, BillingApiClient>();
         services.AddSingleton<IAddictDetectionService, AddictDetectionApiClient>();
         services.AddSingleton<PrescriptionApiClient>();
-        services.AddSingleton<IPrescriptionService>(sp => sp.GetRequiredService<PrescriptionApiClient>());
+        services.AddSingleton<IPrescriptionService>(serviceProvider => serviceProvider.GetRequiredService<PrescriptionApiClient>());
+        services.AddSingleton<IPharmacyScheduleService, PharmacyScheduleApiClient>();
         services.AddSingleton<IPharmacyVacationService, PharmacyVacationApiClient>();
 
         // Sync-blocking proxies (923-2 admin/client)

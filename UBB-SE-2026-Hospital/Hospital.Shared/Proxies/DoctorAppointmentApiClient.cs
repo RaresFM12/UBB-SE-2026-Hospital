@@ -14,8 +14,8 @@ public class DoctorAppointmentApiClient(HttpClient httpClient) : ApiClientBase(h
     {
         var allAppointments = await GetAsync<List<Appointment>>(BaseUri) ?? new List<Appointment>();
         return allAppointments
-            .Where(a => a.Doctor != null && a.Doctor.StaffId == doctorUserId && a.AppointmentDate >= fromDate)
-            .OrderBy(a => a.AppointmentDate)
+            .Where(appointment => appointment.Doctor != null && appointment.Doctor.StaffId == doctorUserId && appointment.AppointmentDate >= fromDate)
+            .OrderBy(appointment => appointment.AppointmentDate)
             .Skip(skipCount)
             .Take(takeCount)
             .ToList();
@@ -28,18 +28,18 @@ public class DoctorAppointmentApiClient(HttpClient httpClient) : ApiClientBase(h
     {
         var allAppointments = await GetAsync<List<Appointment>>(BaseUri) ?? new List<Appointment>();
         return allAppointments
-            .Where(a => a.Doctor != null
-                     && a.Doctor.StaffId == doctorId
-                     && a.AppointmentDate >= fromDate
-                     && a.AppointmentDate <= toDate)
-            .OrderBy(a => a.AppointmentDate)
+            .Where(appointment => appointment.Doctor != null
+                     && appointment.Doctor.StaffId == doctorId
+                     && appointment.AppointmentDate >= fromDate
+                     && appointment.AppointmentDate <= toDate)
+            .OrderBy(appointment => appointment.AppointmentDate)
             .ToList();
     }
 
     public async Task<IReadOnlyList<(int DoctorId, string DoctorName)>> GetAllDoctorsAsync(CancellationToken cancellationToken = default)
     {
         var doctors = await GetAsync<List<DoctorOptionDto>>("api/staff/doctors") ?? [];
-        return doctors.Select(d => (d.DoctorId, d.DoctorName)).ToList();
+        return doctors.Select(doctor => (doctor.DoctorId, doctor.DoctorName)).ToList();
     }
 
     public async Task<IReadOnlyList<Shift>> GetShiftsForStaffInRangeAsync(int staffId, DateTime start, DateTime end, CancellationToken cancellationToken = default)
@@ -88,7 +88,7 @@ public class DoctorAppointmentApiClient(HttpClient httpClient) : ApiClientBase(h
     public async Task<Appointment?> GetAppointmentDetailsAsync(int appointmentId, CancellationToken cancellationToken = default)
     {
         var allAppointments = await GetAsync<List<Appointment>>("api/appointments") ?? [];
-        var appointment = allAppointments.FirstOrDefault(a => a.Id == appointmentId);
+        var appointment = allAppointments.FirstOrDefault(appointment => appointment.Id == appointmentId);
 
         if (appointment == null)
         {

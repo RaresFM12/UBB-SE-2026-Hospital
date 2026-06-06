@@ -15,7 +15,7 @@ public class PatientProfileViewModel
     public List<MedicalRecordViewModel> MedicalRecords { get; set; } = new ();
     public int? SelectedRecordId { get; set; }
     public MedicalRecordViewModel? SelectedRecord =>
-        MedicalRecords.FirstOrDefault(r => r.Id == SelectedRecordId);
+        MedicalRecords.FirstOrDefault(record => record.Id == SelectedRecordId);
 }
 
 public class MedicalRecordViewModel

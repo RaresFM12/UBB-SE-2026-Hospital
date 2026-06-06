@@ -10,18 +10,18 @@ public class PharmacyHandoverRepository(HospitalDbContext context) : IPharmacyHa
 {
     public async Task<PharmacyHandover?> GetByIdAsync(int handoverId)
         => await context.PharmacyHandovers
-            .Include(h => h.Pharmacist)
-            .FirstOrDefaultAsync(h => h.Id == handoverId);
+            .Include(handover => handover.Pharmacist)
+            .FirstOrDefaultAsync(handover => handover.Id == handoverId);
 
     public async Task<List<PharmacyHandover>> GetAllAsync()
         => await context.PharmacyHandovers
-            .Include(h => h.Pharmacist)
+            .Include(handover => handover.Pharmacist)
             .ToListAsync();
 
     public async Task<List<PharmacyHandover>> GetByPharmacistIdAsync(int pharmacistId)
         => await context.PharmacyHandovers
-            .Include(h => h.Pharmacist)
-            .Where(h => h.Pharmacist.StaffId == pharmacistId)
+            .Include(handover => handover.Pharmacist)
+            .Where(handover => handover.Pharmacist.StaffId == pharmacistId)
             .ToListAsync();
 
     public async Task<PharmacyHandover> CreateAsync(PharmacyHandover handover)

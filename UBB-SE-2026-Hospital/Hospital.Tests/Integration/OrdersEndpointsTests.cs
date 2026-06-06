@@ -15,7 +15,7 @@ public sealed class OrdersEndpointsTests : IntegrationTestBase
         var orders = await client.GetFromJsonAsync<List<Order>>("/api/orders", JsonOptions);
 
         Assert.IsNotNull(orders);
-        Assert.IsTrue(orders!.Any(o => o.Id == Ids.OrderId));
+        Assert.IsTrue(orders!.Any(order => order.Id == Ids.OrderId));
     }
 
     [TestMethod]
@@ -27,7 +27,7 @@ public sealed class OrdersEndpointsTests : IntegrationTestBase
             $"/api/orders?clientId={Ids.ClientUserId}", JsonOptions);
 
         Assert.IsNotNull(orders);
-        Assert.IsTrue(orders!.All(o => o.ClientId == Ids.ClientUserId));
+        Assert.IsTrue(orders!.All(order => order.ClientId == Ids.ClientUserId));
     }
 
     [TestMethod]

@@ -263,7 +263,7 @@ public partial class PatientViewModel : ObservableObject
 
             MedicalHistory = details.MedicalHistory;
             Allergies.Clear();
-            foreach (string allergy in allergies.OrderBy(a => a))
+            foreach (string allergy in allergies.OrderBy(alergy => alergy))
             {
                 Allergies.Add(allergy);
             }

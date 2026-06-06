@@ -26,8 +26,8 @@ public class MedicalHistory
     public List<(Allergy Allergy, string SeverityLevel)> Allergies
     {
         get => PatientAllergies
-            .Where(pa => pa?.Allergy is not null)
-            .Select(pa => (pa.Allergy, pa.SeverityLevel))
+            .Where(patientAllergy => patientAllergy?.Allergy is not null)
+            .Select(patientAllergy => (patientAllergy.Allergy, patientAllergy.SeverityLevel))
             .ToList();
         set
         {

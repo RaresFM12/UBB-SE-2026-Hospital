@@ -157,7 +157,7 @@ public partial class TriageViewModel : ObservableObject
 
             var previousVisitId = SelectedVisit.VisitId;
             await LoadVisitsForTriageAsync();
-            SelectedVisit = RegisteredVisits.FirstOrDefault(v => v.VisitId == previousVisitId);
+            SelectedVisit = RegisteredVisits.FirstOrDefault(visit => visit.VisitId == previousVisitId);
         }
         catch (Exception ex)
         {
