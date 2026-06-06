@@ -10,29 +10,29 @@ namespace Hospital.Data.Repositories;
 public class ShiftRepository(HospitalDbContext context) : IShiftRepository
 {
     public async Task<Shift?> GetByIdAsync(int shiftId)
-        => await context.Shifts.Include(s => s.Staff).FirstOrDefaultAsync(s => s.Id == shiftId);
+        => await context.Shifts.Include(shift => shift.Staff).FirstOrDefaultAsync(shift => shift.Id == shiftId);
 
     public async Task<List<Shift>> GetAllAsync()
-        => await context.Shifts.Include(s => s.Staff).ToListAsync();
+        => await context.Shifts.Include(shift => shift.Staff).ToListAsync();
 
     public async Task<List<Shift>> GetByStaffIdAsync(int staffId)
         => await context.Shifts
-            .Include(s => s.Staff)
-            .Where(s => s.Staff.StaffId == staffId)
+            .Include(shift => shift.Staff)
+            .Where(shift => shift.Staff.StaffId == staffId)
             .ToListAsync();
 
     public async Task<List<Shift>> GetByDateRangeAsync(DateTime start, DateTime end)
         => await context.Shifts
-            .Include(s => s.Staff)
-            .Where(s => s.StartTime >= start && s.EndTime <= end)
+            .Include(shift => shift.Staff)
+            .Where(shift => shift.StartTime >= start && shift.EndTime <= end)
             .ToListAsync();
 
     public async Task<List<Shift>> GetCurrentShiftsAsync()
     {
         var now = DateTime.UtcNow;
         return await context.Shifts
-            .Include(s => s.Staff)
-            .Where(s => s.StartTime <= now && s.EndTime >= now && s.Status == ShiftStatus.Active)
+            .Include(shift => shift.Staff)
+            .Where(shift => shift.StartTime <= now && shift.EndTime >= now && shift.Status == ShiftStatus.Active)
             .ToListAsync();
     }
 

@@ -10,36 +10,36 @@ public class ShiftSwapRepository(HospitalDbContext context) : IShiftSwapReposito
 {
     public async Task<ShiftSwapRequest?> GetByIdAsync(int requestId)
         => await context.ShiftSwapRequests
-            .Include(r => r.Shift)
+            .Include(request => request.Shift)
                 .ThenInclude(s => s!.Staff)
-            .Include(r => r.Requester)
-            .Include(r => r.Colleague)
-            .FirstOrDefaultAsync(r => r.SwapId == requestId);
+            .Include(request => request.Requester)
+            .Include(request => request.Colleague)
+            .FirstOrDefaultAsync(request => request.SwapId == requestId);
 
     public async Task<List<ShiftSwapRequest>> GetAllAsync()
         => await context.ShiftSwapRequests
-            .Include(r => r.Shift)
+            .Include(request => request.Shift)
                 .ThenInclude(s => s!.Staff)
-            .Include(r => r.Requester)
-            .Include(r => r.Colleague)
+            .Include(request => request.Requester)
+            .Include(request => request.Colleague)
             .ToListAsync();
 
     public async Task<List<ShiftSwapRequest>> GetByStaffIdAsync(int staffId)
         => await context.ShiftSwapRequests
-            .Include(r => r.Shift)
+            .Include(request => request.Shift)
                 .ThenInclude(s => s!.Staff)
-            .Include(r => r.Requester)
-            .Include(r => r.Colleague)
-            .Where(r => r.Requester!.StaffId == staffId || r.Colleague!.StaffId == staffId)
+            .Include(request => request.Requester)
+            .Include(request => request.Colleague)
+            .Where(request => request.Requester!.StaffId == staffId || request.Colleague!.StaffId == staffId)
             .ToListAsync();
 
     public async Task<List<ShiftSwapRequest>> GetPendingAsync()
         => await context.ShiftSwapRequests
-            .Include(r => r.Shift)
+            .Include(request => request.Shift)
                 .ThenInclude(s => s!.Staff)
-            .Include(r => r.Requester)
-            .Include(r => r.Colleague)
-            .Where(r => r.Status == ShiftSwapRequestStatus.PENDING)
+            .Include(request => request.Requester)
+            .Include(request => request.Colleague)
+            .Where(request => request.Status == ShiftSwapRequestStatus.PENDING)
             .ToListAsync();
 
     public async Task<ShiftSwapRequest> CreateAsync(ShiftSwapRequest request)

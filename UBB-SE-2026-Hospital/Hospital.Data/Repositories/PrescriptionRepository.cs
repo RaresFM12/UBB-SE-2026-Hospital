@@ -12,70 +12,70 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
 {
     public async Task<Prescription?> GetByIdAsync(int prescriptionId)
         => await context.Prescriptions
-            .Include(p => p.MedicationList)
-            .FirstOrDefaultAsync(p => p.PrescriptionId == prescriptionId);
+            .Include(patient => patient.MedicationList)
+            .FirstOrDefaultAsync(patient => patient.PrescriptionId == prescriptionId);
 
     public async Task<List<Prescription>> GetAllAsync()
         => await context.Prescriptions
-            .Include(p => p.MedicationList)
+            .Include(patient => patient.MedicationList)
             .ToListAsync();
 
     public async Task<List<Prescription>> GetFilteredAsync(PrescriptionFilter filter)
     {
         var query = context.Prescriptions
-            .Include(p => p.MedicationList)
-            .Include(p => p.MedicalRecord)
+            .Include(patient => patient.MedicationList)
+            .Include(patient => patient.MedicalRecord)
                 .ThenInclude(r => r.MedicalHistory)
                     .ThenInclude(mh => mh.Patient)
-            .Include(p => p.MedicalRecord)
+            .Include(patient => patient.MedicalRecord)
                 .ThenInclude(r => r.StaffMember)
             .AsQueryable();
 
         if (filter.PrescriptionId.HasValue)
-            query = query.Where(p => p.PrescriptionId == filter.PrescriptionId.Value);
+            query = query.Where(patient => patient.PrescriptionId == filter.PrescriptionId.Value);
 
         if (filter.DateFrom.HasValue)
-            query = query.Where(p => p.Date >= filter.DateFrom.Value);
+            query = query.Where(patient => patient.Date >= filter.DateFrom.Value);
 
         if (filter.DateTo.HasValue)
-            query = query.Where(p => p.Date <= filter.DateTo.Value);
+            query = query.Where(patient => patient.Date <= filter.DateTo.Value);
 
         if (!string.IsNullOrWhiteSpace(filter.DoctorName))
-            query = query.Where(p =>
-                p.MedicalRecord.StaffMember.FirstName.Contains(filter.DoctorName) ||
-                p.MedicalRecord.StaffMember.LastName.Contains(filter.DoctorName));
+            query = query.Where(patient =>
+                patient.MedicalRecord.StaffMember.FirstName.Contains(filter.DoctorName) ||
+                patient.MedicalRecord.StaffMember.LastName.Contains(filter.DoctorName));
 
         if (!string.IsNullOrWhiteSpace(filter.PatientName))
-            query = query.Where(p =>
-                p.MedicalRecord.MedicalHistory.Patient.FirstName.Contains(filter.PatientName) ||
-                p.MedicalRecord.MedicalHistory.Patient.LastName.Contains(filter.PatientName));
+            query = query.Where(patient =>
+                patient.MedicalRecord.MedicalHistory.Patient.FirstName.Contains(filter.PatientName) ||
+                patient.MedicalRecord.MedicalHistory.Patient.LastName.Contains(filter.PatientName));
 
         if (!string.IsNullOrWhiteSpace(filter.MedicationName))
-            query = query.Where(p =>
-                p.MedicationList.Any(i => i.MedicationName.Contains(filter.MedicationName)));
+            query = query.Where(patient =>
+                patient.MedicationList.Any(i => i.MedicationName.Contains(filter.MedicationName)));
 
         return await query.ToListAsync();
     }
 
     public async Task<List<Prescription>> GetByRecordIdAsync(int recordId)
         => await context.Prescriptions
-            .Include(p => p.MedicationList)
-            .Where(p => p.MedicalRecord.RecordId == recordId)
+            .Include(patient => patient.MedicationList)
+            .Where(patient => patient.MedicalRecord.RecordId == recordId)
             .ToListAsync();
 
     public async Task<List<Prescription>> GetPotentialDrugAddictsAsync()
     {
         var cutoff = DateTime.UtcNow.AddDays(-30);
         var prescriptions = await context.Prescriptions
-            .Include(p => p.MedicationList)
-            .Include(p => p.MedicalRecord)
+            .Include(patient => patient.MedicationList)
+            .Include(patient => patient.MedicalRecord)
                 .ThenInclude(r => r.MedicalHistory)
                     .ThenInclude(mh => mh.Patient)
-            .Where(p => p.Date >= cutoff)
+            .Where(patient => patient.Date >= cutoff)
             .ToListAsync();
 
         return prescriptions
-            .GroupBy(p => p.MedicalRecord?.RecordId)
+            .GroupBy(patient => patient.MedicalRecord?.RecordId)
             .Where(g => g.Count() >= 5)
             .SelectMany(g => g)
             .ToList();
@@ -83,13 +83,13 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
 
     public async Task<List<Prescription>> GetTopNAsync(int n, int page)
         => await context.Prescriptions
-            .Include(p => p.MedicationList)
-            .Include(p => p.MedicalRecord)
+            .Include(patient => patient.MedicationList)
+            .Include(patient => patient.MedicalRecord)
                 .ThenInclude(r => r.MedicalHistory)
                     .ThenInclude(mh => mh.Patient)
-            .Include(p => p.MedicalRecord)
+            .Include(patient => patient.MedicalRecord)
                 .ThenInclude(r => r.StaffMember)
-            .OrderByDescending(p => p.Date)
+            .OrderByDescending(patient => patient.Date)
             .Skip((page - 1) * n)
             .Take(n)
             .ToListAsync();
