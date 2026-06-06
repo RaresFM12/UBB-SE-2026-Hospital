@@ -10,13 +10,6 @@ namespace Hospital.Data.Models;
 public class Staff : IStaff
 {
     public int StaffId { get; set; }
-    [NotMapped]
-    [JsonIgnore]
-    public int StaffID
-    {
-        get => StaffId;
-        set => StaffId = value;
-    }
 
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
@@ -33,15 +26,15 @@ public class Staff : IStaff
     public int YearsOfExperience { get; set; }
     public double HourlyRate { get; set; }
 
-    [JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
     public ICollection<Shift> Shifts { get; set; } = new List<Shift>();
-    [JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
     public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
-    [JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
     public ICollection<HangoutParticipant> HangoutParticipantEntries { get; set; } = new List<HangoutParticipant>();
-    [JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
     public ICollection<ShiftSwapRequest> ShiftSwapRequestsAsRequester { get; set; } = new List<ShiftSwapRequest>();
-    [JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
     public ICollection<ShiftSwapRequest> ShiftSwapRequestsAsColleague { get; set; } = new List<ShiftSwapRequest>();
 
     public string FullName => $"{FirstName} {LastName}".Trim();

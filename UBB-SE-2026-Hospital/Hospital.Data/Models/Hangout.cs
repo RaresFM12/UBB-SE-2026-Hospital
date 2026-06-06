@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Hospital.Data.Models;
 
@@ -17,6 +18,7 @@ public class Hangout
     public string FormattedDate => Date.ToString("dd/MM/yyyy HH:mm");
 
     [NotMapped]
+    [JsonIgnore]
     public List<IStaff> ParticipantList { get; set; } = new();
 
     public ICollection<HangoutParticipant> HangoutParticipantEntries { get; set; } = new List<HangoutParticipant>();

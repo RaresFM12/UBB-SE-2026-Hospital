@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -89,7 +89,7 @@ namespace Hospital.Data.Migrations
                 name: "Staff",
                 columns: table => new
                 {
-                    StaffID = table.Column<int>(type: "int", nullable: false)
+                    StaffId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -109,7 +109,7 @@ namespace Hospital.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Staff", x => x.StaffID);
+                    table.PrimaryKey("PK_Staff", x => x.StaffId);
                 });
 
             migrationBuilder.CreateTable(

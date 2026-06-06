@@ -6,7 +6,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    xmlns:item="using:Hospital.Desktop.ViewModels.Accounts"
     xmlns:conv="using:Hospital.Desktop.Converters">
 
     <Page.Resources>
@@ -44,7 +43,7 @@
                 Background="{StaticResource AppSurfaceBrush}"
                 CornerRadius="12"
                 Padding="10">
-            <ListView 
+            <ListView
                 ItemsSource="{Binding Users}"
                 Background="Transparent"
                 BorderThickness="0"
@@ -53,9 +52,9 @@
                 HorizontalAlignment="Stretch">
 
                 <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="item:UserItemViewModel">
+                    <DataTemplate>
 
-                        <Border Padding="12" 
+                        <Border Padding="12"
                                 Margin="6"
                                 CornerRadius="10"
                                 Background="{StaticResource AppBackgroundBrush}"
@@ -63,42 +62,41 @@
 
                             <StackPanel Spacing="6">
 
-                                <TextBlock Text="{x:Bind Email}"
+                                <TextBlock Text="{Binding Email}"
                                            FontWeight="SemiBold"
                                            FontSize="16"
                                            Foreground="{StaticResource AppAccentBrush}"/>
 
-                                <TextBlock Text="{x:Bind Username}"
+                                <TextBlock Text="{Binding Username}"
                                            Foreground="{StaticResource AppTextSecondaryBrush}"/>
 
-                                <TextBlock Text="{x:Bind PhoneNumber}"
+                                <TextBlock Text="{Binding PhoneNumber}"
                                            Foreground="{StaticResource AppTextSecondaryBrush}"/>
 
                                 <TextBlock Text="DISABLED"
                                            Foreground="{StaticResource AppErrorBrush}"
                                            FontWeight="Bold"
-                                           Visibility="{x:Bind ShowDisabledLabel, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                           Visibility="{Binding ShowDisabledLabel, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                                 <TextBlock Text="ADMIN"
                                            Foreground="{StaticResource AppAccentBrush}"
                                            FontWeight="Bold"
-                                           Visibility="{x:Bind ShowAdminLabel, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                           Visibility="{Binding ShowAdminLabel, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                                 <TextBlock Text="ACTIVE"
                                            Foreground="{StaticResource AppAccentBrush}"
                                            FontWeight="Bold"
-                                           Visibility="{x:Bind ShowActiveLabel, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                           Visibility="{Binding ShowActiveLabel, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <CheckBox Content="Admin"
                                               Foreground="{StaticResource AppAccentBrush}"
-                                              Visibility="{x:Bind ShowPromote, Converter={StaticResource BoolToVisibilityConverter}}"
+                                              Visibility="{Binding ShowPromote, Converter={StaticResource BoolToVisibilityConverter}}"
                                               Tapped="OnPromoteClick"/>
 
                                     <Button Content="Disable Account"
-                                            Visibility="{x:Bind ShowDisable, Converter={StaticResource BoolToVisibilityConverter}}"
+                                            Visibility="{Binding ShowDisable, Converter={StaticResource BoolToVisibilityConverter}}"
                                             Click="OnDisableClick"/>
-
                                 </StackPanel>
 
                             </StackPanel>

@@ -261,9 +261,9 @@ public partial class ExaminationViewModel : ObservableObject
             return false;
         }
 
-        DoctorId = request.AssignedDoctor.StaffID;
+        DoctorId = request.AssignedDoctor.StaffId;
         DoctorName = string.IsNullOrWhiteSpace(request.AssignedDoctor.FullName)
-            ? $"Dr. #{request.AssignedDoctor.StaffID}"
+            ? $"Dr. #{request.AssignedDoctor.StaffId}"
             : request.AssignedDoctor.FullName;
         DoctorSpecialty = string.IsNullOrWhiteSpace(request.AssignedDoctor.Specialization)
             ? "General"

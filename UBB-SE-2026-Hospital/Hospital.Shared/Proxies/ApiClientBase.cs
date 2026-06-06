@@ -10,6 +10,7 @@ public abstract class ApiClientBase
     protected readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
+        ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles,
     };
 
     protected static string QueryDate(DateTime value) => Uri.EscapeDataString(value.ToString("O", System.Globalization.CultureInfo.InvariantCulture));
@@ -108,7 +109,7 @@ public abstract class ApiClientBase
 
         throw new InvalidOperationException(
             response.StatusCode is HttpStatusCode.InternalServerError or HttpStatusCode.BadGateway or HttpStatusCode.ServiceUnavailable
-                ? "The server could not complete the request. Please try again."
+                ? $"The server could not complete the request. Please try again. Details: {errorMessage}"
                 : errorMessage);
     }
 

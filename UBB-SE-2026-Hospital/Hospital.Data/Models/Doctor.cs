@@ -8,7 +8,10 @@ public class Doctor : Staff
 
     public DoctorStatus DoctorStatus { get; set; } = DoctorStatus.Available;
 
+    [System.Text.Json.Serialization.JsonIgnore]
     public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+    
+    [System.Text.Json.Serialization.JsonIgnore]
     public ICollection<MedicalEvaluation> MedicalEvaluations { get; set; } = new List<MedicalEvaluation>();
 
     public Doctor()

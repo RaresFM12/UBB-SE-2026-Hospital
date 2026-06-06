@@ -1,11 +1,13 @@
 namespace Hospital.Web.Models.Transfer;
 
+using Hospital.Data.Models;
+
 public class TransferViewModel
 {
     public int? SelectedVisitId { get; set; }
     public List<TransferVisitViewModel> EligibleVisits { get; set; } = new ();
     public List<TransferLogItemViewModel> TransferLogs { get; set; } = new ();
-    public bool CanRetry { get; set; }
+    public ERExaminationSummary? ExaminationSummary { get; set; }
     public string? ErrorMessage { get; set; }
 }
 

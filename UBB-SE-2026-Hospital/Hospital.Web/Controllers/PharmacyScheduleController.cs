@@ -1,4 +1,4 @@
-﻿using Hospital.Shared.Proxies;
+using Hospital.Shared.Proxies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -23,7 +23,7 @@ namespace Hospital.Web.Controllers
             if (string.IsNullOrEmpty(userEmail)) return null;
             var pharmacists = _scheduleService.GetPharmacists();
             var matchingPharmacist = pharmacists.FirstOrDefault(pharmacistNew => pharmacistNew.Email == userEmail);
-            return matchingPharmacist?.StaffID;
+            return matchingPharmacist?.StaffId;
         }
 
         public async Task<IActionResult> Index(
@@ -44,7 +44,7 @@ namespace Hospital.Web.Controllers
             }
             else if (User.IsInRole("Admin"))
             {
-                effectiveStaffId = pharmacists.FirstOrDefault()?.StaffID;
+                effectiveStaffId = pharmacists.FirstOrDefault()?.StaffId;
             }
             else
             {

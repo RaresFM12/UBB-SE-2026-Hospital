@@ -30,8 +30,14 @@ public class TransferLogService(
     public async Task<List<ERTransferEligibleVisit>> GetEligibleVisitsAsync()
     {
         List<ERVisit> visits = (await erVisitRepository.GetAllAsync())
-            .Where(v => string.Equals(v.Status, ERVisit.VisitStatus.IN_EXAMINATION, StringComparison.OrdinalIgnoreCase))
-            .OrderBy(v => v.ArrivalDateTime)
+            .Where(v =>
+                string.Equals(v.Status, ERVisit.VisitStatus.IN_EXAMINATION, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(v.Status, ERVisit.VisitStatus.TRANSFERRED, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(v => string.Equals(
+                v.Status,
+                ERVisit.VisitStatus.TRANSFERRED,
+                StringComparison.OrdinalIgnoreCase))
+            .ThenBy(v => v.ArrivalDateTime)
             .ToList();
 
         return visits.Select(v => new ERTransferEligibleVisit

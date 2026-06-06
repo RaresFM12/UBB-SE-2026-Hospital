@@ -32,6 +32,23 @@ public class ExaminationApiClient(HttpClient httpClient) : ApiClientBase(httpCli
     public async Task<List<ERVisit>> GetEligibleVisitsAsync()
         => await GetAsync<List<ERVisit>>($"{BaseUri}/eligible-visits") ?? [];
 
+    public async Task<Examination> RequestDoctorAsync(int visitId)
+        => await PostAsync<object, Examination>($"{BaseUri}/visit/{visitId}/request-doctor", new { })
+           ?? throw new InvalidOperationException("Doctor assignment returned no examination.");
+
+    public async Task<Examination> SaveExaminationAsync(int visitId, string notes)
+    {
+        await PostAsync($"{BaseUri}/save", new SaveExaminationRequest
+        {
+            VisitId = visitId,
+            Notes = notes,
+        });
+
+        return (await GetByVisitIdAsync(visitId))
+            .OrderByDescending(examination => examination.ExaminationDate)
+            .First();
+    }
+
     public async Task<List<Examination>> GetPatientHistoryAsync(int patientId)
         => await GetAsync<List<Examination>>($"{BaseUri}/patient/{patientId}") ?? [];
 

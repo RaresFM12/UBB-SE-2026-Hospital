@@ -19,7 +19,7 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h1 class="mb-1">Transfer</h1>
-        <p class="text-muted mb-0">Send completed ER examination data to Patient Management or close the visit.</p>
+        <p class="text-muted mb-0">Transfer a patient after examination or close the visit.</p>
     </div>
     <a asp-action="Index" class="btn btn-outline-secondary">Refresh</a>
 </div>
@@ -72,7 +72,7 @@
             <div class="card-body">
                 @if (selectedVisit is null)
                 {
-                    <div class="text-muted">Select a visit to send, retry, or close.</div>
+                    <div class="text-muted">Select a visit to transfer or close.</div>
                 }
                 else
                 {
@@ -86,17 +86,14 @@
                         <button type="submit" class="btn btn-primary w-100" @(selectedVisit.Transferred ? "disabled" : null)>Send Patient Data</button>
                     </form>
 
-                    <form asp-action="Retry" method="post" class="mb-2">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="visitId" value="@selectedVisit.VisitId" />
-                        <button type="submit" class="btn btn-outline-primary w-100" @(Model.CanRetry ? null : "disabled")>Retry Transfer</button>
-                    </form>
-
-                    <form asp-action="Close" method="post">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="visitId" value="@selectedVisit.VisitId" />
-                        <button type="submit" class="btn btn-outline-danger w-100">Close Visit</button>
-                    </form>
+                    @if (!selectedVisit.Transferred)
+                    {
+                        <form asp-action="Close" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="visitId" value="@selectedVisit.VisitId" />
+                            <button type="submit" class="btn btn-outline-danger w-100">Close Visit</button>
+                        </form>
+                    }
                 }
             </div>
         </div>
@@ -118,12 +115,38 @@
                                     <strong>@log.Status</strong>
                                     <span>@log.TransferTime.ToString("yyyy-MM-dd HH:mm")</span>
                                 </div>
-                                <div class="small text-muted">@log.TargetSystem</div>
                             </div>
                         }
                     </div>
                 }
             </div>
         </div>
+
+        @if (Model.ExaminationSummary is not null)
+        {
+            <div class="card shadow-sm mt-4">
+                <div class="card-body">
+                    <h2 class="h5 mb-3">Transferred Examination Information</h2>
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">Patient</dt>
+                        <dd class="col-sm-7">@Model.ExaminationSummary.FirstName @Model.ExaminationSummary.LastName</dd>
+                        <dt class="col-sm-5">Arrival</dt>
+                        <dd class="col-sm-7">@Model.ExaminationSummary.ArrivalDateTime.ToString("yyyy-MM-dd HH:mm")</dd>
+                        <dt class="col-sm-5">Complaint</dt>
+                        <dd class="col-sm-7">@Model.ExaminationSummary.ChiefComplaint</dd>
+                        <dt class="col-sm-5">Triage</dt>
+                        <dd class="col-sm-7">Level @Model.ExaminationSummary.TriageLevel, @Model.ExaminationSummary.Specialization</dd>
+                        <dt class="col-sm-5">Severity</dt>
+                        <dd class="col-sm-7">@Model.ExaminationSummary.SeverityScore</dd>
+                        <dt class="col-sm-5">Doctor</dt>
+                        <dd class="col-sm-7">@Model.ExaminationSummary.AssignedDoctorName</dd>
+                        <dt class="col-sm-5">Exam Time</dt>
+                        <dd class="col-sm-7">@Model.ExaminationSummary.ExamTime.ToString("yyyy-MM-dd HH:mm")</dd>
+                        <dt class="col-sm-5">Notes</dt>
+                        <dd class="col-sm-7">@Model.ExaminationSummary.Notes</dd>
+                    </dl>
+                </div>
+            </div>
+        }
     </div>
 </div>

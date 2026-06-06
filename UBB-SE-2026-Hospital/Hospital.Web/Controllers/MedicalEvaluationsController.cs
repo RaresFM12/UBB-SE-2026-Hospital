@@ -1,4 +1,4 @@
-﻿using Hospital.Shared.Proxies;
+using Hospital.Shared.Proxies;
 namespace Hospital.Web.Controllers
 {
     using System;
@@ -95,7 +95,7 @@ namespace Hospital.Web.Controllers
 
             this.medicalEvaluationService.SaveEvaluation(newEvaluation);
 
-            string targetDoctorId = newEvaluation.Evaluator?.StaffID.ToString() ?? string.Empty;
+            string targetDoctorId = newEvaluation.Evaluator?.StaffId.ToString() ?? string.Empty;
             return this.RedirectToAction(nameof(Index), new { doctorId = targetDoctorId });
         }
 
@@ -161,7 +161,7 @@ namespace Hospital.Web.Controllers
                 return this.NotFound();
             }
 
-            string targetDoctorId = evaluation.Evaluator?.StaffID.ToString() ?? string.Empty;
+            string targetDoctorId = evaluation.Evaluator?.StaffId.ToString() ?? string.Empty;
             this.medicalEvaluationService.DeleteEvaluation(evaluationId);
 
             return this.RedirectToAction(nameof(Index), new { doctorId = targetDoctorId });

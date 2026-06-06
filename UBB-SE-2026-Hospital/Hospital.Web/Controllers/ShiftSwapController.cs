@@ -1,4 +1,4 @@
-﻿using Hospital.Shared.Proxies;
+using Hospital.Shared.Proxies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -28,23 +28,23 @@ namespace Hospital.Web.Controllers
 
             var doctors = _shiftSwapService.GetAllDoctors();
             var matchingDoctor = doctors.FirstOrDefault(doctor => doctor.Email == userEmail);
-            return matchingDoctor?.StaffID;
+            return matchingDoctor?.StaffId;
         }
 
         private int? ResolveSelectedDoctorId(int? selectedDoctorId, IReadOnlyList<Doctor> doctors)
         {
-            if (selectedDoctorId.HasValue && doctors.Any(doctor => doctor.StaffID == selectedDoctorId.Value))
+            if (selectedDoctorId.HasValue && doctors.Any(doctor => doctor.StaffId == selectedDoctorId.Value))
             {
                 return selectedDoctorId.Value;
             }
 
             var currentStaffId = GetCurrentStaffId();
-            if (currentStaffId.HasValue && doctors.Any(doctor => doctor.StaffID == currentStaffId.Value))
+            if (currentStaffId.HasValue && doctors.Any(doctor => doctor.StaffId == currentStaffId.Value))
             {
                 return currentStaffId.Value;
             }
 
-            return doctors.FirstOrDefault()?.StaffID;
+            return doctors.FirstOrDefault()?.StaffId;
         }
 
         public ActionResult Index(int? selectedDoctorId, int? selectedShiftId)
@@ -70,7 +70,7 @@ namespace Hospital.Web.Controllers
                 SelectedShiftId = selectedShiftId,
                 StatusMessage = TempData["StatusMessage"]?.ToString() ?? string.Empty,
                 PendingShiftIds = allSwaps
-                    .Where(shift => shift.Requester?.StaffID == staffId.Value && shift.Status == ShiftSwapRequestStatus.PENDING)
+                    .Where(shift => shift.Requester?.StaffId == staffId.Value && shift.Status == ShiftSwapRequestStatus.PENDING)
                     .Select(shift => shift.Shift?.Id ?? 0)
                     .ToHashSet(),
             };
@@ -79,7 +79,7 @@ namespace Hospital.Web.Controllers
             {
                 bool alreadyRequested = allSwaps.Any(s =>
                     s.Shift?.Id == selectedShiftId.Value &&
-                    s.Requester?.StaffID == staffId.Value &&
+                    s.Requester?.StaffId == staffId.Value &&
                     s.Status == ShiftSwapRequestStatus.PENDING);
 
                 shiftSwapIndexViewModel.AlreadyRequested = alreadyRequested;
