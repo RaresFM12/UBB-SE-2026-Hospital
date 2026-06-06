@@ -88,38 +88,49 @@ public partial class PrescriptionViewModel : ObservableObject
         int currentLoad = ++loadVersion;
         InfoMessage = string.Empty;
 
-        bool hasFilter =
-            ActiveFilter.PrescriptionId.HasValue ||
-            !string.IsNullOrWhiteSpace(ActiveFilter.MedicationName) ||
-            ActiveFilter.DateFrom.HasValue ||
-            ActiveFilter.DateTo.HasValue ||
-            !string.IsNullOrWhiteSpace(ActiveFilter.PatientName) ||
-            !string.IsNullOrWhiteSpace(ActiveFilter.DoctorName);
-
-        List<Prescription> results =
-            hasFilter
-                ? (await prescriptionService.ApplyFilterAsync(ActiveFilter))
-                    .Skip((CurrentPage - 1) * PageSize)
-                    .Take(PageSize)
-                    .ToList()
-                : await prescriptionService.GetLatestPrescriptionsAsync(PageSize, CurrentPage);
-
-        if (currentLoad != loadVersion)
+        try
         {
-            return;
+            bool hasFilter =
+                ActiveFilter.PrescriptionId.HasValue ||
+                !string.IsNullOrWhiteSpace(ActiveFilter.MedicationName) ||
+                ActiveFilter.DateFrom.HasValue ||
+                ActiveFilter.DateTo.HasValue ||
+                !string.IsNullOrWhiteSpace(ActiveFilter.PatientName) ||
+                !string.IsNullOrWhiteSpace(ActiveFilter.DoctorName);
+
+            List<Prescription> results =
+                hasFilter
+                    ? (await prescriptionService.ApplyFilterAsync(ActiveFilter))
+                        .Skip((CurrentPage - 1) * PageSize)
+                        .Take(PageSize)
+                        .ToList()
+                    : await prescriptionService.GetLatestPrescriptionsAsync(PageSize, CurrentPage);
+
+            if (currentLoad != loadVersion)
+            {
+                return;
+            }
+
+            Prescriptions.Clear();
+            foreach (Prescription prescription in results)
+            {
+                Prescriptions.Add(prescription);
+            }
+
+            if (Prescriptions.Count == 0)
+            {
+                InfoMessage = hasFilter
+                    ? "No prescriptions found matching those criteria."
+                    : "No prescriptions available right now.";
+            }
         }
-
-        Prescriptions.Clear();
-        foreach (Prescription prescription in results)
+        catch (UnauthorizedAccessException)
         {
-            Prescriptions.Add(prescription);
+            InfoMessage = "Access denied. Please sign in again to continue.";
         }
-
-        if (Prescriptions.Count == 0)
+        catch (Exception ex)
         {
-            InfoMessage = hasFilter
-                ? "No prescriptions found matching those criteria."
-                : "No prescriptions available right now.";
+            InfoMessage = $"Failed to load prescriptions: {ex.Message}";
         }
     }
 

@@ -13,6 +13,11 @@ public class OrdersController(IOrderService orderService) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<Order>>> GetAll([FromQuery] int? clientId = null, CancellationToken cancellationToken = default)
     {
+        if (clientId.HasValue && !CanAccessClientData(clientId.Value))
+        {
+            return Forbid();
+        }
+
         var orders = clientId.HasValue
             ? await orderService.GetOrdersByClientAsync(clientId.Value, cancellationToken)
             : await orderService.GetAllOrdersAsync(cancellationToken);
@@ -34,8 +39,25 @@ public class OrdersController(IOrderService orderService) : ControllerBase
     [HttpPost]
     public async Task<ActionResult<int>> Create([FromBody] CreateOrderRequest request, CancellationToken cancellationToken = default)
     {
+        if (!CanAccessClientData(request.ClientId))
+        {
+            return Forbid();
+        }
+
         var id = await orderService.CreateOrderAsync(request.ClientId, request.PickUpDate, request.IsCompleted, request.IsExpired, cancellationToken);
         return Ok(id);
+    }
+
+    [HttpPost("place-from-basket")]
+    public async Task<IActionResult> PlaceFromBasket([FromBody] PlaceOrderFromBasketRequest request, CancellationToken cancellationToken = default)
+    {
+        if (!CanAccessClientData(request.UserId))
+        {
+            return Forbid();
+        }
+
+        await orderService.PlaceOrderFromBasketAsync(request.UserId, request.ChosenPickUpDate, cancellationToken);
+        return NoContent();
     }
 
     [HttpPut("{orderId:int}")]
@@ -43,6 +65,24 @@ public class OrdersController(IOrderService orderService) : ControllerBase
     {
         order.Id = orderId;
         await orderService.UpdateOrderAsync(order, cancellationToken);
+        return NoContent();
+    }
+
+    [HttpPost("{orderId:int}/cancel")]
+    public async Task<IActionResult> Cancel(int orderId, CancellationToken cancellationToken = default)
+    {
+        Order? order = await orderService.GetOrderByIdAsync(orderId, cancellationToken);
+        if (order is null)
+        {
+            return NotFound();
+        }
+
+        if (!CanAccessClientData(order.Client.Id))
+        {
+            return Forbid();
+        }
+
+        await orderService.CancelOrderAsync(orderId, cancellationToken);
         return NoContent();
     }
 
@@ -54,4 +94,14 @@ public class OrdersController(IOrderService orderService) : ControllerBase
     }
 
     public record CreateOrderRequest(int ClientId, DateOnly PickUpDate, bool IsCompleted, bool IsExpired);
+
+    public record PlaceOrderFromBasketRequest(int UserId, DateOnly ChosenPickUpDate);
+
+    private bool CanAccessClientData(int userId)
+    {
+        UserPrincipal currentUser = this.GetCurrentUser();
+        return currentUser.Id == userId
+            || string.Equals(currentUser.Role, "Admin", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(currentUser.Role, "Pharmacist", StringComparison.OrdinalIgnoreCase);
+    }
 }

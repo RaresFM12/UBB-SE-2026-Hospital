@@ -3,6 +3,7 @@ namespace Hospital.Data.Models
     using System;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
+    using System.Text.Json.Serialization;
 
     public class BasketItemViewModel : INotifyPropertyChanged, IEquatable<BasketItemViewModel>
     {
@@ -93,6 +94,33 @@ namespace Hospital.Data.Models
         public string ItemFinalPriceString => $"{this.FinalPriceBeforeDiscount:0.00} RON";
 
         public string ItemFinalDiscountedPriceString => $"{this.FinalPriceAfterDiscount:0.00} RON";
+
+        [JsonConstructor]
+        public BasketItemViewModel(
+            int itemId,
+            string itemThumbnailImagePath,
+            string itemName,
+            string itemProducer,
+            float initialPricePerBox,
+            float baseItemDiscount,
+            float extraItemDiscount,
+            float itemActiveUserDiscount,
+            int itemQuantityInBasket,
+            float finalPriceBeforeDiscount,
+            float finalPriceAfterDiscount)
+        {
+            this.ItemId = itemId;
+            this.ItemThumbnailImagePath = itemThumbnailImagePath;
+            this.ItemName = itemName;
+            this.ItemProducer = itemProducer;
+            this.InitialPricePerBox = initialPricePerBox;
+            this.BaseItemDiscount = baseItemDiscount;
+            this.ExtraItemDiscount = extraItemDiscount;
+            this.ItemActiveUserDiscount = itemActiveUserDiscount;
+            this.quantity = Math.Max(MinimumQuantity, itemQuantityInBasket);
+            this.finalPriceBeforeDiscount = finalPriceBeforeDiscount;
+            this.finalPriceAfterDiscount = finalPriceAfterDiscount;
+        }
 
         public BasketItemViewModel(
             int itemId,

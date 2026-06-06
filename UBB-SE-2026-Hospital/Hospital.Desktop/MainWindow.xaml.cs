@@ -126,6 +126,7 @@ public partial class MainWindow : Window
             ("Client Tools", new[]
             {
                 ("My Basket", "Basket"),
+                ("Period Tracker", "PeriodTracker"),
                 ("Billing", "Billing"),
             }));
 
@@ -309,6 +310,7 @@ public partial class MainWindow : Window
             "BloodDonors" => typeof(Views.Patient.BloodDonorsPage),
             "Statistics" => typeof(Views.Patient.StatisticsPage),
             "Billing" => typeof(Views.Patient.BillingPage),
+            "PeriodTracker" => typeof(Views.Patient.PeriodTrackerPage),
             "AddictDetection" => typeof(Views.Patient.AddictDetectionPage),
             "Consultations" => typeof(Views.Patient.ConsultationsPage),
             "MedicalEvaluations" => typeof(Views.Patient.MedicalEvaluationsPage),
@@ -433,50 +435,59 @@ public partial class MainWindow : Window
 
     private static bool IsFeatureVisibleForRole(string navigationTag, UserRole userRole)
     {
-        // Features the web navbar (_Layout.cshtml) exposes to every authenticated
-        // user: the Patient Care, Facilities & Departments, and Pharmacy groups.
-        // NOTE: ER flow items and Queue are intentionally excluded from shared
-        // features because they must not appear in the Client or Pharmacist desktop UI.
-        bool isSharedFeature = navigationTag
-            is "Dashboard"
-            or "ProfileManagement"
-            // Patient Care
-            or "Patients"
+        bool isEveryoneFeature = navigationTag is "Dashboard" or "ProfileManagement";
+
+        bool isClinicalFeature = navigationTag
+            is "Patients"
+            or "PatientRegistration"
             or "Consultations"
             or "MedicalEvaluations"
-            // Facilities & Departments
+            or "Queue"
+            or "Triage"
+            or "Examination"
+            or "RoomManagement"
+            or "RoomAssignment"
+            or "TransferLog"
             or "BloodDonors"
             or "OrganDonor"
             or "Transplants"
-            or "Ghost"
-            // Pharmacy
             or "Prescriptions"
-            or "ProductCatalogue"
-            or "Orders"
             or "AddictDetection";
 
-        // ER flow + Queue: visible to Admin and Doctor only.
-        bool isErFlowFeature = navigationTag
-            is "PatientRegistration"
-            or "Triage"
-            or "RoomManagement"
-            or "RoomAssignment"
-            or "Examination"
-            or "TransferLog"
-            or "Queue";
+        bool isClientPharmacyFeature = navigationTag
+            is "ProductCatalogue"
+            or "Orders"
+            or "Basket"
+            or "PeriodTracker";
+
+        bool isPharmacistFeature = navigationTag
+            is "ProductCatalogue"
+            or "Orders"
+            or "Basket"
+            or "Billing"
+            or "PharmacySchedule"
+            or "Inventory";
+
+        bool isDoctorFeature = isClinicalFeature || navigationTag
+            is "Appointments"
+            or "DoctorSchedule"
+            or "Hangouts"
+            or "ShiftSwapRequests"
+            or "IncomingSwaps";
+
+        bool isNurseFeature = isClinicalFeature || navigationTag
+            is "Hangouts"
+            or "ShiftSwapRequests"
+            or "IncomingSwaps";
 
         return userRole switch
         {
             // Admin reaches every desktop page, mirroring the web Admin menu.
             UserRole.Admin => true,
-            // Doctor: shared features + ER flow + the web Staff Portal "Doctor Actions".
-            UserRole.Doctor => isSharedFeature || isErFlowFeature
-                || navigationTag is "Appointments" or "DoctorSchedule"
-                or "Hangouts" or "ShiftSwapRequests" or "IncomingSwaps",
-            // Pharmacist: shared features + the web Staff Portal "Pharmacy Actions".
-            UserRole.Pharmacist => isSharedFeature || navigationTag is "PharmacySchedule" || navigationTag is "Inventory",
-            // Client: shared features + the web "Client Tools".
-            UserRole.Client => isSharedFeature || navigationTag is "Billing" or "Basket",
+            UserRole.Doctor => isEveryoneFeature || isDoctorFeature,
+            UserRole.Nurse or UserRole.ERDoctor => isEveryoneFeature || isNurseFeature,
+            UserRole.Pharmacist => isEveryoneFeature || isPharmacistFeature,
+            UserRole.Client or UserRole.Patient => isEveryoneFeature || isClientPharmacyFeature,
             _ => false,
         };
     }
