@@ -66,24 +66,19 @@ public class PrescriptionRepository(HospitalDbContext context) : IPrescriptionRe
     public async Task<List<Prescription>> GetPotentialDrugAddictsAsync()
     {
         var cutoff = DateTime.UtcNow.AddDays(-30);
-
-        // Translatable grouping: SQL GROUP BY ... HAVING COUNT(*) >= 5 returning
-        // the qualifying record keys. (GroupBy().SelectMany() cannot be
-        // translated by EF Core for any relational provider.)
-        var flaggedRecordIds = await context.Prescriptions
-            .Where(p => p.Date >= cutoff)
-            .GroupBy(p => p.MedicalRecord.RecordId)
-            .Where(g => g.Count() >= 5)
-            .Select(g => g.Key)
-            .ToListAsync();
-
-        return await context.Prescriptions
+        var prescriptions = await context.Prescriptions
             .Include(p => p.MedicationList)
             .Include(p => p.MedicalRecord)
                 .ThenInclude(r => r.MedicalHistory)
                     .ThenInclude(mh => mh.Patient)
-            .Where(p => p.Date >= cutoff && flaggedRecordIds.Contains(p.MedicalRecord.RecordId))
+            .Where(p => p.Date >= cutoff)
             .ToListAsync();
+
+        return prescriptions
+            .GroupBy(p => p.MedicalRecord?.RecordId)
+            .Where(g => g.Count() >= 5)
+            .SelectMany(g => g)
+            .ToList();
     }
 
     public async Task<List<Prescription>> GetTopNAsync(int n, int page)

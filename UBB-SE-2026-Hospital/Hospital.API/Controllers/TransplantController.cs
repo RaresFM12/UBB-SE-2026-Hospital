@@ -75,6 +75,13 @@ public class TransplantController(ITransplantService transplantService, ILogger<
         catch (Exception exception) { logger.LogError(exception, "Failed to fetch transplants for receiver {ReceiverId}.", receiverId); return Problem(statusCode: 500, title: "Could not fetch transplants."); }
     }
 
+    [HttpGet("matches")]
+    public async Task<ActionResult<List<TransplantMatch>>> GetAllMatches()
+    {
+        try { return Ok(await transplantService.GetMatchesAsync()); }
+        catch (Exception ex) { logger.LogError(ex, "Failed to fetch transplant matches."); return Problem(statusCode: 500, title: "Could not fetch transplant matches."); }
+    }
+
     [HttpGet("matches/donor/{donorId:int}")]
     public async Task<ActionResult<List<TransplantMatch>>> GetTopMatchesForDonor(int donorId, [FromQuery] string organType)
     {

@@ -42,6 +42,24 @@ public class TriageController(
         catch (Exception ex) { logger.LogError(ex, "Failed to create triage."); return Problem(statusCode: 500, title: "Could not create triage."); }
     }
 
+    [HttpGet("visit/{visitId:int}")]
+    public async Task<ActionResult<Triage?>> GetByVisitId(int visitId)
+    {
+        try
+        {
+            Triage? result = await triageService.GetByVisitIdAsync(visitId);
+            return result is null ? NotFound() : Ok(result);
+        }
+        catch (Exception ex) { logger.LogError(ex, "Failed to fetch triage for visit {VisitId}.", visitId); return Problem(statusCode: 500, title: "Could not fetch triage."); }
+    }
+
+    [HttpPost("visit/{visitId:int}")]
+    public async Task<ActionResult<Triage>> CreateForVisit(int visitId, [FromBody] PerformTriageRequest parameters)
+    {
+        try { return Ok(await triageService.CreateTriageAsync(visitId, parameters)); }
+        catch (Exception ex) { logger.LogError(ex, "Failed to create triage for visit {VisitId}.", visitId); return Problem(statusCode: 500, title: "Could not create triage."); }
+    }
+
     [HttpPost("perform")]
     public async Task<ActionResult<PerformTriageResponse>> Perform([FromBody] PerformTriageRequest request)
     {

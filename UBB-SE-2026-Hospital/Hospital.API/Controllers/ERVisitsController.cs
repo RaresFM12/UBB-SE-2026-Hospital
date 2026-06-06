@@ -8,7 +8,7 @@ namespace Hospital.API.Controllers;
 [ApiController]
 [AuthorizeRole("Admin","Doctor","Nurse","ERDoctor")]
 [Route("api/ervisits")]
-public class ERVisitsController(IERVisitService erVisitService, ILogger<ERVisitsController> logger) : ControllerBase
+public class ERVisitsController(IERVisitService erVisitService, ITriageService triageService, ILogger<ERVisitsController> logger) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<List<ERVisit>>> GetAll()
@@ -22,6 +22,13 @@ public class ERVisitsController(IERVisitService erVisitService, ILogger<ERVisits
     {
         try { return Ok(await erVisitService.GetActiveVisitsAsync()); }
         catch (Exception ex) { logger.LogError(ex, "Failed to fetch active ER visits."); return Problem(statusCode: 500, title: "Could not fetch active ER visits."); }
+    }
+
+    [HttpGet("status/{status}")]
+    public async Task<ActionResult<List<ERVisit>>> GetByStatus(string status)
+    {
+        try { return Ok(await erVisitService.GetByStatusAsync(status)); }
+        catch (Exception ex) { logger.LogError(ex, "Failed to fetch ER visits by status {Status}.", status); return Problem(statusCode: 500, title: "Could not fetch ER visits by status."); }
     }
 
     [HttpGet("patient/{patientId:int}")]
@@ -79,6 +86,21 @@ public class ERVisitsController(IERVisitService erVisitService, ILogger<ERVisits
             return NoContent();
         }
         catch (Exception ex) { logger.LogError(ex, "Failed to delete ER visit {Id}.", id); return Problem(statusCode: 500, title: "Could not delete ER visit."); }
+    }
+
+    [HttpGet("for-triage")]
+    public async Task<ActionResult<List<ERVisit>>> GetForTriage()
+    {
+        try { return Ok(await triageService.GetVisitsForTriageAsync()); }
+        catch (Exception ex) { logger.LogError(ex, "Failed to fetch visits for triage."); return Problem(statusCode: 500, title: "Could not fetch visits for triage."); }
+    }
+
+    [HttpPost("{visitId:int}/move-to-queue")]
+    public async Task<IActionResult> MoveToQueue(int visitId)
+    {
+        try { await triageService.MoveVisitToQueueAsync(visitId); return NoContent(); }
+        catch (InvalidOperationException ex) { return BadRequest(ex.Message); }
+        catch (Exception ex) { logger.LogError(ex, "Failed to move visit {VisitId} to queue.", visitId); return Problem(statusCode: 500, title: "Could not move visit to queue."); }
     }
 
     [HttpPost("auto-assign-room")]
