@@ -17,7 +17,6 @@ public static class ServiceCollectionExtensions
         services.AddHttpContextAccessor();
         services.AddTransient<AuthTokenForwardingHandler>();
 
-        services.AddSingleton<IErStaffService, ErStaffService>();
         services.AddSingleton<IAppointmentImportProvider, MockAppointmentImportProvider>();
 
         services.AddHospitalApiClient<IAuthenticationApiClient, AuthenticationApiClient>(apiBaseUrl);

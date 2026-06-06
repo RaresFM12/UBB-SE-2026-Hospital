@@ -15,15 +15,13 @@ namespace Hospital.Web.Controllers;
 [Authorize]
 public class TriageController : Controller
 {
-    private readonly IErWorkflowApiClient erApiClient;
-    private readonly IErStaffService erStaffService;
+    private const int DefaultNurseId = 2;
 
-    public TriageController(
-        IErWorkflowApiClient erApiClient,
-        IErStaffService erStaffService)
+    private readonly IErWorkflowApiClient erApiClient;
+
+    public TriageController(IErWorkflowApiClient erApiClient)
     {
         this.erApiClient = erApiClient;
-        this.erStaffService = erStaffService;
     }
 
     [HttpGet]
@@ -68,13 +66,10 @@ public class TriageController : Controller
             };
             parameters.ValidateParameters();
 
-            int nurseId = erStaffService.RequestAvailableNurse()
-                ?? throw new InvalidOperationException("No available nurse.");
-
             PerformTriageResponse result = await erApiClient.PerformTriageAsync(new PerformTriageRequest
             {
                 VisitId = form.VisitId,
-                NurseId = nurseId,
+                NurseId = DefaultNurseId,
                 TriageTime = DateTime.Now,
                 Consciousness = parameters.Consciousness,
                 Breathing = parameters.Breathing,
