@@ -43,11 +43,36 @@ public class ExaminationController(IExaminationService examinationService, ILogg
         catch (Exception ex) { logger.LogError(ex, "Failed to fetch eligible examination visits."); return Problem(statusCode: 500, title: "Could not fetch eligible examination visits."); }
     }
 
+    [HttpPost("visit/{visitId:int}/request-doctor")]
+    public async Task<ActionResult<Examination>> RequestDoctor(int visitId)
+    {
+        try
+        {
+            return Ok(await examinationService.RequestDoctorAsync(visitId));
+        }
+        catch (ArgumentException ex) { return NotFound(ex.Message); }
+        catch (InvalidOperationException ex) { return Conflict(ex.Message); }
+        catch (Exception ex) { logger.LogError(ex, "Failed to request a doctor for visit {VisitId}.", visitId); return Problem(statusCode: 500, title: "Could not request a doctor."); }
+    }
+
     [HttpGet("patient-history/{patientId:int}")]
     public async Task<ActionResult<List<Examination>>> GetPatientHistory(int patientId)
     {
         try { return Ok(await examinationService.GetPatientHistoryAsync(patientId)); }
         catch (Exception ex) { logger.LogError(ex, "Failed to fetch examination history for patient {PatientId}.", patientId); return Problem(statusCode: 500, title: "Could not fetch examination history."); }
+    }
+
+    [HttpPost("save")]
+    public async Task<IActionResult> Save([FromBody] SaveExaminationRequest request)
+    {
+        try
+        {
+            await examinationService.SaveExaminationAsync(request.VisitId, request.Notes);
+            return NoContent();
+        }
+        catch (ArgumentException ex) { return BadRequest(ex.Message); }
+        catch (InvalidOperationException ex) { return Conflict(ex.Message); }
+        catch (Exception ex) { logger.LogError(ex, "Failed to save examination for visit {VisitId}.", request.VisitId); return Problem(statusCode: 500, title: "Could not save examination."); }
     }
 
     [HttpGet("summary/{visitId:int}")]
