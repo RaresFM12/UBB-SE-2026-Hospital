@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Hospital.Data.Models;
-using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Microsoft.UI.Xaml.Controls;
 using PatientModel = Hospital.Data.Models.Patient;
@@ -13,6 +12,11 @@ namespace Hospital.Desktop.ViewModels.ER;
 
 public partial class PatientRegistrationViewModel : ObservableObject
 {
+    private const int CnpLength = 13;
+    private const string CnpPattern = @"^\d{13}$";
+    private const string PhonePattern = @"^07\d{8}$";
+    private const string EmergencyContactPattern = @"^[A-Za-z\s'-]+(?:\s-\s|\s)07\d{8}$";
+
     private readonly IPatientService patientService;
     private readonly IERVisitService erVisitService;
 
@@ -60,9 +64,9 @@ public partial class PatientRegistrationViewModel : ObservableObject
             if (submitAttempted) PatientCnpError = "Patient ID (CNP) is required.";
             valid = false;
         }
-        else if (!Regex.IsMatch(PatientCnp, @"^\d{13}$"))
+        else if (!Regex.IsMatch(PatientCnp.Trim(), CnpPattern))
         {
-            if (submitAttempted) PatientCnpError = "CNP must be exactly 13 digits.";
+            if (submitAttempted) PatientCnpError = $"CNP must be exactly {CnpLength} digits.";
             valid = false;
         }
         else { PatientCnpError = string.Empty; }
@@ -111,7 +115,7 @@ public partial class PatientRegistrationViewModel : ObservableObject
             if (submitAttempted) PhoneError = "Phone number is required.";
             valid = false;
         }
-        else if (!Regex.IsMatch(Phone, @"^07\d{8}$"))
+        else if (!Regex.IsMatch(Phone.Trim(), PhonePattern))
         {
             if (submitAttempted) PhoneError = "Phone must be in format 07XXXXXXXX.";
             valid = false;
@@ -123,9 +127,9 @@ public partial class PatientRegistrationViewModel : ObservableObject
             if (submitAttempted) EmergencyContactError = "Emergency contact is required.";
             valid = false;
         }
-        else if (!Regex.IsMatch(EmergencyContact, @"^[A-Za-z\s]+ - 07\d{8}$"))
+        else if (!Regex.IsMatch(EmergencyContact.Trim(), EmergencyContactPattern))
         {
-            if (submitAttempted) EmergencyContactError = "Format: Firstname Lastname - 07XXXXXXXX";
+            if (submitAttempted) EmergencyContactError = "Format: Firstname Lastname - 07XXXXXXXX or Firstname Lastname 07XXXXXXXX";
             valid = false;
         }
         else { EmergencyContactError = string.Empty; }
@@ -152,40 +156,54 @@ public partial class PatientRegistrationViewModel : ObservableObject
 
         try
         {
-            bool patientExists = await patientService.ExistsAsync(PatientCnp);
+            string patientCnp = PatientCnp.Trim();
+            string firstName = FirstName.Trim();
+            string lastName = LastName.Trim();
+            string phone = Phone.Trim();
+            string emergencyContact = EmergencyContact.Trim();
+            string chiefComplaint = ChiefComplaint.Trim();
+            Sex sex = Gender.Trim().Equals("Female", StringComparison.OrdinalIgnoreCase) ? Sex.F : Sex.M;
+
+            bool patientExists = await patientService.ExistsAsync(patientCnp);
             int patientId = 0;
+            PatientModel? patient = null;
             if (!patientExists)
             {
-                var created = await patientService.CreatePatientAsync(new CreatePatientRequest
+                patient = await patientService.CreatePatientAsync(new CreatePatientRequest
                 {
-                    FirstName = FirstName,
-                    LastName = LastName,
-                    Cnp = PatientCnp,
+                    FirstName = firstName,
+                    LastName = lastName,
+                    Cnp = patientCnp,
                     DateOfBirth = DateOfBirth!.Value.DateTime,
-                    Sex = Gender.Equals("Female", StringComparison.OrdinalIgnoreCase) ? Sex.F : Sex.M,
-                    PhoneNumber = Phone,
-                    EmergencyContact = EmergencyContact,
+                    Sex = sex,
+                    PhoneNumber = phone,
+                    EmergencyContact = emergencyContact,
                     IsDonor = false,
                 });
-                patientId = created.PatientId;
+                patientId = patient.PatientId;
             }
             else
             {
-                var existing = (await patientService.SearchPatientsAsync(new SearchPatientsRequest { Cnp = PatientCnp })).FirstOrDefault();
-                patientId = existing?.PatientId ?? 0;
+                patient = (await patientService.SearchPatientsAsync(new SearchPatientsRequest { Cnp = patientCnp })).FirstOrDefault();
+                patientId = patient?.PatientId ?? 0;
+            }
+
+            if (patient is null || patientId <= 0)
+            {
+                throw new InvalidOperationException("Patient could not be loaded after registration.");
             }
 
             var visit = new ERVisit
             {
-                Patient = new PatientModel { PatientId = patientId, Cnp = PatientCnp, FirstName = FirstName, LastName = LastName },
-                ChiefComplaint = ChiefComplaint,
+                Patient = patient,
+                ChiefComplaint = chiefComplaint,
                 ArrivalDateTime = DateTime.Now,
                 Status = ERVisit.VisitStatus.REGISTERED,
             };
 
             var createdVisit = await erVisitService.CreateAsync(visit);
             await ShowDialog("Registration Successful",
-                $"Patient ID: {PatientCnp}\nVisit ID: {createdVisit.VisitId}\nStatus: {createdVisit.Status}");
+                $"Patient ID: {patientCnp}\nVisit ID: {createdVisit.VisitId}\nStatus: {createdVisit.Status}");
             ClearForm();
         }
         catch (Exception ex)
