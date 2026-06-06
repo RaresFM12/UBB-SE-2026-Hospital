@@ -1,21 +1,22 @@
-using System;
-using System.IO;
-using System.Net.Http;
 using Hospital.Desktop.Auth;
-using Hospital.Shared.Proxies;
 using Hospital.Desktop.Services;
 using Hospital.Desktop.ViewModels.Accounts; // removed to avoid ambiguity
 using Hospital.Desktop.ViewModels.Admin;
+using Hospital.Desktop.ViewModels.Base;
+using Hospital.Desktop.ViewModels.Doctor;
 using Hospital.Desktop.ViewModels.ER;
 using Hospital.Desktop.ViewModels.Patient;
 using Hospital.Desktop.ViewModels.Pharmacy;
 using Hospital.Desktop.ViewModels.PharmacyManagement;
-using Hospital.Desktop.ViewModels.Doctor;
-using Hospital.Desktop.ViewModels.Base;
+using Hospital.Desktop.Views.Shell;
+using Hospital.Shared.Proxies;
 using Hospital.Shared.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
+using System;
+using System.IO;
+using System.Net.Http;
 
 
 //using Hospital.Desktop.ViewModels;
@@ -56,7 +57,7 @@ public partial class App : Application
         var apiBaseUri = new Uri(apiBaseUrl);
         // Register shared business logic services
 
-
+        
         services.AddSingleton<ICurrentUserService, CurrentUserService>();
         services.AddSingleton<AuthClient>();
         services.AddSingleton<NavigationService>();
@@ -78,13 +79,16 @@ public partial class App : Application
         services.AddSingleton<IAddictDetectionService, AddictDetectionApiClient>();
         services.AddSingleton<PrescriptionApiClient>();
         services.AddSingleton<IPrescriptionService>(sp => sp.GetRequiredService<PrescriptionApiClient>());
+        services.AddSingleton<IPharmacyScheduleService, PharmacyScheduleApiClient>();
+        services.AddSingleton<IPharmacyVacationService, PharmacyVacationApiClient>();
 
         // Sync-blocking proxies (923-2 admin/client)
         services.AddSingleton<IAdminService, AdminApiClient>();
         services.AddSingleton<IOrderService, OrdersApiClient>();
         services.AddSingleton<IUserAccountService, UserAccountApiClient>();
-        services.AddSingleton<IShiftManagementService, ShiftManagementApiClient>();
+        services.AddHttpClient<IShiftManagementService, ShiftManagementApiClient>("api");
         services.AddSingleton<IFatigueAuditService, FatigueAuditApiClient>();
+        services.AddHttpClient<IPharmacyScheduleService, PharmacyScheduleApiClient>("api");
 
         // Newly ported web features (desktop parity)
         services.AddSingleton<IGhostApiClient, GhostApiClient>();
@@ -132,7 +136,10 @@ public partial class App : Application
         services.AddTransient<Hospital.Desktop.ViewModels.Pharmacy.PharmacyScheduleViewModel>();
         services.AddTransient<Hospital.Desktop.ViewModels.Pharmacy.PharmacyShiftItemViewModel>();
         services.AddTransient<Hospital.Desktop.ViewModels.PharmacyManagement.EditPageViewModel>();
-        services.AddTransient<Hospital.Desktop.Views.Shell.DialogPresenter>();
+
+        //the details of the appointments in the doctors schedule did not show up without this line commented out
+        //services.AddTransient<Hospital.Desktop.Views.Shell.DialogPresenter>();
+        services.AddSingleton<DialogPresenter>();
 
         var provider = services.BuildServiceProvider();
 
@@ -149,7 +156,7 @@ public partial class App : Application
         var loginWindow = Services.GetRequiredService<LoginWindow>();
         loginWindow.ViewModel.LoginSucceeded += () =>
         {
-            loginWindow.DispatcherQueue.TryEnqueue(() =>
+            loginWindow.DispatcherQueue.TryEnqueue(async () =>
             {
                 try
                 {
@@ -161,7 +168,14 @@ public partial class App : Application
                 catch (Exception ex)
                 {
                     LogException(ex);
-                    throw;
+                    var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+                    {
+                        Title = "Launch Error",
+                        Content = ex.ToString(),
+                        CloseButtonText = "OK",
+                        XamlRoot = loginWindow.Content?.XamlRoot,
+                    };
+                    await dialog.ShowAsync();
                 }
             });
         };

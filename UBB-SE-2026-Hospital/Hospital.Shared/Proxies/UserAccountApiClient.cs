@@ -3,7 +3,7 @@ using Hospital.Shared.Services;
 
 namespace Hospital.Shared.Proxies;
 
-public class UserAccountApiClient(HttpClient httpClient) : ApiClientBase(httpClient), IUserAccountService
+public class UserAccountApiClient(HttpClient httpClient) : ApiClientBase(httpClient), IUserAccountService, IUserAccountApiClient
 {
     private const string BaseUri = "api/users";
 

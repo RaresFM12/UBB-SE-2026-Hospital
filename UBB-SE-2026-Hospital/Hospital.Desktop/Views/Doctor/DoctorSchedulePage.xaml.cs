@@ -1,14 +1,13 @@
 namespace Hospital.Desktop.Views.Doctor
 {
+    using System;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
     using Microsoft.UI.Xaml.Navigation;
-    
     using Hospital.Desktop.Services;
-using Hospital.Shared.Services;
-using Hospital.Data.Models;
-using Hospital.Shared.Services;
+    using Hospital.Shared.Services;
+    using Hospital.Data.Models;
     using Hospital.Desktop.ViewModels.Doctor;
     using Hospital.Desktop.Views.Shell;
 
@@ -20,18 +19,23 @@ using Hospital.Shared.Services;
 
         public DoctorSchedulePage()
         {
-            InitializeComponent();
+            this.InitializeComponent();
 
             this.viewModel = App.Services.GetRequiredService<DoctorScheduleViewModel>();
             this.dialogPresenter = App.Services.GetRequiredService<DialogPresenter>();
             this.DataContext = this.viewModel;
+
+            this.Loaded += DoctorSchedulePage_Loaded;
+        }
+
+        private void DoctorSchedulePage_Loaded(object sender, RoutedEventArgs e)
+        {
+            this.dialogPresenter.SetXamlRoot(this.XamlRoot);
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-
-            this.dialogPresenter.SetXamlRoot(this.XamlRoot);
 
             if (this.initialized)
             {
@@ -62,9 +66,17 @@ using Hospital.Shared.Services;
 
         private void DetailsButton_Click(object sender, RoutedEventArgs e)
         {
-            if ((sender as FrameworkElement)?.DataContext is AppointmentItemViewModel item)
+            var button = sender as Button;
+            var item = button?.DataContext as AppointmentItemViewModel;
+
+            if (item != null && this.viewModel != null)
             {
-                // this.Frame?.Navigate(typeof(AppointmentDetailsPage), item.ToAppointment());
+                System.Diagnostics.Debug.WriteLine($"DEBUG: Code-behind clicked! Sending ID {item.AppointmentItemId} to ViewModel.");
+                this.viewModel.OpenDetails(item);
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("DEBUG: Click failed. Either the item or the viewModel was null.");
             }
         }
     }

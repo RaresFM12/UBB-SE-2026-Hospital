@@ -27,9 +27,10 @@
                 PasswordChanged="OnPasswordChanged" />
 
             <TextBlock
+                x:Name="ErrorText"
                 Foreground="#B00020"
                 TextWrapping="Wrap"
-                Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" />
+                Visibility="Collapsed" />
 
             <Button
                 HorizontalAlignment="Stretch"

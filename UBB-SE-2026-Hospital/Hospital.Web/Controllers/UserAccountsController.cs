@@ -1,4 +1,4 @@
-using Hospital.Shared.Proxies;
+﻿using Hospital.Shared.Proxies;
 namespace Hospital.Web.Controllers
 {
     using System;
@@ -14,9 +14,9 @@ namespace Hospital.Web.Controllers
     [Authorize]
     public class UserAccountsController : Controller
     {
-        private readonly IUserAccountService userAccountService;
+        private readonly IUserAccountApiClient userAccountService;
 
-        public UserAccountsController(IUserAccountService userAccountService)
+        public UserAccountsController(IUserAccountApiClient userAccountService)
         {
             this.userAccountService = userAccountService;
         }

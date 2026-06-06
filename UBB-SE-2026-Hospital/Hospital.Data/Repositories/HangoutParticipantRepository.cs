@@ -10,22 +10,22 @@ public class HangoutParticipantRepository(HospitalDbContext context) : IHangoutP
 {
     public async Task<HangoutParticipant?> GetByIdAsync(int hangoutId, int staffId)
         => await context.HangoutParticipants
-            .Include(p => p.Hangout)
-            .Include(p => p.Staff)
-            .FirstOrDefaultAsync(p => p.Hangout.HangoutID == hangoutId && p.Staff.StaffId == staffId);
+            .Include(participant => participant.Hangout)
+            .Include(participant => participant.Staff)
+            .FirstOrDefaultAsync(participant => participant.Hangout.HangoutID == hangoutId && participant.Staff.StaffId == staffId);
 
     public async Task<List<HangoutParticipant>> GetByHangoutIdAsync(int hangoutId)
         => await context.HangoutParticipants
-            .Include(p => p.Hangout)
-            .Include(p => p.Staff)
-            .Where(p => p.Hangout.HangoutID == hangoutId)
+            .Include(participant => participant.Hangout)
+            .Include(participant => participant.Staff)
+            .Where(participant => participant.Hangout.HangoutID == hangoutId)
             .ToListAsync();
 
     public async Task<List<HangoutParticipant>> GetByStaffIdAsync(int staffId)
         => await context.HangoutParticipants
-            .Include(p => p.Hangout)
-            .Include(p => p.Staff)
-            .Where(p => p.Staff.StaffId == staffId)
+            .Include(participant => participant.Hangout)
+            .Include(participant => participant.Staff)
+            .Where(participant => participant.Staff.StaffId == staffId)
             .ToListAsync();
 
     public async Task<HangoutParticipant> CreateAsync(HangoutParticipant participant)

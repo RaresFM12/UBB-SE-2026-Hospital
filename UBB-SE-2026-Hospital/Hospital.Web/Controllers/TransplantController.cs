@@ -1,4 +1,4 @@
-using Hospital.Shared.Proxies;
+﻿using Hospital.Shared.Proxies;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,17 +8,16 @@ using Hospital.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Hospital.Services;
-using ITransplantService = Hospital.Shared.Services.ITransplantService;
 
 namespace Hospital.Web.Controllers;
 
 [Authorize]
 public class TransplantController : Controller
 {
-    private readonly ITransplantService transplantService;
-    private readonly IPatientService patientService;
+    private readonly ITransplantApiClient transplantService;
+    private readonly IPatientApiClient patientService;
 
-    public TransplantController(ITransplantService transplantService, IPatientService patientService)
+    public TransplantController(ITransplantApiClient transplantService, IPatientApiClient patientService)
     {
         this.transplantService = transplantService;
         this.patientService = patientService;

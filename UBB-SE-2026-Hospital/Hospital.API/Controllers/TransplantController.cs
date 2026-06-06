@@ -4,6 +4,7 @@ using Hospital.Services;
 using Hospital.API.Auth;
 using Microsoft.AspNetCore.Mvc;
 
+
 namespace Hospital.API.Controllers;
 
 [ApiController]
@@ -65,6 +66,13 @@ public class TransplantController(ITransplantService transplantService, ILogger<
     {
         try { return Ok(await transplantService.GetByPatientIdAsync(patientId)); }
         catch (Exception ex) { logger.LogError(ex, "Failed to fetch transplants for patient {PatientId}.", patientId); return Problem(statusCode: 500, title: "Could not fetch transplants."); }
+    }
+
+    [HttpGet("receiver/{receiverId:int}")]
+    public async Task<ActionResult<List<Transplant>>> GetByReceiverId(int receiverId)
+    {
+        try { return Ok(await transplantService.GetByPatientIdAsync(receiverId)); }
+        catch (Exception exception) { logger.LogError(exception, "Failed to fetch transplants for receiver {ReceiverId}.", receiverId); return Problem(statusCode: 500, title: "Could not fetch transplants."); }
     }
 
     [HttpGet("matches/donor/{donorId:int}")]

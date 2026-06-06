@@ -14,9 +14,9 @@ public class MedicalStaffController : Controller
     private const int NoSearchResultsCount = 0;
     private const int CnpLength = 13;
 
-    private readonly IPatientService patientService;
+    private readonly IPatientApiClient patientService;
 
-    public MedicalStaffController(IPatientService patientService)
+    public MedicalStaffController(IPatientApiClient patientService)
     {
         this.patientService = patientService;
     }

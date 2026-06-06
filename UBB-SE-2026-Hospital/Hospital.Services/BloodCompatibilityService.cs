@@ -32,7 +32,7 @@ public class BloodCompatibilityService(
 
         foreach (Patient donor in allPatients)
         {
-            if (donor.PatientId == recipientId || !donor.IsDeceased)
+            if (donor.PatientId == recipientId || donor.IsDeceased || donor.IsArchived)
                 continue;
 
             donor.MedicalHistory = await historyRepository.GetByPatientIdAsync(donor.PatientId);
@@ -54,24 +54,24 @@ public class BloodCompatibilityService(
         }
 
         return rankedDonors
-        .OrderByDescending(x => x.Score)
-        .Select(x => x.Donor)
+        .OrderByDescending(organ => organ.Score)
+        .Select(organ => organ.Donor)
         .Take(MaxCompatibleDonors)
-        .Select(p => new Hospital.Data.Models.Patient
+        .Select(patient => new Hospital.Data.Models.Patient
         {
-            PatientId = p.PatientId,
-            FirstName = p.FirstName,
-            LastName = p.LastName,
-            Cnp = p.Cnp,
-            DateOfBirth = p.DateOfBirth,
-            Sex = p.Sex,
-            IsArchived = p.IsArchived,
-            MedicalHistory = p.MedicalHistory is null
+            PatientId = patient.PatientId,
+            FirstName = patient.FirstName,
+            LastName = patient.LastName,
+            Cnp = patient.Cnp,
+            DateOfBirth = patient.DateOfBirth,
+            Sex = patient.Sex,
+            IsArchived = patient.IsArchived,
+            MedicalHistory = patient.MedicalHistory is null
                 ? null
                 : new Hospital.Data.Models.MedicalHistory
                 {
-                    BloodType = p.MedicalHistory.BloodType,
-                    Rh = p.MedicalHistory.Rh
+                    BloodType = patient.MedicalHistory.BloodType,
+                    Rh = patient.MedicalHistory.Rh
                 }
         })
         .ToList();

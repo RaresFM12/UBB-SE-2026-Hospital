@@ -1,4 +1,4 @@
-using Hospital.Shared.Proxies;
+﻿using Hospital.Shared.Proxies;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,8 +13,8 @@ namespace Hospital.Web.Controllers
 {
     public class ProductCatalogueController : Controller
     {
-        private readonly IProductCatalogueService _catalogueService;
-        private readonly IBasketService _basketService;
+        private readonly IProductCatalogueApiClient _catalogueService;
+        private readonly IBasketApiClient _basketService;
         private readonly IUsersRepository _usersRepository;
         private const int ItemsPerPage = 12;
         private const int MinimumQuantity = 1;
@@ -32,8 +32,8 @@ namespace Hospital.Web.Controllers
         private const float FifthPriceRangeMinimum = 500f;
 
         public ProductCatalogueController(
-            IProductCatalogueService catalogueService,
-            IBasketService basketService,
+            IProductCatalogueApiClient catalogueService,
+            IBasketApiClient basketService,
             IUsersRepository usersRepository)
         {
             _catalogueService = catalogueService;

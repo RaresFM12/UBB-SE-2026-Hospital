@@ -3,61 +3,38 @@ using Hospital.Shared.Services;
 
 namespace Hospital.Shared.Proxies;
 
-public class HangoutApiClient : ApiClientBase, IHangoutService
+public class HangoutApiClient(HttpClient httpClient) : ApiClientBase(httpClient), IHangoutService, IHangoutApiClient
 {
     private const string BaseUri = "api/hangouts";
     private const string ParticipantsUri = "api/hangout-participants";
 
-    public HangoutApiClient(HttpClient httpClient) : base(httpClient)
-    {
-    }
-
     public async Task<IReadOnlyList<Hangout>> GetAllHangoutsAsync(CancellationToken cancellationToken = default)
-        => await GetAsync<List<Hangout>>(BaseUri, cancellationToken) ?? new List<Hangout>();
+        => await GetAsync<List<Hangout>>(BaseUri, cancellationToken) ?? [];
 
-    public Task<Hangout?> GetHangoutByIdAsync(int hangoutId, CancellationToken cancellationToken = default)
-        => GetAsync<Hangout>($"{BaseUri}/{hangoutId}", cancellationToken);
+    public List<Hangout> GetAllHangouts()
+        => Task.Run(async () => await GetAsync<List<Hangout>>(BaseUri) ?? []).GetAwaiter().GetResult();
+
+    public async Task<Hangout?> GetHangoutByIdAsync(int hangoutId, CancellationToken cancellationToken = default)
+        => await GetAsync<Hangout>($"{BaseUri}/{hangoutId}", cancellationToken);
 
     public async Task<IReadOnlyList<HangoutParticipant>> GetAllParticipantsAsync(CancellationToken cancellationToken = default)
-        => await GetAsync<List<HangoutParticipant>>(ParticipantsUri, cancellationToken) ?? new List<HangoutParticipant>();
+        => await GetAsync<List<HangoutParticipant>>(ParticipantsUri, cancellationToken) ?? [];
 
     public async Task<int> CreateHangoutAsync(string title, string description, DateTime date, int maxParticipants, CancellationToken cancellationToken = default)
-    {
-        var payload = new
-        {
-            Title = title,
-            Description = description,
-            Date = date,
-            MaxParticipants = maxParticipants,
-        };
-
-        return await PostAsync<object, int>(BaseUri, payload, cancellationToken);
-    }
-
-    public Task AddParticipantAsync(int hangoutId, int staffId, CancellationToken cancellationToken = default)
-    {
-        var payload = new
-        {
-            HangoutId = hangoutId,
-            StaffId = staffId,
-        };
-
-        return PostAsync(ParticipantsUri, payload, cancellationToken);
-    }
-
-    // Synchronous interface members are not supported in the desktop client.
-    public List<Hangout> GetAllHangouts()
-        => throw new NotSupportedException("Not available in the desktop client.");
+        => await PostAsync<object, int>(BaseUri, new { title, description, date, maxParticipants }, cancellationToken);
 
     public int CreateHangout(string title, string description, DateTime date, int maxParticipants)
-        => throw new NotSupportedException("Not available in the desktop client.");
+        => Task.Run(async () => await CreateHangoutAsync(title, description, date, maxParticipants)).GetAwaiter().GetResult();
 
     public int CreateHangout(string title, string description, DateTime date, int maxParticipants, Staff creator)
-        => throw new NotSupportedException("Not available in the desktop client.");
+        => Task.Run(async () => await CreateHangoutAsync(title, description, date, maxParticipants)).GetAwaiter().GetResult();
+
+    public async Task AddParticipantAsync(int hangoutId, int staffId, CancellationToken cancellationToken = default)
+        => await PostAsync($"{ParticipantsUri}", new { hangoutId, staffId }, cancellationToken);
 
     public void JoinHangout(int hangoutId, int staffId)
-        => throw new NotSupportedException("Not available in the desktop client.");
+        => Task.Run(async () => await AddParticipantAsync(hangoutId, staffId)).GetAwaiter().GetResult();
 
     public void JoinHangout(int hangoutId, Staff staff)
-        => throw new NotSupportedException("Not available in the desktop client.");
+        => Task.Run(async () => await AddParticipantAsync(hangoutId, staff.StaffId)).GetAwaiter().GetResult();
 }

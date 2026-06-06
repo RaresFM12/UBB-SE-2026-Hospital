@@ -8,7 +8,7 @@ namespace Hospital.API.Controllers;
 [ApiController]
 [AuthorizeRole("Admin","Pharmacist")]
 [Route("api/billing")]
-public class BillingController(IBillingService billingService) : ControllerBase
+public class BillingController(Hospital.Shared.Services.IBillingService billingService) : ControllerBase
 {
     [HttpGet("base-price/{patientId:int}/{recordId:int}")]
     public async Task<ActionResult<decimal>> ComputeBasePrice([FromRoute] int patientId, [FromRoute] int recordId)

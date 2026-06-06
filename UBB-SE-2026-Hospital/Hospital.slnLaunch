@@ -4,13 +4,11 @@
     "Projects": [
       {
         "Path": "Hospital.API\\Hospital.API.csproj",
-        "Action": "Start",
-        "DebugTarget": "https"
+        "Action": "Start"
       },
       {
-        "Path": "Hospital.Web\\Hospital.Web.csproj",
-        "Action": "Start",
-        "DebugTarget": "http"
+        "Path": "Hospital.Desktop\\Hospital.Desktop.csproj",
+        "Action": "Start"
       }
     ]
   },

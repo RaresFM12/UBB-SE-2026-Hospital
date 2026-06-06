@@ -3,7 +3,7 @@ using Hospital.Shared.Services;
 
 namespace Hospital.Shared.Proxies;
 
-public class AdminApiClient(HttpClient httpClient) : ApiClientBase(httpClient), IAdminService
+public class AdminApiClient(HttpClient httpClient) : ApiClientBase(httpClient), IAdminService, IAdminApiClient
 {
     private const string ItemsUri = "api/items";
     private const string SubstancesUri = "api/substances";

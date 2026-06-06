@@ -2,8 +2,7 @@
 @{
     ViewData["Title"] = "New Evaluation";
     var doctorList = ViewBag.DoctorList as IEnumerable<Hospital.Data.Models.Doctor>;
-    // You may need to pass this from your controller if it isn't already!
-    var appointmentList = ViewBag.AvailableAppointments as IEnumerable<Hospital.Data.Models.Appointment>;
+    var patientList = ViewBag.PatientList as IEnumerable<Hospital.Data.Models.Patient>;
 }
 
 <h2>Create Medical Evaluation</h2>
@@ -29,22 +28,17 @@
                 </div>
 
                 <div class="form-group mb-3">
-                    <label class="control-label fw-bold text-muted">Select Patient from Schedule</label>
-                    <select class="form-select" id="appointmentSelect" onchange="document.getElementById('patientIdField').value = this.value;">
-                        <option value="">Choose a patient...</option>
-                        @if (appointmentList != null)
+                    <label class="control-label fw-bold">Select Patient</label>
+                    <select name="PatientId" class="form-select" required>
+                        <option value="">-- Select Patient --</option>
+                        @if (patientList != null)
                         {
-                            foreach (var appt in appointmentList)
+                            foreach (var patient in patientList)
                             {
-                                <option value="@appt.ExternalRefId">@appt.StartTime - @appt.PatientName (@appt.Notes)</option>
+                                <option value="@patient.PatientId">@patient.FirstName @patient.LastName - CNP: @patient.Cnp</option>
                             }
                         }
                     </select>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label class="control-label fw-bold">Active Patient ID</label>
-                    <input asp-for="PatientId" class="form-control bg-light" id="patientIdField" readonly required />
                 </div>
 
                 <div class="form-group mb-3">

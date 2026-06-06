@@ -1,4 +1,4 @@
-using Hospital.Shared.Proxies;
+﻿using Hospital.Shared.Proxies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -10,9 +10,9 @@ namespace Hospital.Web.Controllers
     [Authorize(Roles = "Pharmacist,Admin")]
     public class PharmacyScheduleController : Controller
     {
-        private readonly IPharmacyScheduleService _scheduleService;
+        private readonly IPharmacyScheduleApiClient _scheduleService;
 
-        public PharmacyScheduleController(IPharmacyScheduleService scheduleService)
+        public PharmacyScheduleController(IPharmacyScheduleApiClient scheduleService)
         {
             _scheduleService = scheduleService;
         }
