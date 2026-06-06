@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Hospital.Data.Models;
-using Hospital.Data.Models;
 using Hospital.Shared.Services;
 using Microsoft.UI.Xaml;
 using PatientModel = Hospital.Data.Models.Patient;
@@ -13,6 +12,8 @@ namespace Hospital.Desktop.ViewModels.Patient;
 
 public partial class PatientViewModel : ObservableObject
 {
+    private const int CnpLength = 13;
+
     private readonly IPatientService patientService;
     private readonly IBillingService billingService;
     private bool isRefreshingSelectedPatient;
@@ -149,9 +150,9 @@ public partial class PatientViewModel : ObservableObject
         {
             IReadOnlyList<PatientModel> result = string.IsNullOrWhiteSpace(SearchQuery)
                 ? await patientService.GetPatientsAsync()
-                : await patientService.SearchPatientsAsync(new SearchPatientsRequest { NamePart = SearchQuery.Trim() }, CancellationToken.None);
+                : await patientService.SearchPatientsAsync(BuildSearchRequest(SearchQuery), CancellationToken.None);
 
-            foreach (var patient in result)
+            foreach (var patient in result.Where(patient => !patient.IsArchived))
             {
                 Patients.Add(patient);
             }
@@ -196,6 +197,18 @@ public partial class PatientViewModel : ObservableObject
 
         try
         {
+            SelectedPatient.FirstName = SelectedPatient.FirstName.Trim();
+            SelectedPatient.LastName = SelectedPatient.LastName.Trim();
+            SelectedPatient.Cnp = SelectedPatient.Cnp.Trim();
+            SelectedPatient.PhoneNumber = SelectedPatient.PhoneNumber.Trim();
+            SelectedPatient.EmergencyContact = SelectedPatient.EmergencyContact.Trim();
+
+            if (!SelectedPatient.Validate(out List<string> errors))
+            {
+                StatusMessage = string.Join(" ", errors);
+                return;
+            }
+
             await patientService.UpdatePatientAsync(SelectedPatient.PatientId, new Hospital.Data.Models.UpdatePatientRequest
             {
                 FirstName = SelectedPatient.FirstName,
@@ -229,9 +242,10 @@ public partial class PatientViewModel : ObservableObject
 
         try
         {
-            await patientService.ArchivePatientAsync(SelectedPatient.PatientId);
+            int archivedPatientId = SelectedPatient.PatientId;
+            await patientService.ArchivePatientAsync(archivedPatientId);
+            Patients.Remove(SelectedPatient);
             StatusMessage = "Patient archived successfully.";
-            await LoadPatientsAsync();
             MedicalHistory = null;
             MedicalRecords.Clear();
             Allergies.Clear();
@@ -241,6 +255,17 @@ public partial class PatientViewModel : ObservableObject
         {
             StatusMessage = $"Error archiving patient: {ex.Message}";
         }
+    }
+
+    private static SearchPatientsRequest BuildSearchRequest(string query)
+    {
+        string search = query.Trim();
+        bool isCnpSearch = search.Length == CnpLength && search.All(char.IsDigit);
+        return new SearchPatientsRequest
+        {
+            Cnp = isCnpSearch ? search : null,
+            NamePart = isCnpSearch ? null : search,
+        };
     }
 
     private async Task LoadSelectedPatientDetailsAsync(int patientId)

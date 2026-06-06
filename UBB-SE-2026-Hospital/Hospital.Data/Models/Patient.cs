@@ -8,6 +8,14 @@ namespace Hospital.Data.Models;
 
 public class Patient
 {
+    private const int CnpLength = 13;
+    private const int PhoneLength = 10;
+    private const int MaxNameLength = 100;
+    private const int MaxPhoneLength = 50;
+    private const int MaxEmergencyContactLength = 200;
+    private const string PhonePrefix = "07";
+    private const string EmergencyContactSeparator = "-";
+
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int PatientId { get; set; }
@@ -68,11 +76,6 @@ public class Patient
 
     public bool Validate(out List<string> errors)
     {
-        const int CnpLength = 13;
-        const int MaxNameLength = 100;
-        const int MaxPhoneLength = 50;
-        const int MaxEmergencyContactLength = 200;
-
         errors = new List<string>();
 
         if (string.IsNullOrWhiteSpace(Cnp))
@@ -99,12 +102,40 @@ public class Patient
             errors.Add("Phone number is required.");
         else if (PhoneNumber.Length > MaxPhoneLength)
             errors.Add($"Phone number must not exceed {MaxPhoneLength} characters.");
+        else if (!IsValidPhone(PhoneNumber))
+            errors.Add("Phone number must be in format 07XXXXXXXX.");
 
         if (string.IsNullOrWhiteSpace(EmergencyContact))
             errors.Add("Emergency contact is required.");
         else if (EmergencyContact.Length > MaxEmergencyContactLength)
             errors.Add($"Emergency contact must not exceed {MaxEmergencyContactLength} characters.");
+        else if (!IsValidEmergencyContact(EmergencyContact))
+            errors.Add("Emergency contact must be in format: FirstName LastName 07XXXXXXXX or FirstName LastName - 07XXXXXXXX.");
 
         return errors.Count == 0;
+    }
+
+    private static bool IsValidPhone(string value) =>
+        value.Length == PhoneLength &&
+        value.StartsWith(PhonePrefix, StringComparison.Ordinal) &&
+        value.All(char.IsDigit);
+
+    private static bool IsValidEmergencyContact(string value)
+    {
+        string[] parts = value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length < 3 || !IsValidPhone(parts[^1]))
+        {
+            return false;
+        }
+
+        string[] nameParts = parts[..^1];
+        if (nameParts.Length > 0 && nameParts[^1] == EmergencyContactSeparator)
+        {
+            nameParts = nameParts[..^1];
+        }
+
+        return nameParts.Length >= 2 &&
+            nameParts.All(part => part.All(character =>
+                char.IsLetter(character) || character == '-' || character == '\''));
     }
 }
