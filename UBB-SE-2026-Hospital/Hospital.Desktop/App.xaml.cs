@@ -43,7 +43,7 @@ public partial class App : Application
         string apiBaseUrl = configuration["ApiBaseUrl"] ?? "http://localhost:5106";
 
         // JWT auth handler + named HttpClient
-        services.AddTransient<JwtAuthHandler>();
+        //services.AddTransient<JwtAuthHandler>();
         services.AddHttpClient("api", c =>
         {
             c.BaseAddress = new Uri(apiBaseUrl);
@@ -52,8 +52,7 @@ public partial class App : Application
         .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
         {
             ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-        })
-        .AddHttpMessageHandler<JwtAuthHandler>();
+        });
         services.AddSingleton(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("api"));
         var apiBaseUri = new Uri(apiBaseUrl);
         // Register shared business logic services
