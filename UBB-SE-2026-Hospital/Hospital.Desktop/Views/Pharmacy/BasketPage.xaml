@@ -2,7 +2,12 @@
     x:Class="Hospital.Desktop.Views.Pharmacy.BasketPage"
     x:Name="Root"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:Hospital.Desktop.Converters">
+
+    <Page.Resources>
+        <converters:PriceToLeiConverter x:Key="PriceToLeiConverter"/>
+    </Page.Resources>
 
     <Grid Background="{StaticResource AppBackgroundBrush}" Padding="24" RowSpacing="16">
         <Grid.RowDefinitions>
@@ -51,7 +56,7 @@
                             <TextBlock Grid.Column="1" Text="{Binding ItemProducer}" Foreground="{StaticResource AppTextPrimaryBrush}"/>
                             <TextBlock Grid.Column="2" Text="{Binding ItemQuantityInBasket}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
                             <TextBlock Grid.Column="3" Text="{Binding ItemFinalDiscountedPriceString}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
-                            <Button Grid.Column="4" Content="Remove" Command="{Binding DataContext.RemoveCommand, ElementName=Root}" CommandParameter="{Binding}"/>
+                            <Button Grid.Column="4" Content="Remove" Click="Remove_Click"/>
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>
@@ -59,15 +64,25 @@
         </Border>
 
         <Border Grid.Row="2" Background="{StaticResource AppSurfaceBrush}" BorderBrush="{StaticResource AppAccentBrush}" BorderThickness="1" Padding="12">
-            <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
-                <TextBlock Text="Total before discount:" Foreground="{StaticResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
-                <TextBlock Text="{Binding TotalBeforeDiscount}" Foreground="{StaticResource AppTextPrimaryBrush}" VerticalAlignment="Center"/>
-                <TextBlock Text="Total after discount:" Foreground="{StaticResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
-                <TextBlock Text="{Binding TotalAfterDiscount}" Foreground="{StaticResource AppTextPrimaryBrush}" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                <TextBlock Text="Pickup date:" Foreground="{StaticResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
-                <DatePicker Date="{Binding PickUpDate, Mode=TwoWay}" VerticalAlignment="Center"/>
-                <Button Content="Place Order" Command="{Binding PlaceOrderCommand}" VerticalAlignment="Center"/>
-            </StackPanel>
+            <Grid RowSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                    <TextBlock Text="Total before discount:" Foreground="{StaticResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding TotalBeforeDiscount, Converter={StaticResource PriceToLeiConverter}}" Foreground="{StaticResource AppTextPrimaryBrush}" VerticalAlignment="Center"/>
+                    <TextBlock Text="Total after discount:" Foreground="{StaticResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding TotalAfterDiscount, Converter={StaticResource PriceToLeiConverter}}" Foreground="{StaticResource AppTextPrimaryBrush}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                </StackPanel>
+                
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                    <TextBlock Text="Pickup date:" Foreground="{StaticResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
+                    <DatePicker Date="{Binding PickUpDate, Mode=TwoWay}" VerticalAlignment="Center"/>
+                    <Button Content="Place Order" Command="{Binding PlaceOrderCommand}" VerticalAlignment="Center" Background="{StaticResource AppAccentBrush}" Foreground="White" Padding="16,8"/>
+                </StackPanel>
+            </Grid>
         </Border>
 
         <TextBlock Grid.Row="3" Text="{Binding StatusMessage}" Foreground="{StaticResource AppTextPrimaryBrush}" TextWrapping="Wrap"/>

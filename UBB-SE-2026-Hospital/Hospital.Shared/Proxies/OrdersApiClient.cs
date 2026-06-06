@@ -76,7 +76,9 @@ public class OrdersApiClient(HttpClient httpClient) : ApiClientBase(httpClient),
         => await GetAsync<List<BasketItemViewModel>>($"{BasketUri}?userId={userId}") ?? [];
 
     public Tuple<float, float> CalculateBasketTotalSum(List<BasketItemViewModel> basketItems)
-        => new(0f, 0f);
+        => new(
+            basketItems.Sum(item => item.FinalPriceBeforeDiscount),
+            basketItems.Sum(item => item.FinalPriceAfterDiscount));
 
     public async Task AddItemToBasketAsync(int userId, int itemId, int quantity, float extraDiscountPercentage = 0f, CancellationToken cancellationToken = default)
         => await PostAsync<object, object>($"{BasketUri}/add", new { userId, itemId, quantity, extraDiscountPercentage });

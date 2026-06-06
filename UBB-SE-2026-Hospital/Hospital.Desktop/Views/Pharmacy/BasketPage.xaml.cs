@@ -20,4 +20,12 @@ public sealed partial class BasketPage : Page
         DataContext = ViewModel;
         ViewModel.LoadCommand.Execute(null);
     }
+
+    private async void Remove_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (sender is Button button && button.DataContext is Hospital.Data.Models.BasketItemViewModel item)
+        {
+            await ViewModel.RemoveCommand.ExecuteAsync(item);
+        }
+    }
 }
