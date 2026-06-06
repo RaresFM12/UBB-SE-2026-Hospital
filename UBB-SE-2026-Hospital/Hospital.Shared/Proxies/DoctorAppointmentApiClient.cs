@@ -14,7 +14,7 @@ public class DoctorAppointmentApiClient(HttpClient httpClient) : ApiClientBase(h
     {
         var allAppointments = await GetAsync<List<Appointment>>(BaseUri) ?? new List<Appointment>();
         return allAppointments
-            .Where(a => a.Doctor != null && a.Doctor.StaffID == doctorUserId && a.AppointmentDate >= fromDate)
+            .Where(a => a.Doctor != null && a.Doctor.StaffId == doctorUserId && a.AppointmentDate >= fromDate)
             .OrderBy(a => a.AppointmentDate)
             .Skip(skipCount)
             .Take(takeCount)
@@ -29,7 +29,7 @@ public class DoctorAppointmentApiClient(HttpClient httpClient) : ApiClientBase(h
         var allAppointments = await GetAsync<List<Appointment>>(BaseUri) ?? new List<Appointment>();
         return allAppointments
             .Where(a => a.Doctor != null
-                     && a.Doctor.StaffID == doctorId
+                     && a.Doctor.StaffId == doctorId
                      && a.AppointmentDate >= fromDate
                      && a.AppointmentDate <= toDate)
             .OrderBy(a => a.AppointmentDate)
@@ -49,7 +49,7 @@ public class DoctorAppointmentApiClient(HttpClient httpClient) : ApiClientBase(h
 
         return allShifts
             .Where(shift => shift.AppointedStaff != null
-                         && shift.AppointedStaff.StaffID == staffId
+                         && shift.AppointedStaff.StaffId == staffId
                          && shift.StartTime < end
                          && shift.EndTime > start)
             .OrderBy(shift => shift.StartTime)
