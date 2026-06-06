@@ -50,7 +50,7 @@ public class ExaminationApiClient(HttpClient httpClient) : ApiClientBase(httpCli
     }
 
     public async Task<List<Examination>> GetPatientHistoryAsync(int patientId)
-        => await GetAsync<List<Examination>>($"{BaseUri}/patient/{patientId}") ?? [];
+        => await GetAsync<List<Examination>>($"{BaseUri}/patient-history/{patientId}") ?? [];
 
     public async Task<ERExaminationSummary?> GetSummaryByVisitIdAsync(int visitId)
         => await GetAsync<ERExaminationSummary>($"{BaseUri}/summary/{visitId}");

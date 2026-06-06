@@ -51,7 +51,7 @@ public partial class QueueViewModel : ObservableObject
 
             refreshedQueue = new ObservableCollection<QueueItemDisplay>(
                 refreshedQueue
-                    .OrderByDescending(item => item.TriageLevel)
+                    .OrderBy(item => item.TriageLevel)
                     .ThenBy(item => item.ArrivalTime));
 
             ActiveVisits = refreshedQueue;

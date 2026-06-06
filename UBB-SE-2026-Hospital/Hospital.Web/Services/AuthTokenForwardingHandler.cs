@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Hospital.Web.Services;
 
@@ -11,16 +12,22 @@ public class AuthTokenForwardingHandler : DelegatingHandler
         this.httpContextAccessor = httpContextAccessor;
     }
 
-    protected override Task<HttpResponseMessage> SendAsync(
+    protected override async Task<HttpResponseMessage> SendAsync(
         HttpRequestMessage request,
         CancellationToken cancellationToken)
     {
-        string? token = httpContextAccessor.HttpContext?.Session.GetString(WebSessionKeys.AccessToken);
+        HttpContext? context = httpContextAccessor.HttpContext;
+        string? token = context?.Session.GetString(WebSessionKeys.AccessToken);
+        if (string.IsNullOrWhiteSpace(token) && context is not null)
+        {
+            token = await context.GetTokenAsync("access_token");
+        }
+
         if (!string.IsNullOrWhiteSpace(token))
         {
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
 
-        return base.SendAsync(request, cancellationToken);
+        return await base.SendAsync(request, cancellationToken);
     }
 }

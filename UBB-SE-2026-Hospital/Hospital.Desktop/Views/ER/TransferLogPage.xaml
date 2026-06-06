@@ -9,6 +9,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <StackPanel Orientation="Horizontal" Spacing="12">
@@ -104,10 +105,6 @@
                                             <Run Text="Status: "/>
                                             <Run Text="{Binding Status}"/>
                                         </TextBlock>
-                                        <TextBlock Foreground="{StaticResource AppTextSecondaryBrush}">
-                                            <Run Text="Target: "/>
-                                            <Run Text="{Binding TargetSystem}"/>
-                                        </TextBlock>
                                         <TextBlock Text="{Binding TransferTime}" Foreground="{StaticResource AppTextSecondaryBrush}"/>
                                     </StackPanel>
                                 </Border>
@@ -118,6 +115,43 @@
             </Border>
         </Grid>
 
-        <TextBlock Grid.Row="3" Text="{Binding StatusMessage}" Foreground="{StaticResource AppErrorBrush}" TextWrapping="Wrap"/>
+        <Border Grid.Row="3"
+                Visibility="{Binding ExaminationSummaryVisibility}"
+                Background="{StaticResource AppSurfaceBrush}"
+                BorderBrush="{StaticResource AppAccentBrush}"
+                BorderThickness="1"
+                CornerRadius="10"
+                Padding="14">
+            <StackPanel Spacing="6">
+                <TextBlock Text="Transferred Examination Summary" FontSize="18" FontWeight="SemiBold"/>
+                <TextBlock>
+                    <Run Text="Patient: "/>
+                    <Run Text="{Binding ExaminationSummary.FirstName}"/>
+                    <Run Text=" "/>
+                    <Run Text="{Binding ExaminationSummary.LastName}"/>
+                </TextBlock>
+                <TextBlock>
+                    <Run Text="Complaint: "/>
+                    <Run Text="{Binding ExaminationSummary.ChiefComplaint}"/>
+                </TextBlock>
+                <TextBlock>
+                    <Run Text="Triage: Level "/>
+                    <Run Text="{Binding ExaminationSummary.TriageLevel}"/>
+                    <Run Text=", "/>
+                    <Run Text="{Binding ExaminationSummary.Specialization}"/>
+                </TextBlock>
+                <TextBlock>
+                    <Run Text="Severity score: "/>
+                    <Run Text="{Binding ExaminationSummary.SeverityScore}"/>
+                </TextBlock>
+                <TextBlock>
+                    <Run Text="Doctor: "/>
+                    <Run Text="{Binding ExaminationSummary.AssignedDoctorName}"/>
+                </TextBlock>
+                <TextBlock Text="{Binding ExaminationSummary.Notes}" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
+
+        <TextBlock Grid.Row="4" Text="{Binding StatusMessage}" Foreground="{StaticResource AppTextPrimaryBrush}" TextWrapping="Wrap"/>
     </Grid>
 </Page>

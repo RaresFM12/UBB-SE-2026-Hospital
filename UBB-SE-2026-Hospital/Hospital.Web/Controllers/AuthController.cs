@@ -76,9 +76,20 @@ public class AuthController : Controller
             }
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var authenticationProperties = new AuthenticationProperties();
+            authenticationProperties.StoreTokens(
+            [
+                new AuthenticationToken
+                {
+                    Name = "access_token",
+                    Value = response.Token,
+                },
+            ]);
+
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(identity));
+                new ClaimsPrincipal(identity),
+                authenticationProperties);
             
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {

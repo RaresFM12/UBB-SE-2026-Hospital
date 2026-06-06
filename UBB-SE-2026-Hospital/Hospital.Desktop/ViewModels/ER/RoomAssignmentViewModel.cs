@@ -87,7 +87,7 @@ public partial class RoomAssignmentViewModel : ObservableObject
 
             WaitingVisits = new ObservableCollection<RoomAssignmentVisitDisplay>(
                 visitsWithTriage
-                    .OrderByDescending(item => item.Triage.TriageLevel)
+                    .OrderBy(item => item.Triage.TriageLevel)
                     .ThenBy(item => item.Visit.ArrivalDateTime)
                     .Select(item => new RoomAssignmentVisitDisplay(item.Visit, item.Triage)));
 
@@ -97,7 +97,7 @@ public partial class RoomAssignmentViewModel : ObservableObject
                 : $"{WaitingVisits.Count} visit(s) are ready for room assignment.";
             ActionFeedback = WaitingVisits.Count == 0
                 ? "Nothing to assign right now."
-                : "Higher triage levels are shown first.";
+                : "The most urgent triage levels are shown first.";
         }
         catch (Exception ex)
         {
