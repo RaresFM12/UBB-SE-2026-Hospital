@@ -14,14 +14,14 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IModuleAccessService, ModuleAccessService>();
         services.AddSingleton<IRolePermissionCache, RolePermissionCache>();
 
-        services.AddScoped<Hospital.Shared.Services.IStatisticsService, Hospital.Services.StatisticsService>();
-        services.AddScoped<Hospital.Services.IAllergyService, AllergyService>();
+        services.AddScoped<Hospital.Shared.Services.IStatisticsService, StatisticsService>();
+        services.AddScoped<Hospital.Shared.Services.IAllergyService, AllergyService>();
         services.AddScoped<Hospital.Shared.Services.IBillingService, BillingService>();
-        services.AddScoped<Hospital.Services.IBloodCompatibilityService, BloodCompatibilityService>();
-        services.AddScoped<Hospital.Services.IPrescriptionService, PrescriptionService>();
+        services.AddScoped<Hospital.Shared.Services.IBloodCompatibilityService, BloodCompatibilityService>();
+        services.AddScoped<Hospital.Shared.Services.IPrescriptionService, PrescriptionService>();
         services.AddScoped<Hospital.Shared.Services.ITransferLogService, TransferLogService>();
-        services.AddScoped<ITransplantService, TransplantService>();
-        services.AddScoped<Hospital.Services.IAddictDetectionService, AddictDetectionService>();
+        services.AddScoped<Hospital.Shared.Services.ITransplantService, TransplantService>();
+        services.AddScoped<Hospital.Shared.Services.IAddictDetectionService, AddictDetectionService>();
         services.AddScoped<IPatientService, PatientService>();
         services.AddScoped<IERRoomService, ERRoomService>();
         services.AddScoped<IERVisitService, ERVisitService>();

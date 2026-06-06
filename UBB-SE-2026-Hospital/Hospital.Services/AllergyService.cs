@@ -1,6 +1,6 @@
 using Hospital.Data.Models;
 using Hospital.Data.Repositories;
-using Hospital.Services;
+using Hospital.Shared.Services;
 
 namespace Hospital.Services;
 

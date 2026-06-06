@@ -189,4 +189,19 @@ public class TransplantApiClient : ApiClientBase, ITransplantApiClient, ITranspl
 
     public async Task AssignDonorAsync(int transplantId, int donorId, float finalScore)
         => await PutAsync($"{BaseUri}/{transplantId}/assign-donor", new { DonorId = donorId, FinalScore = finalScore });
+
+    public async Task<Transplant> CreateAsync(Transplant transplant)
+        => await PostAsync<Transplant, Transplant>(BaseUri, transplant) ?? transplant;
+
+    public async Task<Transplant> UpdateAsync(Transplant transplant)
+    {
+        await PutAsync($"{BaseUri}/{transplant.TransplantId}", transplant);
+        return transplant;
+    }
+
+    public async Task DeleteAsync(int id)
+        => await DeleteAsync($"{BaseUri}/{id}");
+
+    public async Task<List<Transplant>> GetByPatientIdAsync(int patientId)
+        => await GetAsync<List<Transplant>>($"{BaseUri}/patient/{patientId}") ?? [];
 }

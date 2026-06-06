@@ -1,7 +1,7 @@
 using Hospital.Data.Models;
 using Hospital.Data.Models;
 using Hospital.Data.Repositories;
-using Hospital.Services;
+using Hospital.Shared.Services;
 
 namespace Hospital.Services;
 
@@ -25,4 +25,10 @@ public class PrescriptionService(IPrescriptionRepository prescriptionRepository)
 
         return await prescriptionRepository.GetFilteredAsync(filter);
     }
+
+    public Dictionary<int, int> GetItemsFromPrescription(string prescriptionId, Dictionary<int, float> userDiscounts)
+        => throw new NotSupportedException("This method is only available on the desktop client.");
+
+    public Dictionary<int, int> GetCheapestPrescriptionItems(string prescriptionName, int requiredPills)
+        => throw new NotSupportedException("This method is only available on the desktop client.");
 }
