@@ -68,6 +68,43 @@ public class OrdersController(IOrderService orderService) : ControllerBase
         return NoContent();
     }
 
+    [HttpPut("{orderId:int}/modify")]
+    public async Task<IActionResult> Modify(
+        int orderId,
+        [FromBody] ModifyOrderRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        Order? order = await orderService.GetOrderByIdAsync(orderId, cancellationToken);
+        if (order is null)
+        {
+            return NotFound();
+        }
+
+        if (!CanAccessClientData(order.Client.Id))
+        {
+            return Forbid();
+        }
+
+        order.PickUpDate = request.PickUpDate;
+        order.ItemQuantitiesWithFinalPrice = request.UpdatedItems;
+        await orderService.UpdateOrderAsync(order, cancellationToken);
+        return NoContent();
+    }
+
+    [AuthorizeRole("Admin")]
+    [HttpPost("{orderId:int}/complete")]
+    public async Task<IActionResult> Complete(
+        int orderId,
+        [FromBody] CompleteOrderRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        Dictionary<int, (int Quantity, float Discount)> updatedItems = request.UpdatedItems.ToDictionary(
+            pair => pair.Key,
+            pair => (pair.Value.Item1, pair.Value.Item2));
+        await orderService.CompleteOrderAsync(orderId, updatedItems, cancellationToken);
+        return NoContent();
+    }
+
     [HttpPost("{orderId:int}/cancel")]
     public async Task<IActionResult> Cancel(int orderId, CancellationToken cancellationToken = default)
     {
@@ -86,6 +123,36 @@ public class OrdersController(IOrderService orderService) : ControllerBase
         return NoContent();
     }
 
+    [HttpPost("expire-overdue")]
+    public async Task<IActionResult> ExpireOverdue(CancellationToken cancellationToken = default)
+    {
+        await orderService.ExpireOverdueOrdersAsync(cancellationToken);
+        return NoContent();
+    }
+
+    [HttpPost("{orderId:int}/resubmit")]
+    public async Task<IActionResult> Resubmit(
+        int orderId,
+        [FromBody] ResubmitOrderRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        Order? order = await orderService.GetOrderByIdAsync(orderId, cancellationToken);
+        if (order is null)
+        {
+            return NotFound();
+        }
+
+        if (!CanAccessClientData(order.Client.Id))
+        {
+            return Forbid();
+        }
+
+        order.PickUpDate = request.PickUpDate;
+        order.IsExpired = false;
+        await orderService.UpdateOrderAsync(order, cancellationToken);
+        return NoContent();
+    }
+
     [HttpDelete("{orderId:int}")]
     public async Task<IActionResult> Delete(int orderId, CancellationToken cancellationToken = default)
     {
@@ -96,6 +163,12 @@ public class OrdersController(IOrderService orderService) : ControllerBase
     public record CreateOrderRequest(int ClientId, DateOnly PickUpDate, bool IsCompleted, bool IsExpired);
 
     public record PlaceOrderFromBasketRequest(int UserId, DateOnly ChosenPickUpDate);
+
+    public record ModifyOrderRequest(Dictionary<int, Tuple<int, float>> UpdatedItems, DateOnly PickUpDate);
+
+    public record CompleteOrderRequest(Dictionary<int, Tuple<int, float>> UpdatedItems);
+
+    public record ResubmitOrderRequest(DateOnly PickUpDate);
 
     private bool CanAccessClientData(int userId)
     {

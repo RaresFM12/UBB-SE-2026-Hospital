@@ -1,5 +1,4 @@
 using Hospital.Data.Models;
-using Hospital.Data.Models;
 using Hospital.Shared.Services;
 
 namespace Hospital.Shared.Proxies;
@@ -40,10 +39,10 @@ public class OrdersApiClient(HttpClient httpClient) : ApiClientBase(httpClient),
         => await PostAsync<object, int>(BaseUri, new { clientId, pickUpDate, isCompleted, isExpired });
 
     public async Task UpdateOrderAsync(Order order, CancellationToken cancellationToken = default)
-        => await PutAsync($"{BaseUri}/{order.Id}", order);
+        => await PutAsync($"{BaseUri}/{order.Id}", order, cancellationToken);
 
     public void ModifyIncompleteOrder(int orderId, Dictionary<int, Tuple<int, float>> updatedItems, DateOnly pickUpDate)
-        => Task.Run(async () => await PutAsync<object>($"{BaseUri}/{orderId}", new { updatedItems, pickUpDate })).GetAwaiter().GetResult();
+        => Task.Run(async () => await PutAsync<object>($"{BaseUri}/{orderId}/modify", new { updatedItems, pickUpDate })).GetAwaiter().GetResult();
 
     public async Task DeleteOrderAsync(int orderId, CancellationToken cancellationToken = default)
         => await DeleteAsync($"{BaseUri}/{orderId}");
@@ -52,19 +51,27 @@ public class OrdersApiClient(HttpClient httpClient) : ApiClientBase(httpClient),
         => await PostAsync<object, object>($"{BaseUri}/place-from-basket", new { userId, chosenPickUpDate });
 
     public async Task CompleteOrderAsync(int orderId, Dictionary<int, (int Quantity, float Discount)> updatedQuantities, CancellationToken cancellationToken = default)
-        => await PostAsync<object, object>($"{BaseUri}/{orderId}/complete", new { updatedQuantities });
+        => await PostAsync<object, object>(
+            $"{BaseUri}/{orderId}/complete",
+            new
+            {
+                updatedItems = updatedQuantities.ToDictionary(
+                    pair => pair.Key,
+                    pair => Tuple.Create(pair.Value.Quantity, pair.Value.Discount)),
+            },
+            cancellationToken);
 
     public void CompleteOrder(int orderId, Dictionary<int, Tuple<int, float>> updatedItems)
         => Task.Run(async () => await PostAsync<object, object>($"{BaseUri}/{orderId}/complete", new { updatedItems })).GetAwaiter().GetResult();
 
     public async Task CancelOrderAsync(int orderId, CancellationToken cancellationToken = default)
-        => await PostAsync<object, object>($"{BaseUri}/{orderId}/cancel", new { });
+        => await PostAsync<object, object>($"{BaseUri}/{orderId}/cancel", new { }, cancellationToken);
 
     public void CancelOrder(int orderId)
         => Task.Run(async () => await PostAsync<object, object>($"{BaseUri}/{orderId}/cancel", new { })).GetAwaiter().GetResult();
 
     public async Task ExpireOverdueOrdersAsync(CancellationToken cancellationToken = default)
-        => await PostAsync<object, object>($"{BaseUri}/expire-overdue", new { });
+        => await PostAsync<object, object>($"{BaseUri}/expire-overdue", new { }, cancellationToken);
 
     public void ExpireOverdueOrders()
         => Task.Run(async () => await PostAsync<object, object>($"{BaseUri}/expire-overdue", new { })).GetAwaiter().GetResult();
@@ -76,7 +83,9 @@ public class OrdersApiClient(HttpClient httpClient) : ApiClientBase(httpClient),
         => await GetAsync<List<BasketItemViewModel>>($"{BasketUri}?userId={userId}") ?? [];
 
     public Tuple<float, float> CalculateBasketTotalSum(List<BasketItemViewModel> basketItems)
-        => new(0f, 0f);
+        => Tuple.Create(
+            basketItems.Sum(item => item.FinalPriceBeforeDiscount),
+            basketItems.Sum(item => item.FinalPriceAfterDiscount));
 
     public async Task AddItemToBasketAsync(int userId, int itemId, int quantity, float extraDiscountPercentage = 0f, CancellationToken cancellationToken = default)
         => await PostAsync<object, object>($"{BasketUri}/add", new { userId, itemId, quantity, extraDiscountPercentage });

@@ -1,27 +1,171 @@
+@using System.Security.Claims
 @{
-    ViewData["Title"] = "Merge Dashboard";
+    ViewData["Title"] = "Dashboard";
+    bool isAuthenticated = User.Identity?.IsAuthenticated == true;
+    string displayName = User.Identity?.Name ?? "Guest";
+    string? role = User.FindFirstValue(ClaimTypes.Role);
 }
 
-<section class="py-5">
-    <div class="row g-4 align-items-start">
-        <div class="col-lg-7">
-            <span class="badge rounded-pill text-bg-dark mb-3">923-2 + 926-2</span>
-            <h1 class="display-5 fw-semibold">Unified hospital web shell</h1>
-            <p class="lead text-secondary">
-                This project is ready for the merged staff, ER, and patient-facing MVC flows.
+<section class="dashboard-hero">
+    <div class="dashboard-hero-content">
+        <span class="dashboard-eyebrow">UBB Hospital</span>
+        @if (isAuthenticated)
+        {
+            <h1>Welcome back, @displayName</h1>
+            <p>
+                Access your hospital services, daily tasks, and patient care tools from one place.
             </p>
-        </div>
-        <div class="col-lg-5">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <h2 class="h5">First landing zones</h2>
-                    <ul class="mb-0">
-                        <li><a asp-controller="Pharmacy" asp-action="Index">Pharmacy module</a></li>
-                        <li><a asp-controller="Patients" asp-action="Index">Patient module</a></li>
-                        <li>Merge role-based navigation into the shared layout</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+            @if (!string.IsNullOrWhiteSpace(role))
+            {
+                <span class="dashboard-role">@role account</span>
+            }
+        }
+        else
+        {
+            <h1>Care connected in one place</h1>
+            <p>Sign in to access hospital services, patient care tools, and staff workflows.</p>
+            <a asp-controller="Auth" asp-action="Login" class="btn btn-light btn-lg px-4">Sign in</a>
+        }
+    </div>
+    <div class="dashboard-hero-mark" aria-hidden="true">
+        <span></span>
+        <span></span>
     </div>
 </section>
+
+@if (isAuthenticated)
+{
+    <section class="dashboard-section">
+        <div class="dashboard-section-heading">
+            <div>
+                <span class="dashboard-eyebrow text-primary">Quick access</span>
+                <h2>Your workspace</h2>
+            </div>
+            <a asp-controller="Notifications" asp-action="Index" class="btn btn-outline-primary">
+                View notifications
+            </a>
+        </div>
+
+        <div class="row g-4">
+            @if (User.IsInRole("Client") || User.IsInRole("Admin"))
+            {
+                <div class="col-md-6 col-xl-4">
+                    <a asp-controller="ProductCatalogue" asp-action="Index" class="dashboard-card">
+                        <span class="dashboard-card-icon">Rx</span>
+                        <span class="dashboard-card-body">
+                            <strong>Medicine catalogue</strong>
+                            <small>Browse available medicines and pharmacy products.</small>
+                        </span>
+                        <span class="dashboard-card-arrow">&rarr;</span>
+                    </a>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <a asp-controller="Basket" asp-action="Index" class="dashboard-card">
+                        <span class="dashboard-card-icon">B</span>
+                        <span class="dashboard-card-body">
+                            <strong>My basket</strong>
+                            <small>Review selected products and continue to checkout.</small>
+                        </span>
+                        <span class="dashboard-card-arrow">&rarr;</span>
+                    </a>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <a asp-controller="Orders" asp-action="Index" class="dashboard-card">
+                        <span class="dashboard-card-icon">O</span>
+                        <span class="dashboard-card-body">
+                            <strong>My orders</strong>
+                            <small>Track active, completed, and expired orders.</small>
+                        </span>
+                        <span class="dashboard-card-arrow">&rarr;</span>
+                    </a>
+                </div>
+            }
+
+            @if (User.IsInRole("Doctor") || User.IsInRole("Admin"))
+            {
+                <div class="col-md-6 col-xl-4">
+                    <a asp-controller="DoctorAppointments" asp-action="Index" class="dashboard-card">
+                        <span class="dashboard-card-icon">A</span>
+                        <span class="dashboard-card-body">
+                            <strong>Appointments</strong>
+                            <small>Review upcoming consultations and patient visits.</small>
+                        </span>
+                        <span class="dashboard-card-arrow">&rarr;</span>
+                    </a>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <a asp-controller="Patients" asp-action="Index" class="dashboard-card">
+                        <span class="dashboard-card-icon">P</span>
+                        <span class="dashboard-card-body">
+                            <strong>Patients</strong>
+                            <small>Access patient records and care information.</small>
+                        </span>
+                        <span class="dashboard-card-arrow">&rarr;</span>
+                    </a>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <a asp-controller="DoctorSchedule" asp-action="Index" class="dashboard-card">
+                        <span class="dashboard-card-icon">S</span>
+                        <span class="dashboard-card-body">
+                            <strong>My schedule</strong>
+                            <small>View shifts and organize your working day.</small>
+                        </span>
+                        <span class="dashboard-card-arrow">&rarr;</span>
+                    </a>
+                </div>
+            }
+
+            @if (User.IsInRole("Pharmacist") || User.IsInRole("Admin"))
+            {
+                <div class="col-md-6 col-xl-4">
+                    <a asp-controller="Items" asp-action="Index" class="dashboard-card">
+                        <span class="dashboard-card-icon">I</span>
+                        <span class="dashboard-card-body">
+                            <strong>Inventory</strong>
+                            <small>Manage medicine stock, batches, and availability.</small>
+                        </span>
+                        <span class="dashboard-card-arrow">&rarr;</span>
+                    </a>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <a asp-controller="Prescription" asp-action="Feed" class="dashboard-card">
+                        <span class="dashboard-card-icon">Pr</span>
+                        <span class="dashboard-card-body">
+                            <strong>Prescriptions</strong>
+                            <small>Review prescriptions and pharmacy requests.</small>
+                        </span>
+                        <span class="dashboard-card-arrow">&rarr;</span>
+                    </a>
+                </div>
+            }
+
+            @if (User.IsInRole("Manager") || User.IsInRole("Admin"))
+            {
+                <div class="col-md-6 col-xl-4">
+                    <a asp-controller="ShiftManagement" asp-action="Index" class="dashboard-card">
+                        <span class="dashboard-card-icon">M</span>
+                        <span class="dashboard-card-body">
+                            <strong>Shift management</strong>
+                            <small>Coordinate staff schedules and shift coverage.</small>
+                        </span>
+                        <span class="dashboard-card-arrow">&rarr;</span>
+                    </a>
+                </div>
+            }
+
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="col-md-6 col-xl-4">
+                    <a asp-controller="Admin" asp-action="Index" class="dashboard-card dashboard-card-primary">
+                        <span class="dashboard-card-icon">Ad</span>
+                        <span class="dashboard-card-body">
+                            <strong>Administration</strong>
+                            <small>Manage accounts, staff, statistics, and system data.</small>
+                        </span>
+                        <span class="dashboard-card-arrow">&rarr;</span>
+                    </a>
+                </div>
+            }
+        </div>
+    </section>
+}
