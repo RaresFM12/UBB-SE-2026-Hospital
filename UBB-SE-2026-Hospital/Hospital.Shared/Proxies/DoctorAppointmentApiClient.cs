@@ -82,6 +82,9 @@ public class DoctorAppointmentApiClient(HttpClient httpClient) : ApiClientBase(h
 
         public string DoctorName => $"{FirstName} {LastName}";
     }
+    public async Task<Appointment?> GetAppointmentByIdAsync(int appointmentId, CancellationToken cancellationToken = default)
+        => await GetAsync<Appointment?>($"{BaseUri}/{appointmentId}", cancellationToken);
+
     public async Task<Appointment?> GetAppointmentDetailsAsync(int appointmentId, CancellationToken cancellationToken = default)
     {
         var allAppointments = await GetAsync<List<Appointment>>("api/appointments") ?? [];
